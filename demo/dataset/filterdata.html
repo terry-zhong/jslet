@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Data Filtering</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../js/employee.js");
+        jslet.require("jslet,employee");
+
+        function showAll() {
+            dsEmployee.filtered(false);
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Data Filtering</h2>
+	<h4>Filter data with an expression.</h4>
+    <hr />
+
+    <table style="width: 100%">
+        <tr>
+            <td>
+                <p>Employee List(Dataset's name: employee):</p>
+                <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
+                </div>
+            </td>
+            <td>
+                <p>Department List(Dataset's name:department):</p>
+                <div data-jslet='type:"DBTable",dataset:"department"' style="width: 400px; height: 200px">
+                </div>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <h3>
+        Demo Content:</h3>
+	<ul>
+    <li>
+        Filter Data with input data:</li>
+    <ol>
+        <li>
+            Filter out all male employees:&nbsp;&nbsp;<input type="text" id="filter1" value="[gender]=='M'" size="30" /><input type="button"
+                value=" Filter " onclick="dsEmployee.filter($('#filter1').val());dsEmployee.filtered(true);" /><input
+                    type="button" value=" All " onclick="showAll()" /></li>
+        <li>Filter out all employees whose age is great than 25:&nbsp;&nbsp;<input type="text" id="filter3" value="[age]>25" size="30" /><input type="button"
+            value=" Filter " onclick="dsEmployee.filter($('#filter3').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" /></li>
+        <li>Filter out all employees whose graduated university name contains "Harvard":&nbsp;&nbsp;
+        <input type="text" id="filter5" value="like([university],'%Harvard%')" size="30" name="T1" /><input
+            type="button" value=" Filter " onclick="dsEmployee.filter($('#filter5').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" /></li>
+        <li>Filter out all employees whose age is between 20 and 30:&nbsp;&nbsp;
+        <input type="text" id="filter6" value="between([age],20,30)" size="30" /><input type="button"
+            value=" Filter " onclick="dsEmployee.filter($('#filter6').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" /></li>
+        <li>Filter out all employees whose age is 22, 25 or 26: &nbsp;&nbsp;
+        <input type="text" id="filter7" value="inlist([age],22,25,26)" size="30" /><input
+            type="button" value=" Filter " onclick="dsEmployee.filter($('#filter7').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" /></li>
+        <li>Filter out all employees who is born in February:&nbsp;&nbsp;
+        <input type="text" id="filter8" value="[birthday].getMonth()==1" size="30" /><input
+            type="button" value=" Filter " onclick="dsEmployee.filter($('#filter8').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" /></li>
+    </ol>
+    <li>
+        Filter data with a field value which's in other dataset:</li>
+    <p>
+        Filter out all employees whose department equals department id in dataset "department":<input type="text" id="filter9" value="[department]==[department!deptid]"
+            size="32" /><input type="button" value=" Filter " onclick="dsEmployee.filter($('#filter9').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" All " onclick="showAll()" />Move cursor in "Department" dataset and click "Filter" button
+    </p>
+	</ul>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=700"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Calendar Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require("jslet");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Calendar Demo</h2>
+	<h4>Demostrate how to use Calendar control.</h4>
+    <hr />
+    <div id="calDemo" data-jslet='type:"Calendar",onDateSelected:doDateSelected' 
+		  style="width: 350px; height: 226px; marging-left: 20px">
+    </div>
+    <div >Selected date：<span id="currDate" style="color:Red;font-weight:bold"></span></div>
+    <hr />
+    <h3>Demo Content:</h3>
+    <p>
+        1、Date selected event： onDateSelected</p>
+    <p>
+        2、Set date range： 2010-01-01 to 2015-10-31:&nbsp;&nbsp;
+        <input type="button" value=" OK " onclick="setDateRange();" />&nbsp;
+        <input type="button" value=" Clear " onclick="clearDateRange();" /></p>
+
+    <script type="text/javascript">
+        //Date selected event handler
+        function doDateSelected(date) {
+            $("#currDate").html(jslet.formatDate(date, "yyyy-MM-dd"));
+        }
+
+        //Set valid date range
+        function setDateRange() {
+            var ojslet = jslet('#calDemo');
+            ojslet.minDate = new Date(2010, 0, 1);
+            ojslet.maxDate = new Date(2015, 9, 31);
+            ojslet.renderAll();
+        }
+
+        //Clear date range
+        function clearDateRange() {
+            var ojslet = jslet('#calDemo');
+            ojslet.minDate = null;
+            ojslet.maxDate = null;
+            ojslet.renderAll();
+        }
+
+    </script>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

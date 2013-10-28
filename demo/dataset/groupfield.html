@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>jslet-Stack Header Table Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('groupfields', '../js/groupfields.js');
+        jslet.require('jslet,groupfields', initialize);
+
+		function initialize(){
+			//Global variable for this demo
+			demoDs = jslet.data.getDataset('group_field_ds');
+		}
+		
+    </script>
+</head>
+<body onunload='jslet.ui.uninstall()'>
+    <h2>Stack Header Table Demo</h2>
+	<h4>Configurate group field and show its usage.</h4>
+    <hr />
+    <div data-jslet='type:"DBTable", dataset: "group_field_ds", fixedCols:1' style="width: 100%; height: 220px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol>
+	<li>Group field will be shown as stack head in DBTable automatically.</li>
+     <li>
+        Click "Stack Head" to sort data.</li>
+	<li>
+		Sort with "y10"(ascending):<input type="text" id="sortexpr1" value="y10" /><input type="button" value=" Sort "
+		onclick="demoDs.indexFields($('#sortexpr1').val())" /><br />
+		Sort with "y10"(descending):<input type="text" id="sortexpr2" value="y10 desc" /><input type="button"
+		value=" Sort " onclick="demoDs.indexFields($('#sortexpr2').val())" />
+	</li>
+	</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=450"></script>
+</body>
+</html>

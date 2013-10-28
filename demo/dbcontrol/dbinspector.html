@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBInspector Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../js/employee.js");
+        jslet.require("jslet,employee");
+
+        function setColumnCount() {
+            var v = parseInt($('#colCnt').val());
+            if (!v || v < 0)
+                v = 1;
+            var ojslet = jslet('#inspector');
+            ojslet.columnCount = v;
+            ojslet.renderAll();
+        }
+
+        function setColumnWidth() {
+            var v = parseInt($('#colWidth').val());
+            if (!v || v < 0)
+                v = 1;
+            var ojslet = jslet('#inspector');
+            ojslet.columnWidth = v;
+            ojslet.renderAll();
+        }
+
+        function setRowHeight() {
+            var v = parseInt($('#rowHeight').val());
+            if (!v || v < 0)
+                v = 1;
+            var ojslet = jslet('#inspector');
+            ojslet.rowHeight = v;
+            ojslet.renderAll();
+
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBInspector Demo</h2>
+    <hr />
+    <p>Employee List:<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+    <table>
+        <tr>
+            <td style="width: 60%; text-align: left">
+                DBTable 
+            </td>
+            <td style="width: 40%; text-align: left">
+                DBInspector
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top">
+                <div id="tab1" data-jslet='type:"DBTable",dataset:"employee"' style="width: 600px;height: 220px">
+                </div>
+            </td>
+            <td style="width: 40%; vertical-align: top">
+                <div id='inspector' data-jslet='type:"DBInspector",dataset:"employee",columnCount:1' style="width:100%">
+                </div>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol class="content-list">
+    <li>
+        Set readonly property:
+        <input type="checkbox" onclick="jslet('#inspector').readOnly=this.checked;jslet('#inspector').renderAll();" /></li>
+    <li>
+        Set column count: <input id="colCnt" type="text" value="1" size="9" /><input type="button"
+            value=" Set " onclick="setColumnCount()" /></li>
+    <li>
+        Set column width:
+        <input name="text" type="text" id="colWidth" value="100" size="9" />
+        <input name="button" type="button" onclick="setColumnWidth()" value=" Set " /></li>
+    <li>
+        Set row height:
+        <input name="text" type="text" id="rowHeight" value="30" size="9" />
+        <input name="button" type="button" onclick="setRowHeight()" value=" Set " /></li>
+	</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

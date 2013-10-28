@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBRating Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require("jslet", function () {
+            initialize();
+        });
+
+        function initialize() {
+            var dsAnalyst = new jslet.data.Dataset("analyst");
+            var fldObj = jslet.data.createStringField("name", 10);
+            fldObj.label("Name");
+            fldObj.required(true);
+            dsAnalyst.addField(fldObj);
+
+            fldObj = jslet.data.createNumberField("rating1", 8, 2);
+            fldObj.label("Rate1");
+            dsAnalyst.addField(fldObj);
+
+            fldObj = jslet.data.createNumberField("rating2", 8, 2);
+            fldObj.label("Rate2");
+            dsAnalyst.addField(fldObj);
+
+            fldObj = jslet.data.createNumberField("rating3", 8, 2);
+            fldObj.label("Rate3");
+            fldObj.required(true);
+            dsAnalyst.addField(fldObj);
+
+            var dataList = [{ name: "Tom", rating1: 3, rating2: 6, rating3: 3.25 }, { name: "Jerry", rating1: 1.5, rating2: 4, rating3: 2.5 }, { name: "Mark", rating1: 0, rating2: 9, rating3: 1.75 }, { name: "Join", rating1: 5, rating2: 2, rating3: 4.5}];
+            dsAnalyst.dataList(dataList);
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBRating Demo</h2>
+    <hr />
+    <div data-jslet='type:"DBTable",dataset:"analyst"' style="width: 800px; height: 150px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+    <p>
+        1. Readonly DBRating：</p>
+    <div data-jslet='type:"DBRating",dataset:"analyst",field:"rating1",readOnly:true'>
+    </div>
+    <p>
+        2. Set rating item to 10, double click the first item, then clear rating:):
+    </p>
+    <div data-jslet='type:"DBRating",dataset:"analyst",field:"rating2",itemCount:10'>
+    </div>
+
+    <p>
+        3. Set item split count: <input type="button" value=" Set to 2 " onclick="jslet('#ratingEl').splitCount=2;jslet('#ratingEl').renderAll();" />
+        <input type="button" value=" Set to 4 " onclick="jslet('#ratingEl').splitCount=4;jslet('#ratingEl').renderAll();" /></p>
+    <div id="ratingEl" data-jslet='type:"DBRating",dataset:"analyst",field:"rating3",itemCount:5,splitCount:2'></div>
+    <p>
+        4. If rating value is not required(specified by Field object), then user can double click the first item to clear the rating value;):
+    </p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=850"></script>
+</body>
+</html>

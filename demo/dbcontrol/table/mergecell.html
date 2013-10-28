@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Merge-Same-Value Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        var tblCfg = { type: "DBTable", dataset: "employee",
+            columns: [{ field: "department", mergeSame: true }, { field: "gender", mergeSame: true }, { field: "age", mergeSame: true}]
+        };
+
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Merge-Same-Value Demo</h2>
+    <hr />
+	<!-- tblCfg is a global variable defined in head tag.-->
+    <div data-jslet='tblCfg' style="width: 100%; height: 300px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol class="content-list">
+    <li>
+        These fields：department、gender and age have set to merge same value;</li>
+    <li>
+        Click column header to see the above fields how to merge same value.</li>
+    <li>
+        Filter data to see how to merge same value:<br />
+        Filter:&nbsp;&nbsp;<input type="text" id="filter3" value="[age] &lt;38" size="30" /><input type="button"
+            value=" Set Filter " onclick="dsEmployee.filter($('#filter3').val());dsEmployee.filtered(true);" /><input
+                type="button" value=" Clear Filter " onclick="dsEmployee.filtered(false)" /></li>
+    </ol>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=600"></script>
+</body>
+</html>

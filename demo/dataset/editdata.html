@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Edit Data</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('employee', '../js/employee.js', 'jslet');
+        jslet.require('jslet,employee', function () {
+            initialize();
+        });
+
+        function initialize() {
+            dsEmployee.disableContextRule();
+            num = 1000;
+            dsEmployee.datasetListener(doDatasetEvent);
+        }
+
+        function doDatasetEvent(evtType) {
+            $('#eventpanel')[0].value += evtType + '    ';
+            //Set default value 
+            if (evtType == jslet.data.DatasetEvent.AFTERINSERT) {
+                this.setFieldValue('workerid', num);
+                num++;
+            }
+            //Confirm by user
+            if (evtType == jslet.data.DatasetEvent.BEFOREDELETE) {
+                if (!confirm('Would you delete data?')) {
+                    this.abort();
+                }
+            }
+        }
+
+        function apply() {
+            var arrInserted = dsEmployee.getInsertedRecord();
+            var arrUpdated = dsEmployee.getUpdatedRecord();
+            var arrDeleted = dsEmployee.getDeletedRecord();
+            var s = 'The below data will Post to server :\nInserted Data:\n';
+
+            s += jQuery.toJSON(arrInserted) + '\n\n';
+            s += 'Updated Data: \n';
+            s += jQuery.toJSON(arrUpdated) + '\n\n';
+            s += 'Deteted Data: \n';
+            s += jQuery.toJSON(arrDeleted) + '\n';
+            alert(s);
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Edit Data</h2>
+	<h4>Demostrate how to insert, append, update, delete, set default value, validate data and so on.</h4>
+    <hr />
+    <p>
+        Employee List:&nbsp;&nbsp;<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
+    <hr />
+    <input type="button" value=" Insert " onclick="dsEmployee.insertRec();" title='Add record after current cursor'/>
+    <input type="button" value=" Append " onclick="dsEmployee.appendRec();" title='Add record after last record'/>
+    <input type="button" value=" Update " onclick="dsEmployee.updateRec();"/>
+    <input type="button" value=" Delete " onclick="dsEmployee.deleteRec();"/>
+    <input type="button" value=" Confirm " onclick="dsEmployee.confirm();" />
+    <input type="button" value=" Cancel " onclick="dsEmployee.cancel();" />
+    <input type="button" value=" Apply " title="Apply data to server" onclick="apply();" />
+    <hr />
+    <table data-jslet='dataset:"employee"'>
+        <tr>
+            <td style="width: 70%;vertical-align: top">
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:15%">
+                            <label data-jslet='type:"DBLabel",field:"workerid"'></label>:
+                        </td>
+                        <td style="width:35%">
+                            <input type="text" data-jslet='type:"DBText",field:"workerid"' class="editor" />
+                        </td>
+                        <td style="width:15%">
+                            <label data-jslet='type:"DBLabel",field:"name"'></label>:
+                        </td>
+                        <td style="width:35%">
+                            <input type="text" data-jslet='type:"DBText",field:"name"' class="editor" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"gender"'></label>:
+                        </td>
+                        <td>
+                            <div data-jslet='type:"DBRadioGroup",field:"gender"' class="editor"></div>
+                        </td>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"married"'></label>:
+                        </td>
+                        <td>
+                            <input type="checkbox" data-jslet='type:"DBCheckBox",field:"married"' class="editor" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"department"'></label>:
+                        </td>
+                        <td>
+                            <div data-jslet='type:"DBComboSelect",field:"department",textReadOnly:true' class="editor" ></select>
+                        </td>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"age"'></label>:
+                        </td>
+                        <td>
+                            <input type="text" data-jslet='type:"DBText",field:"age"'  class="editor" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"birthday"'></label>:
+                        </td>
+                        <td>
+                            <div data-jslet='type:"DBDatePicker",field:"birthday"' class="editor"></div>
+                        </td>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"position"'></label>:
+                        </td>
+                        <td>
+                            <select data-jslet='type:"DBSelect",field:"position"' class="editor"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"province"'></label>:
+                        </td>
+                        <td>
+                            <select data-jslet='type:"DBSelect",field:"province"' class="editor">
+                            </select>
+                        </td>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"salary"'></label>:
+                        </td>
+                        <td>
+                            <input type="text" data-jslet='type:"DBText",field:"salary"' class="editor" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label data-jslet='type:"DBLabel",field:"university"'></label>:
+                        </td>
+                        <td>
+                            <input type="text" data-jslet='type:"DBText",field:"university"' class="editor" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="vertical-align: top">
+                <h3>Demo Content:</h3>
+                <ol>
+                <li>Modify data in an edit control and abserve the above datatable changes;</li>
+                <li>The label with red star(*) is required;</li>
+                <li>Click the tool button, and see the dataset event log;</li>
+                <li>Set default value of field "ID" when insert a new record;</li>
+                <li>Click "Delete" button, and see how to intercept the delete action.</li>
+                </ol>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <p>
+        Dataset event log:&nbsp;&nbsp;<input type="button" value=" Clear " onclick="$('#eventpanel')[0].value=''"><br />
+        <textarea id="eventpanel" style="width: 100%; height: 100px" rows="1" cols="1"></textarea>
+    </p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=1050"></script>
+</body>
+</html>

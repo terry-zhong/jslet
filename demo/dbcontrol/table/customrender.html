@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Customized Column Render</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        //Customized render for photo field   	
+        var photoCellRender = {
+            createCell: function (otd, colCfg) {
+                var oimg = document.createElement("img");
+                oimg.style.width = "100%";
+                oimg.style.height = "150px";
+                otd.appendChild(oimg);
+            },
+
+            refreshCell: function (otd, colCfg) {
+                otd.firstChild.src = "../../photo/" + this.dataset.getFieldValue(colCfg.field);
+            }
+        };
+        
+        var tblCfg = { type: "DBTable", dataset: "employee", rowHeight: 150, onlySpecifiedCol: true,
+            columns: [{ field: "workerid" }, { field: "name" }, { field: "age" }, { field: "photo", cellRender: photoCellRender}]
+        };
+        //dataset is the system defined module name
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Customized Column Render</h2>
+    <hr />
+	<!-- tblCfg is a global variable defined in head tag.-->
+    <div data-jslet='tblCfg' style="width: 800px; height: 500px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+    <p>
+        &nbsp;&nbsp;&nbsp;Display photo of employee in table column.</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=800"></script>
+</body>
+</html>

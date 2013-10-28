@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jslet - DBTreeView(Appearance) Demo</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link type="text/css" rel="stylesheet" href="tree.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+		jslet.define('agency', 'agency.js');
+        jslet.require('jslet,agency',initialize);
+
+        function initialize() {
+			//Global variable for #trvRegion 
+            treeCfg = { type: 'DBTreeView', 
+			    dataset: 'dsAgency', 
+				displayFields: '[code]+"-"+[name]',
+                keyField: 'id', 
+				parentField: 'parentid',
+                hasCheckBox: true, 
+				iconClassField: 'iconcls',
+				expandLevel: 1 
+            };
+
+			//Global variable for below event handler
+            treeTag = document.getElementById('trvRegion');
+        }
+
+        function doGetIconClass(keyValue, level, isLeaf) {
+            return isLeaf ? 'dynset2' : 'dynset1';
+        }
+		
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBTreeView(Appearance) Demo</h2>
+    <hr />
+	<!-- treeCfg is a global variable defined in Head tag.-->
+    <div id="trvRegion" data-jslet="treeCfg" style="width: 100%; height: 200px;margin-right: 20px">
+    </div>
+  
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol class="content-list">
+    <li>
+        After check a child node, all of its parent node will display bold, it is very useful to find all checked nodes when the parent nodes are collapsed. 
+	</li>
+    <li>
+        Set icon class id of tree node with field value(iconClassField). 
+	</li>
+    <li>
+        Set icon class id of tree node with customized event(onGetIconClass): <input type="button" value=" Set " onclick="treeTag.jslet.onGetIconClass = doGetIconClass; treeTag.jslet.renderAll(); treeTag.jslet.expand();" />
+			<input type="button" value=" Clear " onclick="treeTag.jslet.onGetIconClass = null; treeTag.jslet.renderAll(); treeTag.jslet.expand();" />
+	</li>
+	</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
+</body>
+</html>

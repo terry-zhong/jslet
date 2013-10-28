@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBComboSelect Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee", function () {
+            dsEmployee.disableContextRule();
+            var f = dsEmployee.getField("province");
+            f.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+
+            f = dsEmployee.getField("department");
+            f.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+            var lkf = f.lookupField();
+            lkf.onlyLeafLevel(true);
+
+            f = jslet.data.createStringField("deptaddr", 20);
+            f.label("Dept. address");
+            dsEmployee.addField(f);
+        });
+
+        function setLeafLevel() {
+            var f = dsEmployee.getField("department");
+            var lkf = f.lookupField();
+            lkf.onlyLeafLevel($('#chkOnlyLeafLevel')[0].checked);
+            jslet("#dlgDepartment").closePopup();
+            jslet("#dlgDepartment").renderAll();
+            if ($('#chkOnlyLeafLevel')[0].checked)
+                alert('Done, try to input department!');
+        }
+
+        function setMultiSelect() {
+            var f = dsEmployee.getField("province");
+            var lkf = f.lookupField();
+            if($('#chkMultiSelect')[0].checked)
+            	f.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+            else 
+            	f.valueStyle(jslet.data.FieldValueStyle.NORMAL);
+                
+            jslet("#dlgProvince").closePopup();
+            jslet("#dlgProvince").renderAll();
+            if ($('#chkMultiSelect')[0].checked)
+                alert('Done, try to select multiple value in "province" field!');
+        }
+
+        function setOtherFieldValue() {
+
+            if ($('#otherFieldValue')[0].checked) {
+            	jslet('#dlgDepartment').afterSelect = function (dataset, lookupDataset) {
+                    dataset.setFieldValue("deptaddr", lookupDataset.getFieldValue("address"));
+
+                }
+            } else
+            	jslet('#dlgDepartment').afterSelect = null;
+            alert('Done, try to input department!');
+
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBComboSelect Demo</h2>
+    <hr />
+    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
+    </div>
+    <br />
+    <input type="button" value=" First " onclick="dsEmployee.first();" />
+    <input type="button" value=" Prior " onclick="dsEmployee.prior();" />
+    <input type="button" value=" Next " onclick="dsEmployee.next();" />
+    <input type="button" value=" Last " onclick="dsEmployee.last();" />
+    <hr />
+    <table data-jslet='dataset:"employee"'>
+        <tr>
+            <td>
+                <label data-jslet='type:"DBLabel",field:"name"'></label>:
+            </td>
+            <td>
+                <input type="text" data-jslet='type:"DBText", field:"name"' class='editor' />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label data-jslet='type:"DBLabel",field:"department"' ></label>:
+            </td>
+            <td>
+                <div id="dlgDepartment" data-jslet='type:"DBComboSelect",field:"department",textReadOnly:true'
+                    class='editor'>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label data-jslet='type:"DBLabel",field:"deptaddr"'></label>:
+            </td>
+            <td>
+                <input type="text" data-jslet='type:"DBText",field:"deptaddr"' class='editor' />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label data-jslet='type:"DBLabel",field:"position"'></label>:
+            </td>
+            <td>
+                <select data-jslet='type:"DBSelect",field:"position"' class='editor'>
+                </select><br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label data-jslet='type:"DBLabel",field:"province"'></label>:
+            </td>
+            <td>
+                <div id="dlgProvince" data-jslet='type:"DBComboSelect",field:"province",textReadOnly:true'
+                    class='editor'>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol>
+    <li>
+        1. There are two style in pupop panel: Tree View (for example: &quot;department&quot;) and List View (for example: &quot;province&quot;)</li>
+    <li>
+        2. If tree view, it can be set to only-leaf-item-can-check: <input id="chkOnlyLeafLevel" type="checkbox" checked="checked" onclick="setLeafLevel();"/></li>
+    <li>
+        3. Multiple check: <input id="chkMultiSelect" type="checkbox" checked="checked" onclick="setMultiSelect();" /></li>
+    <!--li>
+        4. Return the address of department when select "department": <input id="otherFieldValue" type="checkbox" onclick="setOtherFieldValue();" />;</li-->
+</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=900"></script>
+</body>
+</html>

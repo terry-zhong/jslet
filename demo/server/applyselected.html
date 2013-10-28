@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Apply Selected Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+</head>
+<body>
+    <h2>Jslet - Apply Selected Demo</h2>
+    <hr />
+    <p>Product List: <input id="btnQuery" type="button" value=" Query " onclick="queryData()" />
+    <input type="button" value=" Audit Selected " onclick="applyToServer()" />&nbsp;
+	</p>
+	<div data-jslet='type:"DBTable",dataset:"product",hasSelectCol:true' style="width: 100%; height: 200px">
+	</div>	
+	
+    <script type="text/javascript">
+        jslet.require("jslet", function () {
+            initialize();
+        });
+
+        function initialize() {
+			fldCfg = [
+				{ name: 'state', type: 'S', length: 30, label: 'Audit State', displayWidth: 8},
+				{ name: 'auditor', type: 'S', length: 20, label: 'Auditor', displayWidth: 10},
+				{ name: 'auditdate', type: 'D', length: 20, label: 'Audit Date', displayFormat: 'yyyy-MM-dd hh:mm:ss'},
+				{ name: 'product', type: 'S', length: 30, label: 'Product', displayWidth: 16},
+				{ name: 'price', label: 'Price', type: 'N', length: 10, scale: 2, displayFormat: '#,##0.00'},
+				{ name: 'quantity', label: 'Quantity', type: 'N', length: 5, displayFormat: '#,##0.00' },
+				{ name: 'cost', label: 'Total Cost', type: 'N', length: 12, scale: 2, displayFormat: '#,##0.00', formula:'[price]*[quantity]' }
+				];
+			//Create dataset
+			product = jslet.data.createDataset('product', fldCfg);
+        }
+
+		function queryData() {
+			product.applyQuery('/product/findall.jsp');
+		}
+
+        function applyToServer() {
+			var selRecs = product.selectedRecords();
+			if(selRecs && selRecs.length > 0) {
+				product.applySelected('/product/audit.jsp');
+			} else {
+				jslet.showInfo('Please select records to audit!');
+			}
+        }
+    </script>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=830"></script>
+</body>
+</html>

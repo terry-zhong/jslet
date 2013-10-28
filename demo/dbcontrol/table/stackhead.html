@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>jslet-Stack Header Table Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("salesamount", "../../js/salesamount.js");
+        jslet.require("jslet,salesamount", initialize());
+
+		function initialize(){
+		//Define global variable
+			tblCfg = {
+				type:"DBTable",
+				dataset:"salesamount",
+				fixedCols:1,
+				groupHeads:[
+					{label:"2010 Amount",
+					 startCol:1,
+					 endCol:13,
+					 subHeads:[
+					   {label:"1th Quarter",startCol:1,endCol:3},
+					   {label:"2th Quarter",startCol:4,endCol:6},
+					   {label:"3th Quarter",startCol:7,endCol:9},
+					   {label:"4th Quarter",startCol:10,endCol:12}
+					 ]
+					}
+				]
+			};
+		}
+		
+    </script>
+    <link rel="stylesheet" type="text/css" href="demo-style.css" />
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Stack Header Table Demo</h2>
+    <hr />
+    <div data-jslet='tblCfg' style="width: 100%; height: 220px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+     <p>
+        Click "Stack Head" to sort data.</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
+</body>
+</html>

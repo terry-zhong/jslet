@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Lookup Field Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../js/employee.js");
+        jslet.require("jslet,employee");
+
+        function changeDisplayFields(dispFlds) {
+            var f = dsEmployee.getField("department");
+            var lkf = f.lookupField();
+            lkf.displayFields(dispFlds);
+            dsEmployee.refreshControl();
+            dsEmployee.renderOptions();
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Lookup Field Demo</h2>
+	<h4>Show how lookup field works and how DBControls construct options from lookup field.</h4>
+    <hr />
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%;height: 220px"></div>
+    <hr />
+    <p>There are lookup field in these fields: "department" and "position". </p>
+    <label data-jslet='type:"DBLabel",dataset:"employee",field:"department"'>
+    </label>
+    :<div data-jslet='type:"DBRadioGroup",dataset:"employee",field:"department"'></div>
+    <label data-jslet='type:"DBLabel",dataset:"employee",field:"department"'>
+    </label>
+    <p>:<select data-jslet='type:"DBSelect",dataset:"employee",field:"department"' style="width: 152"></select></p>
+    <label data-jslet='type:"DBLabel",dataset:"employee",field:"position"'>
+    </label>
+    :<select data-jslet='type:"DBSelect",dataset:"employee",field:"position"' style="width: 152"></select><br />
+    <hr />
+    <h3>Demo Content</h3>
+    <p>
+        1. As you see, these fields with lookup field can display automatically in DBSelect control, DBRadioGroup control, and so on;</p>
+    <p>
+        2. You can change the display format, for example: change "department" field display format: <input id="dispFields1" value="[name]+'('+[deptid]+')'"
+            size="30" />
+        <input type="button" value="Change It" onclick="changeDisplayFields($('#dispFields1').val())" />
+        <input type="button" value="Restore To:" onclick="changeDisplayFields($('#dispFields2').val())" /><input
+            id="dispFields2" value="[deptid]+'-'+[name]" size="30" />
+    </p>
+    <p>After changed the lookup field display format, you can see DBTable and other controls will change synchronously.</p>
+	
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=500"></script>
+</body>
+</html>

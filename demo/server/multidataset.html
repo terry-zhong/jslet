@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Get multiple dataset throu one request demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../js/employee.js");
+        jslet.require("jslet,employee", function () {
+            initialize();
+        });
+
+        function initialize() {
+            dsEmployee.dataList(null);
+			jslet.data.getDataset('department').dataList(null);
+        }
+    </script>
+</head>
+<body>
+    <h2>Jslet - Get multiple dataset throu one request demo</h2>
+    <hr />
+    <p>Employee List:<input id="btnQuery" type="button" value=" Query " onclick="dsEmployee.applyQuery('/employee/findMultiDataset.jsp');" /></p>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 700px; height: 200px">
+    </div>
+    <p>Department List:</p>
+    <div data-jslet='type:"DBTable",dataset:"department"' style="width: 700px; height: 150px">
+    </div>
+    <hr />
+    <p>Demo Content：</p>
+    <p>
+        &nbsp;&nbsp;&nbsp; Get "employee" and "department" throu one request to improve performance;</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

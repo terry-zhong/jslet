@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Formula Field Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+		jslet.define("salesdetail", "../js/salesdetail.js");
+        jslet.require("jslet,salesdetail");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <div>
+        <h2>Jslet - Formula Field Demo</h2>
+		<h4>Configurate formula field and see how it works.</h4>
+		<hr/>
+        <p>Sales Transaction List:</p>
+        <div data-jslet='type:"DBTable",dataset:"dsSaleDetail"' style="width: 800px;
+            height: 220px" ></div>
+        <hr />
+		<p>Change value of "price" field or "num" field, and see the value of field "amount": </p>
+        <label data-jslet='type:"DBLabel",dataset:"dsSaleDetail",field:"num"'>
+        </label>
+        :<input type="text" data-jslet='type:"DBText",dataset:"dsSaleDetail",field:"num"' />
+        <label data-jslet='type:"DBLabel",dataset:"dsSaleDetail",field:"price"'>
+        </label>
+        :<input type="text" data-jslet='type:"DBText",dataset:"dsSaleDetail",field:"price"' />
+        <label data-jslet='type:"DBLabel",dataset:"dsSaleDetail",field:"amount"'>
+        </label>
+        :<input type="text" data-jslet='type:"DBText",dataset:"dsSaleDetail",field:"amount"' />
+        <hr />
+        <h3>Demo Content:</h3>
+        <p>
+            1. Field formula: amount = num * price. </p>
+        <p>
+            2. Field "amount" is readonly. </p>
+    </div>
+	
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=400"></script>
+</body>
+</html>

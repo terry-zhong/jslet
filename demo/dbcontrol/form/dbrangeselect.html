@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBRangeSelect Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('employee', '../../js/employee.js');
+        jslet.require('jslet,employee');
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBRangeSelect Demo</h2>
+    <hr />
+    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 800px; height: 200px">
+    </div>
+
+    <hr />
+    <h3>Demo Content</h3>
+    <p>
+        1. From 10 to 100, step: 5: <br />
+		 <select data-jslet="type:'DBRangeSelect',dataset:'employee',field:'age',beginItem:10,endItem:100,step:5"
+            style="width: 150px"></select></p>
+    <p>
+        2. From 1 to 10, step: 1 : <br />
+			<select data-jslet="type:'DBRangeSelect',dataset:'employee',field:'age',beginItem:1,endItem:10"
+            style="width: 150px"></select></p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=650"></script>
+</body>
+</html>

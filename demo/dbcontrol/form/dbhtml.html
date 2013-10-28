@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBHtml Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+	<script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+	<script type="text/javascript">
+	    jslet.define("employee", "../../js/employee.js");
+	    jslet.require("jslet,employee", function () {
+		    dsEmployee.next();
+		    dsEmployee.setFieldValue("summary", 
+			   "His photo:<br /><img style='width:100px;height:100px' src='../../photo/2.jpg'></img><!--3.jpg or 4.jpg etc -->");
+		    dsEmployee.first();
+		    dsEmployee.setFieldValue("summary", "A very <b style='color:red'>good</b> guy");
+		});
+	</script>
+</head>
+<body>
+    <h2>Jslet - DBHtml Demo</h2>
+    <hr />
+    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+    <table>
+        <tr>
+            <td>
+                <div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,rowHeight:"25px"'
+                    style="width: 700px; height: 200px">
+                </div>
+            </td>
+            <td>
+                <div data-jslet='type:"DBHtml",dataset:"employee",field:"summary"'
+                    style="height: 200px; width: 240px;border:1px solid blue;overflow:scroll" ></div>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <input type="button" value=" First " onclick="dsEmployee.first();" />
+    <input type="button" value=" Prior " onclick="dsEmployee.prior();" />
+    <input type="button" value=" Next " onclick="dsEmployee.next();" />
+    <input type="button" value=" Last " onclick="dsEmployee.last();" />
+    <hr />
+    <p>Edit Html source:
+    <input type="button" value=" OK " onclick="dsEmployee.confirm();" />
+    <input type="button" value=" Cancel " onclick="dsEmployee.cancel();" />
+    </p>
+    <textarea rows="10" cols="80" data-jslet='type:"DBTextArea",dataset:"employee",field:"summary"' style="width:500px;height:300px"></textarea>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=500"></script>
+</body>
+</html>

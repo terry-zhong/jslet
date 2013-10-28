@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Data Finding</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../js/employee.js","jslet");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Data Finding</h2>
+	<h4>Find data with a single value or an expression.</h4>
+    <hr />
+    <p>
+        Employee List:&nbsp;&nbsp;<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 1000px; height: 220px">
+    </div>
+    <br />
+    <hr />
+    <h3>Demo Content:</h3>
+    <p>
+        1. Find data with a field value:</p>
+    <blockquote>
+        Find by employee number:<input type="text" id="value1" value="3" size="20" /><input type="button"
+            value=" Search " onclick="dsEmployee.findByField('workerid',parseInt($('#value1').val()));" /><br />
+        Find by employee name:<input type="text" id="value2" value="John" /><input type="button" value=" Search "
+            onclick="dsEmployee.findByField('name',$('#value2').val());" /><br />
+    </blockquote>
+    <p>
+        2. Find data with an expression:</p>
+    <p>
+        <b>&nbsp;&nbsp;&nbsp; </b>Find female employee whose age is great than 30:<input type="text" id="condition1" value="[gender]=='F' && [age]>30"
+            size="32" /><input type="button" value=" Search " onclick="dsEmployee.find($('#condition1').val());" />
+    </p>
+	
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=450"></script>
+</body>
+</html>

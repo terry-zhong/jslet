@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBRadioGroup Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBRadioGroup Demo</h2>
+    <hr />
+    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
+    </div>
+    <hr />
+    <label data-jslet='type:"DBLabel",dataset:"employee",field:"department"'>
+    </label>
+    :
+    <div id="cbg" data-jslet='type:"DBRadioGroup",dataset:"employee",field:"department"'>
+    </div>
+    <h3>Demo Content:</h3>
+        <p>
+           &nbsp;&nbsp;&nbsp;Column count: <input type="text" value="3" id="aCols" /><input type="button" value=" OK "
+                onclick="jslet('#cbg').columnCount= $('#aCols').val();jslet('#cbg').renderAll();" /></p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=450"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+Jslet - JavaScript Framework
+Copyright (c) 2010-2013, Jslet Team.
+All rights reserved.
+service@jslet.com
+
+http://www.jslet.com/en/license.html
+
+Open Source License
+------------------------------------------------------------------------------
+Open source license is the appropriate option if you are creating an open source
+application under a license compatible with the GNU GPL license v3. 
+
+Please visit following link for details:
+http://www.gnu.org/copyleft/gpl.html
+
+Commercial Software License
+------------------------------------------------------------------------------
+This is the appropriate option if you want to use Jslet framework to develop
+commercial applications whose source code you want to keep proprietary.
+You may use one copy of this software by a license with users count limit on
+a single server. Users limit means the maximum number of users who can log on,
+you can select a appropriate license with different users in the license list.
+
+The most current Jslet framework Commercial License Agreement can always be found
+on our website: 
+http://www.jslet.com/license.html
+
+Commercial OEM License
+------------------------------------------------------------------------------
+This is the appropriate option if you want to use Jslet framework to create your
+own commercially licensed SDK, or web application.
+Since use cases vary widely, Commercial OEM licenses are customized for each
+customer.
+
+Third Party Softwares
+------------------------------------------------------------------------------
+These softwares can be distributed freely under their license.
+
+jQuery.js (http://www.jquery.com/)
+jQuery.json-2.3.js (https://code.google.com/p/jquery-json/)
+swfobject.js (https://code.google.com/p/swfobject/)
+
+------------------------------------------------------------------------------	
+This framework is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT OF THIRD-PARTY INTELLECTUAL PROPERTY RIGHTS.  See the GNU General Public License for more details.	
+	
+	

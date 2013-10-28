@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<ul><li>Head: </li></ul>
+    <pre class="prettyprint linenums"><code>
+    &lt;script type="text/javascript" src="../../loader/jslet.loader.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        jslet.define('employee', '../js/employee.js','jslet');
+        jslet.require('jslet,employee', function () {
+            initialize();
+        });
+
+        function initialize() {
+			dsEmployee = jslet.data.getDataset('employee');
+			dsCondition = dsEmployee.clone('condition', ['name','birthday','department']);
+			dsCondition.insertRec();
+        }
+
+    &lt;/script&gt;
+	</code></pre>
+	
+	<ul><li>Editor: </li></ul>
+    <pre class="prettyprint linenums"><code>
+	&lt;div id='editpanel' style="width:900px;height:auto"
+		data-jslet = "type:'DBeditpanel',dataset:'condition', columnCount:3, columnWidth: 150, rowHeight:30"&gt;&lt;/div&gt;
+    </code></pre>
+
+	<ul><li>Action: </li></ul>
+    <pre class="prettyprint linenums"><code>
+		function doQuery() {
+			if(dsCondition.confirm(true)) {
+				//use the condition dataset data as the query filter
+				dsEmployee.applyQuery('query.do', dsCondition.getRecord());
+			} else {
+				alert('Error query filter item exists, please check!');
+			}
+		}
+    </code></pre>
+
+	<ul><li><a href='../js/employee-source.html' target="_blank" >Employee.js</a>: </li></ul>
+	
+    <script type="text/javascript">
+        window.LOADER_BASE_URL = "../prettify";
+    </script>
+    <script type="text/javascript" src="../prettify/run_prettify.js"></script>
+</body>
+</html>

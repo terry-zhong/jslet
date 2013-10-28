@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jslet - DBTreeView(CheckBox) Demo</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link type="text/css" rel="stylesheet" href="tree.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+		jslet.define('agency', 'agency.js');
+        jslet.require('jslet,agency',initialize);
+
+        function initialize() {
+			//Global variable for #trvRegion 
+            treeCfg1 = { type: 'DBTreeView', 
+			    dataset: 'dsAgency', 
+				displayFields: '[code]+"-"+[name]',
+                keyField: 'id', 
+				parentField: 'parentid',
+                hasCheckBox: true, 
+				iconClassField: 'iconcls', 
+				correlateCheck: true,
+				expandLevel: 0
+            };
+
+            treeCfg2 = { type: 'DBTreeView', 
+			    dataset: 'dsAgency', 
+				displayFields: '[code]+"-"+[name]',
+                keyField: 'id', 
+				parentField: 'parentid',
+                hasCheckBox: true, 
+				iconClassField: 'iconcls', 
+				correlateCheck: false,
+				expandLevel: 0
+            };
+
+            treeCfg3 = { type: 'DBTreeView', 
+			    dataset: 'selectableAgency', 
+				displayFields: '[code]+"-"+[name]',
+                keyField: 'id', 
+				parentField: 'parentid',
+                hasCheckBox: true, 
+				iconClassField: 'iconcls', 
+				correlateCheck: false,
+				expandLevel: 1
+            };
+			var dataset3 = jslet.data.getDataset('selectableAgency');
+			//Only the leaf item has check box.
+			dataset3.onCheckSelectable = function(){
+				return !this.hasChildren(); 
+			}
+			
+			//Global variable for below event handler
+            treeTag = document.getElementById('trvRegion');
+        }
+
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBTreeView(CheckBox) Demo</h2>
+    <hr />
+	<table>
+	<tr><td style="width: 30%">Correlate check</td><td style="width: 30%">Non-correlate check</td><td>Item Checkable(Only the leaf item has check box) </td></tr>
+	<tr><td>
+		<!-- treeCfg1 is a global variable defined in Head tag.-->
+		<div id="tree1" data-jslet="treeCfg1" style="width: 100%; height: 200px">
+		</div>		
+	</td><td>
+		<!-- treeCfg2 is a global variable defined in Head tag.-->
+		<div id="tree2" data-jslet="treeCfg2" style="width: 100%; height: 200px">
+		</div>
+	</td><td>
+		<!-- treeCfg3 is a global variable defined in Head tag.-->
+		<div id="tree3" data-jslet="treeCfg3" style="width: 100%; height: 200px">
+		</div>
+	</td></tr>	
+	</table>
+	<hr />  
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol class="content-list">
+    <li>
+        After check a child node, all of its parent node will display bold, it is very useful to find all checked nodes when the parent nodes are collapsed. 
+	</li>
+    <li>
+        Correlate check parent node and child node when check on a tree node.
+	</li>
+    <li>
+        Check tree node separately. You can right click on a tree node to select/unselect all.
+	</li>
+    <li>
+        Set which tree node has check box. In this sample, only leaf tree node has check box.
+	</li>
+	</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=1200"></script>
+</body>
+</html>

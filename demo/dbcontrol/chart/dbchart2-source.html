@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<ul><li>Head: </li></ul>
+    <pre class="prettyprint linenums"><code>
+    &lt;script type="text/javascript" src="../../../loader/jslet.loader.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        jslet.require("jslet", function () {
+            initialize();
+        });
+
+        function initialize() {
+            //Create dataset for chart
+            dsSummary = new jslet.data.Dataset("summary");
+
+            var f = jslet.data.createStringField("area", 10);
+            f.label("Area");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month1", 16, 2);
+            f.label("Jan.").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month2", 16, 2);
+            f.label("Feb.").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month3", 16, 2);
+            f.label("Mar.").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month4", 16, 2);
+            f.label("Apr.").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month5", 16, 2);
+            f.label("May").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month6", 16, 2);
+            f.label("Jun.").displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            var dataList = new Array();
+            var rec;
+            for (var i = 1; i &lt;= 4; i++) {
+                rec = new Object();
+                rec.area = 'Area' + i;
+                for (var j = 1; j &lt;= 6; j++) {
+                    rec['month' + j] = Math.round(Math.random() * 10000);
+                }
+                dataList.push(rec);
+            }
+            dsSummary.dataList(dataList);
+        }
+	&lt;/script&gt;
+    </code></pre>
+	
+	<ul><li>HTML: </li></ul>
+    <pre class="prettyprint linenums"><code>
+	&lt;div id="chartId" data-jslet='type:"dbchart",chartType:"column",categoryField:"area",valueField:"month1,month2,month3,month4,month5,month6", dataset:"summary"'
+		style="width: 600px; height: 500px"&gt;
+	&lt;/div&gt;
+    </code></pre>
+	
+    <script type="text/javascript">
+        window.LOADER_BASE_URL = "../../prettify";
+    </script>
+    <script type="text/javascript" src="../../prettify/run_prettify.js"></script>
+</body>
+</html>

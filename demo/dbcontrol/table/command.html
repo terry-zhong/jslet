@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Customized Action Column</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <style type="text/css">
+    	.commandBtn{
+    		width:23px;
+    		height:23px;
+    		cursor:pointer;
+    	}
+    	
+    	.editBtn{
+			background:transparent url("../../images/edit.png");	
+    	}
+    	
+    	.deleteBtn{
+			background:transparent url("../../images/delete.png");	
+    	}
+    </style>
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        //Customized action column render	
+        var commandCellRender = {
+            createCell: function (otd, colCfg) {
+                var oimg = document.createElement("img");
+                $(oimg).addClass("commandBtn");
+                oimg.src="../../images/edit.png";
+                oimg.onclick=function(){
+                	var recno = this.parentNode.parentNode.jsletrecno;
+                	dsEmployee.recno(recno);
+                    alert("You can popup up editor window to edit data!");
+                	
+                }
+
+                otd.appendChild(oimg);
+
+                oimg = document.createElement("img");
+                $(oimg).addClass("commandBtn");
+                oimg.src="../../images/delete.png";
+                otd.appendChild(oimg);
+
+                oimg.onclick=function(){
+                	var recno = this.parentNode.parentNode.jsletrecno;
+                	dsEmployee.recno(recno);
+                    if (confirm("Are you sure to delete?")) {
+                    	dsEmployee.deleteRec();
+                    }
+                }
+            }
+          };
+        //DBTable configuration
+        var tblCfg = { type: "DBTable", dataset: "employee", onlySpecifiedCol: true,rowHeight:28,
+            columns: [{ field: "workerid" }, { field: "name" }, { field: "age" }, {cellRender: commandCellRender,width:50}]
+        };
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Customized Action Column</h2>
+    <hr />
+	<!-- tblCfg is a global variable defined in head tag.-->
+    <div data-jslet='tblCfg'
+        style="width: 800px; height: 300px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+    <p>Display edit button and delete button in action column.</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=1000"></script>
+</body>
+</html>

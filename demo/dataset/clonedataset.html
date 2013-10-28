@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Clone Dataset/Field</title>
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('employee', '../js/employee.js','jslet');
+        jslet.require('jslet,employee', function () {
+            initialize();
+        });
+
+        function initialize() {
+			dsEmployee = jslet.data.getDataset('employee');
+			dsCondition = dsEmployee.clone('condition', ['name','birthday','department']);
+			//Set birthday field to between style
+			dsCondition.getField('birthday').valueStyle(jslet.data.FieldValueStyle.BETWEEN);
+			dsCondition.insertRec();
+        }
+
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Clone Dataset/Field</h2>
+	<h4>Clone dataset and change cloned dataset's configuration.</h4>
+    <hr />
+    <p>
+        Employee List:  <a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+	<p>Query Filter:</p>
+	<div id="editpanel" style="width:900px;height:auto"
+		data-jslet = "type:'DBEditPanel',dataset:'condition', columnCount:3, columnWidth: 200, rowHeight:30"></div>
+		
+	<input type="button" onclick="doQuery()" value=" Query Data " />
+    <div data-jslet = "type:'DBTable',dataset:'employee'" style="width: 100%; height: 200px"></div>
+	
+    <hr />
+    <h3>Demo Comment</h3>
+    <p>The condition input is similar as the master dataset. we can clone the master dataset as condition dataset, and use the condition dataset data as the query filter to query master dataset from server.  
+    </p>
+	<script type="text/javascript">
+		function doQuery() {
+			if(dsCondition.confirm(true)) {
+				//use the condition dataset data as the query filter
+				dsEmployee.applyQuery('query.do', dsCondition.getRecord());
+			} else {
+				alert('Error query filter item exists, please check!');
+			}
+		}
+	</script>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

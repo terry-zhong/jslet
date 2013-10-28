@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet-图表(DBChart)功能演示</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee", function () {
+            initialize();
+        });
+
+        function initialize() {
+            //创建数据集对象
+            dsSummary = new jslet.data.Dataset("summary");
+
+
+            var f = jslet.data.createStringField("area", 10);
+            f.label("地区");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month1", 16, 2);
+            f.label("1月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month2", 16, 2);
+            f.label("2月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month3", 16, 2);
+            f.label("3月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month4", 16, 2);
+            f.label("4月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month5", 16, 2);
+            f.label("5月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            f = jslet.data.createNumberField("month6", 16, 2);
+            f.label("6月份");
+            f.displayFormat("#,##0.00");
+            dsSummary.addField(f);
+
+            //加入数据集的数据
+            var dataList = new Array();
+            var rec;
+            for (var i = 1; i <= 4; i++) {
+                rec = {};
+                rec.area = '地区' + i;
+                for (var j = 1; j <= 6; j++) {
+                    rec['month' + j] = Math.round(Math.random() * 10000);
+                }
+                dataList.push(rec);
+            }
+            dsSummary.dataList(dataList);
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>
+        Jslet-图表(DBChart)功能演示</h2>
+    <p>
+        在本示例中,每个月份的数据是作为一列,即图表的数据来自多列</p>
+    <hr />
+    <div id="table1" data-jslet='type:"DBTable",dataset:"summary",hasSelectCol:true'
+        style="width: 800px; height: 130px">
+    </div>
+    <!-- 实际与后台连接的代码 
+<table>
+<tr>
+<td>图表: <p>
+<div id="chartId" type="chart" chart-url="/cewolfexample/dbchart.jsp" chart-type="line" category-field="area" value-field="month1,month2,month3,month4,month5,month6" dataset="summary" style="width:400px;height: 300px"></div>
+</td>
+<td valign="top">
+<p>演示内容:</p>
+<p>1、图形类型:<select id="idType" onchange="$('chartId').chartType= $('idType').value;$('chartId').renderAll();">
+	<option value="pie">饼图</option>
+	<option value="pie3D">3D饼图</option>
+	<option value="horizontalBar">水平直方图</option>
+	<option value="horizontalBar3D">3D水平直方图</option>
+	<option value="verticalBar">垂直直方图</option>
+	<option value="verticalBar3D">3D垂直直方图</option>
+	<option value="line">线条图</option>
+	
+	</select>；&nbsp;&nbsp;&nbsp; 2、<input id="monthField" type=checkbox checked onclick ="$('chartId').titleField = $('monthField').checked ?'month':'';$('chartId').renderAll();">增加分月份显示；&nbsp;&nbsp;&nbsp; 3、分析的数据:<select id="selValueField" onchange="$('chartId').valueField= $('selValueField').value;$('chartId').renderAll();">
+	<option value="amount">销售金额</option>
+	<option value="netprofit">净利润</option>
+	</select>；</p>
+<p>4、修改图表标题:<input id="txtChartTitle" type=text size=20></input><input type=button value="确定" onclick="$('chartId').chartTitle=$('txtChartTitle').value;$('chartId').renderAll();"/></p>
+</td>
+</tr>
+</table>
+-->
+    <p>
+        以下演示内容由于需要后端JSP配合,本站暂不提供与后台交互,因此以下演示内容用静态图片代替,这些图片是根据以上数据由DBChart生成的.</p>
+    <table>
+        <tr>
+            <td>
+                <a href="#" onclick="$('demoimg').src='images/DBChartDemo2-1.JPG'">第一张</a>&nbsp;&nbsp;<a
+                    href="#" onclick="$('demoimg').src='images/DBChartDemo2-2.JPG'">第二张</a><br />
+                <img id='demoimg' src="images/DBChartDemo2-1.JPG" alt="" style="width: 403px; height: 304px" />
+            </td>
+            <td style="vertical-align: top">
+                <p>
+                    演示内容:</p>
+                <p>
+                    1.图形类型:<select id="idType" onchange="alert('本站不提供与后台连接！')">
+                        <option value="pie">饼图</option>
+                        <option value="pie3D">3D饼图</option>
+                        <option value="horizontalBar">水平直方图</option>
+                        <option value="horizontalBar3D">3D水平直方图</option>
+                        <option value="verticalBar">垂直直方图</option>
+                        <option value="verticalBar3D">3D垂直直方图</option>
+                        <option value="line">线条图</option>
+                    </select>&nbsp;&nbsp;&nbsp; 2.<input id="monthField" type="checkbox" onclick="alert('本站不提供与后台连接！')" />增加分月份显示&nbsp;&nbsp;&nbsp;
+                </p>
+                <p>
+                    3.修改图表标题:<input id="txtChartTitle" type="text" size="20" /><input type="button" value="确定"
+                        onclick="alert('本站不提供与后台连接！')" /></p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

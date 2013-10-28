@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBSelect Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('employee', '../../js/employee.js');
+        jslet.require('jslet,employee');
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBSelect Demo</h2>
+    <hr />
+    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 100%; height: 200px">
+    </div>
+    <hr />
+    <b>DBSelect Demo:</b>
+	<ol>
+		<li>
+        Field with lookup data:<br />
+			Config: <span style="color: blue">data-jslet="type:'DBSelect',dataset:'employee',field:'position'"</span> <br />
+			<select data-jslet="type:'DBSelect',dataset:'employee',field:'position'"></select>
+		</li>
+		<li>
+        Field with lookup data(With lookupDataset property):<br />
+			Config: <span style="color: blue">data-jslet="type:'DBSelect',dataset:'employee',field:'position',lookupDataset:'position'"</span> <br />
+			<select data-jslet="type:'DBSelect',dataset:'employee',field:'position',lookupDataset:'position'"></select>
+		</li>
+		<li>
+        Field without lookup data, for example&quot;name&quot; field:
+			<select data-jslet="type:'DBSelect',dataset:'employee',field:'name'">
+            <option value="John">John</option>
+            <option value="Marry">Marry</option>
+            <option value="Tom">Tom</option>
+            <option value="Jerry">Jerry</option>
+            <option value="Monica">Monica</option>
+            <option value="Jessica">Jessica</option>
+            <option value="Ted">Ted</option>
+			</select>
+		</li>
+	    <li>
+        Multiple select with lookup data(department):<br />
+			<select multiple="multiple" data-jslet="type:'DBSelect',dataset:'employee',field:'department'" size="6"></select>
+		</li>
+		<li>
+        Multiple select with Group item(department): <br />
+			<select multiple="multiple" data-jslet="type:'DBSelect',dataset:'employee',field:'department',groupField:'address'" size="10"></select>
+		</li>
+			
+	</ol>			
+    <hr />
+    <h3>Demo Content</h3>
+    <p>
+	</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=650"></script>
+</body>
+</html>

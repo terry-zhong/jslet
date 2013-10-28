@@ -1,0 +1,28 @@
+
+body
+{
+	color: #333;
+    margin: 0px;
+    padding: 10px !important;
+}
+
+.editor
+{
+    width: 200px;
+}
+
+.content ul li{
+	padding-bottom: 5px;
+	padding-top: 5px;
+	padding-left: 20px;
+	line-height: 20px;
+	list-style-type: none;
+	background: url(../images/bullet.png) no-repeat 0 10px;
+}
+.content ul.firstlevel {
+	padding-left: 0;
+}
+
+.content-list li{
+	line-height: 26px;
+}

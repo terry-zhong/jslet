@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Accordion Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require("jslet");
+    </script>
+
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Accordion Demo</h2>
+	<h4>Demostrate how to use Accordion control.</h4>
+    <hr />
+
+    <div data-jslet='type:"Accordion",onChanged:doChanged,selectedIndex:1,items:[{caption:"caption1"},{caption:"caption2"},{caption:"caption3"}]'
+        style="width: 40%; height: 300px; margin-left: 20px">
+        <div>content1</div>
+        <div>content2</div>
+        <div>content3</div>
+   </div>
+    <hr />
+    <h3>Demo Content:</h3>
+ 	<p>Toggle Panel:</p>
+	<p>Selected index is:<span  id="result" style="color: red"></span></p>
+    <script type="text/javascript">
+        
+        function doChanged(index) {
+		 	$('#result').html(index);
+        }
+
+    </script>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

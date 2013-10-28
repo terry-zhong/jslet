@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBSpinEdit Demo</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBSpinEdit Demo</h2>
+    <hr />
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
+    </div>
+    <hr />
+    <h3>Demo Content:</h3>
+
+    <p>
+        1. Set minValue=0, maxValue=10000, step=1:</p>
+    <div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",minValue:0,maxValue:10000,step:1'
+        style="width: 150px; height: 22px">
+    </div>
+    <p>
+        2. Set minValue=10, maxValue=100, step=5:</p><div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",minValue:10,maxValue:100,step:5'
+            style="width: 150px; height: 22px">
+        </div>
+        <p>&nbsp;&nbsp; Try to input value not in range (10, 100), you can see it is not allowed.</p>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=400"></script>
+</body>
+</html>

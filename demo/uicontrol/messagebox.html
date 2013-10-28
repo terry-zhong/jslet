@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - MessageBox Demo</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require("jslet");
+    </script>
+
+    <style type="text/css">
+    .result
+    {
+        color:Red;
+    }
+    </style>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>
+        Jslet - MessageBox Demo</h2>
+	<h4>Demostrate how to use MessageBox control.</h4>
+    <hr />
+
+    <p>Single line message: <input type="button" value=" Show " onclick='jslet.ui.MessageBox.alert("You has to fill that blank!", "Tips");' /> </p>
+    <p>Multiple line message: <input type="button" value=" Show " onclick='openwin1();' /> </p>
+    <p>Error message: <input type="button" value=" Show " onclick='jslet.ui.MessageBox.error("You made a mistake!", "Error");' /> </p>
+    <p>Warning message: <input type="button" value=" Show " onclick='jslet.ui.MessageBox.warn("This is a warning for you!", "Warning");' /> </p>
+
+    <hr />
+    <p>Confirm/Cancel dialog: <input type="button" value=" Show " onclick='openwin2();' /><span id="result2" class="result"></span> </p>
+    <p>Yes/No/Cancel dialog: <input type="button" value=" Show " onclick='openwin3();' /><span id="result3" class="result"></span> </p>
+    <hr />
+    <p>Single line input box(with default value and，required test): <input type="button" value=" Show " onclick='openwin4();' /><span id="result4" class="result"></span> </p>
+    <p>Multiple line input box: <input type="button" value=" Show " onclick='openwin5();' /><span id="result5" class="result"></span> </p>
+    
+    <hr />
+
+    <script type="text/javascript">
+		//alert
+        function openwin1(event) {
+            jslet.ui.MessageBox.alert("First line message<br />Second line message", "Tips");
+        }
+
+		//confirm
+        function openwin2(event) {
+            jslet.ui.MessageBox.confirm("Are you sure to save this?", "Confirm", function(button){
+				$("#result2").html("You click button:"+button);
+                });
+        }
+
+		//confirm
+        function openwin3(event) {
+            jslet.ui.MessageBox.confirm("You are a boy?", "Confirm", function(button){
+                $("#result3").html("You click button:" + button);
+                }, true);
+        }
+
+		//prompt
+        function openwin4(event) {
+            jslet.ui.MessageBox.prompt("Please inpu file name：", "Input file name", function (button, inputValue) {
+                if (button == "ok")
+                    $("#result4").html("Your value:" + inputValue);
+                else
+                    $("#result4").html("You click button:" + button);
+            }, "test.txt", function (inputValue) {
+                if (!inputValue) {
+                    jslet.ui.MessageBox.alert("File name required!");
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        //prompt
+		function openwin5(event) {
+            jslet.ui.MessageBox.prompt("Plase input your comments：", "Input comments", function (button, inputValue) {
+                if (button == "ok")
+                    $("#result5").html("Your comments:" + inputValue);
+                else
+                    $("#result5").html("You click button:" + button);
+            }, "",null, true);
+        }
+
+    </script>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

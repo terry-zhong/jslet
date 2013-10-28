@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Edit Mask</title>
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("salesdetail", "../js/salesdetail.js");
+        jslet.require("jslet,salesdetail", function () {
+            initialize();
+        });
+
+        function initialize() {
+			dsSaleMaster = jslet.data.getDataset('dsSaleMaster');
+            var idFldObj = dsSaleMaster.getField('saleid');
+			idFldObj.editMask({mask:'LL-0000', keepChar: true, transform: 'upper'});
+
+            var dateFldObj = dsSaleMaster.getField('saledate');
+			dateFldObj.editMask({mask:'0000-00-00', keepChar: true});
+
+			var timeFldObj = dsSaleMaster.getField('comment');
+			timeFldObj.editMask({mask:'00:00:00', keepChar: true});
+			
+			dsSaleMaster.dataList(null);
+			dsSaleMaster.insertRec();
+
+	        jslet.ui.onReady = function(){
+				dsSaleMaster.focusEditControl('saleid');
+	        }
+        }
+
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Edit Mask</h2>
+	<h4>Demostrate how to configurate edit mask.</h4>
+    <hr />
+    <p>
+        Employee List:&nbsp;&nbsp;<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+    <div data-jslet='type:"DBTable",dataset:"dsSaleMaster"' style="width: 100%; height: 200px"></div>
+    <hr />
+    <input type="button" value=" Insert " onclick="dsSaleMaster.insertRec();dsSaleMaster.focusEditControl('saleid');" title='Add record after current cursor'/>
+    <input type="button" value=" Append " onclick="dsSaleMaster.appendRec();dsSaleMaster.focusEditControl('saleid');" title='Add record after last record'/>
+    <input type="button" value=" Modify " onclick="dsSaleMaster.updateRec();dsSaleMaster.focusEditControl('saleid');"/>
+    <input type="button" value=" Delete " onclick="dsSaleMaster.deleteRec();"/>
+    <input type="button" value=" Confirm " onclick="dsSaleMaster.confirm();" />
+    <input type="button" value=" Cancel " onclick="dsSaleMaster.cancel();" />
+    <hr />
+    <table data-jslet='dataset:"dsSaleMaster"'>
+		<tr>
+			<td style="width:10%">
+				<label data-jslet='type:"DBLabel",field:"saleid"'></label>:
+			</td>
+			<td style="width:20%">
+				<input type="text" data-jslet='type:"DBText",field:"saleid"' class="editor" />
+			</td>
+			<td style="width:13%">
+				<label data-jslet='type:"DBLabel",field:"saledate"'></label>:
+			</td>
+			<td style="width:20%">
+				<div id="date1" data-jslet='type:"DBDatePicker",field:"saledate"' class="editor"></div>
+			</td>
+			<td style="width:10%">
+				<label>Time:</label>:
+			</td>
+			<td>
+				<input data-jslet='type:"DBText",field:"comment"' class="editor"></div>
+			</td>
+		</tr>
+	</table>
+    <hr />
+    <h3>Demo Comment</h3>
+	The edit mask of all fields:
+    <ol>
+    <li>Sales ID: <b>LL-0000</b>
+     <br />First 2 characters are uppercase letters, follow 4 number.</li>
+    <li>Sales Date: <b>0000-00-00</b></li>
+    <li>Time: <b>00:00:00</b></li>
+    </ol>
+	
+	<!-- Source Code -->
+	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+</body>
+</html>

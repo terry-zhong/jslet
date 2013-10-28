@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jslet-TreeGrid Demo</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require('jslet', initialize);
+
+        function initialize() {
+            var dataList = [{ itemid: 'cn', superid: '0', code: '00', name: 'China' },
+			{ itemid: '1', superid: 'cn', code: '01', name: 'Guangdong Province' },
+			{ itemid: '2', superid: '1', code: '0101', name: 'Guangzhou City' },
+			{ itemid: '3', superid: '1', code: '0102', name: 'Shenzhen City' },
+			{ itemid: '4', superid: '3', code: '010201', name: 'Nanshan District' },
+			{ itemid: '5', superid: '3', code: '010202', name: 'Futian District' },
+			{ itemid: '6', superid: '1', code: '0103', name: 'Dongguang City' },
+			{ itemid: '7', superid: 'cn', code: '02', name: 'Hunan Province' },
+			{ itemid: '8', superid: '7', code: '0201', name: 'Changsha City' },
+			{ itemid: '9', superid: '7', code: '0202', name: 'Zhuzhou City' },
+			{ itemid: '10', superid: '7', code: '0203', name: 'YueYang City' },
+			{ itemid: '11', superid: '7', code: '0204', name: 'Hengyang City' },
+			{ itemid: '12', superid: '7', code: '0205', name: 'Shaoyang City' }
+			];
+
+            dsAgency = new jslet.data.Dataset('dsAgency');
+            var fldObj = jslet.data.createStringField('name', 20);
+            fldObj.label('Name');
+            dsAgency.addField(fldObj);
+
+            fldObj = jslet.data.createStringField('code', 10);
+            fldObj.label('Code');
+            dsAgency.addField(fldObj);
+
+            fldObj = jslet.data.createNumberField('itemid', 10);
+            fldObj.label('ID');
+            fldObj.readOnly(true);
+            dsAgency.addField(fldObj);
+
+            fldObj = jslet.data.createNumberField('superid', 10);
+            fldObj.label('Parent ID');
+            fldObj.readOnly(true);
+            dsAgency.addField(fldObj);
+
+            dsAgency.keyField('itemid');
+            dsAgency.codeField('code');
+            dsAgency.nameField('name');
+            dsAgency.parentField('superid');
+            dsAgency.dataList(dataList);
+			
+			jslet.ui.onReady = function(){
+				jslet('#tblRegion').expandAll();
+			}
+        }
+
+        var treeTblCfg = {type:"DBTable",dataset:"dsAgency",disableHeadSort:true,fixedCols:1,readOnly:true,treeField:"name"};
+    </script>
+</head>
+<body>
+    <h2>Jslet-TreeGrid Demo</h2>
+    <hr />
+	<!-- treeTblCfg is a global variable defined in head tag.-->
+    <div id="tblRegion" data-jslet='treeTblCfg' style="width: 760px; height: 220px">
+    </div>
+    <hr />
+	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"itemid"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"itemid"'/>
+	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"code"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"code"'/>
+	<br />
+	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"name"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"name"'/>
+  
+    <hr />
+<input type='button' value='Expand All' onclick='jslet("#tblRegion").expandAll();' />
+<input type='button' value='Colapse All' onclick='jslet("#tblRegion").collapseAll();' />&nbsp;&nbsp;&nbsp;&nbsp;
+
+<input type='button' value='Add Child Node' onclick='dsAgency.insertChild();' />
+<input type='button' value='Add Sibling' onclick='dsAgency.insertSibling();' />&nbsp;&nbsp;
+<input type='button' value='Delete' onclick='dsAgency.deleteRec();' />&nbsp;&nbsp;&nbsp;&nbsp;
+<input type='button' value='Confirm' onclick='dsAgency.confirm();' />
+<input type='button' value='Cancel' onclick='dsAgency.cancel();' />
+    <hr />
+    <h3>Demo Content:</h3>
+	<ol class="content-list">
+    <li>
+        Tree style;</li>
+    <li>
+        Insert/Update/Delete data.</li>
+	</ol>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
+</body>
+</html>

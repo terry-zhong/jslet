@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - DBTable Appearance</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("employee", "../../js/employee.js");
+        jslet.require("jslet,employee");
+    </script>
+	
+	<style>
+		.oddRow{
+			background-color: #FEFFF1;
+		}
+		
+		.femaleRow{
+			background-color: hotpink;
+		}
+		
+		.unknownRow{
+			background-color: lightblue;
+		}
+		
+		.managerCell{
+			font-weight: bold;
+			font-style: italic;
+			color: green;
+		}
+	</style>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - DBTable Appearance</h2>
+    <hr />
+    <h4>1. Row style: odd/even row with difference color</h4>
+    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+    </div>
+    <h4>2. Row style: Difference color according to "gender" field</h4>
+    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowGender,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 220px">
+    </div>
+    <hr />
+    <h4>3. Cell style: difference color for manager</h4>
+	<p>If value of field "position" is 0 or 1, change the font style/color of column "name" </p>
+    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd, onFillCell: doFillCell, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+    </div>
+    <hr />
+    <h4>4. No Cell border:</h4>
+    <div data-jslet='type:"DBTable",dataset:"employee",noborder:true,onFillRow: doFillRowOdd, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+    </div>
+
+    <script type="text/javascript">
+        function doFillRowOdd(otr, dataset) {
+			var recno = dataset.recno();
+			if(recno % 2 == 0)
+				$(otr).removeClass("oddRow");
+			else
+				$(otr).addClass("oddRow");
+        }
+		
+        function doFillRowGender(otr, dataset) {
+			var gender = dataset.getFieldValue('gender');
+			var jqTr = $(otr);
+			if(gender == 'M'){
+				jqTr.removeClass("femaleRow");
+				jqTr.removeClass("unknownRow");
+			}
+			else
+			if(gender == 'F'){
+				jqTr.addClass("femaleRow");
+				jqTr.removeClass("unknownRow");
+			}else{
+				jqTr.removeClass("femaleRow");
+				jqTr.addClass("unknownRow");
+			}
+        }
+		
+        function doFillCell(otd, dataset, fieldName) {
+			if(fieldName != "name")
+				return;
+			var posValue = dataset.getFieldValue("position");
+
+			if(posValue > 1)
+				$(otd).removeClass("managerCell");
+			else
+				$(otd).addClass("managerCell");
+        }
+		
+		function doBorderSetChange(){
+		
+		}
+    </script>
+
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=1300"></script>
+</body>
+</html>
