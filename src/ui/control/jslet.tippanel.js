@@ -45,7 +45,7 @@ jslet.ui.TipPanel = function () {
             evt = jQuery.event.fix( evt );
 
             top = evt.pageY + 16; left = evt.pageX + 2;
-            var ele = event.target;
+            var ele = evt.currentTarget;
             isSameCtrl == (ele === Z._oldElement);
             Z._oldElement = ele;
         } else {
