@@ -3,67 +3,30 @@
 <body>
 	<ul><li>Head: </li></ul>
     <pre class="prettyprint linenums"><code>
-    &lt;script type="text/javascript" src="../../../loader/jslet.loader.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript"&gt;
-		jslet.define('agency', 'agency.js');
-        jslet.require('jslet,agency',initialize);
+&lt;script type="text/javascript" src="../../../loader/jslet.loader.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+    jslet.define('agency', 'agency.js');
+    jslet.require('jslet,agency',initialize);
 
-        function initialize() {
-			//Global variable for #trvRegion 
-            treeCfg1 = { type: 'DBTreeView', 
-			    dataset: 'dsAgency', 
-				displayFields: '[code]+"-"+[name]',
-                keyField: 'id', 
-				parentField: 'parentid',
-                hasCheckBox: true, 
-				iconClassField: 'iconcls', 
-				correlateCheck: true,
-				expandLevel: 0
-            };
-
-            treeCfg2 = { type: 'DBTreeView', 
-			    dataset: 'dsAgency', 
-				displayFields: '[code]+"-"+[name]',
-                keyField: 'id', 
-				parentField: 'parentid',
-                hasCheckBox: true, 
-				iconClassField: 'iconcls', 
-				correlateCheck: false,
-				expandLevel: 0
-            };
-
-            treeCfg3 = { type: 'DBTreeView', 
-			    dataset: 'selectableAgency', 
-				displayFields: '[code]+"-"+[name]',
-                keyField: 'id', 
-				parentField: 'parentid',
-                hasCheckBox: true, 
-				iconClassField: 'iconcls', 
-				correlateCheck: false,
-				expandLevel: 1
-            };
-			var dataset3 = jslet.data.getDataset('selectableAgency');
-			//Only the leaf item has check box.
-			dataset3.onCheckSelectable = function(){
-				return !this.hasChildren(); 
-			}
-			
-			//Global variable for below event handler
-            treeTag = document.getElementById('trvRegion');
-        }
-	&lt;/script&gt;
+    function initialize() {
+       //Global variable for #trvRegion 
+       treeCfg1 = { 
+        type: 'DBTreeView', 
+        dataset: 'dsAgency', 
+        displayFields: '[code]+"-"+[name]',
+        hasCheckBox: true, 
+        iconClassField: 'iconcls', 
+        correlateCheck: true,
+        expandLevel: 0
+       };
+   }
+&lt;/script&gt;
     </code></pre>
-	
+    
 	<ul><li>HTML: </li></ul>
     <pre class="prettyprint linenums"><code>
-	&lt;!-- Correlate check tree node.--&gt;
-    &lt;div id="tree1" data-jslet="treeCfg1" style="width: 400px; height: 200px;float:left;margin-right: 20px"&gt;
-	
-	&lt;!-- None-correlate check tree node.--&gt;
-    &lt;div id="tree2" data-jslet="treeCfg2" style="width: 400px; height: 200px;float:left;margin-right: 20px"&gt;
-
-	&lt;!-- Item Checkable(Only the leaf item has check box).--&gt;
-    &lt;div id="tree3" data-jslet="treeCfg3" style="width: 400px; height: 200px;float:left;margin-right: 20px"&gt;
+&lt;!-- Correlate check tree node.--&gt;
+&lt;div id="tree1" data-jslet="treeCfg1" style="width: 400px; height: 200px;float:left;margin-right: 20px"&gt;
 	
     </code></pre>
 	

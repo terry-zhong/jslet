@@ -6,32 +6,39 @@
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
-        jslet.require("jslet", function () {
+        jslet.require("jslet", doLoaded, doJsletReady);
+		
+		function doLoaded() {
             dsBOM = jslet.data.createDataset("bom", [
-                                            { "name": "itemid", "type": "S", "length": 10, "label": "BOM Code", "label": "Spec", "displayWidth": 20 }, 
-                                            { "name": "stdnum", "type": "N", "length": 9, "label": "Quantity", "displayWidth": 15}], "itemid");
-        });
+                 { "name": "itemid", "type": "S", "length": 10, "label": "BOM Code", "label": "Spec", "displayWidth": 20 }, 
+                 { "name": "stdnum", "type": "N", "length": 9, "label": "Quantity", "displayWidth": 15}], "itemid");
+				 
+			dsBOM.queryUrl('/employee/findBom.jsp');
+		}
+		
+		function doJsletReady() {
+			dsBOM.query();
+		}
+		
     </script>
 </head>
 <body>
     <h2>Jslet - Pagination Demo</h2>
-    <hr />
-    <p>BOM List:</p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
     <p>
-        <input id="btnQuery" type="button" value=" Query " onclick="dsBOM.applyQuery('/employee/findBom.jsp');" /></p>
-    <p><b>Tips: When you open it, you need to click "Query" button first.</b></p>
-    <hr />
-    <div data-jslet='type:"DBPageBar",dataset:"bom",pageSizeList:[20,50,100,200]' ></div>
-    <p>
-    </p>
-    <div data-jslet='type:"DBTable",dataset:"bom"' style="width: 700px; height: 200px" ></div>
-    <br />
-    <div data-jslet='type:"DBPageBar",dataset:"bom",showPageSize:false' style="width:230px" ></div>
-    <hr />
-    <div>
-        <p>Demo Content:</p>
+        <input id="btnQuery" type="button" value=" Query " onclick="dsBOM.query();" /></p>
+    <fieldset>
+    <legend>BOM List</legend>
+    <div data-jslet='type:"DBPageBar",dataset:"bom",pageSizeList:[20,50,100,200]' class="round4" ></div>
+    <div data-jslet='type:"DBTable",dataset:"bom"' style="width: 100%; height: 200px;margin-top:10px;margin-bottom:10px" ></div>
+    <div data-jslet='type:"DBPageBar",dataset:"bom",showPageSize:false' style="width:230px"  class="round4"></div>
+    </fieldset>
+    <h3>Demo Content:</h3>
+	<div class="content">
         <ol>
-            <li>Demostrate PageBar how to work;</li>
+            <li>Demonstrate PageBar how to work;</li>
 			<li>Get server data page by page;</li>
 			<li>Multiple PageBar can connect to one dataset;</li>
 		</ol>

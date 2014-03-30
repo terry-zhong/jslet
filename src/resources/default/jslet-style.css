@@ -79,15 +79,61 @@ del,ins{
 }
  */
  
+ /*
+ select,
+ input[type='checkbox'],
+ input[type='radio'] {
+  border: 1px solid rgb(127, 157, 185);
+  border-radius: 1px;
+  font: inherit;
+  margin: 0 1px 0 0;
+}
+
+input[type='number'],
+input[type='password'],
+input[type='search'],
+input[type='text'],
+input[type='url'],
+input:not([type]),
+textarea {
+  border: 1px solid rgb(127, 157, 185);
+  border-radius: 2px;
+  box-sizing: border-box;
+  font: inherit;
+  margin: 0;
+
+  padding-bottom: 0px;
+}
+*/
 .jl-rtl{
 	direction: rtl;
 }
 
+.jl-round5 {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.jl-bgcolor {
+    background-color: #F1F5FB;
+	box-shadow: 0 1px 1px #fff inset;
+	background-color: #e5f1ff;
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#eaf3ff),color-stop(50%,#e5f1ff),color-stop(100%,#d6e8ff));
+	background-image: -webkit-linear-gradient(top,#eaf3ff 0,#e5f1ff 50%,#d6e8ff 100%);
+	background-image: -moz-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-image: -ms-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-image: -o-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-position: 0 1px;
+	background-repeat: repeat-x;	
+}
 /* Common css */
 .jl-popuppanel {
     position: absolute;
     z-index: 99000;
-    border: 1px solid #7f9db9;
+    border: 2px solid #7f9db9;
     overflow: hidden;
     background-color: white;
     border-radius: 5px;
@@ -136,9 +182,17 @@ del,ins{
 	text-decoration: none;
 }
 
+.jl-readonly {
+	background-color: #e5e5e5;
+	border: 1px solid #bcbcbc;	
+}
+.jl-hidden {
+	display:none;	
+}
 /*inspector*/
 .jl-inspector {
-    border: solid #99bbe8 1px;
+    border: solid #a4bed4 1px;/*#99bbe8*/
+    padding: 6px;
 }
 
 .jl-inspector-label {
@@ -147,6 +201,7 @@ del,ins{
 
 .jl-inspector-editor {
 	padding-right: 5px;
+	padding-top: 3px;
 }
 
 .jl-inspector-editor >div {
@@ -155,13 +210,23 @@ del,ins{
 	overflow: hidden;
 	width: 100%;
 	height: 100%;
-	v-align: middle;
+	vertical-align: middle;
 }
-
-.jl-lable-required {
+/*DBLabel*/
+.jl-lbl-required {
     color: red;
     font-size: smaller;
 }
+
+.jl-lbl-message {
+    color: red;
+}
+
+.jl-lbl-tip {
+
+}
+
+/* End of DBLabel*/
 
 /*SpinnerEdit"*/
 .jl-spinedit {
@@ -172,7 +237,7 @@ del,ins{
 
 .jl-spinedit-input {
     left: 1px;
-    right: 22px;
+    right: 18px;
     
 	position: absolute;
 	overflow: hidden    
@@ -180,7 +245,7 @@ del,ins{
 
 .jl-rtl .jl-spinedit-input {
     right: 1px;
-    left: 22px;
+    left: 18px;
 
 	position: absolute;
 	overflow: hidden    
@@ -226,6 +291,10 @@ del,ins{
     background-position: -51px 0;
 }
 
+.jl-spinedit-upbtn-disabled {
+    background-position: -85px 0;
+}
+
 .jl-spinedit-downbtn {
     width: 18px;
     height: 11px;
@@ -257,6 +326,10 @@ del,ins{
     background-position: -17px 0;
 }
 
+.jl-spinedit-downbtn-disabled {
+    background-position: -68px 0;
+}
+
 /*customComboBox*/
 .jl-customcombo {
     border: 1px solid;
@@ -265,6 +338,7 @@ del,ins{
     position: relative;
     height: 22px;
     overflow: hidden;
+    display:inline-block;
 }
 
 .jl-combosel-text-host {
@@ -288,7 +362,7 @@ del,ins{
 .jl-combosel-text {
     padding: 0; 
     margin: 0;
-    border: 0;
+    border: 0!important;
     left: 1px;
     width: 100%;
     height: 100%;
@@ -300,8 +374,8 @@ del,ins{
     position: absolute;
     vertical-align: middle;
     right: 0;
-    width: 18px;
-    border: 0;
+    width: 17px;
+    border: 0!important;
     height: 21px;
     cursor: pointer;
 }
@@ -312,7 +386,7 @@ del,ins{
     left: 0;
     right:auto;
     width: 18px;
-    border: 0;
+    border: 0!important;
     height: 100%;
     cursor: pointer;
 }
@@ -563,102 +637,6 @@ a.jl-pb-button-disabled:hover {
 
 /* end DBRating */
 
-/* EditPanel */
-.jl-editpanel {
-    overflow: auto;
-    position: relative;
-    padding: 10px;
-}
-
-.jl-editpanel th {
-    height: 0;
-}
-
-.jl-editpanel td {
-    vertical-align: middle;
-}
-
-.jslet_editpanel_line {
-    border-bottom: 1px solid #ccf;
-    display: list-item;
-}
-
-/* end EditPanel */
-
-
-/* jslet.MessageBox */
-.jl-msg-container {
-    margin-top: 10px;
-}
-
-.jl-msg-icon {
-    width: 50px;
-    height: 35px;
-    background-attachment: scroll;
-    background-clip: border-box;
-    background-color: transparent;
-    background-origin: padding-box;
-    background-repeat: no-repeat;
-    float: left;
-    margin-left: 5px;
-}
-
-.jl-rtl .jl-msg-icon {
-    float: right;
-    margin-left: auto;
-    margin-right: 5px;
-}
-
-.jl-msg-icon-info {
-    background-image: url(images/mb/icon-info.gif);
-}
-
-.jl-msg-icon-error {
-    background-image: url(images/mb/icon-error.gif);
-}
-
-.jl-msg-icon-question {
-    background-image: url(images/mb/icon-question.gif);
-}
-
-.jl-rtl .jl-msg-icon-question {
-    background-image: url(images/mb/icon-question-rtl.gif);
-}
-
-.jl-msg-icon-warning {
-    background-image: url(images/mb/icon-warning.gif);
-}
-
-.jl-msg-message {
-    padding: 8px;
-}
-
-.jl-msg-tool {
-    position: absolute;
-    bottom: 3px;
-    width: 100%;
-    height: 30px;
-    overflow: hidden;
-    padding-bottom: 5px;
-    padding-left: 6px;
-    padding-right: 0;
-    padding-top: 5px;
-}
-
-.jl-rtl .jl-msg-tool {
-    left: auto;
-    right: 4px;
-    padding-left: 0;
-    padding-right: 6px;
-}
-
-.jl-msg-button {
-    position: absolute;
-    height: 24px;
-    width: 75px;
-}
-
-/* end jslet.MessageBox */
 
 .jl-waitingbox {
     background-image: none;
@@ -678,6 +656,11 @@ a.jl-pb-button-disabled:hover {
     float: right;
     padding-left: 20px;
     padding-right: 5px;
+}
+
+/*DBRadioGroup*/
+.jl-radiogroup td, .jl-checkboxgroup td {
+	padding-right: 8px;
 }
 
 .jl-waitingbox-icon {
@@ -735,4 +718,8 @@ a.jl-pb-button-disabled:hover {
 .jl-timepicker select {
 	margin: 0;
 	margin-right: 2px;
+}
+
+.jl-errorpanel {
+	color: red;
 }

@@ -16,35 +16,43 @@
     </style>
 </head>
 <body onunload="jslet.ui.uninstall()">
-    <h2>
-        Jslet - Menu Demo</h2>
-	<h4>Demostrate how to use menu bar, menu and context menu control.</h4>
-    <hr />
-	<!-- Bar menu, barMenuCfg is a global variable. -->
-    <div data-jslet="barMenuCfg">
-    </div>
-    <hr />
+    <h2>Jslet - Menu Demo</h2>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Demonstrate how to use menu bar, menu and context menu control.</div>
+    <fieldset>
+		<legend>Menu Bar</legend>
+		<!-- Bar menu, barMenuCfg is a global variable. -->
+		<div data-jslet="barMenuCfg"></div>
+	</fieldset>
+	<fieldset>
+		<legend>Content Menu</legend>
 	<!-- Context menu host -->
-    <div style="border: 1px solid green; width: 600px; height: 300px; overflow: auto;
-        background-color: #ffff88; vertical-align: middle; position: relative"
+    <div class="round4" style="border: 1px solid green; width: 600px; height: 300px; overflow: auto;
+        background-color: #eee; vertical-align: middle; position: relative"
         oncontextmenu="showPopupMenu(event)">
-        <span style="position: absolute; top: 40%">Right click on this area!</span>
+        <span style="position: absolute; top: 40%;margin-left:40px">Right click on this area!</span>
     </div>
-    <hr />
+    </fieldset>
+	<fieldset>
+		<legend>Drop Down Button</legend>
 	<div>
-		<input type="button" onclick="showDropDownMenu(this)" value=" Dropdown Button "></input>
+		<button onclick="showDropDownMenu(this)"> Dropdown Button </button>
 	</div>
-    <hr />
-    <div style="margin-left: 20px">
-        <h3>Demo Content:</h3>
-        <p>
-            1.Demonstrate Menu Bar;</p>
-        <p>
-            2.Demonstrate Context Menu;</p>
-        <p>
-            3.Demonstrate global menu item event handler;</p>
-        <p>
-            4.Demonstrate menu item properties: disabled, checkbox style, radion style and icon;</p>
+    </fieldset>
+    <h3>Demo Content:</h3>
+    <div style="margin-left: 20px" class="content">
+		<ol>
+        <li>
+            Demonstrate Menu Bar;</li>
+        <li>
+            Demonstrate Context Menu;</li>
+        <li>
+            Demonstrate global menu item event handler;</li>
+        <li>
+            Demonstrate menu item properties: disabled, checkbox style, radion style and icon;</li>
+		</ol>
     </div>
     <div style="clear: both">
     </div>

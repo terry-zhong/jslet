@@ -37,187 +37,189 @@ jslet.ui.PopupPanel = function () {
 	/**
 	 * Event handler when hide popup panel: function(){}
 	 */
-    this.onHidePopup = null;
+	this.onHidePopup = null;
 
-    this.isShowing = false;
-    /**
-     * Private document click handler
-     */
-    this.documentClickHandler = function (event) {
-   		event = jQuery.event.fix( event || window.event );
-        var srcEle = event.target;
-        if (jslet.ui.isChild(jslet.ui.PopupPanel.excludedElement,srcEle) ||
-        	jslet.ui.inPopupPanel(srcEle)) {
-            return;
-        }
-        if (jslet.ui._activePopup) {
-        	jslet.ui._activePopup.hide();
-        }
-    }
+	this.isShowing = false;
+	/**
+	 * Private document click handler
+	 */
+	this.documentClickHandler = function (event) {
+		event = jQuery.event.fix( event || window.event );
+		var srcEle = event.target;
+		if (jslet.ui.isChild(jslet.ui.PopupPanel.excludedElement,srcEle) ||
+			jslet.ui.inPopupPanel(srcEle)) {
+			return;
+		}
+		if (jslet.ui._activePopup) {
+			jslet.ui._activePopup.hide();
+		}
+	};
 
-    /**
-     * Private, create popup panel
-     */
-    this._createPanel = function () {
-        if (!jslet.ui._popupPanel) {
-            var p = document.createElement('div');
-            p.style.display = 'none';
-            p.className = 'jl-popuppanel jl-opaque jl-border-box';
-            p.style.position = 'absolute';
-            p.style.zIndex = 99000;
-            document.body.appendChild(p);
+	/**
+	 * Private, create popup panel
+	 */
+	this._createPanel = function () {
+		if (!jslet.ui._popupPanel) {
+			var p = document.createElement('div');
+			p.style.display = 'none';
+			p.className = 'jl-popuppanel jl-opaque jl-border-box';
+			p.style.position = 'absolute';
+			p.style.zIndex = 99000;
+			document.body.appendChild(p);
 /*
-            var shadow = document.createElement('div');
-            shadow.style.display = 'none';
-            shadow.className = 'jl-shadow';
-            shadow.style.zIndex = 99998;
-            document.body.appendChild(shadow);
-            jslet.ui._popupShadow = shadow;
+			var shadow = document.createElement('div');
+			shadow.style.display = 'none';
+			shadow.className = 'jl-shadow';
+			shadow.style.zIndex = 99998;
+			document.body.appendChild(shadow);
+			jslet.ui._popupShadow = shadow;
 */
-            jQuery(document).on('click', this.documentClickHandler);
-            jslet.ui._popupPanel = p;
-        }
-    }
+			jQuery(document).on('click', this.documentClickHandler);
+			jslet.ui._popupPanel = p;
+		}
+	};
 
-    /**
-     * Show popup panel in specified position with specified size.
-     * 
-     * @param {Integer} left Left position
-     * @param {Integer} top Top position
-     * @param {Integer} width Popup panel width
-     * @param {Integer} height Popup panel height
-     * 
-     */
-    this.show = function (left, top, width, height, ajustX, ajustY) {
-        this._createPanel();
-        left = parseInt(left);
-        top = parseInt(top);
-        
-        if (height) {
-            jslet.ui._popupPanel.style.height = parseInt(height) + 'px';
-        }
-        if (width) {
-            jslet.ui._popupPanel.style.width = parseInt(width) + 'px';
-        }
-    	var jqWin = jQuery(window),
-    		winWidth = jqWin.scrollLeft() + jqWin.width(),
-    		winHeight = jqWin.scrollTop() + jqWin.height(),
-    		panel = jQuery(jslet.ui._popupPanel),
-    		w = panel.outerWidth(),
-    		h = panel.outerHeight();
-    	/*
-        if (left - obody.scrollLeft + w > obody.clientWidth) {
-            left -= w;
-        }
-        if (top - obody.scrollTop + h > obody.clientHeight) {
-            top -= (h + ajustY);
-        }
-        */
-        if (jslet.locale.isRtl) {
-        	left -= w;
-        }
-        if(left + w > winWidth) {
-        	left += winWidth - left - w - 1;
-        }
-        if(top + h > winHeight) {
-        	 top -= (h + ajustY);
-        }
-        if(left < 0) {
-        	left = 0;
-        }
-        if(top < 0) {
-        	top = 0;
-        }
-    	
-        if (top) {
-            jslet.ui._popupPanel.style.top = top + 'px';
-        }
-        if (left) {
-            jslet.ui._popupPanel.style.left = left + 'px';
-        }
-        jslet.ui._popupPanel.style.display = 'block';
+	/**
+	 * Show popup panel in specified position with specified size.
+	 * 
+	 * @param {Integer} left Left position
+	 * @param {Integer} top Top position
+	 * @param {Integer} width Popup panel width
+	 * @param {Integer} height Popup panel height
+	 * 
+	 */
+	this.show = function (left, top, width, height, ajustX, ajustY) {
+		this._createPanel();
+		left = parseInt(left);
+		top = parseInt(top);
+		
+		if (height) {
+			jslet.ui._popupPanel.style.height = parseInt(height) + 'px';
+		}
+		if (width) {
+			jslet.ui._popupPanel.style.width = parseInt(width) + 'px';
+		}
+		var jqWin = jQuery(window),
+			winWidth = jqWin.scrollLeft() + jqWin.width(),
+			winHeight = jqWin.scrollTop() + jqWin.height(),
+			panel = jQuery(jslet.ui._popupPanel),
+			w = panel.outerWidth(),
+			h = panel.outerHeight();
+		/*
+		if (left - obody.scrollLeft + w > obody.clientWidth) {
+			left -= w;
+		}
+		if (top - obody.scrollTop + h > obody.clientHeight) {
+			top -= (h + ajustY);
+		}
+		*/
+		if (jslet.locale.isRtl) {
+			left -= w;
+		}
+		if(left + w > winWidth) {
+			left += winWidth - left - w - 1;
+		}
+		if(top + h > winHeight) {
+			top -= (h + ajustY);
+		}
+		if(left < 0) {
+			left = 1;
+		}
+		if(top < 0) {
+			top = 1;
+		}
+		
+		if (top) {
+			jslet.ui._popupPanel.style.top = top + 'px';
+		}
+		if (left) {
+			jslet.ui._popupPanel.style.left = left + 'px';
+		}
+		jslet.ui._popupPanel.style.display = 'block';
 
-    	var shadow = jslet.ui._popupShadow;
-        if(shadow) {
-	        shadow.style.width = w + 'px';
-	        shadow.style.height = h + 'px';
-	        shadow.style.top = top + 2 + 'px';
-	        shadow.style.left = left + 2 + 'px';
-	        shadow.style.display = 'block';
-        }
-        jslet.ui._activePopup = this;
-        this.isShowing = true;
-    }
+		var shadow = jslet.ui._popupShadow;
+		if(shadow) {
+			shadow.style.width = w + 'px';
+			shadow.style.height = h + 'px';
+			shadow.style.top = top + 2 + 'px';
+			shadow.style.left = left + 2 + 'px';
+			shadow.style.display = 'block';
+		}
+		jslet.ui._activePopup = this;
+		this.isShowing = true;
+	};
 
-    /**
-     * Set popup panel content.
-     * 
-     * @param {Html Element} content popup panel content
-     * @param {String} content width;
-     * @param {String} cotnent height;
-     */
-    this.setContent = function (content, width, height) {
-        this._createPanel();
-        var oldContent = jslet.ui._popupPanel.childNodes[0];
-        if (oldContent) {
-            jslet.ui._popupPanel.removeChild(oldContent);
-        }
-        jslet.ui._popupPanel.appendChild(content);
-        content.style.border = 'none';
-        if(width) {
-        	content.style.width = width;
-        }
-        if(height) {
-        	content.style.height = height;
-        }
-    }
+	/**
+	 * Set popup panel content.
+	 * 
+	 * @param {Html Element} content popup panel content
+	 * @param {String} content width;
+	 * @param {String} cotnent height;
+	 */
+	this.setContent = function (content, width, height) {
+		this._createPanel();
+		var oldContent = jslet.ui._popupPanel.childNodes[0];
+		if (oldContent) {
+			jslet.ui._popupPanel.removeChild(oldContent);
+		}
+		jslet.ui._popupPanel.appendChild(content);
+		content.style.border = 'none';
+		if(width) {
+			content.style.width = width;
+		}
+		if(height) {
+			content.style.height = height;
+		}
+	};
 
-    /**
-     * Get popup Panel. You can use this method to customize popup panel.
-     * 
-     * @return {Html Element}
-     * 
-     */
-    this.getPopupPanel = function () {
-        this._createPanel();
-        return jslet.ui._popupPanel;
-    }
+	/**
+	 * Get popup Panel. You can use this method to customize popup panel.
+	 * 
+	 * @return {Html Element}
+	 * 
+	 */
+	this.getPopupPanel = function () {
+		this._createPanel();
+		return jslet.ui._popupPanel;
+	};
 
-    /**
-     * Destroy popup panel completely.
-     */
-    this.destroy = function () {
-        if (!jslet.ui._popupPanel) {
-            return;
-        }
-        this.isShowing = false;
-        document.body.removeChild(jslet.ui._popupPanel);
-        document.body.removeChild(jslet.ui._popupShadow);
-        jQuery(this._popupPanel).off();
-        jslet.ui._popupPanel = null;
-        jslet.ui._popupShadow = null;
-        this.onHidePopup = null;
-        jQuery(document).off('click', this.documentClickHandler);
-    }
+	/**
+	 * Destroy popup panel completely.
+	 */
+	this.destroy = function () {
+		if (!jslet.ui._popupPanel) {
+			return;
+		}
+		this.isShowing = false;
+		document.body.removeChild(jslet.ui._popupPanel);
+		if(jslet.ui._popupShadow) {
+			document.body.removeChild(jslet.ui._popupShadow);
+		}
+		jQuery(this._popupPanel).off();
+		jslet.ui._popupPanel = null;
+		jslet.ui._popupShadow = null;
+		this.onHidePopup = null;
+		jQuery(document).off('click', this.documentClickHandler);
+	};
 
-    /**
-     * Hide popup panel, and you can show it again.
-     * 
-     */
-    this.hide = function () {
-        if (jslet.ui._popupPanel) {
-            jslet.ui._popupPanel.style.display = 'none';
-            if(jslet.ui._popupShadow) {
-            	jslet.ui._popupShadow.style.display = 'none';
-            }
-        }
-        if (this.onHidePopup) {
-            this.onHidePopup();
-        }
-        this.isShowing = false;
-        delete jslet.ui._activePopup;
-    }
-}
+	/**
+	 * Hide popup panel, and you can show it again.
+	 * 
+	 */
+	this.hide = function () {
+		if (jslet.ui._popupPanel) {
+			jslet.ui._popupPanel.style.display = 'none';
+			if(jslet.ui._popupShadow) {
+				jslet.ui._popupShadow.style.display = 'none';
+			}
+		}
+		if (this.onHidePopup) {
+			this.onHidePopup();
+		}
+		this.isShowing = false;
+		delete jslet.ui._activePopup;
+	};
+};
 
 /**
 * Check if a html element is in an active popup or not
@@ -227,15 +229,15 @@ jslet.ui.PopupPanel = function () {
 * @return {Boolean} True - In popup panel, False - Otherwise
 */
 jslet.ui.inPopupPanel = function (htmlElement) {
-    if (!htmlElement || htmlElement == document) {
-        return false;
-    }
-    if (jQuery(htmlElement).hasClass('jl-popuppanel')) {
-        return true;
-    } else {
-        return jslet.ui.inPopupPanel(htmlElement.parentNode);
-    }
-}
+	if (!htmlElement || htmlElement == document) {
+		return false;
+	}
+	if (jQuery(htmlElement).hasClass('jl-popuppanel')) {
+		return true;
+	} else {
+		return jslet.ui.inPopupPanel(htmlElement.parentNode);
+	}
+};
 
 /**
 * Get the specified level parent element. Example:
@@ -251,60 +253,60 @@ jslet.ui.inPopupPanel = function (htmlElement) {
 * @return {Html Element} Parent element, if not found, return null.
 */
 jslet.ui.getParentElement = function (htmlElement, level) {
-    if (!level) {
-        level = 1;
-    }
-    var flag = htmlElement.parentElement ? true : false,
-    result = htmlElement;
-    for (var i = 0; i < level; i++) {
-        if (flag) {
-            result = result.parentElement;
-        } else {
-            result = result.parentNode;
-        }
-        if (!result) {
-            return null;
-        }
-    }
-    return result;
-}
+	if (!level) {
+		level = 1;
+	}
+	var flag = htmlElement.parentElement ? true : false,
+	result = htmlElement;
+	for (var i = 0; i < level; i++) {
+		if (flag) {
+			result = result.parentElement;
+		} else {
+			result = result.parentNode;
+		}
+		if (!result) {
+			return null;
+		}
+	}
+	return result;
+};
 
 /**
 * Find first parent with specified condition. Example:
 * <pre><code>
 *   //Html snippet: body ->div1 ->div2 -> div3
-* 	var odiv = jslet.ui.findFirstParent(
-* 		odiv3, 
-* 		function (node) {return node.class == 'head';},
-* 		function (node) {return node.tagName != 'BODY'}
+*	var odiv = jslet.ui.findFirstParent(
+*		odiv3, 
+*		function (node) {return node.class == 'head';},
+*		function (node) {return node.tagName != 'BODY'}
 *   );
 * </code></pre>
 * 
 * @param {Html Element} element The start checking html element
 * @param {Function} conditionFn Callback function: function(node}{...}, node is html element;
-* 			if conditionFn return true, break finding and return 'node'
+*			if conditionFn return true, break finding and return 'node'
 * @param {Function} stopConditionFn Callback function: function(node}{...}, node is html element;
-* 			if stopConditionFn return true, break finding and return null
+*			if stopConditionFn return true, break finding and return null
 * 
 * @return {Html Element} Parent element or null
 */
 jslet.ui.findFirstParent = function (htmlElement, conditionFn, stopConditionFn) {
-    var p = htmlElement;
-    if (!p) {
-        return null;
-    }
-    if (!conditionFn) {
-        return p.parentNode;
-    }
-    if (conditionFn(p)) {
-        return p;
-    } else {
-        if (stopConditionFn && stopConditionFn(p.parentNode)) {
-            return null;
-        }
-        return jslet.ui.findFirstParent(p.parentNode, conditionFn, stopConditionFn);
-    }
-}
+	var p = htmlElement;
+	if (!p) {
+		return null;
+	}
+	if (!conditionFn) {
+		return p.parentNode;
+	}
+	if (conditionFn(p)) {
+		return p;
+	} else {
+		if (stopConditionFn && stopConditionFn(p.parentNode)) {
+			return null;
+		}
+		return jslet.ui.findFirstParent(p.parentNode, conditionFn, stopConditionFn);
+	}
+};
 
 /**
  * Find parent element that has 'jslet' property
@@ -316,7 +318,7 @@ jslet.ui.findJsletParent = function(element){
 	return jslet.ui.findFirstParent(element, function(ele){
 		return ele.jslet ? true:false; 
 	});
-}
+};
 
 /**
  * Check one node is a child of another node or not.
@@ -337,13 +339,14 @@ jslet.ui.isChild = function(parentNode, testNode) {
 		p = p.parentNode;
 	}
 	return false;
-}
+};
+
 /**
 * Text Measurer, measure the display width or height of the given text. Example:
 * <pre><code>
 *   jslet.ui.textMeasurer.setElement(document.body);
 *   try{
-        var width = jslet.ui.textMeasurer.getWidth('HellowWorld');
+		var width = jslet.ui.textMeasurer.getWidth('HellowWorld');
 		var height = jslet.ui.textMeasurer.getHeight('HellowWorld');
 	}finally{
 		jslet.ui.textMeasurer.setElement();
@@ -352,101 +355,101 @@ jslet.ui.isChild = function(parentNode, testNode) {
 * 
 */
 jslet.ui.TextMeasurer = function () {
-    var rule,felement = document.body,felementWidth;
+	var rule,felement = document.body,felementWidth;
 
-    var lastText = null;
-    
-    var createRule = function () {
-        if (!rule) {
-            rule = document.createElement('div');
-            document.body.appendChild(rule);
-            rule.style.position = 'absolute';
-            rule.style.left = '-9999px';
-            rule.style.top = '-9999px';
-            rule.style.display = 'none';
-            rule.style.margin = '0px';
-            rule.style.padding = '0px';
-            rule.style.overflow = 'hidden'
-        }
-        if (!felement) {
-            felement = document.body;
-        }
-    }
+	var lastText = null;
+	
+	var createRule = function () {
+		if (!rule) {
+			rule = document.createElement('div');
+			document.body.appendChild(rule);
+			rule.style.position = 'absolute';
+			rule.style.left = '-9999px';
+			rule.style.top = '-9999px';
+			rule.style.display = 'none';
+			rule.style.margin = '0px';
+			rule.style.padding = '0px';
+			rule.style.overflow = 'hidden';
+		}
+		if (!felement) {
+			felement = document.body;
+		}
+	};
 
-    /**
-     * Set html element which to be used as rule. 
-     * 
-     * @param {Html Element} element 
-     */
-    this.setElement = function (element) {
-        felement = element;
-        if (!felement) {
-            return;
-        }
-        createRule();
-        rule.style.fontSize = felement.style.fontSize;
-        rule.style.fontStyle = felement.style.fontStyle;
-        rule.style.fontWeight = felement.style.fontWeight;
-        rule.style.fontFamily = felement.style.fontFamily;
-        rule.style.lineHeight = felement.style.lineHeight;
-        rule.style.textTransform = felement.style.textTransform;
-        rule.style.letterSpacing = felement.style.letterSpacing;
-    }
+	/**
+	 * Set html element which to be used as rule. 
+	 * 
+	 * @param {Html Element} element 
+	 */
+	this.setElement = function (element) {
+		felement = element;
+		if (!felement) {
+			return;
+		}
+		createRule();
+		rule.style.fontSize = felement.style.fontSize;
+		rule.style.fontStyle = felement.style.fontStyle;
+		rule.style.fontWeight = felement.style.fontWeight;
+		rule.style.fontFamily = felement.style.fontFamily;
+		rule.style.lineHeight = felement.style.lineHeight;
+		rule.style.textTransform = felement.style.textTransform;
+		rule.style.letterSpacing = felement.style.letterSpacing;
+	};
 
-    this.setElementWidth = function (width) {
-        felementWidth = width;
-        if (!felement) {
-            return;
-        }
-        if (width) {
-            felement.style.width = width;
-        } else {
-            felement.style.width = '';
-        }
-    }
+	this.setElementWidth = function (width) {
+		felementWidth = width;
+		if (!felement) {
+			return;
+		}
+		if (width) {
+			felement.style.width = width;
+		} else {
+			felement.style.width = '';
+		}
+	};
 
-    function updateText(text){
-    	if (lastText != text) {
-    		rule.innerHTML = text;
-    	}
-    }
-    
-    /**
-     * Get the display size of specified text
-     * 
-     * @param {String} text The text to be measured
-     * 
-     * @return {Integer} Display size, unit: px
-     */
-    this.getSize = function (text) {
-        createRule();
-        updateText(text);
-        var ruleObj = jQuery(rule);
-        return {width:ruleObj.width(),height:ruleObj.height()};
-    }
+	function updateText(text){
+		if (lastText != text) {
+			rule.innerHTML = text;
+		}
+	}
+	
+	/**
+	 * Get the display size of specified text
+	 * 
+	 * @param {String} text The text to be measured
+	 * 
+	 * @return {Integer} Display size, unit: px
+	 */
+	this.getSize = function (text) {
+		createRule();
+		updateText(text);
+		var ruleObj = jQuery(rule);
+		return {width:ruleObj.width(),height:ruleObj.height()};
+	};
 
-    /**
-     * Get the display width of specified text
-     * 
-     * @param {String} text The text to be measured
-     * 
-     * @return {Integer} Display width, unit: px
-     */
-    this.getWidth = function (text) {
-        return this.getSize(text).width;
-    }
+	/**
+	 * Get the display width of specified text
+	 * 
+	 * @param {String} text The text to be measured
+	 * 
+	 * @return {Integer} Display width, unit: px
+	 */
+	this.getWidth = function (text) {
+		return this.getSize(text).width;
+	};
 
-    /**
-     * Get the display height of specified text
-     * 
-     * @param {String} text The text to be measured
-     * 
-     * @return {Integer} Display height, unit: px
-     */
-    this.getHeight = function (text) {
-        return this.getSize(text).height;
-    }
-}
+	/**
+	 * Get the display height of specified text
+	 * 
+	 * @param {String} text The text to be measured
+	 * 
+	 * @return {Integer} Display height, unit: px
+	 */
+	this.getHeight = function (text) {
+		return this.getSize(text).height;
+	};
+};
 
 jslet.ui.textMeasurer = new jslet.ui.TextMeasurer();
 
@@ -456,18 +459,18 @@ jslet.ui.textMeasurer = new jslet.ui.TextMeasurer();
 * @param e - error object or error message
 */
 jslet.showException = function (e) {
-    var msg;
-    if (typeof (e) == 'string') {
-        msg = e;
-    } else {
-        msg = e.message;
-    }
-    if (jslet.ui.MessageBox) {
-        jslet.ui.MessageBox.error(msg);
-    } else {
-        alert(msg);
-    }
-}
+	var msg;
+	if (typeof (e) == 'string') {
+		msg = e;
+	} else {
+		msg = e.message;
+	}
+	if (jslet.ui.MessageBox) {
+		jslet.ui.MessageBox.error(msg);
+	} else {
+		alert(msg);
+	}
+};
 
 /**
 * Show Info message.
@@ -475,18 +478,18 @@ jslet.showException = function (e) {
 * @param e - error object or error message
 */
 jslet.showInfo = function (e) {
-    var msg;
-    if (typeof (e) == 'string') {
-        msg = e;
-    } else {
-        msg = e.message;
-    }
-    if (jslet.ui.MessageBox) {
-        jslet.ui.MessageBox.alert(msg);
-    } else {
-        alert(msg);
-    }
-}
+	var msg;
+	if (typeof (e) == 'string') {
+		msg = e;
+	} else {
+		msg = e.message;
+	}
+	if (jslet.ui.MessageBox) {
+		jslet.ui.MessageBox.alert(msg);
+	} else {
+		alert(msg);
+	}
+};
 
 /**
  * Get css property value. Example:
@@ -508,7 +511,22 @@ jslet.ui.getCssValue = function(className, styleName){
 	
 	document.body.removeChild(odiv);
 	return result;
-}
+};
+
+jslet.ui.setEditableStyle = function(formElement, disabled, readOnly, onlySetStyle) {
+	if(!onlySetStyle) {
+		formElement.disabled = disabled;
+		formElement.readOnly = readOnly;
+	}
+	var jqEl = jQuery(formElement);
+	if(disabled || readOnly) {
+		if (!jqEl.hasClass('jl-readonly')) {
+			jqEl.addClass('jl-readonly');
+		}
+	} else {
+		jqEl.removeClass('jl-readonly');
+	}
+};
 
 /**
  * Get system scroll bar width
@@ -516,15 +534,15 @@ jslet.ui.getCssValue = function(className, styleName){
  * @return {Integer} scroll bar width
  */
 jslet.scrollbarSize = function() {
-	 var parent, child, width, height;
+	var parent, child, width, height;
 
-	 if (width === undefined) {
-	    parent = jQuery('<div style="width:50px;height:50px;overflow:auto"><div/></div>').appendTo('body');
-	    child = parent.children();
-	    width = child.innerWidth() - child.height(99).innerWidth();
-	    parent.remove();
-	 }
+	if (width === undefined) {
+		parent = jQuery('<div style="width:50px;height:50px;overflow:auto"><div/></div>').appendTo('body');
+		child = parent.children();
+		width = child.innerWidth() - child.height(99).innerWidth();
+		parent.remove();
+	}
 
-	 return width;
-}
+	return width;
+};
 	

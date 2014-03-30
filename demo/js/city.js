@@ -14,9 +14,9 @@ dsCity.addField(f);
 
 f = jslet.data.createStringField('province', 10);
 f.label('Province');
-lkf = new jslet.data.LookupField();
-lkf.lookupDataset(dsProvince);
-f.lookupField(lkf);
+lkf = new jslet.data.lookup();
+lkf.dataset(dsProvince);
+f.lookup(lkf);
 dsCity.addField(f);
 
 dsCity.keyField('cityid');

@@ -20,16 +20,16 @@ if (window.jslet === undefined || jslet === undefined){
 	 * @return {Object} jslet object of the specified Html tag
 	 */
     jslet=window.jslet = function(id){
-    	var ele = jQuery(id)[0];
-    	return (ele && ele.jslet) ? ele.jslet : null;
-    }
+        var ele = jQuery(id)[0];
+        return (ele && ele.jslet) ? ele.jslet : null;
+    };
 }
 jslet.version = '2.0.0.35';
 
 jslet._AUTOID = 0;
 jslet.nextId = function(){
 	return 'jslet' + (jslet._AUTOID++);
-}
+};
 
 /**
  * Namespace
@@ -43,6 +43,10 @@ if(!jslet.ui) {
 if(!jslet.locale) {
 	jslet.locale={};
 }
+if(!jslet.temp) {
+	jslet.temp = {};
+}
+
 //if (!jslet.rootUri) {
 //    var ohead = document.getElementsByTagName('head')[0], uri = ohead.lastChild.src;
 //    uri = uri.substring(0, uri
@@ -61,64 +65,64 @@ if(!Array.indexOf){
 				return i;
 		}
 		return -1;
-	}
+	};
 }
 
 if(!Object.deepClone){
 	/**
 	 * Deep clone object.
 	 * <pre><code>
-	 * 	var obj = {attr1: 'aaa', attr2: 123, attr3: {y1: 12, y2:'test'}};
-	 *  var objClone = obj.deepClone();
-	 * </code></pre>
-	 * 
-	 * @param {Function} callBack Identify these attributes will not be cloned.
-	 * pattern:
-	 *   function(object, attrName){}
-	 *   //object: Object, cloning object
-	 *   //attrName: String, attribute name
-	 *   //return: 
-	 */
-/*	Object.prototype.deepClone = function(callBack){
-	    var objClone;
-	    if (this.constructor == Object){
-	        objClone = new this.constructor(); 
-	    }else{
-	        objClone = new this.constructor(this.valueOf()); 
-	    }
-	    for(var key in this){
-	        if ( objClone[key] != this[key] ){ 
-	            if ( typeof(this[key]) == 'object' ){ 
-	                objClone[key] = this[key].deepClone();
-	            }else{
-	                objClone[key] = this[key];
-	            }
-	        }
-	    }
-	    objClone.toString = this.toString;
-	    objClone.valueOf = this.valueOf;
-	    return objClone; 
-	}*/ 
+     *     var obj = {attr1: 'aaa', attr2: 123, attr3: {y1: 12, y2:'test'}};
+     *  var objClone = obj.deepClone();
+     * </code></pre>
+     * 
+     * @param {Function} callBack Identify these attributes will not be cloned.
+     * pattern:
+     *   function(object, attrName){}
+     *   //object: Object, cloning object
+     *   //attrName: String, attribute name
+     *   //return: 
+     */
+/*    Object.prototype.deepClone = function(callBack){
+        var objClone;
+        if (this.constructor == Object){
+            objClone = new this.constructor(); 
+        }else{
+            objClone = new this.constructor(this.valueOf()); 
+        }
+        for(var key in this){
+            if ( objClone[key] != this[key] ){ 
+                if ( typeof(this[key]) == 'object' ){ 
+                    objClone[key] = this[key].deepClone();
+                }else{
+                    objClone[key] = this[key];
+                }
+            }
+        }
+        objClone.toString = this.toString;
+        objClone.valueOf = this.valueOf;
+        return objClone; 
+    }*/ 
 }
 
 if(!String.prototype.trim){
 	String.prototype.trim = function(){
 		this.replace(/^\s+/, '').replace(/\s+$/, '');
-	}	
+	}	;
 }
 
 if(!String.prototype.startsWith){
 	String.prototype.startsWith = function(pattern) {
 		return this.lastIndexOf(pattern, 0) === 0;
-	}
+	};
 }
 
 if(!String.prototype.endsWith){
 	//From Prototype.js
 	String.prototype.endsWith = function(pattern){
-	    var d = this.length - pattern.length;
-	    return d >= 0 && this.indexOf(pattern, d) === d;		
-	}
+        var d = this.length - pattern.length;
+        return d >= 0 && this.indexOf(pattern, d) === d;
+	};
 }
 
 /*
@@ -144,7 +148,7 @@ jslet.deepClone = function(srcObj){
     objClone.toString = srcObj.toString;
     objClone.valueOf = srcObj.valueOf;
     return objClone; 
-}
+};
                                         
 /**
  * A simple map for Key/Value data. Example:
@@ -155,7 +159,7 @@ jslet.deepClone = function(srcObj){
  * </code></pre>
  */
 jslet.SimpleMap = function () {
-    var _keys = new Array(), _values = new Array();
+    var _keys = [], _values = [];
     this.get = function (key) {
         var len = _keys.length;
         for (var i = 0; i < len; i++) {
@@ -164,7 +168,7 @@ jslet.SimpleMap = function () {
             }
         }
         return null;
-    }
+    };
 
     this.set = function (key, value) {
         var k = _keys.indexOf(key);
@@ -174,12 +178,12 @@ jslet.SimpleMap = function () {
             _keys.push(key);
             _values.push(value);
         }
-    }
+    };
 
     this.clear = function () {
         _keys.length = 0;
         _values.length = 0;
-    }
+    };
 
     this.unset = function (key) {
         var len = _keys.length;
@@ -190,16 +194,16 @@ jslet.SimpleMap = function () {
                 return;
             }
         }
-    }
+    };
 
     this.count = function () {
         return _keys.length;
-    }
+    };
 
     this.keys = function () {
         return _keys;
-    }
-}
+    };
+};
 
 /**
  * format message with argument. Example:
@@ -217,20 +221,20 @@ jslet.formatString = function (msg, args) {
         return msg;
     }
     if (typeof (args) == 'string') {
-        return msg.replace('\{0\}', args);
+        return msg.replace('{0}', args);
     }
-    var result = msg, cnt;
+    var result = msg, cnt, i;
     if (args.length) {// array
         cnt = args.length;
-        for (var i = 0; i < cnt; i++) {
-            result = result.replace('\{' + i + '\}', args[i]);
+        for (i = 0; i < cnt; i++) {
+            result = result.replace('{' + i + '}', args[i]);
         }
     } else {// Hash
         var arrKeys = args.keys(), sKey;
         cnt = arrKeys.length;
-        for (var i = 0; i < cnt; i++) {
+        for (i = 0; i < cnt; i++) {
             sKey = arrKeys[i];
-            result = result.replace('\{' + sKey + '\}', args.get(sKey));
+            result = result.replace('{' + sKey + '}', args.get(sKey));
         }
     }
     return result;
@@ -252,7 +256,7 @@ jslet._SCALEFACTOR = '100000000000000000000000000000000000';
  * 
  * @param {Number} num number that need format 
  * @param {String} pattern pattern for number, like '#,##0.00'
- * 	# - not required
+ *  # - not required
  *  0 - required, if the corresponding digit of the number is empty, fill in with '0'
  *  . - decimal point
  *
@@ -262,8 +266,8 @@ jslet.formatNumber = function(num, pattern) {
 	if (!pattern) {
 		return num;
 	}
-	var preFix = '', c;
-	for (var i = 0; i < pattern.length; i++) {
+	var preFix = '', c, i;
+	for (i = 0; i < pattern.length; i++) {
 		c = pattern.substr(i, 1);
 		if (c == '#' || c == '0' || c == ',') {
 			if (i > 0) {
@@ -275,7 +279,7 @@ jslet.formatNumber = function(num, pattern) {
 	}
 
 	var suffix = '';
-	for (var i = pattern.length - 1; i >= 0; i--) {
+	for (i = pattern.length - 1; i >= 0; i--) {
 		c = pattern.substr(i, 1);
 		if (c == '#' || c == '0' || c == ',') {
 			if (i > 0) {
@@ -299,8 +303,13 @@ jslet.formatNumber = function(num, pattern) {
 		num = Math.round(num * factor) / factor;
 		strarr = num ? num.toString().split('.') : ['0'];
 	}
-	var retstr = '',str = strarr[0],fmt = fmtarr[0],comma = false,k = str.length - 1;
-	for (var f = fmt.length - 1; f >= 0; f--) {
+	var retstr = '',
+	str = strarr[0],
+	fmt = fmtarr[0],
+	comma = false,
+	k = str.length - 1,
+	f;
+	for (f = fmt.length - 1; f >= 0; f--) {
 		switch (fmt.substr(f, 1)) {
 			case '#' :
 				if (k >= 0) {
@@ -325,7 +334,7 @@ jslet.formatNumber = function(num, pattern) {
 			var l = str.length;
 			for (; k >= 0; k--) {
 				retstr = str.substr(k, 1) + retstr;
-				if (k > 0 && ((l - k) % 3) == 0) {
+				if (k > 0 && ((l - k) % 3) === 0) {
 					retstr = ',' + retstr;
 				}
 			}
@@ -339,7 +348,7 @@ jslet.formatNumber = function(num, pattern) {
 	str = strarr.length > 1 ? strarr[1] : '';
 	fmt = fmtarr.length > 1 ? fmtarr[1] : '';
 	k = 0;
-	for (var f = 0; f < fmt.length; f++) {
+	for (f = 0; f < fmt.length; f++) {
 		switch (fmt.substr(f, 1)) {
 			case '#' :
 				if (k < str.length) {
@@ -356,7 +365,7 @@ jslet.formatNumber = function(num, pattern) {
 		}
 	}
 	return preFix + retstr.replace(/^,+/, '').replace(/\.$/, '') + suffix;
-}
+};
 
 /**
  * Format date with specified format. Example:
@@ -381,15 +390,15 @@ jslet.formatDate = function(date, format) {
 		// millisecond
 	};
 	if (/(y+)/.test(format)) {
-		format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4
-						- RegExp.$1.length));
+		format = format.replace(RegExp.$1, 
+				(date.getFullYear() + '').substr(4 - RegExp.$1.length));
 	}
-	for (var k in o)
+	for (var k in o) {
 		if (new RegExp('(' + k + ')').test(format)) {
-			format = format.replace(RegExp.$1, RegExp.$1.length == 1
-							? o[k]
-							: ('00' + o[k]).substr(('' + o[k]).length));
+			format = format.replace(RegExp.$1, 
+				RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
 		}
+	}
 	return format;
 };
 
@@ -426,13 +435,13 @@ jslet.parseDate = function(strDate, format) {
 	if(begin >= 0) {
 		dateParts[ch] = parseInt(strDate.substring(begin));
 	}
-	var year = dateParts['y'];
+	var year = dateParts.y;
 	if(year < 100) {
 		year += 2000;
 	}
-	var result = new Date(year, dateParts['M'] - 1, dateParts['d'], dateParts['h'], dateParts['m'], dateParts['s'], dateParts['S']);
+	var result = new Date(year, dateParts.M - 1, dateParts.d, dateParts.h, dateParts.m, dateParts.s, dateParts.S);
 	return result;
-}
+};
 
 /**
  * Convert string(ISO date format) to date
@@ -466,28 +475,35 @@ jslet._currentPattern = {};
  * @return {String} js regular pattern
  */
 jslet._convertToJsPattern = function(pattern, escapeChar) {
-	if (jslet._currentPattern.pattern == pattern
-			&& jslet._currentPattern.escapeChar == escapeChar) {
+	if (jslet._currentPattern.pattern == pattern && 
+			jslet._currentPattern.escapeChar == escapeChar) {
 		return jslet._currentPattern.result;
 	}
 	jslet._currentPattern.pattern = pattern;
 	jslet._currentPattern.escapeChar = escapeChar;
 
-	var jsPattern = new Array(),len = pattern.length - 1,c, nextChar,bgn = 0, end = len,hasLeft = false,hasRight = false;
+	var jsPattern = [],
+		len = pattern.length - 1,
+		c, 
+		nextChar,
+		bgn = 0, 
+		end = len,
+		hasLeft = false,
+		hasRight = false;
 	if (pattern.charAt(0) == '%'){
-	   bgn = 1;
-	   hasLeft = true;
-	}
+       bgn = 1;
+       hasLeft = true;
+    }
     if (pattern.charAt(len) == '%'){
-	   end = len - 1;
-	   hasRight = true;
-	}
-	if (hasLeft && hasRight){
-	   jsPattern.push('.*');
-	}
-	else if (hasRight){
-	   jsPattern.push('^');
-	}	
+       end = len - 1;
+       hasRight = true;
+    }
+    if (hasLeft && hasRight){
+       jsPattern.push('.*');
+    }
+    else if (hasRight){
+       jsPattern.push('^');
+    }
 	for (var i = bgn; i <= end; i++) {
 		c = pattern.charAt(i);
 		if (c == '\\' && i < len) {
@@ -500,20 +516,20 @@ jslet._convertToJsPattern = function(pattern, escapeChar) {
 		} else if (c == '_') {
 			jsPattern.push('.');
 		} else {
-			if (c == '.' || c == '*' || c == '[' || c == ']' || c == '{'
-					|| c == '}' || c == '+' || c == '(' || c == ')'
-					|| c == '\\' || c == '?' || c == '$' || c == '^')
+			if (c == '.' || c == '*' || c == '[' || c == ']' || 
+					c == '{' || c == '}' || c == '+' || c == '(' || 
+					c == ')' || c == '\\' || c == '?' || c == '$' || c == '^')
 				jsPattern.push('\\');
 			jsPattern.push(c);
 		}
 	}// end for
 	if (hasLeft && hasRight || hasRight){
-	   jsPattern.push('.*');
-	} else if (hasLeft){
-	   jsPattern.push('$');
-	}
+       jsPattern.push('.*');
+    } else if (hasLeft){
+       jsPattern.push('$');
+    }
 
-	jslet._currentPattern.result = new RegExp(jsPattern.join(''), 'ig');
+    jslet._currentPattern.result = new RegExp(jsPattern.join(''), 'ig');
 	return jslet._currentPattern.result;
 };
 
@@ -529,15 +545,15 @@ jslet.like = like = window.like = function(testValue, pattern, escapeChar) {
 	if (!testValue || !pattern) {
 		return false;
 	}
-	if (pattern.length == 0) {
+	if (pattern.length === 0) {
 		return false;
 	}
 	if (!escapeChar) {
 		escapeChar = '\\';
 	}
 	var jsPattern = jslet._convertToJsPattern(pattern, escapeChar);
-	return testValue && testValue.match(jsPattern) != null;
-}
+	return testValue && testValue.match(jsPattern) !== null;
+};
 
 /**
  * Between function, all parameters' type must be same. Example:
@@ -556,7 +572,7 @@ jslet.between = between = window.between = function(testValue, minValue, maxValu
 		return false;
 	}
 	return testValue >= minValue && testValue <= maxValue;
-}
+};
 
 /**
  * Test if the value is in the following list. Eexample:
@@ -579,7 +595,7 @@ jslet.inlist = inlist = window.inlist = function(testValue, valueList) {
 		}
 	}
 	return false;
-}
+};
 
 /**
  * Test if the given value is an array.
@@ -589,7 +605,7 @@ jslet.inlist = inlist = window.inlist = function(testValue, valueList) {
  */
 jslet.isArray = function (testValue) {
     return !testValue || Object.prototype.toString.apply(testValue) === '[object Array]';
-}
+};
 
 /**
  * Test if the given value is date object.
@@ -599,7 +615,7 @@ jslet.isArray = function (testValue) {
  */
 jslet.isDate = function(testValue) {
 	return !testValue || testValue.constructor == Date;
-}
+};
 
 /**
  * Test if the given value is a string object.
@@ -608,15 +624,15 @@ jslet.isDate = function(testValue) {
  * @return {Boolean} True if the given value is String object, false otherwise
  */
 jslet.isString = function(testValue) {
-	return !testValue || typeof testValue == 'string';
-}
+	return testValue === null || testValue === undefined || typeof testValue == 'string';
+};
 
 jslet.setTimeout = function(obj, func, time) {
     jslet.delayFunc = function () {
         func.call(obj);
-    }
+    };
     setTimeout(jslet.delayFunc, time);
-}
+};
 
 /**
  * Encode html string. Example:
@@ -633,7 +649,7 @@ jslet.htmlEncode = function(htmlText){
     } else {
         return '';
     }
-}
+};
 
 /**
  * Decode html string. Example:
@@ -650,7 +666,7 @@ jslet.htmlDecode = function(htmlText) {
     } else {
         return '';
     }
-}
+};
 
 /**
  * Get a array item safely. Example:
@@ -670,17 +686,228 @@ jslet.getArrayValue = function(arrValues, index) {
 	}
 		
     if(jslet.isArray(arrValues)){
-    	var len = arrValues.length;
-    	if(index < len) {
-    		return arrValues[index];
-    	} else {
-    		return null;
-    	}
+        var len = arrValues.length;
+        if(index < len) {
+            return arrValues[index];
+        } else {
+            return null;
+        }
     } else {
-    	if(index == 0) {
-    		return arrValues;
-    	} else {
-    		return null;
-    	}
+        if(index === 0) {
+            return arrValues;
+        } else {
+            return null;
+        }
     }
+};
+
+jslet.Checker = {
+	varName: null,
+	varValue: null,
+	
+	test: function(varName, varValue) {
+		this.varName = varName;
+		this.varValue = varValue;
+		return this;
+	},
+	
+	testValue: function(varValue) {
+		this.varValue = varValue;
+		return this;
+	},
+	
+	required: function() {
+		if(this.varValue === null || this.varValue === undefined || this.varValue === '') {
+			throw new Error('[' + this.varName + '] is Required!');
+		}
+		return this;
+	},
+	
+	isString: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			!jslet.isString(this.varValue)) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be a String!');
+		}
+		return this;
+	},
+	
+	isDate: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			!jslet.isDate(this.varValue)) {
+			throw new Error('[' + this.varName + '] must be a Date!');
+		}
+		return this;
+	},
+	
+	isNumber: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined && 
+			this.varValue !== false &&
+			!jQuery.isNumeric(this.varValue)) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be a Numberic!');
+		}
+		return this;
+	},
+	
+	isGTZero: function() {
+		this.isNumber();
+		if(this.varValue <= 0) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than zero!');
+		}
+	},
+	
+	isGTEZero: function() {
+		this.isNumber();
+		if(this.varValue < 0) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than or equal zero!');
+		}
+	},
+	
+	isArray: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			!jslet.isArray(this.varValue)) {
+			throw new Error('[' + this.varName + '] must be an Array!');
+		}
+		return this;
+	},
+	
+	isObject: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			jQuery.type(this.varValue) !== "object") {
+			throw new Error('[' + this.varName + '] must be a Object!');
+		}
+		return this;
+	},
+	
+	isFunction: function() {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+//			(typeof this.varValue == 'function') ){
+			!jQuery.isFunction(this.varValue)) {
+			throw new Error('[' + this.varName + '] must be a Function!');
+		}
+		return this;
+	},
+	
+	isClass: function(className) {
+		this.isObject();
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			this.varValue.className != className)   {
+			throw new Error('[' + this.varName + '] must be instance of [' + className+ ']!');
+		}
+		return this;
+	},
+	
+	isDataType: function(dataType) {
+		if(dataType == 'S') {
+			this.isString();
+		}
+		if(dataType == 'N') {
+			this.isNumber();
+		}
+		if(dataType == 'D') {
+			this.isDate();
+		}
+		return this;
+	},
+	
+	inArray: function(arrlist) {
+		if(this.varValue !== null && 
+			this.varValue !== undefined &&
+			this.varValue !== false &&
+			arrlist.indexOf(this.varValue) < 0)   {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be one of [' + arrlist.join(',') + ']!');
+		}
+		return this;
+	}
+
+};
+
+jslet.JSON = {
+	normalize: function (json) {
+		json = jQuery.trim(json);
+		var result = [], c, next, isKey = false, isArray = false, isObj = true, last = '', quoteChar = null;
+		var c = json.charAt(0), append = false;
+		if(c != '{' && c != '[') {
+			result.push('{"');
+			append = true;
+		}		
+		for(var i = 0, len = json.length; i< len; i++) {
+			c = json.charAt(i);
+			
+			if(quoteChar) {//Not process any char in a String value. 
+				if(c == quoteChar) {
+					quoteChar = null;
+					result.push('"');
+					last = '"';
+				} else {
+					result.push(c);
+				}
+				continue;
+			}
+			if(c == '[') {
+				isArray = true;
+				isObj = false;
+			}
+			if(c == ']' || c == '{') {
+				isArray = false;
+				isObj = true;
+			}
+			if(isKey && (c == ' ' || c == '\b')) {//Trim blank char in a key.
+				continue;
+			}
+			if(isObj && (c == '{' || c == ',')) {
+				isKey = true;
+				result.push(c);
+				last = c;
+				continue;
+			}
+			if(last == '{' || last == ',') {
+				result.push('"');
+			}
+			if(isKey && c == "'") {
+				result.push('"');
+				continue;
+			}
+			if(c == ':') {
+				isKey = false;
+				if(last != '"') {
+					result.push('"');
+				}
+			}
+			if(!isKey) {
+				if(c == "'" || c == '"') {
+					quoteChar = c;
+					result.push('"');
+					continue;
+				}
+			}
+			last = c;
+			result.push(c);
+		}
+		if(append) {
+			result.push('}');
+		}
+		return result.join('');
+	},
+	
+	parse: function(json) {
+		return JSON.parse(this.normalize(json));
+	},
+	
+	stringify: function(value, replacer, space) {
+		return JSON.stringify(value, replacer, space);
+	}
+
 }

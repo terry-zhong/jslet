@@ -14,8 +14,10 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - FieldSet Demo</h2>
-	<h4>Demostrate how to use FieldSet control.</h4>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Demonstrate how to use FieldSet control.</div>
 
     <fieldset data-jslet='type: "FieldSet", caption: " Fieldset caption "'
         style="width: 300px; margin-left: 20px">
@@ -27,9 +29,9 @@
         <p>content5</p>
         </div>
    </fieldset>
-    <hr />
+
     <h3>Demo Content:</h3>
-	<p>Expand / Collapse FieldSet</p>
+	<div class="content">Expand / Collapse FieldSet</div>
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>

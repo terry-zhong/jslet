@@ -13,9 +13,12 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - SplitPanel Demo</h2>
-	<h4>Demostrate how to use SplitPanel control.</h4>
-    <hr />
-	<p>Horizon:</p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Demonstrate how to use SplitPanel control.</div>
+    <fieldset>
+	<legend>Horizon Split Panel:</legend>
     <div data-jslet='type:"SplitPanel",direction:"hori",floatIndex: 1'
         style="width: 90%; height: 150px; margin-left: 20px">
      	<div style="overflow:hidden; width:200px;min-width:50px">
@@ -30,18 +33,25 @@
      	<div style="overflow:hidden; width:100px">Right Pane1</div>
      	<div style="overflow:hidden; width:100px">Right Pane2</div>
     </div>
-	<p>Horizon with left panel collapsed:<br />
-		Add css text: "display:none" into the left panel, then collapse it.
-	</p>
+	</fieldset>
+	
+    <fieldset>
+	<legend>Horizon with left panel collapsed</legend>
     <div data-jslet='type:"SplitPanel",direction:"hori",floatIndex: 1'
         style="width: 800px; height: 100px; margin-left: 20px">
      	<div style="overflow:hidden; width:100px;min-width:50px;display:none">Left Pane</div>
-     	<div style="overflow:hidden; background-color:#ff9">Float Panel</div>
+     	<div style="overflow:hidden; background-color:#ff9">
+			Float Panel
+			<p>
+				Add css text: "display:none" into the left panel, it will be collapsed.
+			</p>
+		</div>
      	<div style="overflow:hidden; width:100px">Right Pane</div>
     </div>
-
-    <hr />
-    <p>Vertical: </p>
+	</fieldset>
+	
+    <fieldset>
+    <p>Vertical Split Panel</p>
     <div data-jslet='type:"SplitPanel",direction:"vert",floatIndex: 1'
         style="width: 600px; height: 600px; margin-left: 20px">
      	<div style="overflow:hidden; height:100px;min-height:30px">Top Pane1</div>
@@ -52,16 +62,18 @@
      	<div style="overflow:hidden; height:50px;">Bottom Pane2</div>
      	<div style="overflow:hidden; height:50px;">Bottom Pane1</div>
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
-    <p>
-        1. Set direction: horizon or vertical;</p>
-
-    <p>
-        2. Set float pane, which can change width automactically when change other pane's width;</p>
-    <p>
-        3. Click expander button to expand or collapse panel quickly.</p>
-
+	<div class="content">
+	<ol>
+    <li>
+        Set direction: horizon or vertical;</li>
+    <li>
+        Set float pane, which can change width automactically when change other pane's width;</li>
+    <li>
+        Click expander button to expand or collapse panel quickly.</li>
+	</ol>		
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
 </body>

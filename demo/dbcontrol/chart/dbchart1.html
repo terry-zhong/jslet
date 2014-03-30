@@ -50,49 +50,97 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBChart Demo1</h2>
-    <p>Tips: DBChart is designed with Flash. Cause the .swf file size is 514k, it is probably slow when open it first time.</p>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <div class="content">Tips: DBChart is designed with Flash. Cause the .swf file size is 514k, it is probably slow when open it first time.</div>
+    <fieldset>
+		<legend>Summary List</legend>
     <div id="table1" data-jslet='type:"DBTable",dataset:"summary",hasSelectCol:true,selectBy:"area"'
         style="width: 800px; height: 200px">
     </div>
+	</fieldset>
+	<fieldset>
+		<legend>Chart Area</legend>
     <table>
         <tr>
             <td>
-                <div id="chartId" data-jslet='type:"dbchart",chartType:"column",categoryField:"area,month",valueField:"amount", dataset:"summary"'
+                <div id="chartId" data-jslet='type:"dbchart",chartType:"column",categoryFields:"area,month",valueField:"amount", dataset:"summary"'
                     style="width: 600px; height: 500px">
                 </div>
             </td>
             <td style="vertical-align: top">
-                <p>Demo Content:
-                    <input type="button" value="       Draw Chart        " onclick="jslet('#chartId').renderAll()" /></p>
-                <p>
-                    1. Chart Type: <select id="idType" onchange="jslet('#chartId').chartType= $('#idType')[0].value;jslet('#chartId').renderAll();">
+				<p>Chart Options:</p>
+				<ol>
+                <li>
+                    Chart Type: <select id="idType" onchange="doChangeChartType()">
                         <option value="column">Column Chart</option>
                         <option value="bar">Bar Chart</option>
                         <option value="line">Line Chart</option>
                         <option value="area">Area Chart</option>
                         <option value="pie">Pie Chart</option>
-                    </select>&nbsp;&nbsp;&nbsp; 2. Category Field:
-                    <input type="radio" name="cateFields" checked="checked" onclick="jslet('#chartId').categoryField= 'area,month';jslet('#chartId').renderAll();" />Area + Month
-                    <input type="radio" name="cateFields" onclick="jslet('#chartId').categoryField= 'month,area';jslet('#chartId').renderAll();" />Month + Area</p>
-                <p>
-                    3. Analysis Data: <select id="selValueField" onchange="jslet('#chartId').valueField= $('#selValueField')[0].value;jslet('#chartId').renderAll();">
+                    </select>&nbsp;&nbsp;&nbsp; 
+					Category Field:
+                    <input type="radio" name="cateFields" checked="checked" onclick="doChangeCategoryFields('area,month')" />Area + Month
+                    <input type="radio" name="cateFields" onclick="doChangeCategoryFields('month,area')" />Month + Area</li>
+                <li>
+                    Analysis Data: <select id="selValueField" onchange="doChangeValueField()">
                         <option value="amount">Sales Amount</option>
                         <option value="netprofit">Net Profit</option>
-                    </select>&nbsp;&nbsp;&nbsp; 4. Legend Position：<select id="legendPos" onchange="jslet('#chartId').legendPos= $('#legendPos').val();jslet('#chartId').renderAll();">
+                    </select>
+				</li>
+				<li>
+					Legend Position：<select id="legendPos" onchange="doChangeLegenPos();">
                         <option value="none">None</option>
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
                         <option value="left">Left</option>
                         <option value="right">Right</option>
-                    </select></p>
-                <p>
-                    5. Chart title: <input id="txtChartTitle" type="text" size="20" /><input type="button" value=" OK "
-                        onclick="jslet('#chartId').chartTitle=$('#txtChartTitle').val();jslet('#chartId').renderAll();" /></p>
+                    </select></li>
+                <li>
+                    Chart title: <input id="txtChartTitle" type="text" size="20" />
+						<button onclick="doChangeChartTitle()"> OK </button>
+                </li>
+				</ol>
+				<p>
+				&nbsp;&nbsp;&nbsp;<button onclick="jslet('#chartId').renderAll()"> Draw Chart </button>
+				</p>				
             </td>
         </tr>
     </table>
-
+	</fieldset>
+	<script type="text/javascript">
+		function doChangeChartType() {
+			var chartObj = jslet('#chartId');
+			chartObj.chartType($('#idType').val());
+			chartObj.renderAll();
+		}
+		
+		function doChangeCategoryFields(fields) {
+			var chartObj = jslet('#chartId');
+			chartObj.categoryFields(fields);
+			chartObj.renderAll();		
+		}
+		
+		function doChangeValueField() {
+			var chartObj = jslet('#chartId');
+			chartObj.valueField($('#selValueField').val());
+			chartObj.renderAll();
+		}
+		
+		function doChangeLegenPos() {
+			var chartObj = jslet('#chartId');
+			chartObj.legendPos($('#legendPos').val());
+			chartObj.renderAll();
+		}
+		
+		function doChangeChartTitle() {
+			var chartObj = jslet('#chartId');
+			chartObj.chartTitle($('#txtChartTitle').val());
+			chartObj.renderAll();
+		}
+		
+	</script>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
 </body>

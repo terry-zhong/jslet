@@ -15,8 +15,6 @@
             treeCfg = { type: 'DBTreeView', 
 			    dataset: 'dsAgency', 
 				displayFields: '[code]+"-"+[name]',
-                keyField: 'id', 
-				parentField: 'parentid',
                 hasCheckBox: true, 
 				iconClassField: 'iconcls',
 				expandLevel: 1 
@@ -34,13 +32,18 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBTreeView(Appearance) Demo</h2>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Tree Area</legend>
 	<!-- treeCfg is a global variable defined in Head tag.-->
     <div id="trvRegion" data-jslet="treeCfg" style="width: 100%; height: 200px;margin-right: 20px">
     </div>
-  
-    <hr />
+	</fieldset>
+
     <h3>Demo Content:</h3>
+	<div class="content">
 	<ol class="content-list">
     <li>
         After check a child node, all of its parent node will display bold, it is very useful to find all checked nodes when the parent nodes are collapsed. 
@@ -49,10 +52,12 @@
         Set icon class id of tree node with field value(iconClassField). 
 	</li>
     <li>
-        Set icon class id of tree node with customized event(onGetIconClass): <input type="button" value=" Set " onclick="treeTag.jslet.onGetIconClass = doGetIconClass; treeTag.jslet.renderAll(); treeTag.jslet.expand();" />
-			<input type="button" value=" Clear " onclick="treeTag.jslet.onGetIconClass = null; treeTag.jslet.renderAll(); treeTag.jslet.expand();" />
+        Set icon class id of tree node with customized event(onGetIconClass): 
+		<button onclick="treeTag.jslet.onGetIconClass = doGetIconClass; treeTag.jslet.renderAll(); treeTag.jslet.expand();">  Set </button>
+		<button onclick="treeTag.jslet.onGetIconClass = null; treeTag.jslet.renderAll(); treeTag.jslet.expand();">  Clear </button>
 	</li>
 	</ol>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
 </body>

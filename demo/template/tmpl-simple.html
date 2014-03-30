@@ -30,7 +30,10 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Template</h2>
-	<p>Jslet can be used with jQuery template easly. 
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Jslet can be used with jQuery template easly. 
 	There are many jQuery template engines.<br />
 	In this example, we use this: https://codeload.github.com/KanbanSolutions/jquery-tmpl/legacy.zip/1.0.3</p>
 	<script id="employeeTemplate" type="text/x-jquery-tmpl">
@@ -42,18 +45,20 @@
 			<td>${position}</td>
 		</tr>
 	</script>
-	
-    <hr />
-	<p>Initial Field Values</p>
+	</div>
+    <fieldset>
+	<legend>Initial Field Values</legend>
 	<table><tbody class="header"><tr><th>Name</th><th>Gender</th><th>birthday</th><th>department</th><th>position</th></tr></tbody>
 		<tbody id="employeeDataList"></tbody>
 	</table>
+	</fieldset>
 	
-	<p>Converted Field Values</p>
+    <fieldset>
+	<legend>Converted Field Values</legend>
 	<table><tbody class="header"><tr><th>Name</th><th>Gender</th><th>birthday</th><th>department</th><th>position</th></tr></tbody>
 		<tbody id="employeeList"></tbody>
 	</table>
-	
+	</fieldset>	
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=950"></script>
 </body>

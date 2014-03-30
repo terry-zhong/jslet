@@ -12,144 +12,144 @@ If you are unsure which license is appropriate for your use, please visit: http:
 /**
  * @class DBDatePicker. Example:
  * <pre><code>
- * 		var jsletParam = {type:"DBDatePicker",dataset:"employee",field:"birthday", textReadOnly:true};
+ * var jsletParam = {type:"DBDatePicker",dataset:"employee",field:"birthday", textReadOnly:true};
  * 
  * //1. Declaring:
- *      &lt;div data-jslet='type:"DBDatePicker",dataset:"employee",field:"birthday", textReadOnly:true' />
- *      or
- *      &lt;div data-jslet='jsletParam' />
- *      
+ * &lt;div data-jslet='type:"DBDatePicker",dataset:"employee",field:"birthday", textReadOnly:true' />
+ * or
+ * &lt;div data-jslet='jsletParam' />
+ * 
  *  //2. Binding
- *      &lt;div id="ctrlId"  />
- *  	//Js snippet
- * 		var el = document.getElementById('ctrlId');
- *  	jslet.ui.bindControl(el, jsletParam);
+ * &lt;div id="ctrlId"  />
+ * //Js snippet
+ * var el = document.getElementById('ctrlId');
+ * jslet.ui.bindControl(el, jsletParam);
  *
  *  //3. Create dynamically
- *  	jslet.ui.createControl(jsletParam, document.body);
- *  	
+ * jslet.ui.createControl(jsletParam, document.body);
+ *
  * </code></pre>
  */
 jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	/**
 	 * @override
 	 */
-    initialize: function ($super, el, params) {
-        var Z = this;
-        if (!Z.allProperties) {
-            Z.allProperties = 'dataset,field,textReadOnly,popupWidth, popupHeight,minDate,maxDate';
-        }
-        if (!Z.requiredProperties) {
-            Z.requiredProperties = 'field';
-        }
-        Z.dataset;
-        Z.field;
-        /**
-         * {Boolean} Idenfity if user can input value with keyboard.
-         */
-        Z.textReadOnly;
-        
-        /**
-         * {Integer} Popup panel width
-         */
-        Z.popupWidth;
+	initialize: function ($super, el, params) {
+		var Z = this;
+		Z.allProperties = 'dataset,field,textReadOnly,popupWidth, popupHeight';
+		
+		/**
+		 * {Integer} Popup panel width
+		 */
+		Z._popupWidth = 260;
 
-        /**
-         * {Integer} Popup panel height
-         */
-        Z.popupHeight;
+		/**
+		 * {Integer} Popup panel height
+		 */
+		Z._popupHeight = 226;
 
-        /**
-         * {Date} minDate Minimized date of calendar range 
-         */
-        Z.minDate = null;
+		Z.popup = new jslet.ui.PopupPanel();
+		
+		Z.popup.onHidePopup = function() {
+			Z.focus();
+		};
+		
+		Z.comboButtonCls = 'jl-datepick-btn';
+		Z.comboButtonDisabledCls = 'jl-datepick-btn-disabled';
 
-        /**
-         * {Date} maxDate Maximized date of calendar range 
-         */
-        Z.maxDate = null;
+		$super(el, params);
+	},
 
-        Z.popup = new jslet.ui.PopupPanel();
-        
-        Z.popup.onHidePopup = function() {
-        	Z.focus();
-        }
-        
-        Z.comboButtonCls = 'jl-datepick-btn';
-        Z.comboButtonDisabledCls = 'jl-datepick-btn-disabled';
-
-        $super(el, params);
-    },
-
-	/**
-	 * @override
-	 */
-    isValidTemplateTag: function (el) {
-        return true;
-    },
-
-    buttonClick: function () {
-        var el = this.el, 
-        	Z = this, 
-        	fldObj = Z.dataset.getField(Z.field),
-        	jqEl = jQuery(el);
-        if (fldObj.readOnly() || !fldObj.enabled()) {
-        	return;
-        }
-        var width = Z.popupWidth ? parseInt(Z.popupWidth) : 260,
-        	height = Z.popupHeight ? parseInt(Z.popupHeight) : 226,
-        	dateValue = Z.dataset.getFieldValue(Z.field, Z.valueIndex),
-        	range = fldObj.range();
-        if (range){
-        	if (range.min) {
-        		Z.minDate = range.min;
-        	}
-        	if (range.max) {
-        		Z.maxDate = range.max;
-        	}
-        }
-        if (!Z.contentPanel)
-            Z.contentPanel = jslet.ui.createControl({ type: 'Calendar', value: dateValue, minDate: Z.minDate, maxDate: Z.maxDate,
-                onDateSelected: function (date) {
-                    Z.popup.hide();
-                    Z.el.focus();
-                    var value = Z.dataset.getFieldValue(Z.field, Z.valueIndex);
-                    if(!value) {
-                    	value = date;
-                    } else {
-                    	value.setFullYear(date.getFullYear());
-                    	value.setMonth(date.getMonth());
-                    	value.setDate(date.getDate());
-                    }
-                    Z.dataset.setFieldValue(Z.field, value, Z.valueIndex);
-                }
-            }, null, width + 'px', height + 'px');
-
-        jslet.ui.PopupPanel.excludedElement = el;//event.element();
-        var r = jqEl.offset(), 
-        	h = jqEl.outerHeight(), 
-        	x = r.left, y = r.top + h;
-		if (jslet.locale.isRtl){
-			x = x + jqEl.outerWidth() - width;
+	popupHeight: function(popupHeight) {
+		if(popupHeight === undefined) {
+			return this._popupHeight;
 		}
-        Z.popup.setContent(Z.contentPanel.el, '100%', '100%');
+		jslet.Checker.test('DBDatePicker.popupHeight', popupHeight).isGTEZero();
+		this._popupHeight = parseInt(popupHeight);
+	},
 
-        Z.contentPanel.setValue(dateValue);
-        Z.popup.show(x, y, width + 3, height + 3, 0, h);
-    },
-    
+	popupWidth: function(popupWidth) {
+		if(popupWidth === undefined) {
+			return this._popupWidth;
+		}
+		jslet.Checker.test('DBDatePicker.popupWidth', popupWidth).isGTEZero();
+		this._popupWidth = parseInt(popupWidth);
+	},
+		
 	/**
 	 * @override
 	 */
-    destroy: function($super){
-    	var Z = this;
-    	Z.contentPanel.destroy();
-    	Z.contentPanel = null;
-    	Z.popup.destroy();
-    	Z.popup = null;
-    	$super();
-    }
-    
+	isValidTemplateTag: function (el) {
+		return true;
+	},
+
+	buttonClick: function () {
+		var el = this.el, 
+			Z = this, 
+			fldObj = Z._dataset.getField(Z._field),
+			jqEl = jQuery(el);
+		if (fldObj.readOnly() || fldObj.disabled()) {
+			return;
+		}
+		var width = Z._popupWidth,
+			height = Z._popupHeight,
+			dateValue = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
+			range = fldObj.range(),
+			minDate = null,
+			maxDate = null;
+		
+		if (range){
+			if (range.min) {
+				minDate = range.min;
+			}
+			if (range.max) {
+				maxDate = range.max;
+			}
+		}
+		if (!Z.contentPanel)
+			Z.contentPanel = jslet.ui.createControl({ type: 'Calendar', value: dateValue, minDate: minDate, maxDate: maxDate,
+				onDateSelected: function (date) {
+					Z.popup.hide();
+					Z.el.focus();
+					var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+					if(!value) {
+						value = date;
+					} else {
+						value.setFullYear(date.getFullYear());
+						value.setMonth(date.getMonth());
+						value.setDate(date.getDate());
+					}
+					Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+				}
+			}, null, width + 'px', height + 'px');
+
+		jslet.ui.PopupPanel.excludedElement = el;//event.element();
+		var r = jqEl.offset(), 
+			h = jqEl.outerHeight(), 
+			x = r.left, y = r.top + h;
+		if (jslet.locale.isRtl){
+			x = x + jqEl.outerWidth();
+		}
+		Z.popup.setContent(Z.contentPanel.el, '100%', '100%');
+
+		Z.contentPanel.setValue(dateValue);
+		Z.popup.show(x, y, width + 3, height + 3, 0, h);
+	},
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		var Z = this;
+		if(Z.contentPanel) {
+			Z.contentPanel.destroy();
+			Z.contentPanel = null;
+		}
+		Z.popup.destroy();
+		Z.popup = null;
+		$super();
+	}
+	
 });
 
 jslet.ui.register('DBDatePicker', jslet.ui.DBDatePicker);

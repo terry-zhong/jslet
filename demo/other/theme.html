@@ -11,14 +11,21 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Theme(Default) Demo</h2>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">
+	<p>Only one line code to change theme: <br />
+	    jslet.setTheme('[theme name]');
+	</P>
+    <fieldset>
     <div id="calDemo" data-jslet='type:"Calendar"' style="width: 250px; height: 226px; marging-left: 20px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
     <p>
 		<a href="theme-gray.html" title="Gray Theme">Gray Theme</a>
-        </p>
+    </p>
 
 </body>
 </html>

@@ -13,161 +13,146 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * @class DBCheckBox. 
  * Example:
  * <pre><code>
- * 		var jsletParam = {type:"DBCheckBox", dataset:"employee", field:"married"};
+ * var jsletParam = {type:"DBCheckBox", dataset:"employee", field:"married"};
  * 
  * //1. Declaring:
- *      &lt;input type='checkbox' data-jslet='type:"DBCheckBox",dataset:"employee", field:"married"' />
- *      or
- *      &lt;div data-jslet='jsletParam' />
- *      
+ * &lt;input type='checkbox' data-jslet='type:"DBCheckBox",dataset:"employee", field:"married"' />
+ * or
+ * &lt;div data-jslet='jsletParam' />
+ *
  *  //2. Binding
- *      &lt;input id="ctrlId" type="checkbox" />
- *  	//Js snippet
- * 		var el = document.getElementById('ctrlId');
- *  	jslet.ui.bindControl(el, jsletParam);
+ * &lt;input id="ctrlId" type="checkbox" />
+ * //Js snippet
+ * var el = document.getElementById('ctrlId');
+ * jslet.ui.bindControl(el, jsletParam);
  *
  *  //3. Create dynamically
- *  	jslet.ui.createControl(jsletParam, document.body);
- *  	
+ * jslet.ui.createControl(jsletParam, document.body);
+ * 
  * </code></pre>
  */
 
 /**
 * DBCheckBox
 */
-jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBControl, {
+jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-    initialize: function ($super, el, params) {
+	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.isCheckBox = true;
-        Z.allProperties = 'dataset,field,beforeClick';
-        Z.requiredProperties = 'field';
-        /**
-         * {jselt.data.Dataset}
-         */
-        Z.dataset;
-        /**
-         * {String} Field name
-         */
-        Z.field;
-        $super(el, params)
-    },
+		Z.allProperties = 'dataset,field,beforeClick';
+		Z._beforeClick = null;
+		$super(el, params);
+	},
+
+	beforeClick: function(beforeClick) {
+		if(beforeClick === undefined) {
+			return this._beforeClick;
+		}
+		jslet.Checker.test('DBCheckBox.beforeClick', beforeClick).isFunction();
+		this._beforeClick = beforeClick;
+	},
 
 	/**
 	 * @override
 	 */
-    isValidTemplateTag: function (el) {
-        return el.tagName.toLowerCase() == 'input'
-						&& el.type.toLowerCase() == 'checkbox';
-    },
+	isValidTemplateTag: function (el) {
+		return el.tagName.toLowerCase() == 'input' &&
+			el.type.toLowerCase() == 'checkbox';
+	},
 
 	/**
 	 * @override
 	 */
-    bind: function () {
-        var Z = this;
-        Z.checkDataField();
+	bind: function () {
+		var Z = this;
 
-        Z.renderAll();
-        jQuery(Z.el).on('click', Z._doClick);
-    }, // end bind
+		Z.renderAll();
+		jQuery(Z.el).on('click', Z._doClick);
+	}, // end bind
 
-    _doClick: function (event) {
-    	var Z = this.jslet;
-        if (Z.beforeClick) {
-            var result = Z.beforeClick.call(Z, Z.el);
-            if (!result) {
-                return;
-            }
-        }
-        Z.updateToDataset();
-    },
-    
+	_doClick: function (event) {
+		var Z = this.jslet;
+		if (Z._beforeClick) {
+			var result = Z._beforeClick.call(Z, Z.el);
+			if (!result) {
+				return;
+			}
+		}
+		Z.updateToDataset();
+	},
+	
 	/**
 	 * @override
 	 */
-    refreshControl: function (evt, isForce) {
-        var Z = this;
-        if (!isForce && !Z.isActiveRecord()) {
-        	return;
-        }
-        if (evt.eventType == jslet.data.UpdateEvent.METACHANGE) {
-            if (evt.eventInfo.enabled != undefined) {
-                Z.el.disabled = !evt.eventInfo.enabled;
-            }
-            if (evt.eventInfo.readOnly != undefined) {
-                Z.el.readOnly = evt.eventInfo.readOnly;
-            }
-            return;
-        }
-
-        if (evt.eventType == jslet.data.UpdateEvent.SCROLL
-			|| evt.eventType == jslet.data.UpdateEvent.UPDATEALL
-			|| evt.eventType == jslet.data.UpdateEvent.UPDATERECORD
-			|| evt.eventType == jslet.data.UpdateEvent.DELETE
-			|| evt.eventType == jslet.data.UpdateEvent.UPDATECOLUMN) {
-
-            if (evt.eventType == jslet.data.UpdateEvent.UPDATERECORD
-							&& evt.eventInfo != undefined
-							&& evt.eventInfo.fieldName != undefined
-							&& evt.eventInfo.fieldName != Z.field) {
-                return;
-            }
-            try {
-                var fldObj = Z.dataset.getField(Z.field),
-                	value = Z.dataset.getFieldValue(Z.field, Z.valueIndex);
-                if (value != null && value == fldObj.trueValue) {
-                    Z.el.checked = true;
-                } else {
-                    Z.el.checked = false;
-                }
-            } catch (e) {
-                jslet.showException(e);
-            } // end try
-        } // end if
-    }, // end refreshControl
-
-    focus: function() {
-    	this.el.focus();
-    },
-    
+	doMetaChanged: function($super, metaName){
+		$super(metaName);
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
+			jslet.ui.setEditableStyle(Z.el, fldObj.disabled(), fldObj.readOnly());
+		}
+	},
+	
 	/**
 	 * @override
 	 */
-    renderAll: function () {
-        this.refreshControl(jslet.data.UpdateEvent.updateAllEvent, true);
-    }, // end renderAll
-
-    updateToDataset: function () {
-        var Z = this;
-        if (Z._keep_silence_) {
-            return;
-        }
-        var fldObj = Z.dataset.getField(Z.field),
-        	value;
-        if (Z.el.checked) {
-            value = fldObj.trueValue;
-        } else {
-            value = fldObj.falseValue;
-        }
-        Z._keep_silence_ = true;
-        try {
-            Z.dataset.setFieldValue(Z.field, value, Z.valueIndex);
-        } catch (e) {
-            jslet.showException(e);
-        } finally {
-            Z._keep_silence_ = false;
-        }
-    }, // end updateToDataset
-    
+	doValueChanged: function() {
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		try {
+			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			if (value !== null && value == fldObj.trueValue) {
+				Z.el.checked = true;
+			} else {
+				Z.el.checked = false;
+			}
+		} catch (e) {
+			jslet.showException(e);
+		} // end try
+	},
+	
+	focus: function() {
+		this.el.focus();
+	},
+	
 	/**
 	 * @override
 	 */
-    destroy: function($super){
-    	jQuery(this.el).off();
-    }
+	renderAll: function () {
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	}, // end renderAll
+
+	updateToDataset: function () {
+		var Z = this;
+		if (Z._keep_silence_) {
+			return;
+		}
+		var fldObj = Z._dataset.getField(Z._field),
+			value;
+		if (Z.el.checked) {
+			value = fldObj.trueValue;
+		} else {
+			value = fldObj.falseValue;
+		}
+		Z._keep_silence_ = true;
+		try {
+			Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+		} catch (e) {
+			jslet.showException(e);
+		} finally {
+			Z._keep_silence_ = false;
+		}
+	}, // end updateToDataset
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		jQuery(this.el).off();
+	}
 });
 
 jslet.ui.register('DBCheckBox', jslet.ui.DBCheckBox);

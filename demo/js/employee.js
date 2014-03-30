@@ -2,33 +2,33 @@
 (function () {
     var lkf, dataList;
     //Dataset object: Gender. There are two fields in enum dataset: code, name
-    var dsGender = jslet.data.createEnumDataset('gender', {'F':'Female','M':'Male','U':'Unknown'});
+    var dsGender = jslet.data.createEnumDataset('gender', 'F:Female,M:Male,U:Unknown');
   //------------------------------------------------------------------------------------------------------
 
     //Dataset object: Position
-    var dsPosition = jslet.data.createEnumDataset('position',{'0':'Senior Manger','1':'Junior Manger','2':'Team Leader','3':'Employee'});
+    var dsPosition = jslet.data.createEnumDataset('position', '0:Senior Manger,1:Junior Manger,2:Team Leader,3:Employee');
   //------------------------------------------------------------------------------------------------------
     
     //Dataset object: Province
     //Global variable for demo
     dsProvince = jslet.data.createEnumDataset('province',
-    		{'01':'An Fei','02':'Bei Jing','03':'Fu Jian','04':'Gan Su','05':'Guang Dong','06':'Guang Xi',
-    		 '07':'Gui Zhou','08':'Hai Nan','09':'He Bei','10':'He Nan','11':'Hei Nong Jiang','12':'Hu Bei',
-             '13':'Hu Nan','14':'Ji Lin','15':'Jiang Su','16':'Jiang Xi','17':'Liao Ning','18':'Nei Men Gu',
-             '19':'Ning Xia','20':'Qing Hai','21':'Shang Dong','22':'Shang Xi','23':'Shan Xi','24':'Shang Hai',
-             '25':'Si Chuan','26':'Tian Jing','27':'Xi Zang','28':'Xin Jiang','29':'Yun Nan','30':'Zhe Jiang','31':'Chong Qing'});
+    		'01:Anhui,02:Beijing,03:Fujian,04:Gansu,05:Guangdong,06:Guangxi,' + 
+    		 '07:Guizhou,08:Hainan,09:Hebei,10:Henan,11:Hei Nongjiang,12:Hubei,'+
+             '13:Hunan,14:Jilin,15:Jiangsu,16:Jiangxi,17:Liaoning,18:Neimenggu,'+
+             '19:Ningxia,20:Qinghai,21:Shangdong,22:Shangxi,23:Shanxi,24:Shanghai,'+
+             '25:Sichuan,26:Tianjing,27:Xizang,28:Xinjiang,29:Yunnan,30:Zhejiang,31:Chongqing');
   //------------------------------------------------------------------------------------------------------
 
     //Dataset object: Department
     var fldCfg = [{
         name: 'deptid',
         type: 'S',
-        length: 10,
+        length: 6,
         label: 'ID'
     }, {
         name: 'name',
         type: 'S',
-        length: 20,
+        length: 15,
         label: 'Dept. Name'
     }, {
         name: 'address',
@@ -38,12 +38,13 @@
     }, {
         name: 'parentid',
         type: 'S',
-        length: 10,
+        length: 6,
         label: 'ParentID'
     }];
 
-    var dsDept = jslet.data.createDataset('department', fldCfg, 'deptid',
-            'deptid', 'name', 'parentid');
+    var dsDept = jslet.data.createDataset('department', fldCfg, 
+    		{keyField: 'deptid',codeField: 'deptid', nameField: 'name', 
+    		parentField: 'parentid', autoRefreshHostDataset: true});
 
     var data = [{
         deptid: '00',
@@ -103,28 +104,30 @@
     fldObj.label('ID');
     fldObj.required(true);
     fldObj.displayWidth(6);
+    fldObj.tip('Employee ID must be unique!');
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('name', 20);
+    fldObj = jslet.data.createStringField('name', 12);
     fldObj.label('Name');
     fldObj.required(true);
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('department', 20);
+    fldObj = jslet.data.createStringField('department', 6);
     fldObj.label('Department');
     fldObj.required(false);
+    fldObj.displayWidth(16);
     fldObj.nullText('(Empty)');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsDept);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsDept);
+    fldObj.lookup(lkf);
 
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('gender', 20);
+    fldObj = jslet.data.createStringField('gender', 1);
     fldObj.label('Gender');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsGender);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsGender);
+    fldObj.lookup(lkf);
     fldObj.displayWidth(16);
     dsEmployee.addField(fldObj);
 
@@ -147,11 +150,11 @@
     fldObj.range({ from: new Date(1950, 1, 1) });
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('position', 20);
+    fldObj = jslet.data.createStringField('position', 10);
     fldObj.label('Position');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsPosition);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsPosition);
+    fldObj.lookup(lkf);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createNumberField('salary', 16, 2);
@@ -159,16 +162,16 @@
     fldObj.displayFormat('￥#,##0.00');
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('university', 50);
+    fldObj = jslet.data.createStringField('university', 20);
     fldObj.label('University');
     fldObj.displayWidth(20);
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('province', 20);
+    fldObj = jslet.data.createStringField('province', 10);
     fldObj.label('Province');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsProvince);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsProvince);
+    fldObj.lookup(lkf);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('city', 8);
@@ -176,29 +179,33 @@
     fldObj.visible(false);
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('photo', 20);
+    fldObj = jslet.data.createStringField('photo', 10);
     fldObj.label('Photo');
     fldObj.visible(true);
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('officephone', 15);
+    fldObj = jslet.data.createStringField('officephone', 12);
     fldObj.label('Office Phone');
     fldObj.regularExpr(/(\(\d{3,4}\)|\d{3,4}-|\s)?\d{8}/ig, 'Invalid phone number!');//like: 0755-12345678
+    fldObj.tip('Format:999-99999999');
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('cellphone', 15);
+    fldObj = jslet.data.createStringField('cellphone', 12);
     fldObj.label('Cell Phone');
     fldObj.regularExpr(/1\d{10}/ig, 'Invalid cell phone number!');//like: 13912345678
+    fldObj.tip('"1"+10 digits');
     dsEmployee.addField(fldObj);
 
-    fldObj = jslet.data.createStringField('email', 30);
+    fldObj = jslet.data.createStringField('email', 20);
     fldObj.label('Email');
     fldObj.regularExpr(/^[a-zA-Z_0-9-'\+~]+(\.[a-zA-Z_0-9-'\+~]+)*@([a-zA-Z_0-9-]+\.)+[a-zA-Z]{2,7}$/ig, 'Invalid email address!');//like: foo@gmail.com
+    fldObj.tip('foo@foo.com');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('idcard', 18);
     fldObj.label('ID Card');
     fldObj.regularExpr(/\d{18}/ig, 'Invalid IDCard number, 18 digits allowed!');//18 digits
+    fldObj.tip('18 digits');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('summary', 200);

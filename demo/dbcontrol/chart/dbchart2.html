@@ -12,6 +12,9 @@
         });
 
         function initialize() {
+    		jslet.ui.onReady = function() {
+    			jslet('#chartId').renderAll() 
+    		}		
             //Create dataset for chart
             dsSummary = new jslet.data.Dataset("summary");
 
@@ -70,78 +73,81 @@
                 arr.push("month5");
             if ($('#optMonth6')[0].selected)
                 arr.push("month6");
-            jslet("#chartid").valueField = arr.join(',');
-            jslet("#chartid").renderAll();
+            jslet("#chartId").valueField = arr.join(',');
+            jslet("#chartId").renderAll();
 
         }
 
         function setChartType() {
-            jslet('#chartId').chartType = $('#idType').val();
+            jslet('#chartId').chartType($('#idType').val());
             $('#selValueField')[0].multiple = ($('#idType')[0].value != "pie");
             jslet('#chartId').renderAll();
         }
 
         function doTableRowSelect() {
-            setTimeout("if(jslet('#chartId').onlySelected)	jslet('#chartId').renderAll()", 200);
+            setTimeout(function() {
+				if(jslet('#chartId').onlySelected())
+					jslet('#chartId').renderAll();
+			}, 200);
         }
 		
-		jslet.ui.onReady = function() {
-			jslet('#chartId').renderAll() 
-		}		
+		function setOnlySelected(selected) {
+			jslet('#chartId').onlySelected(selected);
+			jslet('#chartId').renderAll();		
+		}
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBChart Demo2</h2>
-    <p>Tips: DBChart is designed with Flash. Cause the .swf file size is 514k, it is probably slow when open it first time.</p>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <div class="content">Tips: DBChart is designed with Flash. Cause the .swf file size is 514k, it is probably slow when open it first time.</div>
+    <fieldset>
+		<legend>Summary List</legend>
     <div id="table1" data-jslet='type:"DBTable",dataset:"summary",hasSelectCol:true,onSelect:doTableRowSelect,onSelectAll:doTableRowSelect,onRowClick:doTableRowSelect'
         style="width: 950px; height: 130px">
     </div>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Chart Area</legend>
     <table>
         <tr>
             <td style="vertical-align:top">
-                <p>
-                    &nbsp;&nbsp;&nbsp;<input type="button" value="       Draw Chart        " onclick="jslet('#chartId').renderAll()" /></p>
-                <p>Demo Content:</p>
-                <p>
-                    1. Chart Type: <select id="idType" onchange="setChartType();">
+                <p>Chart Options:</p>
+				<ol>
+                <li>Chart Type: <select id="idType" onchange="setChartType();">
                         <option value="column">Column Chart</option>
                         <option value="bar">Bar Chart</option>
                         <option value="line">Line Chart</option>
                         <option value="area">Area Chart</option>
                         <option value="pie">Pie Chart</option>
-                    </select>&nbsp;&nbsp; </p>
-                 <p>2. Chart Title: <input id="txtChartTitle" type="text" size="16" /><input
-                        type="button" value=" OK " onclick="jslet('#chartId').chartTitle=$('#txtChartTitle').val();jslet('#chartId').renderAll();" /></p>
-                <p>
-                    3. <input type="radio" value="V1" name="onlySelected" checked="checked" onclick="jslet('#chartId').onlySelected = false;jslet('#chartId').renderAll();" />Draw chart with all records &nbsp;&nbsp;&nbsp;
-                    <input type="radio" id="onlySelected" onclick="jslet('#chartId').onlySelected = true;jslet('#chartId').renderAll();" />Draw chart with selected record</p>
-                <p>
-                    4. Value Field: <select id="selValueField" multiple="multiple" size="6" onclick="setTimeout('setValueFields()',200)">
+                    </select></li>
+                <li><input type="radio" value="V1" name="onlySelected" checked="checked" onclick="setOnlySelected(false);" />Draw chart with all records &nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="onlySelected" onclick="setOnlySelected(true);" />Draw chart with selected record</li>
+                <li>Value Field: 
+					<select id="selValueField" multiple="multiple" size="6" onclick="setTimeout('setValueFields()',200)">
                         <option id="optMonth1" value="month1" selected="selected">Jan.</option>
                         <option id="optMonth2" value="month2" selected="selected">Feb.</option>
                         <option id="optMonth3" value="month3" selected="selected">Mar.</option>
                         <option id="optMonth4" value="month4" selected="selected">Apr.</option>
                         <option id="optMonth5" value="month5" selected="selected">May.</option>
                         <option id="optMonth6" value="month6" selected="selected">Jun.</option>
-                    </select>You can check multiple options in all chart type but pie chart.</p>
+                    </select>You can check multiple options in all chart type but pie chart.</li>
                 <p>
-                    5. Legend Position：<select id="legendPos" onchange="jslet('#chartId').legendPos= $('#legendPos')[0].value;jslet('#chartId').renderAll();">
-                        <option value="none">None</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                    </select></p>
+				</ol>
+                    &nbsp;&nbsp;&nbsp;<button onclick="jslet('#chartId').renderAll()" >  Draw Chart </button>
+					
             </td>
             <td>
-                <div id="chartId" data-jslet='type:"dbchart",chartType:"column",categoryField:"area",valueField:"month1,month2,month3,month4,month5,month6", dataset:"summary"'
+                <div id="chartId" data-jslet='type:"dbchart",chartType:"column",categoryFields:"area",valueField:"month1,month2,month3,month4,month5,month6", dataset:"summary"'
                     style="width: 600px; height: 500px">
                 </div>
             </td>
         </tr>
     </table>
-
+	</fieldset>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
 </body>

@@ -18,6 +18,6 @@ function showSource(){
 	  height = parseInt(height) + 'px';
 	else
 	  height = '200px';
-	document.write('<hr/><p><a href="javascript:void(0)" onclick="showSource();">Source Code Snippet </a></p>');
-	document.write('<hr/><iframe id="jsletsource" src="'+srcDoc+'" style="display:none;width:100%;height:'+height+';border:none"></iframe>');
+	document.write('&nbsp;&nbsp;<a href="javascript:void(0)" onclick="showSource();">Source Code Snippet </a>');
+	document.write('<fieldset id="jsletsource" style="display:none;"><iframe src="'+srcDoc+'" style="width:100%;height:'+height+';border:none" frameborder="0"></iframe></fieldset>');
 })();

@@ -16,8 +16,8 @@ If you are unsure which license is appropriate for your use, please visit: http:
 
 jslet.data.dataModule = new jslet.SimpleMap();
 jslet.data.getDataset = function (dsName) {
-    return jslet.data.dataModule.get(dsName);
-}
+	return jslet.data.dataModule.get(dsName);
+};
 
 jslet.data.DataType = {
 	NUMBER: 'N', //Number
@@ -42,20 +42,20 @@ jslet.data.EditMask = function(mask, keepChar, transform){
 	/**
 	 * {String} Mask String, rule:
 	 *  '#': char set: 0-9 and -, not required
-     *  '0': char set: 0-9, required
-     *  '9': char set: 0-9, not required
-     *  'L': char set: A-Z,a-z, required
-     *  'l': char set: A-Z,a-z, not required
-     *  'A': char set: 0-9,a-z,A-Z, required
-     *  'a': char set: 0-9,a-z,A-Z, not required
-     *  'C': char set: any char, required
-     *  'c': char set: any char, not required
+	 *  '0': char set: 0-9, required
+	 *  '9': char set: 0-9, not required
+	 *  'L': char set: A-Z,a-z, required
+	 *  'l': char set: A-Z,a-z, not required
+	 *  'A': char set: 0-9,a-z,A-Z, required
+	 *  'a': char set: 0-9,a-z,A-Z, not required
+	 *  'C': char set: any char, required
+	 *  'c': char set: any char, not required
 	 */
 	this.mask = mask; 
 	/**
 	 * {Boolean} keepChar Keep the literal character or not
 	 */
-	this.keepChar = keepChar !== undefined ? keepChar: true;
+	this.keepChar = (keepChar !== undefined ? keepChar: true);
 	/**
 	 * {String} transform Transform character into UpperCase or LowerCase,
 	 *  optional value: upper, lower or null.
@@ -64,8 +64,8 @@ jslet.data.EditMask = function(mask, keepChar, transform){
 	
 	this.clone = function(){
 		return new jslet.data.EditMask(this.mask, this.keepChar, this.transform);
-	}
-}
+	};
+};
 
 jslet.data.DatasetEvent = {
 	BEFORESCROLL: 'beforeScroll',
@@ -85,157 +85,88 @@ jslet.data.DatasetEvent = {
 	
 	BEFORECANCEL: 'beforeCancel',
 	AFTERCANCEL: 'afterCancel'
-}
+};
 
 jslet.data.DataSetStatus = {BROWSE:0, INSERT: 1, UPDATE: 2, DELETE: 3};
 
-jslet.data.UpdateEvent = function(evtType, evtInfo) {
-	this.eventType = evtType;
-	this.eventInfo = evtInfo;
-}
+jslet.data.RefreshEvent = {
+	updateRecordEvent: function(fldName) {
+		return {eventType: jslet.data.RefreshEvent.UPDATERECORD, fieldName: fldName};
+	},
+	
+	updateColumnEvent: function(fldName) {
+		return {eventType: jslet.data.RefreshEvent.UPDATECOLUMN, fieldName: fldName};
+	},
+	
+	updateAllEvent: function() {
+		return this._updateAllEvent;
+	},
+	
+	changeMetaEvent: function(metaName, fieldName) {
+		return {eventType: jslet.data.RefreshEvent.CHANGEMETA, metaName: metaName, fieldName: fieldName};
+	},
+	
+	beforeScrollEvent: function(recno) {
+		return {eventType: jslet.data.RefreshEvent.BEFORESCROLL, recno: recno};
+	},
+	
+	scrollEvent: function(recno, prevRecno) {
+		return {eventType: jslet.data.RefreshEvent.SCROLL, prevRecno: prevRecno, recno: recno};
+	},
+	
+	insertEvent: function(prevRecno, recno, needUpdateAll) {
+		return {eventType: jslet.data.RefreshEvent.INSERT, prevRecno: prevRecno, recno: recno, updateAll: needUpdateAll};
+	},
+	
+	deleteEvent: function(recno) {
+		return {eventType: jslet.data.RefreshEvent.DELETE, recno: recno};
+	},
+	
+	selectRecordEvent: function(recno, selected) {
+		return {eventType: jslet.data.RefreshEvent.SELECTRECORD, recno: recno, selected: selected};
+	},
+	
+	selectAllEvent: function(selected) {
+		return {eventType: jslet.data.RefreshEvent.SELECTALL, selected: selected};
+	},
+	
+	changePageEvent: function() {
+		return this._changePageEvent;
+	},
+	
+	errorEvent: function(errMessage) {
+		return {eventType: jslet.data.RefreshEvent.ERROR, message: errMessage};
+	},
+	
+	lookupEvent: function(fieldName) {
+		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName};
+	}
+};
 
-jslet.data.UpdateEvent.SCROLL = 'scroll';// preRecno, recno
-jslet.data.UpdateEvent.METACHANGE = 'metachange';// fieldname, metatype(title, readonly,enabled,format)
-jslet.data.UpdateEvent.UPDATEALL = 'updateAll';
-jslet.data.UpdateEvent.UPDATERECORD = 'updaterecord';// fieldname
+jslet.data.RefreshEvent.CHANGEMETA = 'changeMeta';// fieldname, metatype(title, readonly,disabled,format)
+jslet.data.RefreshEvent.UPDATEALL = 'updateAll';
+jslet.data.RefreshEvent.UPDATERECORD = 'updateRecord';// fieldname
+jslet.data.RefreshEvent.UPDATECOLUMN = 'updateColumn';// fieldname
+jslet.data.RefreshEvent.BEFORESCROLL = 'beforescroll';
+jslet.data.RefreshEvent.SCROLL = 'scroll';// preRecno, recno
 
-jslet.data.UpdateEvent.UPDATECOLUMN = 'updatecolumn';// fieldname
+jslet.data.RefreshEvent.SELECTRECORD = 'selectRecord';//
+jslet.data.RefreshEvent.SELECTALL = 'selectAll';//
+jslet.data.RefreshEvent.INSERT = 'insert';
+jslet.data.RefreshEvent.DELETE = 'delete';// recno
+jslet.data.RefreshEvent.CHANGEPAGE = 'changePage';
+jslet.data.RefreshEvent.UPDATELOOKUP = 'updateLookup';
 
-jslet.data.UpdateEvent.SELECTCHANGE = 'selectchange';//
-jslet.data.UpdateEvent.SELECTALLCHANGE = 'selectallchange';//
-jslet.data.UpdateEvent.INSERT = 'insert';
-jslet.data.UpdateEvent.DELETE = 'delete';// recno
-jslet.data.UpdateEvent.BEFORESCROLL = 'beforescroll';
+jslet.data.RefreshEvent.ERROR = 'error';
 
-jslet.data.UpdateEvent.updateAllEvent = new jslet.data.UpdateEvent(
-		jslet.data.UpdateEvent.UPDATEALL, null);
-
-jslet.data.UpdateEvent.PAGECHANGE = 'pagechange';
+jslet.data.RefreshEvent._updateAllEvent = {eventType: jslet.data.RefreshEvent.UPDATEALL};
+jslet.data.RefreshEvent._changePageEvent = {eventType: jslet.data.RefreshEvent.CHANGEPAGE};
 
 /**
- * @class Formula parser. Example:
- * <pre><code>
- * var parser = new jslet.FormulaParser(dsEmployee, '[name] == "Bob"');
- * parser.evalExpr();//return true or false
- * 
- * </code></pre>
- * 
- * @param {jselt.data.Dataset} dataset dataset that use to evalute.
- * @param {String} expre Expression
+ * Field Validator
  */
-jslet.FormulaParser = function(dataset, expr) {
-	this._fields = [];
-	this._otherDatasetFields;
-	this._expr = expr;
-	this._parsedExpr = '';
-	if (typeof dataset == "string") {
-		this._dataset = jslet.data.dataModule.get(dataset);
-		if (!this._dataset) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
-		}
-	}else{
-		this._dataset = dataset;
-	}
-	
-	this.parseExpr();
-}
-
-jslet.FormulaParser.prototype = {
-	_ParserPattern: /\[\D[\.!\w]*]/gim,
-	
-	parseExpr: function() {
-		
-		var start = 0, end, k, dsName, fldName, dsTmp, stag, tmpExpr = [];
-		this._ParserPattern.lastIndex = 0;
-		while ((stag = this._ParserPattern.exec(this._expr)) != null) {
-			fldName = stag[0];
-
-			if (!fldName || fldName.endsWith('(')) {
-				continue;
-			}
-
-			dsName = null;
-			fldName = fldName.substr(1, fldName.length - 2);
-			k = fldName.indexOf('!');
-			if (k > 0) {
-				dsName = fldName.substr(0, k);
-				fldName = fldName.substr(k + 1);
-			}
-
-			end = stag.index;
-			if (dsName == null) {
-				dsTmp = this._dataset;
-				this._fields.push(fldName);
-				tmpExpr.push(this._expr.substring(start, end));
-				tmpExpr.push('dataset.fieldValueByRec(dataRec,"');
-				tmpExpr.push(fldName);
-				tmpExpr.push('")');
-			} else {
-				dsTmp = jslet.data.dataModule.get(dsName);
-				if (!dsTmp) {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
-				}
-				tmpExpr.push(this._expr.substring(start, end));
-				tmpExpr.push('jslet.data.dataModule.get("');
-				tmpExpr.push(dsName);
-				tmpExpr.push('").getFieldValue("');
-				tmpExpr.push(fldName);
-				tmpExpr.push('")');
-				if (!this._otherDatasetFields) {
-					this._otherDatasetFields = [];
-				}
-				this._otherDatasetFields.push({
-							dataset : dsName,
-							fieldName : fldName
-						});
-			}
-			if (dsTmp.getField(fldName) == null) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-			}
-
-			start = end + stag[0].length;
-		}//end while
-		tmpExpr.push(this._expr.substr(start));
-		this._parsedExpr = tmpExpr.join('');
-	}, //end function
-
-	setDataset: function(dataset) {
-		this._dataset = dataset;
-	},
-
-	/**
-	 * Get fields included in the expression.
-	 * 
-	 * @return {Array of String}
-	 */
-	getFields: function() {
-		return this._fields;
-	},
-
-	/**
-	 * Get fields of other dataset included in the expression.
-	 * Other dataset fields are identified with 'datasetName!fieldName', like: department!deptName
-	 * 
-	 * @return {Array of Object} the return value like:[{dataset : 'dsName', fieldName: 'fldName'}]
-	 */
-	getOtherDatasetFields: function() {
-		return this._otherDatasetFields;
-	},
-
-	/**
-	 * Evaluate the expression.
-	 * 
-	 * @param {Object} dataRec Data record object, this argument is used in parsedExpr 
-	 * @return {Object} The value of Expression.
-	 */
-	evalExpr: function(dataRec) {
-		var dataset = this._dataset;
-		return eval(this._parsedExpr);
-	}
-}
-
 jslet.data.FieldValidator = function() {
-}
+};
 
 jslet.data.FieldValidator.prototype = {
 	
@@ -244,163 +175,168 @@ jslet.data.FieldValidator.prototype = {
 	floatRegular: { expr: /((^-?[1-9])|\d)\d*(\.[0-9]*)?$/ig},
 
    /**
-     * Check the specified character is valid or not.
-     * Usually use this when user presses a key down.
-     * 
-     * @param {String} inputChar Single character
-     * @param {Boolean} True for passed, otherwise failed.
-     */
-    checkInputChar: function (fldObj, inputChar) {
-    	var validChars = fldObj.validChars();
-    	
-    	if (validChars && inputChar) {
-    		var c = inputChar.charAt(0);
-    		return validChars.indexOf(c) >= 0;
-    	}
-        return true;
-    },
-    
-    /**
-     * Check the specified text is valid or not
-     * Usually use this when a field loses focus.
-     * 
-     * @param {jslet.data.Field} fldObj Field Object
-     * @param {String} inputText Input text, it is original text that user inputed. 
-     * @return {String} If input text is valid, return null, otherwise return error message.
-     */
-    checkInputText: function (fldObj, inputText) {
-        var result = this.checkRequired(fldObj, inputText);
-    	if(result) {
-    		return result;
-    	}
-    	if(inputText === "") {
-    		return null;
-    	}
-        var fldType = fldObj.getType();
-        
-    	//Check with regular expression
-        var regular = fldObj.regularExpr();
-        if (!regular) {
-            if (fldType == jslet.data.DataType.DATE) {
-            	regular = fldObj.dateRegular();
-            } else {
-                if (fldType == jslet.data.DataType.NUMBER) {
-            		if (!this.intRegular.message) {
-            			this.intRegular.message = jslet.locale.Dataset.invalidInt;
-            			this.floatRegular.message = jslet.locale.Dataset.invalidFloat;
-            		}
-                    if (!fldObj.scale()) {
-                    	regular = this.intRegular;
-                    } else {
-                    	regular = this.floatRegular;
-                    }
-                }
-            }
-        }
-        
-        if (regular) {
-        	var regExpObj = regular.expr;
-        	if (typeof regExpObj == 'string') {
-	           regExpObj = new RegExp(regular.expr, 'ig');
-        	}
-        	regExpObj.lastIndex = 0;
-	        if (!regExpObj.test(inputText)) {
-	            return regular.message;
-	        }
-        }
-        
-        var value = inputText;
-    	if (!fldObj.lookupField()) {//Not lookup field
-    		if (fldType == jslet.data.DataType.NUMBER) {
-                if (fldObj.scale() == 0) {
-                    value = parseInt(inputText);
-                } else {
-                    value = parseFloat(inputText);
-                }
-    		}
-    		if (fldType == jslet.data.DataType.DATE) {// Date convert
-                value = jslet.parseDate(inputText, fldObj.displayFormat());
-    		}
-    	}
-    	
-    	return this.checkValue(fldObj, value);
-    },
+	 * Check the specified character is valid or not.
+	 * Usually use this when user presses a key down.
+	 * 
+	 * @param {String} inputChar Single character
+	 * @param {Boolean} True for passed, otherwise failed.
+	 */
+	checkInputChar: function (fldObj, inputChar) {
+		var validChars = fldObj.validChars();
+		
+		if (validChars && inputChar) {
+			var c = inputChar.charAt(0);
+			return validChars.indexOf(c) >= 0;
+		}
+		return true;
+	},
+	
+	/**
+	 * Check the specified text is valid or not
+	 * Usually use this when a field loses focus.
+	 * 
+	 * @param {jslet.data.Field} fldObj Field Object
+	 * @param {String} inputText Input text, it is original text that user inputed. 
+	 * @return {String} If input text is valid, return null, otherwise return error message.
+	 */
+	checkInputText: function (fldObj, inputText) {
+		var result = this.checkRequired(fldObj, inputText);
+		if(result) {
+			return result;
+		}
+		if(inputText === "") {
+			return null;
+		}
+		var fldType = fldObj.getType();
+		
+		//Check with regular expression
+		var regular = fldObj.regularExpr();
+		if (!regular) {
+			if (fldType == jslet.data.DataType.DATE) {
+				regular = fldObj.dateRegular();
+			} else {
+				if (fldType == jslet.data.DataType.NUMBER) {
+					if (!this.intRegular.message) {
+						this.intRegular.message = jslet.locale.Dataset.invalidInt;
+						this.floatRegular.message = jslet.locale.Dataset.invalidFloat;
+					}
+					if (!fldObj.scale()) {
+						regular = this.intRegular;
+					} else {
+						regular = this.floatRegular;
+					}
+				}
+			}
+		}
+		
+		if (regular) {
+			var regExpObj = regular.expr;
+			if (typeof regExpObj == 'string') {
+				regExpObj = new RegExp(regular.expr, 'ig');
+			}
+			regExpObj.lastIndex = 0;
+			if (!regExpObj.test(inputText)) {
+				return regular.message;
+			}
+		}
+		
+		var value = inputText;
+		if (!fldObj.lookup()) {//Not lookup field
+			if (fldType == jslet.data.DataType.NUMBER) {
+				if (fldObj.scale() === 0) {
+					value = parseInt(inputText);
+				} else {
+					value = parseFloat(inputText);
+				}
+			}
+			if (fldType == jslet.data.DataType.DATE) {// Date convert
+				value = jslet.parseDate(inputText, fldObj.displayFormat());
+			}
+		}
+		
+		return this.checkValue(fldObj, value);
+	},
 
-    /**
-     * Check the required field's value is empty or not
-     * 
-     * @param {jslet.data.Field} fldObj Field Object
-     * @param {Object} value field value.
-     * @return {String} If input text is valid, return null, otherwise return error message.
-     */
-    checkRequired: function(fldObj, value) {
-    	if (!value || (jslet.isArray(value) && value.length == 0)) {
-	        if (fldObj.required()) {
-	            return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
-	        } else {
-	        	return null;
-	        }
-    	}
-    	return null;
-    },
-    
-    /**
-     * Check the specified field value is valid or not
-     * It will check required, range and custom validation
-     * 
-     * @param {jslet.data.Field} fldObj Field Object
-     * @param {Object} value field value. 
-     * @return {String} If input text is valid, return null, otherwise return error message.
-     */
-    checkValue: function(fldObj, value) {
-        var fldType = fldObj.getType();
-        //Check range
-        var fldRange = fldObj.range(),
-        	hasLookupField = fldObj.lookupField()? true: false;
-        
-    	if (hasLookupField) {//lookup field need compare code value of the lookupfield
-    		value = fldObj.dataset().getFieldText(fldObj.name(), true);
-    	}
-    		
-        if (fldRange) {
-            var strMin = min = fldRange.min, strMax = max = fldRange.max;
-            var fmt = fldObj.displayFormat();
-            
-            if (fldType == jslet.data.DataType.DATE) {
-	            if (min) {
-	            	strMin = jslet.formatDate(min, fmt);
-	            }
-	            if (max) {
-	            	strMax = jslet.formatDate(max, fmt);
-	            }
-            }
-            
-            if (!hasLookupField && fldType == jslet.data.DataType.NUMBER) {
-            	strMin = jslet.formatNumber(min, fmt);
-            	strMax = jslet.formatNumber(max, fmt);
-            }
-            
-            if (min != undefined && max != undefined && (value < min || value > max)) {
-                return jslet.formatString(jslet.locale.Dataset.notInRange, [strMin, strMax]);
-            }
-            if (min != undefined && max == undefined && value < min) {
-                return jslet.formatString(jslet.locale.Dataset.moreThanValue, [strMin]);
-            }
-            if (min == undefined && max != undefined && value > max) {
-                return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
-            }
-        }
-        //Customized sort
-        if (fldObj.customValidator()) {
-            return fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
-        }
-        
-        return null;
-    }
-}
+	/**
+	 * Check the required field's value is empty or not
+	 * 
+	 * @param {jslet.data.Field} fldObj Field Object
+	 * @param {Object} value field value.
+	 * @return {String} If input text is valid, return null, otherwise return error message.
+	 */
+	checkRequired: function(fldObj, value) {
+		if (!value || (jslet.isArray(value) && value.length === 0)) {
+			if (fldObj.required()) {
+				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
+			} else {
+				return null;
+			}
+		}
+		return null;
+	},
+	
+	/**
+	 * Check the specified field value is valid or not
+	 * It will check required, range and custom validation
+	 * 
+	 * @param {jslet.data.Field} fldObj Field Object
+	 * @param {Object} value field value. 
+	 * @return {String} If input text is valid, return null, otherwise return error message.
+	 */
+	checkValue: function(fldObj, value) {
+		var fldType = fldObj.getType();
+		//Check range
+		var fldRange = fldObj.range(),
+			hasLookup = fldObj.lookup()? true: false;
+		
+		if (hasLookup) {//lookup field need compare code value of the Lookup
+			value = fldObj.dataset().getFieldText(fldObj.name(), true);
+		}
+			
+		if (fldRange) {
+			var min = fldRange.min,
+				strMin = min,
+				max = fldRange.max,
+				strMax = max;
+			var fmt = fldObj.displayFormat();
+			
+			if (fldType == jslet.data.DataType.DATE) {
+				if (min) {
+					strMin = jslet.formatDate(min, fmt);
+				}
+				if (max) {
+					strMax = jslet.formatDate(max, fmt);
+				}
+			}
+			
+			if (!hasLookup && fldType == jslet.data.DataType.NUMBER) {
+				strMin = jslet.formatNumber(min, fmt);
+				strMax = jslet.formatNumber(max, fmt);
+			}
+			
+			if (min !== undefined && max !== undefined && (value < min || value > max)) {
+				return jslet.formatString(jslet.locale.Dataset.notInRange, [strMin, strMax]);
+			}
+			if (min !== undefined && max === undefined && value < min) {
+				return jslet.formatString(jslet.locale.Dataset.moreThanValue, [strMin]);
+			}
+			if (min === undefined && max !== undefined && value > max) {
+				return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
+			}
+		}
+		//Customized sort
+		if (fldObj.customValidator()) {
+			return fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
+		}
+		
+		return null;
+	}
+};
 
-
+/*Start of field value converter*/
 jslet.data.FieldValueConverter = jslet.Class.create({
+	className: 'jslet.data.FieldValueConverter',
+	
 	textToValue: function(fldObj, inputText) {
 		var value = inputText;
 		return value;
@@ -411,35 +347,36 @@ jslet.data.FieldValueConverter = jslet.Class.create({
 		return text;
 	}
 });
+jslet.data.FieldValueConverter.className = 'jslet.data.FieldValueConverter';
 
 jslet.data.NumberValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText) {
 		var value = 0;
 		if (inputText) {
-	        if (fldObj.scale() == 0) {
-	            value = parseInt(inputText);
-	        } else {
-	            value = parseFloat(inputText);
-	        }
+			if (fldObj.scale() === 0) {
+				value = parseInt(inputText);
+			} else {
+				value = parseFloat(inputText);
+			}
 		}
 		return value;
 	},
 
 	valueToText: function(fldObj, value, isEditing) {
 		var Z = this;
-        if (fldObj.unitConverted()) {
-            value = value / Z._unitConvertFactor;
-        }
+		if (fldObj.unitConverted()) {
+			value = value * Z._unitConvertFactor;
+		}
 
-        if (!isEditing) {
-            var rtnText = jslet.formatNumber(value, fldObj.displayFormat());
-            if (fldObj.unitConverted() && Z._unitName) {
-                rtnText += Z._unitName;
-            }
-            return rtnText;
-        } else {
-        	return value;
-        }
+		if (!isEditing) {
+			var rtnText = jslet.formatNumber(value, fldObj.displayFormat());
+			if (fldObj.unitConverted() && Z._unitName) {
+				rtnText += Z._unitName;
+			}
+			return rtnText;
+		} else {
+			return value;
+		}
 	}
 });
 
@@ -450,21 +387,21 @@ jslet.data.DateValueConverter = jslet.Class.create(jslet.data.FieldValueConverte
 	},
 	
 	valueToText: function(fldObj, value, isEditing) {
-        if (!(value instanceof Date)) {
-            throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name()]));
-        }
+		if (!(value instanceof Date)) {
+			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name()]));
+		}
 
-        return value ? jslet.formatDate(value, fldObj.displayFormat()): '';
+		return value ? jslet.formatDate(value, fldObj.displayFormat()): '';
 	}
 });
 
 jslet.data.StringValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText) {
 		var value = inputText;
-	    if (fldObj.antiXss()) {
-	    	value = jslet.htmlEncode(value);
-	    }
-	    return value;
+		if (fldObj.antiXss()) {
+			value = jslet.htmlEncode(value);
+		}
+		return value;
 	}
 });
 
@@ -477,7 +414,7 @@ jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConve
 	},
 	
 	valueToText: function(fldObj, value, isEditing) {
-        return value ? 'true': 'false';
+		return value ? 'true': 'false';
 	}
 });
 
@@ -485,30 +422,30 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 	textToValue: function(fldObj, inputText, valueIndex) {
 		var value = '',
 			Z = this,
-			lkFld = fldObj.lookupField();
+			lkFld = fldObj.lookup();
 		
-        value = lkFld.lookupDataset()._convertFieldValue(
+		value = lkFld.dataset()._convertFieldValue(
 				lkFld.codeField(), inputText, lkFld.keyField());
-        if (value === null) {
-        	var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
-        	Z._addErrorField(fldObj.name(), inputText, invalidMsg, valueIndex);
-        	return null;
-        }
-        return value;
+		if (value === null) {
+			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
+			fldObj.message(invalidMsg, valueIndex);
+			return null;
+		}
+		return value;
 	},
 	
 	valueToText: function(fldObj, value, isEditing) {
-        var lkFldObj = fldObj.lookupField(),
-            lkds = lkFldObj.lookupDataset(),
-            result;
-        if (!isEditing) {
-            result = lkds._convertFieldValue(lkFldObj.keyField(), value,
-					lkFldObj.displayFields(), fldObj.valueSeparator());
-        } else {
-            result = lkds._convertFieldValue(lkFldObj.keyField(), value, '['
-							+ lkFldObj.codeField() + ']', fldObj.valueSeparator());
-        }
-        return result;
+		var lkFldObj = fldObj.lookup(),
+			lkds = lkFldObj.dataset(),
+			result;
+		if (!isEditing) {
+			result = lkds._convertFieldValue(lkFldObj.keyField(), value,
+					lkFldObj.displayFields());
+		} else {
+			result = lkds._convertFieldValue(lkFldObj.keyField(), value, 
+					'[' + lkFldObj.codeField() + ']');
+		}
+		return result;
 	}
 });
 
@@ -518,7 +455,7 @@ jslet.data._valueConverters[jslet.data.DataType.STRING] = new jslet.data.StringV
 jslet.data._valueConverters[jslet.data.DataType.DATE] = new jslet.data.DateValueConverter();
 jslet.data._valueConverters[jslet.data.DataType.BOOLEAN] = new jslet.data.BooleanValueConverter();
 
-jslet.data._valueConverters['lookupfield'] = new jslet.data.LookupValueConverter();
+jslet.data._valueConverters.lookup = new jslet.data.LookupValueConverter();
 
 /**
  * Get appropriate field value converter.
@@ -528,11 +465,122 @@ jslet.data._valueConverters['lookupfield'] = new jslet.data.LookupValueConverter
  * @return {jslet.data.FieldValueConverter} field value converter;
  */
 jslet.data.getValueConverter = function(fldObj) {
-	if(fldObj.lookupField()) {
-		return jslet.data._valueConverters['lookupfield'];
+	if(fldObj.lookup()) {
+		return jslet.data._valueConverters.lookup;
 	}
 	
 	return jslet.data._valueConverters[fldObj.getType()];
-}
+};
+/* End of field value converter */
 
+jslet.data._record2JsonFilter = function(key, value) {
+	return key == jslet.data.FieldValueCache.CACHENAME ? undefined: value;
+};
 
+jslet.data.record2Json = function(records) {
+	if(!window.JSON || !JSON) {
+		alert('Your browser does not support JSON!');
+		return;
+	}
+	return JSON.stringify(records, jslet.data._record2JsonFilter);
+};
+
+/*Field value cache manager*/
+jslet.data.FieldValueCache = {
+	CACHENAME: '_cache_',
+	
+	put: function(record, fieldName, value, valueIndex) {
+		var cacheObj = record[this.CACHENAME];
+		if(!cacheObj) {
+			cacheObj = {};
+			record[this.CACHENAME] = cacheObj;
+		}
+		if(valueIndex || valueIndex === 0) {
+			fieldName += '.' + valueIndex;
+		}
+		cacheObj[fieldName] = value;
+	},
+	
+	get: function(record, fieldName, valueIndex) {
+		var cacheObj = record[this.CACHENAME];
+		if(cacheObj) {
+			if(valueIndex || valueIndex === 0) {
+				fieldName += '.' + valueIndex;
+			}
+			return cacheObj[fieldName];
+		} else {
+			return undefined;
+		}
+	},
+	
+	clear: function(record, fieldName) {
+		var cacheObj = record[this.CACHENAME];
+		if(cacheObj) {
+			cacheObj[fieldName] = undefined;
+		}
+	},
+	
+	clearAll: function(dataset, fieldName) {
+		var dataList = dataset.dataList();
+		if(!dataList) {
+			return;
+		}
+		var rec, cacheObj;
+		for(var i = 0, len = dataList.length; i < len; i++) {
+			rec = dataList[i];
+			cacheObj = rec[this.CACHENAME];
+			if(cacheObj) {
+				delete cacheObj[fieldName];
+			}
+		}
+	},
+	
+	removeCache: function(record) {
+		if(record) {
+			record[this.CACHENAME] = {};
+		}
+	}
+};
+/*End of field value cache manager*/
+
+jslet.data.DatasetRelationManager = function() {
+	var relations= [];
+	
+	this.addRelation = function(datasetName, fieldName, lookupDatasetName) {
+		for(var i = 0, len = relations.length; i < len; i++) {
+			var relation = relations[i];
+			if(relation.hostDataset == datasetName && 
+				relation.hostField == fieldName && 
+				relation.lookupDataset == lookupDatasetName) {
+				return;
+			}
+		}
+		relations.push({hostDataset: datasetName, hostField: fieldName, lookupDataset: lookupDatasetName});
+//		console.log(datasetName + ":" + fieldName + ":" + lookupDatasetName)
+	};
+	
+	this.removeRelation = function(datasetName, fieldName, lookupDatasetName) {
+		for(var i = 0, len = relations.length; i < len; i++) {
+			var relation = relations[i];
+			if(relation.hostDataset == datasetName && 
+					relation.hostField == fieldName && 
+					relation.lookupDataset == lookupDatasetName) {
+				relations.splice(i,1);
+			}
+		}
+	};
+	
+	this.refreshHostDataset = function(lookupDatasetName) {
+		var relation, hostDataset;
+		for(var i = 0, len = relations.length; i < len; i++) {
+			relation = relations[i];
+			if(relation.lookupDataset == lookupDatasetName) {
+				hostDataset = jslet.data.getDataset(relation.hostDataset);
+				if(hostDataset) {
+					hostDataset.handleLookupDatasetChanged(relation.hostField);
+				}
+			}
+		}
+	};
+};
+jslet.data.datasetRelationManager = new jslet.data.DatasetRelationManager();

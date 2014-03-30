@@ -78,6 +78,32 @@ del,ins{
 	text-decoration: none;
 }
  */
+ select,
+ input[type='checkbox'],
+ input[type='radio'] {
+  border: 1px solid rgb(127, 157, 185);
+  border-radius: 2px;
+  color: #444;
+  font: inherit;
+  margin: 0 1px 0 0;
+}
+
+input[type='number'],
+input[type='password'],
+input[type='search'],
+input[type='text'],
+input[type='url'],
+input:not([type]),
+textarea {
+  border: 1px solid rgb(127, 157, 185);
+  border-radius: 2px;
+  box-sizing: border-box;
+  color: #444;
+  font: inherit;
+  margin: 0;
+/* For better alignment between adjacent buttons and inputs. */
+  padding-bottom: 0px;
+}
  
 .jl-rtl{
 	direction: rtl;
@@ -134,6 +160,11 @@ del,ins{
 
 .jl-focusable-item {
 	text-decoration: none;
+}
+
+.jl-readonly {
+	background-color: #e5e5e5;
+	border: 1px solid #bcbcbc;	
 }
 
 /*inspector*/
@@ -226,6 +257,10 @@ del,ins{
     background-position: -51px 0;
 }
 
+.jl-spinedit-upbtn-disabled {
+    background-position: -85px 0;
+}
+
 .jl-spinedit-downbtn {
     width: 18px;
     height: 11px;
@@ -255,6 +290,10 @@ del,ins{
 
 .jl-spinedit-downbtn-up {
     background-position: -17px 0;
+}
+
+.jl-spinedit-downbtn-disabled {
+    background-position: -68px 0;
 }
 
 /*customComboBox*/

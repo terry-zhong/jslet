@@ -18,24 +18,39 @@
 </head>
 <body onunload='jslet.ui.uninstall()'>
     <h2>Stack Header Table Demo</h2>
-	<h4>Configurate group field and show its usage.</h4>
-    <hr />
-    <div data-jslet='type:"DBTable", dataset: "group_field_ds", fixedCols:1' style="width: 100%; height: 220px">
-    </div>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Configurate group field and show its usage.</div>
+    <fieldset>
+		<legend>Data List</legend>
+		<div data-jslet='type:"DBTable", dataset: "group_field_ds", fixedCols:1' style="width: 100%; height: 220px">
+		</div>
+    </fieldset>
     <h3>Demo Content:</h3>
-	<ol>
-	<li>Group field will be shown as stack head in DBTable automatically.</li>
-     <li>
-        Click "Stack Head" to sort data.</li>
-	<li>
-		Sort with "y10"(ascending):<input type="text" id="sortexpr1" value="y10" /><input type="button" value=" Sort "
-		onclick="demoDs.indexFields($('#sortexpr1').val())" /><br />
-		Sort with "y10"(descending):<input type="text" id="sortexpr2" value="y10 desc" /><input type="button"
-		value=" Sort " onclick="demoDs.indexFields($('#sortexpr2').val())" />
-	</li>
-	</ol>
+	<div class="content">
+		<ol>
+		<li>Group field can be shown as stack head in DBTable automatically.</li>
+		 <li>
+			Click "Stack Head" to sort data.</li>
+		<li>
+			Sort with "y10"(ascending):<input type="button" value=" Sort " onclick="doSortY10Asce()" /><br />
+			Sort with "y10"(descending):<input type="button" value=" Sort " onclick="doSortY10Desc()" />
+		</li>
+		</ol>
+	</div>
+	<script type="text/javascript">
+		//Sort with "y10"(ascending)
+		function doSortY10Asce() {
+			demoDs.indexFields('y10');
+		}
+		
+		//Sort with "y10"(descending)
+		function doSortY10Desc() {
+			demoDs.indexFields('y10 desc');
+		}		
+	</script>
 	<!-- Source Code -->
-	<script type="text/javascript" src="../source/demosource.js?height=450"></script>
+	<script type="text/javascript" src="../source/demosource.js?height=550"></script>
 </body>
 </html>

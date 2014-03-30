@@ -15,10 +15,10 @@
             var fldObj = jslet.data.createStringField("department1", 20);
             fldObj.label("Other Dept.");
             fldObj.visible(false);
-            lkf = new jslet.data.LookupField();
+            lkf = new jslet.data.FieldLookup();
             var dsDept = jslet.data.getDataset("department");
-            lkf.lookupDataset(dsDept);
-            fldObj.lookupField(lkf);
+            lkf.dataset(dsDept);
+            fldObj.lookup(lkf);
 
             dsEmployee.addField(fldObj);
 
@@ -26,62 +26,80 @@
             edtPnlObj = document.getElementById('editpanel');
         };
     </script>
+	<style type="text/css">
+		#editpanel {
+			height:auto;
+		}
+	</style>
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBEditPanel Demo</h2>
-    <hr />
-    <p>Employee List <a href="EmployeeDataModel.htm">Data Model</a></p>
-	<div id="tab1" data-jslet='type:"DBTable",dataset:"employee"' style="width: 900px; height: 110px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">This control can generate edit ui panel according to the dataset.</div>
+    <fieldset>
+    <legend>Employee List (<a href="EmployeeDataModel.htm">Data Model</a>)</legend>
+	<div id="tab1" data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
 	</div>
-	<p>&nbsp;</p>
-	<div id='editpanel' style="border: 1px solid #7F9DB9;height:250px"
+	</fieldset>
+	<fieldset>
+		<legend>Edit Panel</legend>
+	<div id='editpanel'
 	 data-jslet='type:"DBeditpanel",dataset:"employee", columnCount:3, columnWidth: 200, rowHeight:30, fields:[{field:"workerid",colSpan:2},{field:"department",colSpan:2,showLine:true}]'></div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
+	<div class="content">
 	<ol class="content-list">
     <li>
-        Set column count:<input id="colCnt" type="text" value="3" size="9" /><input type="button"
-            value=" Set " onclick="setColumnCount()" /></li>
+        Set column count:<input id="colCnt" type="text" value="3" size="9" />
+		<button onclick="setColumnCount()"> Set </button>
+	</li>
     <li>
         Set column width:
         <input type="text" id="colWidth" value="200" size="9" />
-        <input type="button" onclick="setColumnWidth()" value=" Set " /></li>
+		<button onclick="setColumnWidth()"> Set </button>
+	</li>
 	<li>Set row height:
         <input type="text" id="rowHeight" value="30" size="9" />
-        <input type="button" onclick="setRowHeight()" value=" Set " /></li>
+		<button onclick="setRowHeight()"> Set </button>
+	</li>
     <li>
         Set field layout: 
         &quot;Name&quot; and &quot;Province&quot; span two columns&nbsp;
-        <input type="button" onclick="setLayout1()" value=" Set " />
-        <input type="button" onclick="clearLayout()" value=" Restore " /></li>
+		<button onclick="setLayout1()"> Set </button>
+		<button onclick="clearLayout()"> Restore </button>
+	</li>
     <li>
         Set another field layout: 
         &quot;Age&quot; and &quot;Province&quot; display in the first column, and&quot;province&quot; spans two columns&nbsp;
-        <input type="button" onclick="setLayout2()" value=" Set " />
-        <input type="button" onclick="clearLayout()" value=" Restore " /></li>
+		<button onclick="setLayout2()"> Set </button>
+		<button onclick="clearLayout()"> Restore </button>
+	</li>
     <li>
         Only display specified fields in layout config:&nbsp;
-        <input type="button" onclick="edtPnlObj.jslet.onlySpecifiedFields = true;edtPnlObj.jslet.renderAll();"
-            value=" Set " />
-        <input type="button" onclick="edtPnlObj.jslet.onlySpecifiedFields = false;edtPnlObj.jslet.renderAll();"
-            value=" Restore " /></li>
+		<button onclick="edtPnlObj.jslet.onlySpecifiedFields = true;edtPnlObj.jslet.renderAll();"> Set </button>
+		<button onclick="edtPnlObj.jslet.onlySpecifiedFields = false;edtPnlObj.jslet.renderAll();"> Restore </button>
+	</li>
     <li>
         Display line before field&quot;position&quot;&nbsp;
-        <input type="button" onclick="showLine();" value=" Set " />
-        <input type="button" onclick="clearLine()" value=" Restore " /></li>
+		<button onclick="showLine()"> Set </button>
+		<button onclick="clearLine()"> Restore </button>
     <li>
         Set field editor, for example set the editor of field "department" to DBBetween:
-        <input name="button3" type="button" onclick="showBetweenStyle();" value=" Set " /><input
-            name="button4" type="button" onclick="clearBetweenStyle()" value=" Restore " /></li>
+		<button onclick="showBetweenStyle()"> Set </button>
+		<button onclick="clearBetweenStyle()"> Restore </button>
+	</li>
     
 	</ol>
+	</div>
 	<script type="text/javascript">
 		function setColumnCount() {
 			var v = parseInt($('#colCnt').val());
 			if (!v || v < 0)
 				v = 1;
 			var ojslet = edtPnlObj.jslet;
-			ojslet.columnCount = v;
+			ojslet.columnCount(v);
 			ojslet.renderAll();
 		}
 		
@@ -90,7 +108,7 @@
 			if (!v || v < 0)
 				v = 100;
 			var ojslet = edtPnlObj.jslet;
-			ojslet.columnWidth = v;
+			ojslet.columnWidth(v);
 			ojslet.renderAll();
 		}
 		
@@ -99,7 +117,7 @@
 			if (!v || v < 0)
 				v = 1;
 			var ojslet = edtPnlObj.jslet;
-			ojslet.rowHeight = v;
+			ojslet.rowHeight(v);
 			ojslet.renderAll();
 		}
 		
@@ -150,16 +168,16 @@
 		
 		function showBetweenStyle() {
 			var ojslet = edtPnlObj.jslet;
-			var fld = ojslet.getEditField("department");
-			fld.betweenStyle = true;
-			fld.datafield1 = "department1";
+			var fld = ojslet.dataset().getField("department");
+			fld.valueStyle(jslet.data.FieldValueStyle.BETWEEN);
+
 			ojslet.renderAll();
 		}
 		
 		function clearBetweenStyle() {
 			var ojslet = edtPnlObj.jslet;
-			var fld = ojslet.getEditField("department");
-			fld.betweenStyle = false;
+			var fld = ojslet.dataset().getField("department");
+			fld.valueStyle(jslet.data.FieldValueStyle.NORMAL);
 			ojslet.renderAll();
 		}	
 	

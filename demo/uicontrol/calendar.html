@@ -11,21 +11,26 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Calendar Demo</h2>
-	<h4>Demostrate how to use Calendar control.</h4>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Demonstrate how to use Calendar control.</div>
+    <fieldset>
     <div id="calDemo" data-jslet='type:"Calendar",onDateSelected:doDateSelected' 
 		  style="width: 350px; height: 226px; marging-left: 20px">
     </div>
     <div >Selected date：<span id="currDate" style="color:Red;font-weight:bold"></span></div>
-    <hr />
+    </fieldset>
+	
     <h3>Demo Content:</h3>
-    <p>
-        1、Date selected event： onDateSelected</p>
-    <p>
-        2、Set date range： 2010-01-01 to 2015-10-31:&nbsp;&nbsp;
+	<div class="content">
+    <ol><li>
+        Date selected event： onDateSelected;</li>
+    <li>
+        Set date range： 2010-01-01 to 2015-10-31:&nbsp;&nbsp;
         <input type="button" value=" OK " onclick="setDateRange();" />&nbsp;
-        <input type="button" value=" Clear " onclick="clearDateRange();" /></p>
-
+        <input type="button" value=" Clear " onclick="clearDateRange();" /></li>
+	</ol></div>
     <script type="text/javascript">
         //Date selected event handler
         function doDateSelected(date) {
@@ -35,16 +40,16 @@
         //Set valid date range
         function setDateRange() {
             var ojslet = jslet('#calDemo');
-            ojslet.minDate = new Date(2010, 0, 1);
-            ojslet.maxDate = new Date(2015, 9, 31);
+            ojslet.minDate(new Date(2010, 0, 1));
+            ojslet.maxDate(new Date(2015, 9, 31));
             ojslet.renderAll();
         }
 
         //Clear date range
         function clearDateRange() {
             var ojslet = jslet('#calDemo');
-            ojslet.minDate = null;
-            ojslet.maxDate = null;
+            ojslet.minDate(null);
+            ojslet.maxDate(null);
             ojslet.renderAll();
         }
 

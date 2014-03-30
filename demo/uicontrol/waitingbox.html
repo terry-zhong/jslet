@@ -11,18 +11,22 @@
 </head>
 <body style="height: 600px">
     <h2>Jslet - WaitingBox Demo</h2>
-	<h4>Demostrate how to use WaitingBox control.</h4>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Demonstrate how to use WaitingBox control.</div>
+    <fieldset>
     <div>
-        <input type="button" value=" In body " onclick="showWaiting1()" />&nbsp;&nbsp;|&nbsp;&nbsp;
-        <input type="button" value=" In below Div(Display) " onclick="showWaiting2()" />
-        <input type="button" value=" In below Div(Hide) " onclick="hideWaiting2()" />
+        <button onclick="showWaiting1()"> In body </button>&nbsp;&nbsp;|&nbsp;&nbsp;
+        <button onclick="showWaiting2()"> In below Div(Display) </button>
+        <button onclick="hideWaiting2()"> In below Div(Hide) </button>
     </div>
     <div id="test" style="border: 1px solid red; position: relative; top: 0px; left: 200px;
         width: 400px; height: 200px; vertical-align:middle; text-align:center">
         Test Panel<br />
         <input type="button" value="button" />
     </div>
+	</fieldset>
     <script type="text/javascript">
         function showWaiting1() {
             waitingbox = new jslet.ui.WaitingBox(document.body, "#CCCCCC");

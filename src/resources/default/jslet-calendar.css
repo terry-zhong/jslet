@@ -24,7 +24,7 @@
 .jl-cal-header {
     height: 26px;
     text-align: center;
-    background-color: #233d6d;
+    background-color: #b2d1f5;
     position: absolute;
     top: 0px;
     width: 100%;
@@ -37,7 +37,7 @@
     top: 5px;
     width: 28px;
     height: auto;
-    color: White;
+    color: black;
     cursor: hand;
     cursor: pointer;
 }
@@ -63,7 +63,7 @@
 .jl-cal-title {
     text-align: center;
     position: relative;
-    color: white;
+    color: black;
 }
 
 .jl-cal-mnext {

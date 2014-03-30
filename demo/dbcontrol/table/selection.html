@@ -11,26 +11,27 @@
 		
 		function initialize() {
 			var dsEmp = jslet.data.getDataset('employee');
-			dsEmp.onCheckSelectable = function(){
+			dsEmp.onCheckSelectable(function(){
 				return this.getFieldValue('gender') == 'M'; 
-			}
+			});
 		}
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBTable Selection Demo</h2>
-	<h4>Control data records can be selected in DBTable or not.</h4>
-    <hr />
-    
-    <p>Employee List:<a href="EmployeeDataModel.htm">Employee Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Specify which data rows can be selected in DBTable.</div>
+   <fieldset>
+    <legend>Employee List:(<a href="EmployeeDataModel.htm">Employee Data Model</a>)</legend>
     <div id="tblEmployee" data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,hasSeqCol:true,readOnly:true' style="width: 100%;height: 220px">
     </div>
-    <hr />
+	</fieldset>
+    
     <h3>Demo Content:</h3>
-	<ul class="content-list">
-    <li>
-        Only male employee can be selected.
-	</li>
+	<div class="content">
+        In this demo, only male employees can be selected.
 	</ol>
 	
     <!-- Source Code -->

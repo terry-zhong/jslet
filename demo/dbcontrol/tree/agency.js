@@ -3,10 +3,10 @@
 		return String.fromCharCode(65 + Math.round(Math.random()*25));// + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	}
 	
-	//Generate very large test data: 20000 records 
+	//Generate very large test data: 5000 records 
 	function generateLargeData(){
 		var data = [], rec, code1, code2, m=1, id1, id2;
-		for(var i = 1; i <= 200; i++){
+		for(var i = 1; i <= 10; i++){
 			code1 = i;
 			if(i < 10)
 				code1 ='00' + i;
@@ -48,11 +48,13 @@
 	
 	fldObj = jslet.data.createStringField("code", 10);
 	fldObj.label("Code");
+	fldObj.required(true);
 	dsAgency.addField(fldObj);
 	
 	fldObj = jslet.data.createStringField("name", 60);
 	fldObj.displayWidth(20);
 	fldObj.label("Name");
+	fldObj.required(true);
 	dsAgency.addField(fldObj);
 	
 	fldObj = jslet.data.createStringField("iconcls", 10);

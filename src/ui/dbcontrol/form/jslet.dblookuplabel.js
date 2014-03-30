@@ -17,12 +17,12 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * 		var jsletParam = {type:"DBLookupLabel",dataset:"department",lookupField:"deptcode", lookupValue: '0101', returnField: 'name'};
  * 
  * //1. Declaring:
- *      &lt;label data-jslet='{type:"DBLookupLabel",dataset:"department",lookupField:"deptcode", lookupValue: "0101", returnField: "name"}' />
- *      or
- *      &lt;label data-jslet='jsletParam' />
- *      
+ *	  &lt;label data-jslet='{type:"DBLookupLabel",dataset:"department",lookupField:"deptcode", lookupValue: "0101", returnField: "name"}' />
+ *	  or
+ *	  &lt;label data-jslet='jsletParam' />
+ *	  
  *  //2. Binding
- *      &lt;label id="ctrlId"  />
+ *	  &lt;label id="ctrlId"  />
  *  	//Js snippet
  * 		var el = document.getElementById('ctrlId');
  *  	jslet.ui.bindControl(el, jsletParam);
@@ -36,66 +36,65 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 	/**
 	 * @override
 	 */
-    initialize: function ($super, el, params) {
+	initialize: function ($super, el, params) {
 		var Z = this;
-        Z.allProperties = 'dataset,lookupField,returnField,lookupValue';
-        Z.requiredProperties = 'lookupValue,lookupField,returnField';
+		Z.allProperties = 'dataset,lookupField,returnField,lookupValue';
+		Z.requiredProperties = 'lookupValue,lookupField,returnField';
 
-        /**
-         * {String} Lookup field name.
-         */
-        Z.lookupField;
-        /**
-         * {String} Lookup field value.
-         */
-        Z.lookupValue;
-        /**
-         * {String} Return field name.
-         */
-        Z.returnField;
-        $super(el, params);
-    },
-
-	/**
-	 * @override
-	 */
-    bind: function () {
-        this.checkDataField();
-        oJslet.renderAll();
-    },
+		/**
+		 * {String} Lookup field name.
+		 */
+		Z.lookupField;
+		/**
+		 * {String} Lookup field value.
+		 */
+		Z.lookupValue;
+		/**
+		 * {String} Return field name.
+		 */
+		Z.returnField;
+		$super(el, params);
+	},
 
 	/**
 	 * @override
 	 */
-    isValidTemplateTag: function (el) {
-        return el.tagName.toLowerCase() == 'label';
-    },
+	bind: function () {
+		this.renderAll();
+	},
 
 	/**
 	 * @override
 	 */
-    refreshControl: function (evt, isForce) {
-        if (evt.eventType != jslet.data.UpdateEvent.UPDATEALL) {
-            return;
-        }
-        if (!isForce && !Z.isActiveRecord()) {
-        	return;
-        }
-        var Z = this;
-        var result = Z.dataset.lookup(Z.lookupField, Z.lookupValue,
+	isValidTemplateTag: function (el) {
+		return el.tagName.toLowerCase() == 'label';
+	},
+
+	/**
+	 * @override
+	 */
+	refreshControl: function (evt, isForce) {
+		if (evt.eventType != jslet.data.RefreshEvent.UPDATEALL) {
+			return;
+		}
+		if (!isForce && !Z.isActiveRecord()) {
+			return;
+		}
+		var Z = this;
+		var result = Z.dataset.lookup(Z.lookupField, Z.lookupValue,
 				Z.returnField);
-        if (result == null) {
-            result = 'NOT found: ' + Z.lookupValue;
-        }
-        Z.el.innerHTML = result;
-    },
+		if (result == null) {
+			result = 'NOT found: ' + Z.lookupValue;
+		}
+		Z.el.innerHTML = result;
+	},
 
 	/**
 	 * @override
 	 */
-    renderAll: function () {
-        this.refreshControl(jslet.data.UpdateEvent.updateAllEvent, true);
-    }
+	renderAll: function () {
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent, true);
+	}
 });
 jslet.ui.register('DBLookupLabel', jslet.ui.DBLookupLabel);
 jslet.ui.DBLookupLabel.htmlTemplate = '<label></label>';

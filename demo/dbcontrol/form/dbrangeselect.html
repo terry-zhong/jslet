@@ -12,22 +12,26 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBRangeSelect Demo</h2>
-    <hr />
-    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Employee List: (<a href="../../model/EmployeeDataModel.htm">Data Model</a>)</legend>
     <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 800px; height: 200px">
     </div>
-
-    <hr />
+	</fieldset>
+    
     <h3>Demo Content</h3>
-    <p>
+	<div clas="content">
+    <li>
         1. From 10 to 100, step: 5: <br />
 		 <select data-jslet="type:'DBRangeSelect',dataset:'employee',field:'age',beginItem:10,endItem:100,step:5"
-            style="width: 150px"></select></p>
-    <p>
+            style="width: 150px"></select></li>
+    <li>
         2. From 1 to 10, step: 1 : <br />
 			<select data-jslet="type:'DBRangeSelect',dataset:'employee',field:'age',beginItem:1,endItem:10"
-            style="width: 150px"></select></p>
-
+            style="width: 150px"></select></li>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=650"></script>
 </body>

@@ -15,39 +15,56 @@
 			//Clear all records which are created at client side.
 			//We need all employee data to query from server side.
             dsEmployee.dataList(null);
+			dsEmployee.queryUrl('/employee/findEmployee.jsp');
+			dsEmployee.submitUrl('/employee/save.jsp');
         }
 
         function applyToServer() {
-            dsEmployee.applyChanges('/employee/save.jsp');
+            dsEmployee.submit();
         }
+		
+		function processServerError() {
+			var oldUrl = dsEmployee.queryUrl();
+			try {
+				dsEmployee.queryUrl('/employee/getServerErrMsg.jsp');
+				dsEmployee.query();
+			}finally{
+				dsEmployee.queryUrl(oldUrl);
+			}
+		}
     </script>
 </head>
 <body>
     <h2>Jslet - Server Comunication Demo</h2>
-    <hr />
-    <p>Employee List:</p>
-    <table>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Employee List:</legend>
+    <table style="width:100%">
         <tr>
             <td>
-                <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
+                <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
                 </div>
             </td>
-            <td>
-                <img data-jslet='type:"DBImage","srcType":"file",dataset:"employee",field:"photo","baseUrl":"../photo/"'
-                    style="height: 160px; width: 140px" alt="" />
+            <td style="width:150px">
+                <img data-jslet='type:"DBImage",dataset:"employee",field:"photo","baseUrl":"../photo/"'
+                    style="height: 200px; width: 100%" alt="" />
             </td>
         </tr>
     </table>
-    <br />
-    <input id="btnQuery" type="button" value=" Query " onclick="dsEmployee.applyQuery('/employee/findEmployee.jsp');" />
-    <input type="button" value=" New " onclick="dsEmployee.insertRec();" />
-    <input type="button" value=" Edit " onclick="dsEmployee.updateRec();" />
-    <input type="button" value=" Delete " onclick="dsEmployee.deleteRec();" />
-    <input type="button" value=" Confirm " onclick="dsEmployee.confirm();" />
-    <input type="button" value=" Cancel " onclick="dsEmployee.cancel();" />
-    <input type="button" value=" Apply to Server " onclick="applyToServer()" />&nbsp;
-    <input id="btnQuery0" type="button" value="Demostrate Error" onclick="dsEmployee.applyQuery('/employee/getServerErrMsg.jsp');" />
-    <hr />
+    </fieldset>
+	
+    <button onclick="dsEmployee.query();"> Query </button>
+    <button onclick="dsEmployee.insertRecord();" title='Add record after current cursor'> Insert </button>
+    <button onclick="dsEmployee.editRecord();"> Edit </button>
+    <button onclick="dsEmployee.deleteRecord();"> Delete </button>
+    <button onclick="dsEmployee.confirm();"> Confirm </button>
+    <button onclick="dsEmployee.cancel();"> Cancel </button>
+    <button onclick="applyToServer();" title="Apply data to server"> Apply Changes</button>
+    <button onclick="processServerError();"> Demonstrate Error </button>
+    <fieldset>
+		<legend>Edit Panel</legend>
     <table data-jslet='dataset:"employee"'>
         <col style="width:100px" />
         <col style="width:100px" />
@@ -140,7 +157,7 @@
 			<td>&nbsp;</td>
         </tr>
     </table>
-
+</fieldset>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
 </body>

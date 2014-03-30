@@ -25,12 +25,17 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBTimePicker Demo</h2>
-    <hr />
-    <div data-jslet='type:"DBTable",dataset:"timedataset"' style="width: 800px; height: 150px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Data List</legend>
+    <div data-jslet='type:"DBTable",dataset:"timedataset"' style="width: 100%; height: 150px">
     </div>
-    <hr />
+	</fieldset>
+
     <h3>Demo Content:</h3>
-    <div data-jslet='dataset:"timedataset"'>
+    <div data-jslet='dataset:"timedataset"' class="content">
 		<ol>
         <li>24-Hour, without second part(default): <br />
             String time:

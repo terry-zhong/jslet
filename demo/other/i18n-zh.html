@@ -22,11 +22,18 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - I18N(Chinese)</h2>
-    <hr />
-    <p>
-        Employee List:&nbsp;&nbsp;<a href="EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+        <h4>改变语言:
+	<a href="i18n-en.html">English</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="i18n-ar.html">Arab</a>
+	</h4>
+    <fieldset>
+    <legend>职员列表</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
-    <hr />
+    </fieldset>
+	<fieldset>
+		<legend>编辑区</legend>
 	<table style="width:100%" data-jslet='dataset:"employee"'>
 		<tr>
 			<td style="width:15%">
@@ -99,9 +106,7 @@
 			</td>
 		</tr>
 	</table>
-    <h3>演示内容:</h3>
-        <p>改变语言:</p>
-	<h4><a href="i18n-en.html">English</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="i18n-ar.html">Arab</a></h4>
+	</fieldset>
 	
 </body>
 </html>

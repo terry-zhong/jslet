@@ -24,17 +24,17 @@ jslet.toArray = function(iterable) {
 		results[length] = iterable[length];
 	}
 	return results;
-}
+};
 
 jslet.extend = function(destination, source) {
 	for ( var property in source) {
 		destination[property] = source[property];
 	}
 	return destination;
-}
+};
 
 jslet.emptyFunction = function() {
-}
+};
 
 jslet.keys = function(object) {
 	if ((typeof object) != 'object') {
@@ -47,7 +47,7 @@ jslet.keys = function(object) {
 		}
 	}
 	return results;
-}
+};
 
 jslet.extend(Function.prototype,
 		(function() {
@@ -75,8 +75,7 @@ jslet.extend(Function.prototype,
 			}
 
 			function bind(context) {
-				if (arguments.length < 2
-						&& (typeof arguments[0] === 'undefined')) {
+				if (arguments.length < 2 && (typeof arguments[0] === 'undefined')) {
 					return this;
 				}
 				var __method = this, args = slice.call(arguments, 1);
@@ -102,7 +101,7 @@ jslet.extend(Function.prototype,
 				return function() {
 					var a = merge(args, arguments);
 					return __method.apply(this, a);
-				}
+				};
 			}
 
 			function delay(timeout) {
@@ -131,10 +130,11 @@ jslet.extend(Function.prototype,
 					return this._methodized;
 				}
 				var __method = this;
-				return this._methodized = function() {
+				this._methodized = function() {
 					var a = update( [ this ], arguments);
 					return __method.apply(null, a);
 				};
+				return this._methodized;
 			}
 
 			return {
@@ -146,7 +146,7 @@ jslet.extend(Function.prototype,
 				defer : defer,
 				wrap : wrap,
 				methodize : methodize
-			}
+			};
 		})());
 
 /* Based on Alex Arnell's inheritance implementation. */
@@ -181,7 +181,7 @@ jslet.Class = (function() {
 
 		if (parent) {
 			subclass.prototype = parent.prototype;
-			klass.prototype = new subclass;
+			klass.prototype = new subclass();
 			parent.subclasses.push(klass);
 		}
 
@@ -210,8 +210,7 @@ jslet.Class = (function() {
 
 		for ( var i = 0, length = properties.length; i < length; i++) {
 			var property = properties[i], value = source[property];
-			if (ancestor && jQuery.isFunction(value)
-					&& value.argumentNames()[0] == '$super') {
+			if (ancestor && jQuery.isFunction(value) && value.argumentNames()[0] == '$super') {
 				var method = value;
 				value = (function(m) {
 					return function() {

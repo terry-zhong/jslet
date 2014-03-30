@@ -17,10 +17,10 @@
 			{index: 3, type: "N", name: "DoubleFld", label: "Double Field", scale: 2, length: 12, displayFormat: "#,##0.00"},
 			{index: 4, type: "D", name: "DateFld", label: "Date Field"},
 			{index: 5, type: "B", name: "BooleanFld", label: "Boolean Field"},
-			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {lookupDataset: "gender"}}];
+			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {dataset: "gender"}}];
 			
 			var dsobj = jslet.data.createDataset("firstds",fldCfg);
-			dsobj.insertRec();
+			dsobj.insertRecord();
 		}
 </script>
 </head>

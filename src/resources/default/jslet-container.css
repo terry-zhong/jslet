@@ -72,10 +72,12 @@
     padding: 0;
     position: relative;
     border: 1px solid #8db2e3;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-topright: 5px;
+    -moz-border-top-left-radius: 5px;
+    -moz-border-top-right-radius: 5px;
     -webkit-border-top-left-radius: 5px;
     -webkit-border-top-right-radius: 5px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .jl-rtl .jl-tab-list li {
@@ -88,7 +90,18 @@
     display: inline-block;
     text-decoration: none;
     color: #416aa3;
-    background: url('images/tab/tabs_enabled.png') repeat-x left top;
+    
+    background-color: #F1F5FB;
+	box-shadow: 0 1px 1px #fff inset;
+	background-color: #e5f1ff;
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#eaf3ff),color-stop(50%,#e5f1ff),color-stop(100%,#d6e8ff));
+	background-image: -webkit-linear-gradient(top,#eaf3ff 0,#e5f1ff 50%,#d6e8ff 100%);
+	background-image: -moz-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-image: -ms-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-image: -o-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-position: 0 1px;
+	background-repeat: repeat-x;
+		
     margin: 0;
     padding: 0 10px;
     height: 23px;
@@ -102,7 +115,13 @@
 }
 
 .jl-tab-list li a.jl-tab-inner:hover {
-    background: url('images/tab/tabs_active.png') repeat-x left bottom;
+	border-bottom-width: 0!important;
+	background-color: #fff;
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#e5f1ff),color-stop(100%,#fff));
+	background-image: -webkit-linear-gradient(#e5f1ff,#fff);
+	background-image: -moz-linear-gradient(#e5f1ff,#fff);
+	background-image: -ms-linear-gradient(top,#e5f1ff,#fff);
+	background-image: -o-linear-gradient(top,#e5f1ff,#fff);
 }
 
 .jl-tab-list li.jl-tab-selected {
@@ -112,8 +131,13 @@
 
 .jl-tab-list li.jl-tab-selected a {
     color: #416aa3;
-    background: #fff;
-    background: #7eabcd url('images/tab/tabs_active.png') repeat-x left bottom;
+	border-bottom-width: 0!important;
+	background-color: #fff;
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#e5f1ff),color-stop(100%,#fff));
+	background-image: -webkit-linear-gradient(#e5f1ff,#fff);
+	background-image: -moz-linear-gradient(#e5f1ff,#fff);
+	background-image: -ms-linear-gradient(top,#e5f1ff,#fff);
+	background-image: -o-linear-gradient(top,#e5f1ff,#fff);
 }
 
 .jl-tab-list li.jl-tab-selected a:hover {
@@ -187,7 +211,6 @@
     top: 2px;
     bottom: 2px;
     width: 18px;
-    height: 21px !important;
     height: 23px;
     border: 1px solid #8db2e3;
     font-size: 1px;
@@ -200,14 +223,13 @@
     top: 2px;
     bottom: 2px;
     width: 18px;
-    height: 21px !important;
     height: 23px;
     border: 1px solid #8db2e3;
     font-size: 1px;
     display: block;
     cursor: pointer;
 
-    right: 22px;
+    right: 20px;
     background: #e0ecff url('images/tab/tabs_leftarrow.png') no-repeat 1px 3px;
 }
 
@@ -230,14 +252,13 @@
     top: 2px;
     bottom: 2px;
     width: 18px;
-    height: 21px !important;
     height: 23px;
     border: 1px solid #8db2e3;
     font-size: 1px;
     display: block;
     cursor: pointer;
 
-    right: 2px;
+    right: 0px;
     background: #e0ecff url('images/tab/tabs_rightarrow.png') no-repeat 2px 3px;
 }
 
@@ -276,20 +297,18 @@
 /*************************************/
 
  .jl-accordion {
-	border: 0 solid rgb(153, 188, 232);
+	border: 1px solid rgb(153, 188, 232);
+	padding:1px;
 }
 
  .jl-accordion-head {
-	border: 1px solid rgb(153, 188, 232);
+	border-bottom: 1px solid #a4bed4;
 	width: 100%;
 	cursor: pointer;
-	background-color: #efefef;
-    background-image: url('images/accordion/header-bg.png');
-    background-repeat: repeat-x;
-	height: 24px;
+	height: 30px;
 	padding-left: 5px;
 	padding-right: 5px;
-	padding-top: 1px;
+	padding-top: 2px;	
 }
 
 .jl-accordion-head a, .jl-accordion-head a:hover{
@@ -299,14 +318,14 @@
 }
 	
 .jl-accordion-head-hover {
-	border: 1px solid blue;
+	/*border: 1px solid blue;*/
 }
 
 .jl-accordion-body {
 	width: 100%;
 	color: #494949;
 	background-color: efefef;
-	border: 1px solid rgb(153, 188, 232);
+	border: 0px solid rgb(153, 188, 232);
 	padding: 5px;
 }
 
@@ -360,6 +379,7 @@
 .jl-splitpanel {
 	position: relative;
 	border: 1px solid #99bbe8;
+	padding: 1px;
 }
 
 .jl-sp-panel-hori {
@@ -450,3 +470,99 @@
 }
 
 
+/* EditPanel */
+.jl-editpanel {
+    overflow: auto;
+    position: relative;
+    padding: 10px;
+}
+
+.jl-editpanel th {
+    height: 0;
+}
+
+.jl-editpanel td {
+    vertical-align: middle;
+}
+
+.jslet_editpanel_line {
+    border-bottom: 1px solid #fff;
+    height:2px;
+}
+
+/* end EditPanel */
+
+
+/* jslet.MessageBox */
+.jl-msg-container {
+    margin-top: 10px;
+}
+
+.jl-msg-icon {
+    width: 50px;
+    height: 35px;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: transparent;
+    background-origin: padding-box;
+    background-repeat: no-repeat;
+    float: left;
+    margin-left: 5px;
+}
+
+.jl-rtl .jl-msg-icon {
+    float: right;
+    margin-left: auto;
+    margin-right: 5px;
+}
+
+.jl-msg-icon-info {
+    background-image: url(images/mb/icon-info.gif);
+}
+
+.jl-msg-icon-error {
+    background-image: url(images/mb/icon-error.gif);
+}
+
+.jl-msg-icon-question {
+    background-image: url(images/mb/icon-question.gif);
+}
+
+.jl-rtl .jl-msg-icon-question {
+    background-image: url(images/mb/icon-question-rtl.gif);
+}
+
+.jl-msg-icon-warning {
+    background-image: url(images/mb/icon-warning.gif);
+}
+
+.jl-msg-message {
+    padding: 8px;
+}
+
+.jl-msg-tool {
+    position: absolute;
+    bottom: 3px;
+    width: 100%;
+    height: 30px;
+    overflow: hidden;
+    padding-bottom: 5px;
+    padding-left: 6px;
+    padding-right: 0;
+    padding-top: 5px;
+}
+
+.jl-rtl .jl-msg-tool {
+    left: auto;
+    right: 4px;
+    padding-left: 0;
+    padding-right: 6px;
+}
+
+.jl-msg-button {
+    position: absolute;
+    height: 24px;
+    width: 75px;
+}
+
+/* end jslet.MessageBox */

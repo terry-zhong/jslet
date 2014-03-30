@@ -14,7 +14,7 @@
 
             f = dsEmployee.getField("department");
             f.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
-            var lkf = f.lookupField();
+            var lkf = f.lookup();
             lkf.onlyLeafLevel(true);
 
             f = jslet.data.createStringField("deptaddr", 20);
@@ -24,7 +24,7 @@
 
         function setLeafLevel() {
             var f = dsEmployee.getField("department");
-            var lkf = f.lookupField();
+            var lkf = f.lookup();
             lkf.onlyLeafLevel($('#chkOnlyLeafLevel')[0].checked);
             jslet("#dlgDepartment").closePopup();
             jslet("#dlgDepartment").renderAll();
@@ -34,7 +34,7 @@
 
         function setMultiSelect() {
             var f = dsEmployee.getField("province");
-            var lkf = f.lookupField();
+            var lkf = f.lookup();
             if($('#chkMultiSelect')[0].checked)
             	f.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
             else 
@@ -49,12 +49,12 @@
         function setOtherFieldValue() {
 
             if ($('#otherFieldValue')[0].checked) {
-            	jslet('#dlgDepartment').afterSelect = function (dataset, lookupDataset) {
+            	jslet('#dlgDepartment').afterSelect(function (dataset, lookupDataset) {
                     dataset.setFieldValue("deptaddr", lookupDataset.getFieldValue("address"));
 
-                }
+                });
             } else
-            	jslet('#dlgDepartment').afterSelect = null;
+            	jslet('#dlgDepartment').afterSelect(null);
             alert('Done, try to input department!');
 
         }
@@ -62,16 +62,20 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBComboSelect Demo</h2>
-    <hr />
-    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Employee List: (<a href="../../model/EmployeeDataModel.htm">Data Model</a>)</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
     </div>
-    <br />
-    <input type="button" value=" First " onclick="dsEmployee.first();" />
-    <input type="button" value=" Prior " onclick="dsEmployee.prior();" />
-    <input type="button" value=" Next " onclick="dsEmployee.next();" />
-    <input type="button" value=" Last " onclick="dsEmployee.last();" />
-    <hr />
+    </fieldset>
+    <button onclick="dsEmployee.first();"> First </button>
+    <button onclick="dsEmployee.prior();"> Prior </button>
+    <button onclick="dsEmployee.next();"> Next </button>
+    <button onclick="dsEmployee.last();" > Last </button>
+    <fieldset>
+		<legend>Edit Panel</legend>
     <table data-jslet='dataset:"employee"'>
         <tr>
             <td>
@@ -119,8 +123,9 @@
             </td>
         </tr>
     </table>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
+	<div class="content">
 	<ol>
     <li>
         1. There are two style in pupop panel: Tree View (for example: &quot;department&quot;) and List View (for example: &quot;province&quot;)</li>
@@ -130,7 +135,8 @@
         3. Multiple check: <input id="chkMultiSelect" type="checkbox" checked="checked" onclick="setMultiSelect();" /></li>
     <!--li>
         4. Return the address of department when select "department": <input id="otherFieldValue" type="checkbox" onclick="setOtherFieldValue();" />;</li-->
-</ol>
+	</ol>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=900"></script>
 </body>

@@ -21,11 +21,18 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - I18N for English</h2>
-    <hr />
-    <p>
-        Employee List:&nbsp;&nbsp;<a href="EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <h4>Change language:
+	<a href="i18n-en.html">English</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="i18n-zh.html">Chinese</a>
+	</h4>
+    <fieldset>
+    <legend>Employee List</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
-    <hr />
+    </fieldset>
+	<fieldset>
+		<legend>Edit Panel</legend>
 	<table style="width:100%" data-jslet='dataset:"employee"'>
 		<tr>
 			<td style="width:15%">
@@ -98,10 +105,7 @@
 			</td>
 		</tr>
 	</table>
-    <h3>
-        Demo Content:</h3>
-        <p>Change language:</p>
-	<h4><a href="i18n-zh.html">Chinese</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="i18n-en.html">English</a></h4>
+	</fieldset>
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=1050"></script>

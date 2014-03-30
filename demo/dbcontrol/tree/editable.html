@@ -14,9 +14,7 @@
 			//Global variable for #trvRegion 
             treeCfg = { type: 'DBTreeView', 
 			    dataset: 'dsAgency', 
-				displayFields: '[code]+"-"+[name]',
-                keyField: 'id', 
-				parentField: 'parentid',
+				displayFields: '[name]',
                 hasCheckBox: false, 
 				expandLevel: 0
             };
@@ -26,13 +24,16 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBTreeView(Edit Data) Demo</h2>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<fieldset>
 	<div>
-		<input type="button" value=" Insert Child " onclick="dsAgency.insertChild();$('#id').focus()" />
-		<input type="button" value=" Insert Sibling " onclick="dsAgency.insertSibling();$('#id').focus()" />
-		<input type="button" value=" Delete " onclick="dsAgency.deleteRec()" />
-		<input type="button" value=" Confirm " onclick="dsAgency.confirm()" />
-		<input type="button" value=" Cancel " onclick="dsAgency.cancel()" />
+		<button onclick="dsAgency.insertChild();$('#id').focus()"> Insert Child </button>
+		<button onclick="dsAgency.insertSibling();$('#id').focus()"> Insert Sibling </button>
+		<button onclick="dsAgency.deleteRecord()"> Delete </button>
+		<button onclick="dsAgency.confirm()"> Confirm </button>
+		<button onclick="dsAgency.cancel()"> Cancel </button>
 	</div>
 	<table><tr>
 		<td>
@@ -42,22 +43,24 @@
 		</td>
 		<td style="vertical-align:top">
 			<table><tr>
-		<tr><td>ID: </td><td><input id="id" type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'id'" /> </td></tr>
-		<tr><td>Code: </td><td><input type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'code'" /> </td></tr>
-		<tr><td>Name: </td><td><input type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'name'" /> </td></tr>
+		<tr><td><label data-jslet="type:'DBLabel',dataset:'dsAgency',field:'id'"></label>: </td><td><input id="id" type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'id'" /> </td></tr>
+		<tr><td><label data-jslet="type:'DBLabel',dataset:'dsAgency',field:'code'"></label>: </td><td><input type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'code'" /> </td></tr>
+		<tr><td><label data-jslet="type:'DBLabel',dataset:'dsAgency',field:'name'"></label>: </td><td><input type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'name'" /> </td></tr>
 		<tr><td>Parent Id: </td><td><input type="text" data-jslet="type:'DBText', dataset:'dsAgency',field:'parentid'" /> </td></tr>
 		</table>
 		</p>
 		</td>
 	</tr></table>
-	<hr />
+	</fieldset>
   
     <h3>Demo Content:</h3>
+	<div class="content">
 	<ol class="content-list">
     <li>
-        Demostrate how to insert child, insert sibling, update and delete;
+        Demonstrate how to insert child, insert sibling, update and delete;
 	</li>
 	</ol>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=600"></script>
 </body>

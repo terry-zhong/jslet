@@ -9,6 +9,7 @@
 	    jslet.define("employee", "../../js/employee.js");
 	    jslet.require("jslet,employee", function () {
 		    dsEmployee.next();
+		    dsEmployee.getField('summary').antiXss(false);
 		    dsEmployee.setFieldValue("summary", 
 			   "His photo:<br /><img style='width:100px;height:100px' src='../../photo/2.jpg'></img><!--3.jpg or 4.jpg etc -->");
 		    dsEmployee.first();
@@ -18,33 +19,37 @@
 </head>
 <body>
     <h2>Jslet - DBHtml Demo</h2>
-    <hr />
-    <p>Employee List: <a href="../../model/EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Employee List: (<a href="../../model/EmployeeDataModel.htm">Data Model</a>)</legend>
     <table>
         <tr>
-            <td>
-                <div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,rowHeight:"25px"'
-                    style="width: 700px; height: 200px">
+            <td style="width:70%">
+                <div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,rowHeight:25'
+                    style="width: 100%; height: 200px">
                 </div>
             </td>
             <td>
                 <div data-jslet='type:"DBHtml",dataset:"employee",field:"summary"'
-                    style="height: 200px; width: 240px;border:1px solid blue;overflow:scroll" ></div>
+                    style="height: 200px; width: 100%;border:1px solid blue;overflow:scroll" ></div>
             </td>
         </tr>
     </table>
-    <hr />
-    <input type="button" value=" First " onclick="dsEmployee.first();" />
-    <input type="button" value=" Prior " onclick="dsEmployee.prior();" />
-    <input type="button" value=" Next " onclick="dsEmployee.next();" />
-    <input type="button" value=" Last " onclick="dsEmployee.last();" />
-    <hr />
+    </fieldset>
+	
+    <button onclick="dsEmployee.first();"> First </button>
+    <button onclick="dsEmployee.prior();"> Prior </button>
+    <button onclick="dsEmployee.next();"> Next </button>
+    <button onclick="dsEmployee.last();" > Last </button>
+    <fieldset>
     <p>Edit Html source:
     <input type="button" value=" OK " onclick="dsEmployee.confirm();" />
     <input type="button" value=" Cancel " onclick="dsEmployee.cancel();" />
     </p>
-    <textarea rows="10" cols="80" data-jslet='type:"DBTextArea",dataset:"employee",field:"summary"' style="width:500px;height:300px"></textarea>
-
+    <textarea rows="10" cols="80" data-jslet='type:"DBTextArea",dataset:"employee",field:"summary"' style="width:100%;height:300px"></textarea>
+	</fieldset>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=500"></script>
 </body>

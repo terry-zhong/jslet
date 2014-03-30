@@ -2,19 +2,22 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Jslet - Apply Selected Demo</title>
+    <title>Jslet - Submit Selected Demo</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
 </head>
 <body>
-    <h2>Jslet - Apply Selected Demo</h2>
-    <hr />
-    <p>Product List: <input id="btnQuery" type="button" value=" Query " onclick="queryData()" />
-    <input type="button" value=" Audit Selected " onclick="applyToServer()" />&nbsp;
+    <h2>Jslet - Submit Selected Demo</h2>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <p>Product List: <button onclick="queryData()"> Query </button>
+    <button onclick="applyToServer()"> Audit Selected </button>
 	</p>
 	<div data-jslet='type:"DBTable",dataset:"product",hasSelectCol:true' style="width: 100%; height: 200px">
 	</div>	
-	
+	</fieldset>
     <script type="text/javascript">
         jslet.require("jslet", function () {
             initialize();
@@ -32,16 +35,17 @@
 				];
 			//Create dataset
 			product = jslet.data.createDataset('product', fldCfg);
+			product.queryUrl('/product/findall.jsp');
         }
 
 		function queryData() {
-			product.applyQuery('/product/findall.jsp');
+			product.query();
 		}
 
         function applyToServer() {
 			var selRecs = product.selectedRecords();
 			if(selRecs && selRecs.length > 0) {
-				product.applySelected('/product/audit.jsp');
+				product.submitSelected('/product/audit.jsp');
 			} else {
 				jslet.showInfo('Please select records to audit!');
 			}

@@ -44,22 +44,21 @@ jslet.data.DataProvider = function() {
 					}
 					self.csrfToken = jqXHR.getResponseHeader("csrftoken");
 					successHandler.call(dataset, result, callBackOption);
-					
-			    },
-			    
-				error : function(jqXHR, textStatus, errorThrown) {
-					errorHandler.call(dataset, actionName, textStatus + ':' + errorThrown);
-				}
-			};
+			},
+
+			error : function(jqXHR, textStatus, errorThrown) {
+				errorHandler.call(dataset, actionName, textStatus + ':' + errorThrown);
+			}
+		};
 		if(reqOptions) {
 			for(var prop in reqOptions) {
 				options[prop] = reqOptions[prop];
 			}
 		}
 		new jQuery.ajax(url, options);
-	}
+	};
 
-	this.applyQuery = function(dataset, url, condition, pageNo, pageSize, successHandler, errorHandler) {
+	this.query = function(dataset, url, condition, pageNo, pageSize, successHandler, errorHandler) {
 		result = null;
 		var strParam = this._combineRequestData(condition);
 
@@ -69,32 +68,32 @@ jslet.data.DataProvider = function() {
 			} else {
 				strParam = '';
 			}
-			strParam += 'pageNo=' + pageNo + '&pageSize='
-					+ String(pageSize > 0 ? pageSize : 200);
+			strParam += 'pageNo=' + pageNo + '&pageSize=' + 
+					String(pageSize > 0 ? pageSize : 200);
 		}
 		
 		sendRequest(dataset, url, strParam, successHandler, errorHandler, jslet.data.ApplyAction.QUERY, {async : true, type: 'GET'});
-	}
+	};
 
-	this.applyChanges = function(dataset, url, changedRecs, successHandler, errorHandler) {
+	this.submit = function(dataset, url, changedRecs, successHandler, errorHandler) {
 		var options = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
-		sendRequest(dataset, url, jQuery.toJSON(changedRecs), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
-	}
+		sendRequest(dataset, url, jslet.data.record2Json(changedRecs), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
+	};
 	
-	this.applySelected = function(dataset, url, selectedData, successHandler, errorHandler, deleteOnSuccess) {
+	this.submitSelected = function(dataset, url, selectedData, successHandler, errorHandler, deleteOnSuccess) {
 		var reqOptions = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
 		var callBackOpt = {deleteOnSuccess: deleteOnSuccess};
-		sendRequest(dataset, url, jQuery.toJSON(selectedData), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
-	}
+		sendRequest(dataset, url, jslet.data.record2Json(selectedData), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
+	};
 
 	this._combineRequestData = function(data) {
 		if(!data) {
 			return '';
 		}
-		var result = data
-		if (typeof(condition) != 'string') {
-			result = jQuery.toJSON(data);
+		var result = data;
+		if (!jslet.isString(condition)) {
+			result = jslet.data.record2Json(data);
 		}
 		return 'jsletdata=' + result;
-	}
-}
+	};
+};

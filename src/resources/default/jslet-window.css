@@ -8,14 +8,9 @@
  .jl-window {
 	position: absolute;
 	overflow: hidden;
-	background-color: #f9f9f9;
 	padding: 3px;
 	border: 1px solid #99bbe8;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
 	cursor: default;
-	background: #e6ecf0 url('images/window/panel_title.png') repeat-x;
 }
 
 .jl-window-active {
@@ -38,13 +33,11 @@
 	color: #15428b;
 	font-weight: bold;
 	background: transparent;
-	background-color: #f9f9f9;
 	border-width: 0;
 	border-bottom: 1px solid #99bbe8;
 	padding: 2px 0 2px 0;
 	overflow: hidden;
 	position: relative;
-	background: #e6ecf0 url('images/window/panel_title.png') repeat-x;
 }
 
 .jl-win-title {

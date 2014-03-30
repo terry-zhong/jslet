@@ -10,58 +10,32 @@ var dsAnimals = new jslet.data.Dataset('animals');
 
 var f = jslet.data.createStringField('animaltype', 10);
 f.label('Animal Type');
-var lkf = new jslet.data.LookupField();
-lkf.lookupDataset(dsAnimalType);
-f.lookupField(lkf);
+var lkf = new jslet.data.FieldLookup();
+lkf.dataset(dsAnimalType);
+f.lookup(lkf);
 dsAnimals.addField(f);
 
 f = jslet.data.createStringField('powerfulanimal', 20);
 f.label('Most Powerful Animal');
-lkf = new jslet.data.LookupField();
-f.lookupField(lkf);
+lkf = new jslet.data.FieldLookup();
+f.lookup(lkf);
 dsAnimals.addField(f);
-f.onGetLookupField = function(lkFld) {
-	var type = this.dataset.getFieldValue('animaltype');
-	if (type == '1')
-		lkFld.lookupDataset(dsFelidas);
-	else if (type == '2')
-		lkFld.lookupDataset(dsCanine);
-	else
-		lkFld.lookupDataset(dsBear);
 
-}
+lkFelidas = new jslet.data.FieldLookup();
+lkFelidas.dataset(dsFelidas);
 
-lkFelidas = new jslet.data.LookupField();
-lkFelidas.lookupDataset(dsFelidas);
+lkCanine = new jslet.data.FieldLookup();
+lkCanine.dataset(dsCanine);
 
-lkCanine = new jslet.data.LookupField();
-lkCanine.lookupDataset(dsCanine);
+lkBear = new jslet.data.FieldLookup();
+lkBear.dataset(dsBear);
 
-lkBear = new jslet.data.LookupField();
-lkBear.lookupDataset(dsBear);
-
-var cr = new jslet.data.ContextRule(dsAnimals);
-cr.addRuleItem('powerfulanimal','[animaltype]=='1'', null,null);
-cr.addRuleItem('powerfulanimal','[animaltype]=='2'', null,null)
-cr.addRuleItem('powerfulanimal','[animaltype]=='3'', null,null)
-dsAnimals.contextRule(cr);
-dsAnimals.enableContextRule();
-
-//dsAnimals.contextRule([{
-//			condition : '[animaltype]=='1'',
-//			resultField : 'powerfulanimal'
-////			resultLookupField : lkFelidas
-//		},
-//		{
-//			condition : '[animaltype]=='2'',
-//			resultField : 'powerfulanimal'
-////			resultLookupField : lkCanine
-//		},
-//		{
-//			condition : '[animaltype]=='3'',
-//			resultField : 'powerfulanimal'
-////			resultLookupField : lkBear
-//		}]);
+//var cr = new jslet.data.ContextRule(dsAnimals);
+//cr.addRuleItem('powerfulanimal','[animaltype]=='1'', null,null);
+//cr.addRuleItem('powerfulanimal','[animaltype]=='2'', null,null)
+//cr.addRuleItem('powerfulanimal','[animaltype]=='3'', null,null)
+//dsAnimals.contextRule(cr);
+//dsAnimals.enableContextRule();
 
 
 var dataList = [{

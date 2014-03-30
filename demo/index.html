@@ -5,9 +5,13 @@
     <link rel="stylesheet" type="text/css" href="css/demo-style.css" />
     <title>Jslet-Demo</title>
 	<style type="text/css">
-		a {
-			font-weight: bold;	
+		a, a:active, a:hover {
+			outline: 0;
+			text-decoration: none;
 		}
+	a:hover {
+		text-decoration: underline;
+	}
 		
 		ul p {
 			color: rgb(119, 119, 119);
@@ -16,312 +20,584 @@
 		.menu li {
 			float:left;
 			width: 45%;
-			min-height: 70px;
-			height: 70px;
+			min-height: 80px;
+			height: 80px;
 		}
 		
+	.content {
+		font-family: Verdana, Arial, sans-serif;
+		font-size: 14px;
+		font-style: normal;
+		font-variant: normal;
+		font-weight: normal;
+		line-height: 24px;
+		padding: 5px;
+		padding-top:0px;
+	}
+	
+	.content ul li{
+		padding-bottom: 5px;
+		padding-top: 5px;
+		padding-left: 20px;
+		line-height: 20px;
+		list-style-type: none;
+	}
+	.content ul.firstlevel {
+		padding-left: 0;
+	}
+	
+	.content-list li{
+		line-height: 26px;
+	}
+		
+	.side-menu {
+		width:200px;
+		vertical-align:top;
+		border-right:2px solid #B5D1EC;
+		font-size:18px
+	}
+	
+	.side-menu li {
+		list-style-type: none;
+	}
+	
+	#sidebar ul {
+		padding-left:20px;
+		font-size:16px
+	}
+	#sidebar h3 {
+		font: 18px;
+		background-image: -webkit-linear-gradient(left, #efefef, #f3f3f3);
+		background-image: linear-gradient(to right, #efefef, #f3f3f3);
+		margin-left: -20px;
+		margin-right: 0px;
+		padding: 12px 20px;
+		text-shadow: 0 1px 0 #ffffff;
+	}
+	
+	.menu0 {
+		padding-left:0px!important;
+	}
 	</style>
+    <script type="text/javascript" src="../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.require("jslet");
+    </script>
+	
 </head>
 <body>
+<table><tr><td class="side-menu">
+<p></p>
+
+
+<div id="sidebar" class="widget-area" role="complementary">
+	<aside class="widget">
+		<h3 class="widget-title">Glance</h3>
+		<ul class="menu0">
+			<li><a href="glance/glance.html#" target=""_self"">Glance</a></li>
+		</ul>
+	</aside>
+	<aside class="widget">
+		<h3 class="widget-title"><a href="#special">Speical Features</a></h3>
+		<ul class="menu0">
+			<li><a href="dataset/contextrule/contextrule.html#" target=""_self"">Context Rule(Field Changed)</a></li>
+			<li><a href="dataset/masterdetail.html#" target=""_self"">Master/Detail Dataset</a></li>
+			<li><a href="dataset/lookupfield.html#" target=""_self"">Lookup Field </a></li>
+			<li><a href="dataset/groupfield.html#" target=""_self"">Group Field</a></li>
+		</ul>
+	</aside>
+
+
+
+	<aside class="widget">
+		<h3 class="widget-title">Data Manipulation</h3>
+		<ul class="menu0">
+			<li><a href="#basic">Basic</a>
+			<ul>
+				<li><a href="dataset/editdata.html#" target=""_self"">Edit Data</a></li>
+				<li><a href="dataset/finddata.html#" target=""_self"">Find Data</a></li>
+				<li><a href="dataset/filterdata.html#" target=""_self"">Filter Data</a></li>
+				<li><a href="dataset/sortbyfields.html#" target=""_self"">Sort Data</a></li>
+				<li><a href="dataset/formulafield.html#" target=""_self"">Formula Field</a></li>
+				<li><a href="dataset/groupfield.html#" target=""_self"">Group Field</a></li>
+				<li><a href="dataset/fieldvalueconverter.html#" target=""_self"">Value Converter</a></li>
+			</ul>
+			</li>
+			<li><a href="#lookup">Lookup Field</a>
+			<ul>
+				<li><a href="dataset/lookupfield.html#" target=""_self"">Lookup Field </a></li>
+				<li><a href="dataset/fieldchain.html#" target=""_self"">Field Chain </a></li>
+			</ul>
+			</li>
+			<li><a href="#validation">Data Validation</a>
+			<ul>
+				<li><a href="dataset/validation.html#" target=""_self"">Data Validation</a></li>
+				<li><a href="dataset/editmask.html#" target=""_self"">Edit Mask</a></li>
+			</ul>
+			</li>
+			<li><a href="#contextrule">Context Rule</a>
+			<ul>
+				<li><a href="dataset/contextrule/contextrule.html#" target=""_self"">Context Rule(Field Changed)</a></li>
+				<li><a href="dataset/contextrule/contextrule1.html#" target=""_self"">Context Rule(Status Changed)</a></li>
+			</ul>
+			</li>
+			<li><a href="#selection">Selection Control</a>
+			<ul>
+				<li><a href="dbcontrol/table/selection.html#" target=""_self"">Selection control in Table</a></li>
+				<li><a href="dbcontrol/tree/checkboxtree2.html#" target=""_self"">Selection control in Tree</a></li>
+			</ul>
+			</li>
+			<li><a href="#advanced">Advanced Features</a>
+			<ul>
+				<li><a href="dataset/masterdetail.html#" target=""_self"">Master/Detail Dataset</a></li>
+				<li><a href="dataset/unitconversion.html#" target=""_self"">Unit Conversion </a></li>
+				<li><a href="dataset/exportdata.html#" target=""_self"">Export Dataset</a></li>
+				<li><a href="dataset/clonedataset.html#" target=""_self"">Query Criteria</a></li>
+			</ul>
+			</li>
+		</ul>
+	</aside>
+	<aside class="widget">
+		<h3 class="widget-title">Normal Controls</h3>
+		<ul class="menu0">
+			<li><a href="#uicontrol">Normal Controls</a>
+			<ul>
+				<li><a href="uicontrol/accordion.html#" target=""_self"">Accordion</a></li>
+				<li><a href="uicontrol/calendar.html#" target=""_self"">Calendar</a></li>
+				<li><a href="uicontrol/tabcontrol.html#" target=""_self"">Tab Control</a></li>
+				<li><a href="uicontrol/menu.html#" target=""_self"">Menu</a></li>
+				<li><a href="uicontrol/window.html#" target=""_self"">Window</a></li>
+				<li><a href="uicontrol/splitpanel.html#" target=""_self"">Split Panel</a></li>
+				<li><a href="uicontrol/messagebox.html#" target=""_self"">MessageBox</a></li>
+				<li><a href="uicontrol/fieldset.html#" target=""_self"">Field Set</a></li>
+				<li><a href="uicontrol/waitingbox.html#" target=""_self"">Waiting Box</a></li>
+			</ul>
+			</li>
+			
+		</ul>
+	</aside>
+	<aside class="widget">
+		<h3 class="widget-title">Data Sensitive Conttrols</h3>
+		<ul class="menu0">
+			<li><a href="#formcontrol">Form Controls</a>
+			<ul>
+				<li><a href="dbcontrol/form/genericcontrol.html#" target=""_self"">Generic Controls</a></li>
+				<li><a href="dbcontrol/form/dbtext.html#" target=""_self"">DBText</a></li>
+				<li><a href="dbcontrol/form/dbselect.html#" target=""_self"">DBSelect</a></li>
+				<li><a href="dbcontrol/form/dbspinedit.html#" target=""_self"">DBSpinEdit</a></li>
+				<li><a href="dbcontrol/form/dbrangeselect.html#" target=""_self"">DBRangeSelect</a></li>
+				<li><a href="dbcontrol/form/dbautocomplete.html#" target=""_self"">DBAutocomplete</a></li>
+				<li><a href="dbcontrol/form/dbcheckboxgroup.html#" target=""_self"">DBCheckboxGroup</a></li>
+				<li><a href="dbcontrol/form/dbradiogroup.html#" target=""_self"">DBRadioGroup</a></li>
+				<li><a href="dbcontrol/form/dbcomboselect.html#" target=""_self"">DBComboSelect</a></li>
+				<li><a href="dbcontrol/form/dbbetweenedit.html#" target=""_self"">DBBetweenEdit</a></li>
+				<li><a href="dbcontrol/form/dbdatepicker.html#" target=""_self"">DBDatePicker</a></li>
+				<li><a href="dbcontrol/form/dbtimepicker.html#" target=""_self"">DBTimePicker</a></li>
+				<li><a href="dbcontrol/form/dbrating.html#" target=""_self"">DBRating</a></li>
+				<li><a href="dbcontrol/form/dbhtml.html#" target=""_self"">DBHtml</a></li>
+				<li><a href="dbcontrol/form/dbimage.html#" target=""_self"">DBImage</a></li>
+			</ul>
+			</li>
+			<li><a href="#dbtable">DBTable</a>
+			<ul>
+				<li><a href="dbcontrol/table/basic.html#" target=""_self"">Basic Features</a></li>
+				<li><a href="dbcontrol/table/appearance.html#" target=""_self""></a>Appearance</li>
+				<li><a href="dbcontrol/table/editable.html#" target=""_self"">Editable Table</a></li>
+				<li><a href="dbcontrol/table/command.html#" target=""_self"">With Action Column</a></li>
+				<li><a href="dbcontrol/table/customrender.html#" target=""_self""></a>Customized Render</li>
+				<li><a href="dbcontrol/table/hugedata.html#" target=""_self"">High Performance</a></li>
+				<li><a href="dbcontrol/table/mergecell.html#" target=""_self"">Merge Cells</a></li>
+				<li><a href="dataset/groupfield.html#" target=""_self"">Stack Head Table</a></li>
+				<li><a href="dbcontrol/table/total.html#" target=""_self"">With Total Section </a></li>
+				<li><a href="dbcontrol/table/treegrid.html#" target=""_self"">Tree Style Table</a></li>
+				<li><a href="dbcontrol/table/selection.html#" target=""_self"">Selection Control</a></li>
+			</ul>
+			</li>
+			<li><a href="#dbtreeview">DBTreeView</a>
+			<ul>
+				<li><a href="dbcontrol/tree/basic.html#" target=""_self"">Basic Features</a></li>
+				<li><a href="dbcontrol/tree/appearance.html#" target=""_self"">Appearance</a></li>
+				<li><a href="dbcontrol/tree/editable.html#" target=""_self"">Edit Data</a></li>
+				<li><a href="dbcontrol/tree/checkboxtree.html#" target=""_self"">Correlate Check Tree</a></li>
+				<li><a href="dbcontrol/tree/checkboxtree1.html#" target=""_self"">Non-Correlate Check Tree</a></li>
+				<li><a href="dbcontrol/tree/checkboxtree2.html#" target=""_self"">Selection Control</a></li>
+			</ul>
+			</li>
+			<li><a href="#dbchart">DBChart</a>
+			<ul>
+				<li><a href="dbcontrol/chart/dbchart1.html#" target=""_self"">DBChart(1)</a></li>
+				<li><a href="dbcontrol/chart/dbchart2.html#" target=""_self"">DBChart(2)</a></li>
+			</ul>
+			</li>
+			<li><a href="#editorpanel">Edit Panel Control</a>
+			<ul>
+				<li><a href="dbcontrol/dbeditpanel.html#" target=""_self"">DBEditPanel</a></li>
+				<li><a href="dbcontrol/dbinspector.html#" target=""_self"">DBInspector</a></li>
+			</ul>
+			</li>
+			
+		</ul>
+	</aside>
+	
+	<aside class="widget">
+		<h3 class="widget-title"><a href="#server">Connect to Server</a></h3>
+		<ul class="menu0">
+			<li><a href="server/basic.html#" target=""_self"">Basic Features</a></li>
+			<li><a href="server/multidataset.html#" target=""_self"">Query Multiple Dataset Data </a></li>
+			<li><a href="server/paging.html#" target=""_self"">Query Paging Data(DBPageBar)</a></li>
+			<li><a href="server/applyselected.html#" target=""_self"">Submit Selected Data </a></li>
+		</ul>
+	</aside>
+	<aside class="widget">
+		<h3 class="widget-title"><a href="#template">Template</a></h3>
+		<ul class="menu0">
+			<li><a href="template/tmpl-simple.html#" target=""_self"">Template</a></li>
+		</ul>
+	</aside>
+	<aside class="widget" >
+		<h3 class="widget-title"><a href="#i18n">I18N and UI Theme</a></h3>
+		<ul class="menu0">
+			<li><a href="other/i18n-en.html#" target=""_self"">I18N</a></li>
+			<li><a href="other/theme.html#" target=""_self"">UI Theme</a></li>
+		</ul>
+	</aside>
+	
+</div>
+
+
+</td><td>
+
+
+
+
 <div class="content">
-<h2>Glance</h2>
+<h2 id="glance">Glance</h2>
 <ul>
-	<li><a href="glance/glance.html" target="demo">Glance of Jslet framework</a>
+	<li><a href="glance/glance.html#" target=""_self"">Glance of Jslet framework</a>
 	<p>Take a quick glance to know how Jslet framework works.</p>
 	</li>
 </ul>
 <hr />	
-<h2>Dataset</h2>
-<p>This section demostrates how to create and use dataset component. You can use dataset to add, update, delete, sort, filter data,
-	and you can use it to validate data, export data and other advanced features. 
-</p>
-<b>Basic</b>
+<div class="content">
+<h2 id="special">Special Features</h2>
 <ul class="menu">
-	<li><a href="dataset/editdata.html" target="demo">Edit data</a>
-		<p>Insert, append, update, delete, set default value, validate data and so on.</p>
+	<li><a href="dataset/contextrule/contextrule.html#" target=""_self"">Context Rule(Field Changed)</a>
+		<p>Demonstrate how context rule works when field value changed.</p>
 	</li>
-	<li><a href="dataset/finddata.html" target="demo">Find data</a>
-		<p>Find data with a single value or an expression.</p>
+	<li><a href="dataset/masterdetail.html#" target=""_self"">Master/Detail dataset</a>
+		<p>Demonstrate how to configurate master/detail style dataset and show how it works.</p>
 	</li>
-	<li><a href="dataset/filterdata.html" target="demo">Filter data</a>
-		<p>Filter data with an expression.</p>
+	<li style="height:70px"><a href="dataset/lookupfield.html#" target=""_self"">Lookup Field</a>
+		<p>Show how lookup field works and how DBControls construct options from lookup field.</p>
 	</li>
-	<li><a href="dataset/sortbyfields.html" target="demo">Sort with Fields</a>
-		<p>Sort data with one field or multiple fields.</p>
-	</li>
-	<li><a href="dataset/formulafield.html" target="demo">Formula Field</a>
-		<p>Configurate formula field and see how it works.</p>
-	</li>
-	<li><a href="dataset/groupfield.html" target="demo">Group Field</a>
+	<li><a href="dataset/groupfield.html#" target=""_self"">Group Field</a>
 		<p>Configurate group field and show its usage.</p>
 	</li>
-	<li><a href="dataset/fieldvalueconverter.html" target="demo">Custom Field Value Converter</a>
+</ul>
+<div style="clear:both"></div>
+<hr />	
+
+<h2>Data Manipulation</h2>
+<p>This section demonstrates how to create and use dataset component. You can use dataset to add, update, delete, sort, filter data,
+	and you can use it to validate data, export data and other advanced features. 
+</p>
+<b id="basic">Basic</b>
+<ul class="menu">
+	<li><a href="dataset/editdata.html#" target=""_self"">Edit data</a>
+		<p>Insert, append, update, delete, set default value, validate data and so on.</p>
+	</li>
+	<li><a href="dataset/finddata.html#" target=""_self"">Find data</a>
+		<p>Find data with a single value or an expression.</p>
+	</li>
+	<li><a href="dataset/filterdata.html#" target=""_self"">Filter data</a>
+		<p>Filter data with an expression.</p>
+	</li>
+	<li><a href="dataset/sortbyfields.html#" target=""_self"">Sort Data</a>
+		<p>Sort data with one field or multiple fields.</p>
+	</li>
+	<li><a href="dataset/formulafield.html#" target=""_self"">Formula Field</a>
+		<p>Configurate formula field and see how it works.</p>
+	</li>
+	<li><a href="dataset/groupfield.html#" target=""_self"">Group Field</a>
+		<p>Configurate group field and show its usage.</p>
+	</li>
+	<li><a href="dataset/fieldvalueconverter.html#" target=""_self"">Custom Field Value Converter</a>
 		<p>Customize display text for one field.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b>Lookup Field</b>
+<b id="lookup">Lookup Field</b>
 <ul class="menu">
-	<li style="height:70px"><a href="dataset/lookupfield.html" target="demo">Lookup Field</a>
+	<li style="height:70px"><a href="dataset/lookupfield.html#" target=""_self"">Lookup Field</a>
 		<p>Show how lookup field works and how DBControls construct options from lookup field.</p>
 	</li>
-	<li style="height:70px"><a href="dataset/dynclookupfield.html" target="demo">Set Lookup Field Dynamically</a>
-		<p>Change lookup field on fly.</p>
-	</li>
-	<li><a href="dataset/fieldchain.html" target="demo">Field Chain</a>
+	<li><a href="dataset/fieldchain.html#" target=""_self"">Field Chain</a>
 		<p>Use field chain(like:field1.field2.field3) to get value, sort data, filter data or find data.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b>Validation</b>
+<b id="validation">Validation</b>
 <ul class="menu">
-	<li><a href="dataset/validation.html" target="demo">Validation</a>
-		<p>Demostrate how to validate a record.</p>
+	<li><a href="dataset/validation.html#" target=""_self"">Validation</a>
+		<p>Demonstrate how to validate a record.</p>
 	</li>
-	<li><a href="dataset/editmask.html" target="demo">Edit Mask</a>
-		<p>Demostrate how to configurate edit mask.</p>
+	<li><a href="dataset/editmask.html#" target=""_self"">Edit Mask</a>
+		<p>Demonstrate how to configurate edit mask.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b><a id="selectabledemo">Selectable Control</a></b>
+<b id="selection">Selection Control</b>
 <ul class="menu">
-	<li><a href="dbcontrol/table/selection.html" target="demo">Selectable in Table</a>
+	<li><a href="dbcontrol/table/selection.html#" target=""_self"">Selection control in Table</a>
 		<p>Control data records can be selected in DBTable or not.</p>
 	</li>
-	<li><a href="dbcontrol/tree/checkboxtree.html" target="demo">Selectable in Tree</a>
+	<li><a href="dbcontrol/tree/checkboxtree2.html#" target=""_self"">Selection control in Tree</a>
 		<p>Control data records can be selected in DBTreeView or not.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b>Advanced</b>
+<b id="contextrule">Context Rule</b>
 <ul class="menu">
-	<li><a href="dataset/masterdetail.html" target="demo">Master/Detail dataset</a>
-		<p>Demostrate how to configurate master/detail style dataset and show how it works.</p>
+	<li><a href="dataset/contextrule/contextrule.html#" target=""_self"">Context Rule(Field Changed)</a>
+		<p>Demonstrate how context rule works when field value changed.</p>
 	</li>
-	<li><a href="dataset/unitconversion.html" target="demo">Unit Conversion</a>
+	<li><a href="dataset/contextrule/contextrule1.html#" target=""_self"">Context Rule(Status Changed)</a>
+		<p>In this example, field 'Num#' is only editable in INSERT status.</p>
+	</li>
+</ul>
+<div style="clear:both"></div>
+
+<b id="advanced">Advanced</b>
+<ul class="menu">
+	<li><a href="dataset/masterdetail.html#" target=""_self"">Master/Detail dataset</a>
+		<p>Demonstrate how to configurate master/detail style dataset and show how it works.</p>
+	</li>
+	<li><a href="dataset/unitconversion.html#" target=""_self"">Unit Conversion</a>
 		<p>Demostate how to chage the unit of a field.</p>
 	</li>
-	<li><a href="dataset/exportdata.html" target="demo">Export Dataset</a>
+	<li><a href="dataset/exportdata.html#" target=""_self"">Export Dataset</a>
 		<p>Export data with CVS format.</p>
 	</li>
-	<li><a href="dataset/contextrule1.html" target="demo">Context Rule</a>
-		<p>Demostrate how to use context rule.</p>
-	</li>
-	<li><a href="dataset/clonedataset.html" target="demo">Clone Dataset</a>
-		<p>Clone dataset and change cloned dataset's configuration.</p>
+	<li><a href="dataset/clonedataset.html#" target=""_self"">Query Criteria</a>
+		<p>Clone the dataset to create query criteria.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
 <hr />
 
-<h2>Normal Controls</h2>
+<h2 id="uicontrol">Normal Controls</h2>
 <p>Normal UI Controls. </p>
 <ul class="menu">
-	<li><a href="uicontrol/accordion.html" target="demo"><b>Accordion</b></a>
-		<p>Demostrate how to use Accordion control.</p>
+	<li><a href="uicontrol/accordion.html#" target=""_self""><b>Accordion</b></a>
+		<p>Demonstrate how to use Accordion control.</p>
 	</li>
-	<li><a href="uicontrol/calendar.html" target="demo">Calendar</a>
-		<p>Demostrate how to use Calendar control.</p>
+	<li><a href="uicontrol/calendar.html#" target=""_self"">Calendar</a>
+		<p>Demonstrate how to use Calendar control.</p>
 	</li>
-	<li><a href="uicontrol/fieldset.html" target="demo">FieldSet</a>
-		<p>Demostrate how to use FieldSet control.</p>
+	<li><a href="uicontrol/fieldset.html#" target=""_self"">FieldSet</a>
+		<p>Demonstrate how to use FieldSet control.</p>
 	</li>
-	<li><a href="uicontrol/menu.html" target="demo">Menu</a>
-		<p>Demostrate how to use menu bar, menu and context menu control.</p>
+	<li><a href="uicontrol/menu.html#" target=""_self"">Menu</a>
+		<p>Demonstrate how to use menu bar, menu and context menu control.</p>
 	</li>
-	<li><a href="uicontrol/messagebox.html" target="demo">MessageBox</a>
-		<p>Demostrate how to use MessageBox control.</p>
+	<li><a href="uicontrol/messagebox.html#" target=""_self"">MessageBox</a>
+		<p>Demonstrate how to use MessageBox control.</p>
 	</li>
-	<li><a href="uicontrol/splitpanel.html" target="demo">SplitPanel</a>
-		<p>Demostrate how to use SplitPanel control.</p>
+	<li><a href="uicontrol/splitpanel.html#" target=""_self"">SplitPanel</a>
+		<p>Demonstrate how to use SplitPanel control.</p>
 	</li>
-	<li><a href="uicontrol/tabcontrol.html" target="demo">TabControl</a>
-		<p>Demostrate how to use TabControl control.</p>
+	<li><a href="uicontrol/tabcontrol.html#" target=""_self"">TabControl</a>
+		<p>Demonstrate how to use TabControl control.</p>
 	</li>
-	<li><a href="uicontrol/waitingbox.html" target="demo">WaitingBox</a>
-		<p>Demostrate how to use WaitingBox control.</p>
+	<li><a href="uicontrol/waitingbox.html#" target=""_self"">WaitingBox</a>
+		<p>Demonstrate how to use WaitingBox control.</p>
 	</li>
-	<li><a href="uicontrol/window.html" target="demo">Window</a>
-		<p>Demostrate how to use Window control.</p>
+	<li><a href="uicontrol/window.html#" target=""_self"">Window</a>
+		<p>Demonstrate how to use Window control.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
 <hr />
 		
-<h2>DBControl</h2>
-<p>Dataset sensible control. 
-</p>
+<h2>Dataset Sensitive Controls</h2>
 
-<b>Form Control</b>
+<b id="formcontrol">Form Control</b>
 <ul class="menu">
-	<li style="height:70px"><a href="dbcontrol/form/genericcontrol.html" target="demo">DBLabel, DBDataLabel, DBTextArea, DBPassword, DBCheckBox</a>
-		<p>Demostrate how to use DBLabel, DBDataLabel, DBTextArea, DBPassword, DBCheckBox.</p>
+	<li style="height:70px"><a href="dbcontrol/form/genericcontrol.html#" target=""_self"">Generic Controls</a>
+		<p>Demonstrate how to use DBLabel, DBDataLabel, DBTextArea, DBPassword, DBCheckBox.</p>
 	</li>
-	<li style="height:70px"><a href="dbcontrol/form/dbtext.html" target="demo">DBText</a>
-		<p>Demostrate how to use DBText.</p>
+	<li style="height:70px"><a href="dbcontrol/form/dbtext.html#" target=""_self"">DBText</a>
+		<p>Demonstrate how to use DBText.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbspinedit.html" target="demo">DBSpinEdit</a>
-		<p>Demostrate how to use DBSpinEdit.</p>
+	<li><a href="dbcontrol/form/dbspinedit.html#" target=""_self"">DBSpinEdit</a>
+		<p>Demonstrate how to use DBSpinEdit.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbselect.html" target="demo">DBSelect</a>
-		<p>Demostrate how to use DBSelect.</p>
+	<li><a href="dbcontrol/form/dbselect.html#" target=""_self"">DBSelect</a>
+		<p>Demonstrate how to use DBSelect.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbrangeselect.html" target="demo">DBRangeSelect</a>
-		<p>Demostrate how to use DBRangeSelect.</p>
+	<li><a href="dbcontrol/form/dbrangeselect.html#" target=""_self"">DBRangeSelect</a>
+		<p>Demonstrate how to use DBRangeSelect.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbautocomplete.html" target="demo">DBAutoComplete</a>
-		<p>Demostrate how to use DBAutoComplete.</p>
+	<li><a href="dbcontrol/form/dbautocomplete.html#" target=""_self"">DBAutoComplete</a>
+		<p>Demonstrate how to use DBAutoComplete.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbcheckboxgroup.html" target="demo">DBCheckBoxGroup</a>
-		<p>Demostrate how to use DBText.</p>
+	<li><a href="dbcontrol/form/dbcheckboxgroup.html#" target=""_self"">DBCheckBoxGroup</a>
+		<p>Demonstrate how to use DBText.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbradiogroup.html" target="demo">DBRadioGroup</a>
-		<p>Demostrate how to use DBRadioGroup.</p>
+	<li><a href="dbcontrol/form/dbradiogroup.html#" target=""_self"">DBRadioGroup</a>
+		<p>Demonstrate how to use DBRadioGroup.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbcomboselect.html" target="demo">DBComboSelect</a>
-		<p>Demostrate how to use DBComboSelect.</p>
+	<li><a href="dbcontrol/form/dbcomboselect.html#" target=""_self"">DBComboSelect</a>
+		<p>Demonstrate how to use DBComboSelect.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbbetweenedit.html" target="demo">DBBetweenEdit</a>
-		<p>Demostrate how to use DBBetweenEdit.</p>
+	<li><a href="dbcontrol/form/dbbetweenedit.html#" target=""_self"">DBBetweenEdit</a>
+		<p>Demonstrate how to use DBBetweenEdit.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbdatepicker.html" target="demo">DBDatePicker</a>
-		<p>Demostrate how to use DBDatePicker</p>
+	<li><a href="dbcontrol/form/dbdatepicker.html#" target=""_self"">DBDatePicker</a>
+		<p>Demonstrate how to use DBDatePicker</p>
 	</li>
-	<li><a href="dbcontrol/form/dbtimepicker.html" target="demo">DBTimePicker</a>
-		<p>Demostrate how to use DBTimePicker.</p>
+	<li><a href="dbcontrol/form/dbtimepicker.html#" target=""_self"">DBTimePicker</a>
+		<p>Demonstrate how to use DBTimePicker.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbhtml.html" target="demo">DBHtml</a>
-		<p>Demostrate how to use DBHtml.</p>
+	<li><a href="dbcontrol/form/dbhtml.html#" target=""_self"">DBHtml</a>
+		<p>Demonstrate how to use DBHtml.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbrating.html" target="demo">DBRating</a>
-		<p>Demostrate how to use DBRating.</p>
+	<li><a href="dbcontrol/form/dbrating.html#" target=""_self"">DBRating</a>
+		<p>Demonstrate how to use DBRating.</p>
 	</li>
-	<li><a href="dbcontrol/form/dbimage.html" target="demo">DBImage</a>
-		<p>Demostrate how to use DBImage.</p>
+	<li><a href="dbcontrol/form/dbimage.html#" target=""_self"">DBImage</a>
+		<p>Demonstrate how to use DBImage.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b><a id="tabledemo">DBTable Control</a></b>
+<b id="dbtable"><a id="tabledemo">DBTable Control</a></b>
 <ul class="menu">
-	<li><a href="dbcontrol/table/basic.html" target="demo">Basic Features</a>
-		<p>Demostrate basic features of DBTable.</p>
+	<li><a href="dbcontrol/table/basic.html#" target=""_self"">Basic Features</a>
+		<p>Demonstrate basic features of DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/appearance.html" target="demo">Table Appearance(row style/cell style)</a>
-		<p>Demostrate how to change the appearance of DBTable.</p>
+	<li><a href="dbcontrol/table/appearance.html#" target=""_self"">Table Appearance(row style/cell style)</a>
+		<p>Demonstrate how to change the appearance of DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/editable.html" target="demo">Editable DBTable</a>
-		<p>Demostrate how to edit data in row.</p>
+	<li><a href="dbcontrol/table/editable.html#" target=""_self"">Editable DBTable</a>
+		<p>Demonstrate how to edit data in row.</p>
 	</li>
-	<li><a href="dbcontrol/table/command.html" target="demo">DBTable with Action Column</a>
-		<p>Demostrate how to add an action column in DBTable.</p>
+	<li><a href="dbcontrol/table/command.html#" target=""_self"">DBTable with Action Column</a>
+		<p>Demonstrate how to add an action column in DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/customrender.html" target="demo">Cusomized Render Column</a>
-		<p>Demostrate how to customize rendering column.</p>
+	<li><a href="dbcontrol/table/customrender.html#" target=""_self"">Cusomized Render Column</a>
+		<p>Demonstrate how to customize rendering column.</p>
 	</li>
-	<li><a href="dbcontrol/table/hugedata.html" target="demo">High Performance with Huge Data</a>
+	<li><a href="dbcontrol/table/hugedata.html#" target=""_self"">High Performance with Big Data</a>
 		<p>Test rendering performance with large amount of records.</p>
 	</li>
-	<li><a href="dbcontrol/table/mergecell.html" target="demo">Merge Cells</a>
-		<p>Demostrate how to merge cells if adjacent rows have same value.</p>
+	<li><a href="dbcontrol/table/mergecell.html#" target=""_self"">Merge Cells</a>
+		<p>Demonstrate how to merge cells if adjacent rows have same value.</p>
 	</li>
-	<li><a href="dataset/groupfield.html" target="demo">Stack Heads Table</a>
-		<p>Demostrate how to configurate stack head of DBTable.</p>
+	<li><a href="dataset/groupfield.html#" target=""_self"">Stack Heads Table</a>
+		<p>Demonstrate how to configurate stack head of DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/total.html" target="demo">DBTable with Total Section</a>
-		<p>Demostrate how to add total section of DBTable.</p>
+	<li><a href="dbcontrol/table/total.html#" target=""_self"">DBTable with Total Section</a>
+		<p>Demonstrate how to add total section of DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/treegrid.html" target="demo">Tree style Table</a>
-		<p>Demostrate how to show a tree style DBTable.</p>
+	<li><a href="dbcontrol/table/treegrid.html#" target=""_self"">Tree style Table</a>
+		<p>Demonstrate how to show a tree style DBTable.</p>
 	</li>
-	<li><a href="dbcontrol/table/selection.html" target="demo">Selection</a>
+	<li><a href="dbcontrol/table/selection.html#" target=""_self"">Selection</a>
 		<p>Control data records can be selected in DBTable or not.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b><a id="chartdemo">DBTreeView Control</a></b>
+<b id="dbtreeview">DBTreeView Control</b>
 <ul class="menu">
-    <li><a href="dbcontrol/tree/basic.html" target="demo">Basic Features</a>
-		<p>Demostrate basic features of DBTreeView.</p>
+    <li><a href="dbcontrol/tree/basic.html#" target=""_self"">Basic Features</a>
+		<p>Demonstrate basic features of DBTreeView.</p>
 	</li>
-    <li><a href="dbcontrol/tree/appearance.html" target="demo">Appearance</a>
-		<p>Demostrate how to change the appearance of DBTreeView.</p>
+    <li><a href="dbcontrol/tree/appearance.html#" target=""_self"">Appearance</a>
+		<p>Demonstrate how to change the appearance of DBTreeView.</p>
 	</li>
-    <li><a href="dbcontrol/tree/editable.html" target="demo">Edit Data</a>
-		<p>Demostrate how to edit data with DBTreeView.</p>
+    <li><a href="dbcontrol/tree/editable.html#" target=""_self"">Edit Data</a>
+		<p>Demonstrate how to edit data with DBTreeView.</p>
 	</li>
-    <li><a href="dbcontrol/tree/checkboxtree.html" target="demo">Tree with CheckBox</a>
-		<p>Demostrate how to use DBTreeView with checkbox.</p>
+    <li><a href="dbcontrol/tree/checkboxtree.html#" target=""_self"">Correlate Check Tree</a>
+		<p>Demonstrate how correlate check tree view works.</p>
+	</li>
+    <li><a href="dbcontrol/tree/checkboxtree1.html#" target=""_self"">Non-Correlate Check Tree</a>
+		<p>Demonstrate how non-correlate check tree view works.</p>
+	</li>
+    <li><a href="dbcontrol/tree/checkboxtree2.html#" target=""_self"">Selection Control</a>
+		<p>Demonstrate how to configurate tree node has check box or not.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
-<b>DBChart Control</b>
-<p>Demostrate how to use DBChart control(Need Server).</p>
+<b id="dbchart"><a id="chartdemo">DBChart Control</a></b>
+<p>Demonstrate how to use DBChart control(Need Server).</p>
 <ul class="menu">
-    <li><a href="dbcontrol/chart/dbchart1.html" target="demo">DBChart(1)</a></li>
-    <li><a href="dbcontrol/chart/dbchart2.html" target="demo">DBChart(2)</a></li>
+    <li><a href="dbcontrol/chart/dbchart1.html#" target=""_self"">DBChart(1)</a></li>
+    <li><a href="dbcontrol/chart/dbchart2.html#" target=""_self"">DBChart(2)</a></li>
 </ul>
 <div style="clear:both"></div>
 
-<b>Editor Control</b>
+<b id="editorpanel">Editor Panel Control</b>
 <ul class="menu">
 
-<li><a href="dbcontrol/dbeditpanel.html" target="demo">DBEditPanel</a>
-	<p>Demostrate how to use DBEditPanel control.</p>
+<li><a href="dbcontrol/dbeditpanel.html#" target=""_self"">DBEditPanel</a>
+	<p>Demonstrate how to use DBEditPanel control.</p>
 </li>
-<li><a href="dbcontrol/dbinspector.html" target="demo">DBInspector</a>
-	<p>Demostrate how to use DBInspector control.</p>
+<li><a href="dbcontrol/dbinspector.html#" target=""_self"">DBInspector</a>
+	<p>Demonstrate how to use DBInspector control.</p>
 </li>
 </ul>
 <div style="clear:both"></div>
 
 <hr />
-
-<h2>Template</h2>
+<h2 id="server">Connect to server</h2>
+<p>Demonstrate how to connect to server. </p>
+<ul class="menu">
+	<li><a href="server/basic.html#" target="_self">Basic Features</a>
+		<p>Demonstrate how to use jslet to work with server side.</p>
+	</li>
+	<li><a href="server/multidataset.html#" target=""_self"">Query Multiple Dataset Data</a>
+		<p>Demonstrate how to return multiple dataset data over one request</p>
+	</li>
+	<li><a href="server/paging.html#" target=""_self"">Query Paging Data(DBPageBar)</a>
+		<p>Demonstrate how to use DBPageBar to query paging data .</p>
+	</li>
+	<li><a href="server/applyselected.html#" target=""_self"">Apply Selected Demo</a>
+		<p>Demonstrate how to apply selected data to server.</p>
+	</li>
+</ul>
+<div style="clear:both"></div>
+<hr />
+<h2 id="template">Template</h2>
 <p>Use Jslet dataset with jQuery Template</p>
 <ul>
-	<li><a href="template/tmpl-simple.html" target="demo">Template</a>
-		<p>Demostrate how to use jslet to work with third party template component.</p>
-	</li>
-</ul>
-<hr />
-<h2>Connect to server</h2>
-<p>Demostrate how to connect to server. </p>
-<ul class="menu">
-	<li><a href="server/basic.html" target="demo">Basic Features</a>
-		<p>Demostrate how to use jslet to work with server side.</p>
-	</li>
-	<li><a href="server/multidataset.html" target="demo">Query Multiple Dataset Data</a>
-		<p>Demostrate how to return multiple dataset data over one request</p>
-	</li>
-	<li><a href="server/paging.html" target="demo">Query Paging Data(DBPageBar)</a>
-		<p>Demostrate how to use DBPageBar to query paging data .</p>
-	</li>
-	<li><a href="server/applyselected.html" target="demo">Apply Selected Demo</a>
-		<p>Demostrate how to apply selected data to server.</p>
+	<li><a href="template/tmpl-simple.html#" target=""_self"">Template</a>
+		<p>Demonstrate how to use jslet to work with third party template component.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
 
 <hr />
-<h2>I18N and Theme</h2>
+<h2 id="i18n">I18N and Theme</h2>
 <ul class="menu">
-	<li><a href="other/i18n-en.html" target="demo">I18N Demo</a>
-		<p>Demostrate how to change language.</p>
+	<li><a href="other/i18n-en.html#" target=""_self"">I18N Demo</a>
+		<p>Demonstrate how to change language.</p>
 	</li>
-	<li><a href="other/theme.html" target="demo">Theme</a>
-		<p>Demostrate how to change theme.</p>
+	<li><a href="other/theme.html#" target=""_self"">Theme</a>
+		<p>Demonstrate how to change theme.</p>
 	</li>
 </ul>
 <div style="clear:both"></div>
-</div>	
+</div>
+</td></tr></table>	
 </body>
 </html>

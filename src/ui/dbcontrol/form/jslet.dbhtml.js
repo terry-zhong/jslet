@@ -14,81 +14,61 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * Display html text from one field. 
  * Example:
  * <pre><code>
- * 		var jsletParam = {type:"DBHtml",dataset:"employee",field:"comment"};
+ * var jsletParam = {type:"DBHtml",dataset:"employee",field:"comment"};
  * 
  * //1. Declaring:
- *      &lt;div data-jslet='type:"DBHtml",dataset:"employee",field:"comment"' />
- *      or
- *      &lt;div data-jslet='jsletParam' />
- *      
+ * &lt;div data-jslet='type:"DBHtml",dataset:"employee",field:"comment"' />
+ * or
+ * &lt;div data-jslet='jsletParam' />
+ * 
  *  //2. Binding
- *      &lt;div id="ctrlId"  />
- *  	//Js snippet
- * 		var el = document.getElementById('ctrlId');
- *  	jslet.ui.bindControl(el, jsletParam);
+ * &lt;div id="ctrlId"  />
+ * //Js snippet
+ * var el = document.getElementById('ctrlId');
+ * jslet.ui.bindControl(el, jsletParam);
  *
  *  //3. Create dynamically
- *  	jslet.ui.createControl(jsletParam, document.body);
- *  	
+ * jslet.ui.createControl(jsletParam, document.body);
+ *
  * </code></pre>
  */
-jslet.ui.DBHtml = jslet.Class.create(jslet.ui.DBControl, {
+jslet.ui.DBHtml = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-    initialize: function ($super, el, params) {
-        this.allProperties = 'dataset,field';
-        this.requiredProperties = 'field';
-        this.dataset;
-        this.field;
-        $super(el, params)
-    },
+	initialize: function ($super, el, params) {
+		this.allProperties = 'dataset,field';
+		$super(el, params);
+	},
 
 	/**
 	 * @override
 	 */
-    bind: function () {
-        this.checkDataField();
-        this.renderAll()
-    },
+	bind: function () {
+		this.renderAll();
+	},
 
 	/**
 	 * @override
 	 */
-    isValidTemplateTag: function (el) {
-        return el.tagName.toLowerCase() == 'div'
-    },
+	isValidTemplateTag: function (el) {
+		return el.tagName.toLowerCase() == 'div';
+	},
 
 	/**
 	 * @override
 	 */
-    refreshControl: function (evt, isForce) {
-        var Z = this;
-        if (!isForce && !Z.isActiveRecord()) {
-        	return;
-        }
-        if (!evt) {
-            evt = jslet.data.UpdateEvent.updateAllEvent;
-        }
-        if (evt.eventType == jslet.data.UpdateEvent.METACHANGE) {
-            return;
-        }
-        if (evt.eventType == jslet.data.UpdateEvent.UPDATERECORD
-						&& evt.eventInfo != undefined
-						&& evt.eventInfo.fieldName != undefined
-						&& evt.eventInfo.fieldName != Z.field) {
-            return;
-        }
-        var s = Z.dataset.getFieldText(Z.field);
-        Z.el.innerHTML = s;
-    },
-
+	doValueChanged: function() {
+		var content = this._dataset.getFieldText(this._field);
+		this.el.innerHTML = content;
+	},
+	
 	/**
 	 * @override
 	 */
-    renderAll: function () {
-        this.refreshControl(jslet.data.UpdateEvent.updateAllEvent, true);
-    }
+	renderAll: function () {
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	}
 });
 
 jslet.ui.register('DBHtml', jslet.ui.DBHtml);

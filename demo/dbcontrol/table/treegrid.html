@@ -6,36 +6,37 @@
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
-        jslet.require('jslet', initialize);
+        jslet.require('jslet', initialize, doReady);
 
         function initialize() {
             var dataList = [{ itemid: 'cn', superid: '0', code: '00', name: 'China' },
-			{ itemid: '1', superid: 'cn', code: '01', name: 'Guangdong Province' },
-			{ itemid: '2', superid: '1', code: '0101', name: 'Guangzhou City' },
-			{ itemid: '3', superid: '1', code: '0102', name: 'Shenzhen City' },
-			{ itemid: '4', superid: '3', code: '010201', name: 'Nanshan District' },
-			{ itemid: '5', superid: '3', code: '010202', name: 'Futian District' },
-			{ itemid: '6', superid: '1', code: '0103', name: 'Dongguang City' },
-			{ itemid: '7', superid: 'cn', code: '02', name: 'Hunan Province' },
-			{ itemid: '8', superid: '7', code: '0201', name: 'Changsha City' },
-			{ itemid: '9', superid: '7', code: '0202', name: 'Zhuzhou City' },
-			{ itemid: '10', superid: '7', code: '0203', name: 'YueYang City' },
-			{ itemid: '11', superid: '7', code: '0204', name: 'Hengyang City' },
-			{ itemid: '12', superid: '7', code: '0205', name: 'Shaoyang City' }
+			{ itemid: '1', superid: 'cn', code: '01', name: 'Guangdong' },
+			{ itemid: '2', superid: '1', code: '0101', name: 'Guangzhou' },
+			{ itemid: '3', superid: '1', code: '0102', name: 'Shenzhen' },
+			{ itemid: '4', superid: '3', code: '010201', name: 'Nanshan' },
+			{ itemid: '5', superid: '3', code: '010202', name: 'Futian' },
+			{ itemid: '6', superid: '1', code: '0103', name: 'Dongguang' },
+			{ itemid: '7', superid: 'cn', code: '02', name: 'Hunan' },
+			{ itemid: '8', superid: '7', code: '0201', name: 'Changsha' },
+			{ itemid: '9', superid: '7', code: '0202', name: 'Zhuzhou' },
+			{ itemid: '10', superid: '7', code: '0203', name: 'YueYang' },
+			{ itemid: '11', superid: '7', code: '0204', name: 'Hengyang' },
+			{ itemid: '12', superid: '7', code: '0205', name: 'Shaoyang' }
 			];
 
             dsAgency = new jslet.data.Dataset('dsAgency');
             var fldObj = jslet.data.createStringField('name', 20);
             fldObj.label('Name');
+            fldObj.required(true);
             dsAgency.addField(fldObj);
 
             fldObj = jslet.data.createStringField('code', 10);
             fldObj.label('Code');
+            fldObj.required(true);
             dsAgency.addField(fldObj);
 
             fldObj = jslet.data.createNumberField('itemid', 10);
             fldObj.label('ID');
-            fldObj.readOnly(true);
             dsAgency.addField(fldObj);
 
             fldObj = jslet.data.createNumberField('superid', 10);
@@ -54,33 +55,54 @@
 			}
         }
 
-        var treeTblCfg = {type:"DBTable",dataset:"dsAgency",disableHeadSort:true,fixedCols:1,readOnly:true,treeField:"name"};
+        function doReady() {
+        	jslet("#tblRegion").expandAll();
+        }
+
+        var treeTblCfg = {type:"DBTable",dataset:"dsAgency",disableHeadSort:true,readOnly:true,treeField:"name"};
     </script>
 </head>
 <body>
     <h2>Jslet-TreeGrid Demo</h2>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Agency List</legend>
 	<!-- treeTblCfg is a global variable defined in head tag.-->
-    <div id="tblRegion" data-jslet='treeTblCfg' style="width: 760px; height: 220px">
+    <div id="tblRegion" data-jslet='treeTblCfg' style="width: 100%; height: 220px">
     </div>
-    <hr />
-	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"itemid"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"itemid"'/>
-	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"code"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"code"'/>
-	<br />
-	<label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"name"'></label><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"name"'/>
-  
-    <hr />
-<input type='button' value='Expand All' onclick='jslet("#tblRegion").expandAll();' />
-<input type='button' value='Colapse All' onclick='jslet("#tblRegion").collapseAll();' />&nbsp;&nbsp;&nbsp;&nbsp;
+	</fieldset>
+<div>
+<button onclick='jslet("#tblRegion").expandAll();'> Expand All </button>
+<button onclick='jslet("#tblRegion").collapseAll();'> Colapse All </button>&nbsp;
 
-<input type='button' value='Add Child Node' onclick='dsAgency.insertChild();' />
-<input type='button' value='Add Sibling' onclick='dsAgency.insertSibling();' />&nbsp;&nbsp;
-<input type='button' value='Delete' onclick='dsAgency.deleteRec();' />&nbsp;&nbsp;&nbsp;&nbsp;
-<input type='button' value='Confirm' onclick='dsAgency.confirm();' />
-<input type='button' value='Cancel' onclick='dsAgency.cancel();' />
-    <hr />
-    <h3>Demo Content:</h3>
-	<ol class="content-list">
+<button onclick='dsAgency.insertChild();'> Add Child </button>
+<button onclick='dsAgency.insertSibling();'> Add Sibling </button>&nbsp;
+<button onclick='dsAgency.deleteRecord();'> Delete </button>&nbsp;
+<button onclick='dsAgency.confirm();'> Confirm </button>
+<button onclick='dsAgency.cancel();'> Cancel </button>
+</div>
+	<fieldset>
+		<legend>Edit Panel</legend>
+		<table>
+		<tr>
+			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"itemid"'></label></td>
+			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"itemid"'/></td>
+		</tr>
+		<tr>
+			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"code"'></label></td>
+			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"code"'/></td>
+		</tr>
+		<tr>
+			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"name"'></label></td>
+			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"name"'/></td>
+		</tr>
+	</table>
+	</fieldset>
+
+<h3>Demo Content:</h3>
+<ol class="content-list">
     <li>
         Tree style;</li>
     <li>

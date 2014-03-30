@@ -51,19 +51,34 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Data Validation</h2>
-	<h4>Show how to validate a record.</h4>
-    <hr />
-    <p>
-        Employee List:&nbsp;&nbsp;<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">
+		<p>Show how to validate a record.</p>
+		<p>Here we also demonstrate how to show field tip and field invalid message. Tips and invalid message are also shown with DBLabel, the following is their contrast:<br/>
+			&lt;label data-jslet="field: 'name'" /&gt <i>//For field label</i><br />
+			&lt;label data-jslet="field: 'name<b>#tip</b>'" /&gt <i>For field tip</i><br />
+			&lt;label data-jslet="field: 'name<b>#message</b>'" /&gt <i>For field invalid message</i>
+		</p>
+	</div>
+	
+    <fieldset>
+    <legend>
+        Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
-    <hr />
-    <input type="button" value=" Insert " onclick="dsEmployee.insertRec();" title='Add record after current cursor'/>
-    <input type="button" value=" Append " onclick="dsEmployee.appendRec();" title='Add record after last record'/>
-    <input type="button" value=" Modify " onclick="dsEmployee.updateRec();"/>
-    <input type="button" value=" Delete " onclick="dsEmployee.deleteRec();"/>
-    <input type="button" value=" Confirm " onclick="dsEmployee.confirm();" />
-    <input type="button" value=" Cancel " onclick="dsEmployee.cancel();" />
-    <hr />
+    </fieldset>
+	<div style="padding-top:5px;padding-bottom:5px">
+    <button onclick="dsEmployee.insertRecord();" title='Add record after current cursor'> Insert </button>
+    <button onclick="dsEmployee.appendRecord();" title='Add record after last record'> Append </button>
+    <button onclick="dsEmployee.editRecord();"> Edit </button>
+    <button onclick="dsEmployee.deleteRecord();"> Delete </button>
+    <button onclick="dsEmployee.confirm();"> Confirm </button>
+    <button onclick="dsEmployee.cancel();"> Cancel </button>
+    </div>
+	
+	<fieldset>
+		<legend>Edit Panel</legend>
 	<table style="width:100%" data-jslet='dataset:"employee"'>
 		<tr>
 			<td style="width:15%">
@@ -76,7 +91,8 @@
 				<label data-jslet='type:"DBLabel",field:"name"'></label>:
 			</td>
 			<td style="width:35%">
-				<input type="text" data-jslet='type:"DBText",field:"name"' class="editor" />
+				<input type="text" data-jslet='type:"DBText",field:"name"' class="editor" /><br/>
+				<label data-jslet='type:"DBLabel", field: "name#message"' ></label>
 			</td>
 		</tr>
 		<tr>
@@ -90,7 +106,8 @@
 				<label data-jslet='type:"DBLabel",field:"age"'></label>:
 			</td>
 			<td>
-				<input type="text" data-jslet='type:"DBText",field:"age"' class="editor" />
+				<input type="text" data-jslet='type:"DBText",field:"age"' class="editor" /><br/>
+				<label data-jslet='type:"DBLabel", field: "age#message"' ></label>
 			</td>
 		</tr>
 		<tr>
@@ -112,15 +129,17 @@
 				<label data-jslet='type:"DBLabel",field:"officephone"'></label>:
 			</td>
 			<td>
-				<input type="text" data-jslet='type:"DBText",field:"officephone"' class="editor" /><br />
-				Example: 0755-12345678
+				<input type="text" data-jslet='type:"DBText",field:"officephone"' class="editor" /><br/>
+				<label data-jslet='type:"DBLabel", field: "officephone#tip"' ></label><br/>
+				<label data-jslet='type:"DBLabel", field: "officephone#message"' ></label>
 			</td>
 			<td>
 				<label data-jslet='type:"DBLabel",field:"cellphone"'></label>:
 			</td>
 			<td>
-				<input type="text" data-jslet='type:"DBText",field:"cellphone"' class="editor" /><br />
-				1+10 digits, example: 13912345678
+				<input type="text" data-jslet='type:"DBText",field:"cellphone"' class="editor" />
+				<label data-jslet='type:"DBLabel", field: "cellphone#tip"' ></label><br/>
+				<label data-jslet='type:"DBLabel", field: "cellphone#message"' ></label>
 			</td>
 		</tr>
 		<tr>
@@ -128,21 +147,25 @@
 				<label data-jslet='type:"DBLabel",field:"email"'></label>:
 			</td>
 			<td>
-				<input type="text" data-jslet='type:"DBText",field:"email"' class="editor" /><br />
-				Example: foo@gmail.com
+				<input type="text" data-jslet='type:"DBText",field:"email"' class="editor" />
+				<label data-jslet='type:"DBLabel", field: "email#tip"' ></label><br/>
+				<label data-jslet='type:"DBLabel", field: "email#message"' ></label>
 			</td>
 			<td>
 				<label data-jslet='type:"DBLabel",field:"idcard"'></label>:
 			</td>
 			<td>
-				<input type="text" data-jslet='type:"DBText",field:"idcard"' class="editor" /><br />
-				Example: 18 digits
+				<input type="text" data-jslet='type:"DBText",field:"idcard"' class="editor" />
+				<label data-jslet='type:"DBLabel", field: "idcard#tip"' ></label><br/>
+				<label data-jslet='type:"DBLabel", field: "idcard#message"' ></label>
 			</td>
 		</tr>
 	</table>
+	</fieldset>
     <h3>
         Demo Content:</h3>
-	<p>	There are three levels validation:</p> 
+	<div class="content">
+	<p>	There are three level validations:</p> 
 	<ol class="content-list">
     <li><b>Keypress validation</b>(When user press a key)<br />
 		If fieldObj.validChars is set, user only input the letter which defined in fieldObj.validChars. For number field and date field, there is a pre-defined valid charaters.  
@@ -156,6 +179,7 @@
 		You can set dataset.datasetListener to valid data when user confirms a record. 
 	</li>
 	</ol>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=1050"></script>
 </body>

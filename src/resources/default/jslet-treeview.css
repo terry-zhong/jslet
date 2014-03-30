@@ -9,7 +9,6 @@
 .jl-tree {
     border: 1px solid #99bbe8;
     overflow: hidden;
-    background-color: #fafafa;    
     padding: 2px;
     padding-right: 0;
 }
@@ -145,12 +144,12 @@
     background-position: -18px 0;
 }
 
-.jl-tree-partialchecked {
+.jl-tree-mixedchecked {
     background-position: -36px 0;
 }
 
 .jl-tree-selected {
-    background-color: blue;
+    background-color: #4281f4;
     color: white;
 }
 

@@ -4,7 +4,7 @@
 	<dirname property="basedir" file="$(ant.file}" />
 	<property name="src.dir" value="${basedir}/src" />
 	<property name="dist.dir" value="${basedir}/dist" />
-	<property name="jslet" value="jslet-2.0" />
+	<property name="jslet" value="jslet-3.0" />
 
 	<target name="init">
 		<tstamp />
@@ -32,6 +32,7 @@
 			</filelist>
 			<filelist dir="${src.dir}/data">
 				<file name="jslet.datacommon.js" />
+				<file name="jslet.expression.js" />
 			    <file name="jslet.dataset.js" />
 			    <file name="jslet.provider.js" />
 			    <file name="jslet.field.js" />
@@ -57,12 +58,11 @@
 			    <file name="jslet.window.js" />
 			</filelist>
 
-			<filelist dir="${src.dir}/ui/dbcontrol">
+			<filelist dir="${src.dir}/ui/dbcontrol/container">
 			    <file name="jslet.listviewmodel.js" />
 			    <file name="jslet.dbchart.js" />
 			    <file name="jslet.dbeditpanel.js" />
 			    <file name="jslet.dbinspector.js" />
-			    <file name="jslet.dbpagebar.js" />
 			    <file name="jslet.dbtable.js" />
 			    <file name="jslet.dbtreeview.js" />
 			</filelist>
@@ -86,6 +86,10 @@
 			    <file name="jslet.dbspinedit.js" />
 			    <file name="jslet.dbrating.js" />
 			    <file name="jslet.dbhtml.js" />
+			</filelist>
+			<filelist dir="${src.dir}/ui/dbcontrol/misc">
+			    <file name="jslet.dbpagebar.js" />
+			    <file name="jslet.dberror.js" />
 			</filelist>
 		</concat>
 		<copy todir="${dist.dir}">

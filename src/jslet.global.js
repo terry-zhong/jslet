@@ -11,15 +11,21 @@ If you are unsure which license is appropriate for your use, please visit: http:
 
 if (!jslet.rootUri) {
     var ohead = document.getElementsByTagName('head')[0], 
-    	uri = ohead.lastChild.src;
+        uri = ohead.lastChild.src;
     uri = uri.substring(0, uri.lastIndexOf('/') + 1);
     jslet.rootUri = uri;
 }
 jslet.global = {
+	version: 3.0.0,
+	
 	//Used in jslet.data.Dataset_applyChanges
-	changeStateField: 'chgflag',
+	changeStateField: '_state_',
 	
 	//Used in jslet.data.Dataset_selected
-	selectStateField: '_sel_'
+	selectStateField: '_sel_',
 	
-}
+	//Value separator
+	valueSeparator: ',',
+	
+	debugMode: true
+};

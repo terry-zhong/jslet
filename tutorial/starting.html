@@ -4,7 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Jslet - Get Starting</title>
     <link href="tutorial-style.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../style.css" />
 </head>
 <body>
     <h3>Jslet - Get Starting</h3>
@@ -40,10 +39,10 @@
 			{index: 3, type: "N", name: "DoubleFld", label: "Double Field", scale: 2, length: 12, displayFormat: "#,##0.00"},
 			{index: 4, type: "D", name: "DateFld", label: "Date Field"},
 			{index: 5, type: "B", name: "BooleanFld", label: "Boolean Field"},
-			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {lookupDataset: "gender"}}];
+			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {dataset: "gender"}}];
 			
 			var dsobj = jslet.data.createDataset("firstds",fldCfg);
-			dsobj.insertRec();
+			dsobj.insertRecord();
 		}
 	&lt;/script&gt;
     </code></pre>
@@ -77,10 +76,10 @@
 			{index: 3, type: "N", name: "DoubleFld", label: "Double Field", scale: 2, length: 12, displayFormat: "#,##0.00"},
 			{index: 4, type: "D", name: "DateFld", label: "Date Field"},
 			{index: 5, type: "B", name: "BooleanFld", label: "Boolean Field"},
-			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {lookupDataset: "gender"}}];
+			{index: 6, type: "S", name: "Gender", label: "Gender", lookupField: {dataset: "gender"}}];
 			
 			var dsobj = jslet.data.createDataset("firstds",fldCfg);
-			dsobj.insertRec();
+			dsobj.insertRecord();
 		}
 &lt;/script&gt;
 &lt;/head&gt;

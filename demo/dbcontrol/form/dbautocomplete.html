@@ -7,18 +7,24 @@
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
         jslet.define("employee", "../../js/employee.js");
-        jslet.require("jslet,employee");
+        jslet.require("jslet,employee", function() {
+			var dsDept = jslet.data.getDataset("department");
+			dsDept.setVisibleFields(['deptid','name']);
+		});
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - AutoComplete Demo</h2>
-    <hr />
-
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<fieldset>
+		<legend>Employee List</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content: </h3>
-    <div data-jslet='dataset:"employee"'>
+    <div data-jslet='dataset:"employee"' class="content">
         <p>
             1. Normal: <br />
             &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>

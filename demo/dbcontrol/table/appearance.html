@@ -32,23 +32,30 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBTable Appearance</h2>
-    <hr />
-    <h4>1. Row style: odd/even row with difference color</h4>
-    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
-    </div>
-    <h4>2. Row style: Difference color according to "gender" field</h4>
-    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowGender,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 220px">
-    </div>
-    <hr />
-    <h4>3. Cell style: difference color for manager</h4>
-	<p>If value of field "position" is 0 or 1, change the font style/color of column "name" </p>
-    <div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd, onFillCell: doFillCell, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
-    </div>
-    <hr />
-    <h4>4. No Cell border:</h4>
-    <div data-jslet='type:"DBTable",dataset:"employee",noborder:true,onFillRow: doFillRowOdd, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
-    </div>
-
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Row style: odd/even row with difference color</legend>
+		<div data-jslet='type:"DBTable",dataset:"employee",onFillRow:doFillRowOdd,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+		</div>
+	</fieldset>
+    <fieldset>
+		<legend>Row style: Difference color according to "gender" field</legend>
+		<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowGender,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 220px">
+		</div>
+    </fieldset>
+    <fieldset>
+		<legend>Cell style: difference color for manager</legend>
+		<p>If value of field "position" is 0 or 1, change the font style/color of column "name" </p>
+		<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd, onFillCell: doFillCell, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+		</div>
+    </fieldset>
+    <fieldset>
+		<legend>No Cell border:</legend>
+		<div data-jslet='type:"DBTable",dataset:"employee",noborder:true,onFillRow: doFillRowOdd, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+		</div>
+	</fieldset>
     <script type="text/javascript">
         function doFillRowOdd(otr, dataset) {
 			var recno = dataset.recno();
@@ -57,7 +64,7 @@
 			else
 				$(otr).addClass("oddRow");
         }
-		
+
         function doFillRowGender(otr, dataset) {
 			var gender = dataset.getFieldValue('gender');
 			var jqTr = $(otr);

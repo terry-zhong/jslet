@@ -13,12 +13,13 @@
 	
 </head>
 <body onunload="jslet.ui.uninstall()">
-    <h2>
-        Jslet - Glance</h2>
-	<h4>Take a quick glance to know how Jslet framework works.</h4>
-    <hr />
-    <p>
-        Employee List:  <a href="../model/EmployeeDataModel.htm">Data Model</a></p>
+    <h2>Jslet - Glance</h2>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Take a quick glance to know how Jslet framework works.</div>
+    <fieldset>
+    <legend>Employee List:  (<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
 	<!-- Employee List -->
     <table cellpadding="2" style="width:100%">
         <tr>
@@ -28,19 +29,20 @@
                 </div>
             </td>
             <td style="width:140px">
-                <img id="imgPhoto" alt="employee phote" src="" data-jslet="type:'DBImage',srcType:'file',dataset:'employee',field:'photo',baseUrl:'../photo/'"
+                <img id="imgPhoto" alt="employee phote" src="" data-jslet="type:'DBImage',dataset:'employee',field:'photo',baseUrl:'../photo/'"
                     style="height: 160px; width: 140px" />
             </td>
         </tr>
     </table>
-    <hr />
+    </fieldset>
 	<!-- Employee Navigator, dsEmployee is a global variable defined in employee.js -->
-    <input type="button" value=" First " onclick="dsEmployee.first();" />
-    <input type="button" value=" Prior " onclick="dsEmployee.prior();" />
-    <input type="button" value=" Next " onclick="dsEmployee.next();" />
-    <input type="button" value=" Last " onclick="dsEmployee.last();" />
-    <hr />
+    <button onclick="dsEmployee.first();"> First </button>
+    <button onclick="dsEmployee.prior();"> Prior </button>
+    <button onclick="dsEmployee.next();"> Next </button>
+    <button onclick="dsEmployee.last();" > Last </button>
 	<!-- Employee Editor -->
+	<fieldset>
+		<legend>Edit Panel</legend>
     <table data-jslet="dataset:'employee'" cellspacing="10">
 		<col width="150px" />
 		<col width="300px" />
@@ -125,7 +127,7 @@
             </td>
         </tr>
     </table>
-
+</fieldset>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=900"></script>
 </body>

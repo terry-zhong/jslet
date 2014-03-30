@@ -21,54 +21,58 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBText Demo</h2>
-    <hr />
-    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 150px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Employee List</legend>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
-    <div data-jslet='dataset:"employee"'>
-        <p>
-            1. Input any characters: <br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"name"'>
+    <div data-jslet='dataset:"employee"' class="content"><ol>
+        <li>
+            Input any characters: <br />
+            <label data-jslet='type:"DBLabel",field:"name"'>
             </label>
             :
-            <input type="text" data-jslet='type:"DBText",field:"name"' /></p>
-        <p>
-            2. Only department code allowed:<br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>
+            <input type="text" data-jslet='type:"DBText",field:"name"' /></li>
+        <li>
+            Only department code allowed:<br />
+            <label data-jslet='type:"DBLabel",field:"department"'>
             </label>
             :
-            <input id="gg" type="text" data-jslet='type:"DBText",field:"department"' />,department code: 01,02,03,04</p>
-        <p>
-            3. Input Date value:<br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"birthday"'>
+            <input id="gg" type="text" data-jslet='type:"DBText",field:"department"' />,department code: 01,02,03,04</li>
+        <li>
+            Input Date value:<br />
+            <label data-jslet='type:"DBLabel",field:"birthday"'>
             </label>
             :
-            <input type="text" data-jslet='type:"DBText",field:"birthday"' />, date format: yyyy-MM-dd(zh-cn) or MM/dd/yyyy(en)</p>
-        <p>
-            4. Input float value:<br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"salary"'>
+            <input type="text" data-jslet='type:"DBText",field:"birthday"' />, date format: yyyy-MM-dd(zh-cn) or MM/dd/yyyy(en)</li>
+        <li>
+            Input float value:<br />
+            <label data-jslet='type:"DBLabel",field:"salary"'>
             </label>
             :
-            <input type="text" data-jslet='type:"DBText",field:"salary"' />, valid characters: minus(-), 0-9 and decimal point(.)</p>
-        <p>
-            5. Input integer value:<br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"age"'>
+            <input type="text" data-jslet='type:"DBText",field:"salary"' />, valid characters: minus(-), 0-9 and decimal point(.)</li>
+        <li>
+            Input integer value:<br />
+            <label data-jslet='type:"DBLabel",field:"age"'>
             </label>
             :
             <input type="text" data-jslet='type:"DBText",field:"age"' name="T1" size="20" />,valid characters: minus(-), 0-9
-        </p>
+        </li>
         <!-- p>
             6. Customized rule, for example, only Chinese charactor allowed: <input id="txtValidChars" type="text" value="abc123"
                 size="25" /><input type="button" value=" Set Rule " onclick="setValidChar($('#txtValidChars').val())" /><input
                     type="button" value=" Clear Rule " onclick="setValidChar(null)" /><br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"university"'>
+            <label data-jslet='type:"DBLabel",field:"university"'>
             </label>
             :
             <input id='txtUniversity' type="text" data-jslet='type:"DBText",field:"university"'
                 size="20" /><br />
           -->
-    </div>
+    </ol></div>
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=400"></script>

@@ -19,7 +19,7 @@ var dsBear = jslet.data.createEnumDataset('bear',{'1':'Polar Bear','2':'Grizzly 
 var f = jslet.data.createStringField('animaltype', 10);
 f.label('Animal Type');
 var lkf = new jslet.data.LookupField();
-lkf.lookupDataset(dsAnimalType);
+lkf.dataset(dsAnimalType);
 f.lookupField(lkf);
 dsAnimals.addField(f);
 
@@ -31,22 +31,22 @@ dsAnimals.addField(f);
 f.onGetLookupField = function(lkFld) {
 	var type = this.dataset.fieldValue('animaltype');
 	if (type == '1')
-		lkFld.lookupDataset(dsFelidas);
+		lkFld.dataset(dsFelidas);
 	else if (type == '2')
-		lkFld.lookupDataset(dsCanine);
+		lkFld.dataset(dsCanine);
 	else
-		lkFld.lookupDataset(dsBear);
+		lkFld.dataset(dsBear);
 
 }
 
 lkFelidas = new jslet.data.LookupField();
-lkFelidas.lookupDataset(dsFelidas);
+lkFelidas.dataset(dsFelidas);
 
 lkCanine = new jslet.data.LookupField();
-lkCanine.lookupDataset(dsCanine);
+lkCanine.dataset(dsCanine);
 
 lkBear = new jslet.data.LookupField();
-lkBear.lookupDataset(dsBear);
+lkBear.dataset(dsBear);
 
 var cr = new jslet.data.ContextRule(dsAnimals);
 cr.addRuleItem('powerfulanimal','[animaltype]=='1'', null,null);

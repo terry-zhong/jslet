@@ -12,29 +12,38 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBCheckBoxGroup Demo</h2>
-    <hr />
-    <p>
-        Employee List: </p>
-    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 800px; height: 200px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+    <legend>Employee List</legend>
+    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 100%; height: 200px">
     </div>
-	<hr />
+	</fieldset>
+	<fieldset>
+		<legend>Edit Panel</legend>
     <label data-jslet="type:'DBLabel',dataset:'employee',field:'department'">
     </label>
     :
     <div id="cbg" data-jslet="type:'DBCheckBoxGroup',dataset:'employee',field:'department',columnCount:3">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
+	<div class="content">
     <p>
-        1. Column count: <input type="text" value="3" id="aCols" /><input type="button" value=" OK "
-            onclick="doSetColumnCount();" /></p>
+        1. Column count: <input type="text" value="4" id="aCols" />
+			<button onclick="doSetColumnCount();"> OK </button>
+    </p>
     <p>
-        2. Allowed checked count: <input type="text" value="2" id="aAllowedCols" /><input type="button"
-            value=" OK " onclick="doSetValueCountLimit();" /></p>
+        2. Allowed checked count: <input type="text" value="2" id="aAllowedCols" />
+			<button onclick="doSetValueCountLimit();"> OK </button>
+	</p>
+	</div>			
 	<script type="text/javascript">
 		
 		function doSetColumnCount() {
-			jslet('#cbg').columnCount= parseInt(document.getElementById('aCols').value);
+			var count = parseInt(document.getElementById('aCols').value);
+			jslet('#cbg').columnCount(count);
 			jslet('#cbg').renderAll();
 		}
 		

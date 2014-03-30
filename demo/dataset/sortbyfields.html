@@ -12,30 +12,40 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Field Sort Demo</h2>
-	<h4>Sort data with one field or multiple fields.</h4>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Sort data with one field or multiple fields.</div>
+    <fieldset>
+		<legend>Employee List</legend>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    <hr />
-    <div>
-        <h3>Demo Content:</h3>
+	</fieldset>
+
+
+    <h3>Demo Content:</h3>
+	<div class="content">
 		<ol>
         <li>Sort with one field:<br />
-        Sort with "age"(ascending):<input type="text" id="sortexpr1" value="age" /><input type="button" value=" Sort "
-            onclick="dsEmployee.indexFields($('#sortexpr1').val())" /><br />
-        Sort with "department"(descending):<input type="text" id="sortexpr2" value="department desc" /><input type="button"
-            value=" Sort " onclick="dsEmployee.indexFields($('#sortexpr2').val())" /><br />
-			<span style="color:blue">Do you see it? Jslet use department code to sort data instead of department id. Smart? </span><br />&nbsp;
+        Sort with "age"(ascending):<input type="text" id="sortexpr1" value="age" />
+			<button onclick="doSortByFields('#sortexpr1')"> Sort </button><br />
+        Sort with "department"(descending):<input type="text" id="sortexpr2" value="department desc" />
+			<button onclick="doSortByFields('#sortexpr2')"> Sort </button><br />
+			<span style="color:blue">Do you see it? Jslet use department code to sort data instead of department id. Smart? </span>
 		</li>
         <li>Sort with multiple fields:<br />
-        Sort with "Department"(asending) and "age"(asending):<input type="text" id="sortexpr3" value="department,age" /><input
-            type="button" value=" Sort " onclick="dsEmployee.indexFields($('#sortexpr3').val())" /><br />
-        Sort with "Department"(asending) and "age"(descending):<input type="text" id="sortexpr4" value="department,age desc" /><input
-            type="button" value=" Sort " onclick="dsEmployee.indexFields($('#sortexpr4').val())" /><br />
-			
+        Sort with "Department"(asending) and "age"(asending):<input type="text" id="sortexpr3" value="department,age" />
+			<button onclick="doSortByFields('#sortexpr3')"> Sort </button><br />
+        Sort with "Department"(asending) and "age"(descending):<input type="text" id="sortexpr4" value="department,age desc" />
+			<button onclick="doSortByFields('#sortexpr4')"> Sort </button>
+		</li>			
 		</ol>
     </div>
-	
+	<script type="text/javascript">
+		function doSortByFields(fieldElementId) {
+			dsEmployee.indexFields($(fieldElementId).val())
+		}
+	</script>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=500"></script>
 </body>

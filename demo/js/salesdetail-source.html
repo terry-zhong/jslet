@@ -29,16 +29,16 @@
 
     f = jslet.data.createStringField("customer", 20);
     f.label("Customer");
-    var lkFld = new jslet.data.LookupField();
-    lkFld.lookupDataset(dsCustomer);
-    f.lookupField(lkFld);
+    var lkFld = new jslet.data.FieldLookup();
+    lkFld.dataset(dsCustomer);
+    f.lookup(lkFld);
     dsSaleMaster.addField(f);
 
     f = jslet.data.createStringField("paymentterm", 20);
     f.label("Payment Term");
-    lkFld = new jslet.data.LookupField();
-    lkFld.lookupDataset(dsPaymentTerm);
-    f.lookupField(lkFld);
+    lkFld = new jslet.data.FieldLookup();
+    lkFld.dataset(dsPaymentTerm);
+    f.lookup(lkFld);
     dsSaleMaster.addField(f);
 
     f = jslet.data.createStringField("comment", 50);

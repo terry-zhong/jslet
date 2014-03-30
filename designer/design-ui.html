@@ -30,15 +30,15 @@
                 style="width: 800px; height: 150px">
             </div>
             <p>
-                <input type="button" value="Insert" onclick="dsDatasetCfg.insertRec();" /><input
-                    type="button" value="Delete" onclick="dsDatasetCfg.deleteRec();" /></p>
+                <input type="button" value="Insert" onclick="dsDatasetCfg.insertRecord();" /><input
+                    type="button" value="Delete" onclick="dsDatasetCfg.deleteRecord();" /></p>
              <div jslet='{"type":"DBEditPanel","dataset":"datasetCfg","columnCount":3}'></div>
         </div>
         <div id="fieldpanel" style="padding: 4px; display: none">
             <div id="tblField" jslet='{"type":"DBTable","dataset":"fieldCfg"}' style="width: 900px;height: 150px"></div>
             <p>
-                <input type="button" value="Insert" onclick="dsFieldCfg.insertRec();" />
-                <input type="button" value="Delete" onclick="dsFieldCfg.deleteRec();" /></p>
+                <input type="button" value="Insert" onclick="dsFieldCfg.insertRecord();" />
+                <input type="button" value="Delete" onclick="dsFieldCfg.deleteRecord();" /></p>
             <div jslet='{"type":"DBEditPanel","dataset":"fieldCfg","columnCount":4,"fields":[
         {"field":"type","colSpan":1,"showLine":true},
         {"field":"displayWidth","colSpan":1,"showLine":true},

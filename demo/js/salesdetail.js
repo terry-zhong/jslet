@@ -8,64 +8,64 @@
 
     //Create master dataset and its fields
     var dsSaleMaster = new jslet.data.Dataset("dsSaleMaster");
-    var f = jslet.data.createStringField("saleid", 8);
-    f.label("Sales ID");
-    dsSaleMaster.addField(f);
+    var fldObj = jslet.data.createStringField("saleid", 8);
+    fldObj.label("Sales ID");
+    dsSaleMaster.addField(fldObj);
 
-    f = jslet.data.createDateField("saledate");
-    f.displayFormat("yyyy-MM-dd");
-    f.label("Sales Date");
-    dsSaleMaster.addField(f);
+    fldObj = jslet.data.createDateField("saledate");
+    fldObj.displayFormat("yyyy-MM-dd");
+    fldObj.label("Sales Date");
+    dsSaleMaster.addField(fldObj);
 
-    f = jslet.data.createStringField("customer", 20);
-    f.label("Customer");
-    var lkFld = new jslet.data.LookupField();
-    lkFld.lookupDataset(dsCustomer);
-    f.lookupField(lkFld);
-    dsSaleMaster.addField(f);
+    fldObj = jslet.data.createStringField("customer", 20);
+    fldObj.label("Customer");
+    var lkFld = new jslet.data.FieldLookup();
+    lkFld.dataset(dsCustomer);
+    fldObj.lookup(lkFld);
+    dsSaleMaster.addField(fldObj);
 
-    f = jslet.data.createStringField("paymentterm", 10);
-    f.label("Payment Term");
-    lkFld = new jslet.data.LookupField();
-    lkFld.lookupDataset(dsPaymentTerm);
-    f.lookupField(lkFld);
-    dsSaleMaster.addField(f);
+    fldObj = jslet.data.createStringField("paymentterm", 10);
+    fldObj.label("Payment Term");
+    lkFld = new jslet.data.FieldLookup();
+    lkFld.dataset(dsPaymentTerm);
+    fldObj.lookup(lkFld);
+    dsSaleMaster.addField(fldObj);
 
-    f = jslet.data.createStringField("comment", 20);
-    f.label("Comment");
-    f.displayWidth(30);
-    dsSaleMaster.addField(f);
+    fldObj = jslet.data.createStringField("comment", 20);
+    fldObj.label("Comment");
+    fldObj.displayWidth(30);
+    dsSaleMaster.addField(fldObj);
     //------------------------------------------------------------------------------------------------------
 
     //Create detail dataset and its fields 
     var dsSaleDetail = new jslet.data.Dataset("dsSaleDetail");
-    f = jslet.data.createNumberField("seqno");
-    f.label("Number");
-    dsSaleDetail.addField(f);
+    fldObj = jslet.data.createNumberField("seqno");
+    fldObj.label("Number");
+    dsSaleDetail.addField(fldObj);
 
-    f = jslet.data.createStringField("product", 10);
-    f.label("Product");
-    dsSaleDetail.addField(f);
+    fldObj = jslet.data.createStringField("product", 10);
+    fldObj.label("Product");
+    dsSaleDetail.addField(fldObj);
 
-    f = jslet.data.createNumberField("num", 8);
-    f.label("Num");
-    f.displayFormat("#,##0");
-    dsSaleDetail.addField(f);
+    fldObj = jslet.data.createNumberField("num", 8);
+    fldObj.label("Num");
+    fldObj.displayFormat("#,##0");
+    dsSaleDetail.addField(fldObj);
 
-    f = jslet.data.createNumberField("price", 10, 2);
-    f.label("Price");
-    f.displayFormat("#,##0.00");
-    dsSaleDetail.addField(f);
+    fldObj = jslet.data.createNumberField("price", 10, 2);
+    fldObj.label("Price");
+    fldObj.displayFormat("#,##0.00");
+    dsSaleDetail.addField(fldObj);
 
-    f = jslet.data.createNumberField("amount", 10, 2);
-    f.label("Amount");
-    f.formula("[num]*[price]");
-    f.displayFormat("#,##0.00");
-    dsSaleDetail.addField(f);
+    fldObj = jslet.data.createNumberField("amount", 10, 2);
+    fldObj.label("Amount");
+    fldObj.formula("[num]*[price]");
+    fldObj.displayFormat("#,##0.00");
+    dsSaleDetail.addField(fldObj);
 
     //Important! Create "DatasetField" in master dataset, and connect to detail dataset.
-    f = jslet.data.createDatasetField("details", dsSaleDetail);
-    dsSaleMaster.addField(f);
+    fldObj = jslet.data.createDatasetField("details", dsSaleDetail);
+    dsSaleMaster.addField(fldObj);
     //------------------------------------------------------------------------------------------------------
 
     //Add data into detail dataset

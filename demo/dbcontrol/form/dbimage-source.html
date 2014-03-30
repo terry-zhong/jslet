@@ -3,31 +3,31 @@
 <body>
 	<ul><li>Head: </li></ul>
     <pre class="prettyprint linenums"><code>
-    &lt;script type="text/javascript" src="../../../loader/jslet.loader.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript"&gt;
-        //dataset is the system defined module name
-        jslet.define("employee", "../../js/employee.js");
-        jslet.require("jslet,employee", initinize);
+&lt;script type="text/javascript" src="../../../loader/jslet.loader.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+//dataset is the system defined module name
+jslet.define("employee", "../../js/employee.js");
+jslet.require("jslet,employee", initinize);
 
-		function initinize() {
-			var fldObj, fields = dsEmployee.getFields();
-			for(var i = 0, fldCnt = fields.length; i &lt; fldCnt; i++) {
-				fldObj = fields[i];
-				var name = fldObj.name();
-				if(name == 'workerid' || name == 'name' || name == 'photo')
-					fldObj.visible(true);
-				else
-					fldObj.visible(false);
-			}
-			//Create a photo field which content is genernated dynamicly in server.
-			var photoFld = dsEmployee.getField('photo');
-			var newPhotoFld = photoFld.clone();
-			newPhotoFld.name('dyncphoto');
-			newPhotoFld.label('Dynamic Photo');
-			newPhotoFld.formula('"/getphoto.jsp?id=" + [workerid]');
-			dsEmployee.addField(newPhotoFld);
-		}
-     &lt;/script&gt;
+function initinize() {
+	var fldObj, fields = dsEmployee.getFields();
+	for(var i = 0, fldCnt = fields.length; i &lt; fldCnt; i++) {
+		fldObj = fields[i];
+		var name = fldObj.name();
+		if(name == 'workerid' || name == 'name' || name == 'photo')
+			fldObj.visible(true);
+		else
+			fldObj.visible(false);
+	}
+	//Create a photo field which content is genernated dynamicly in server.
+	var photoFld = dsEmployee.getField('photo');
+	var newPhotoFld = photoFld.clone();
+	newPhotoFld.name('dyncphoto');
+	newPhotoFld.label('Dynamic Photo');
+	newPhotoFld.formula('"/getphoto.jsp?id=" + [workerid]');
+	dsEmployee.addField(newPhotoFld);
+}
+ &lt;/script&gt;
     </code></pre>
 	
 	<ul><li>HTML: </li></ul>

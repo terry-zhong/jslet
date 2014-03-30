@@ -12,30 +12,30 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Data Finding</h2>
-	<h4>Find data with a single value or an expression.</h4>
-    <hr />
-    <p>
-        Employee List:&nbsp;&nbsp;<a href="../model/EmployeeDataModel.htm">Data Model</a></p>
-    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 1000px; height: 220px">
-    </div>
-    <br />
-    <hr />
-    <h3>Demo Content:</h3>
-    <p>
-        1. Find data with a field value:</p>
-    <blockquote>
-        Find by employee number:<input type="text" id="value1" value="3" size="20" /><input type="button"
-            value=" Search " onclick="dsEmployee.findByField('workerid',parseInt($('#value1').val()));" /><br />
-        Find by employee name:<input type="text" id="value2" value="John" /><input type="button" value=" Search "
-            onclick="dsEmployee.findByField('name',$('#value2').val());" /><br />
-    </blockquote>
-    <p>
-        2. Find data with an expression:</p>
-    <p>
-        <b>&nbsp;&nbsp;&nbsp; </b>Find female employee whose age is great than 30:<input type="text" id="condition1" value="[gender]=='F' && [age]>30"
-            size="32" /><input type="button" value=" Search " onclick="dsEmployee.find($('#condition1').val());" />
-    </p>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">Find data with a single value or an expression.</div>
+    <fieldset>
+		<legend>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
+		<div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 220px">
+		</div>
+    </fieldset>
 	
+    <h3>Demo Content:</h3>
+	<div class="content">
+    <p>1. Find data with a field value:</p>
+    <blockquote>
+        Find by employee number:<input type="text" id="value1" value="3" size="20" />
+			<button onclick="dsEmployee.findByField('workerid',parseInt($('#value1').val()));"> Search </button><br />
+        Find by employee name:<input type="text" id="value2" value="John" />
+			<button onclick="dsEmployee.findByField('name',$('#value2').val());"> Search </button>
+    </blockquote>
+    <p>2. Find data with an expression:</p>
+    <blockquote>Find female employee whose age is great than 30:<input type="text" id="condition1" value="[gender]=='F' && [age]>30" size="32" />
+		<button onclick="dsEmployee.find($('#condition1').val());"> Search </button>
+    </blockquote>
+	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=450"></script>
 </body>

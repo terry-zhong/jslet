@@ -9,9 +9,11 @@
         jslet.require('jslet,designer');
 
     </script>
-
 </head>
 <body onunload="jslet.uninstall()">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
     <div style="width: 1000px;margin:0px auto">
         <h2>Jslet-Dataset Designer</h2>
 		<p>Guide</p>
@@ -21,12 +23,14 @@
 			<li>Go to Tab "Dataset Test" to test or generate dataset config.</li>
 		</ol>
 		<!-- tabCfg is a global variable defined in in below source lines.-->
-        <div style="width: 100%; height: auto" data-jslet= "tabCfg" >
+        <div style="width: 100%; height: auto" data-jslet= "var:tabCfg" >
         </div>
 		
         <div id="datasetpanel" style="padding: 4px; display: none; height: auto">
-            <div><input type="button" value="Insert" onclick="dsDatasetCfg.insertRec();" /><input
-                    type="button" value="Delete" onclick="dsDatasetCfg.deleteRec();" /></div>
+            <p>
+				<button onclick="dsDatasetCfg.insertRecord();">Insert</button>
+				<button onclick="dsDatasetCfg.deleteRecord();" >Delete</button>
+			</p>
             <div id="tblDataset" data-jslet="{type:'DBTable', dataset: 'datasetCfg', readOnly: true}"
                 style="width: 100%; height: 300px">
             </div>
@@ -34,8 +38,10 @@
         </div>
         <div id="fieldpanel" style="padding: 4px; display: none; height: auto">
             <div id="tblField" data-jslet="{type: 'DBTable', dataset: 'fieldCfg'}" style="width: 100%;height: 150px"></div>
-            <div><input type="button" value="Insert" onclick="dsFieldCfg.insertRec();" />
-                <input type="button" value="Delete" onclick="dsFieldCfg.deleteRec();" /></div>
+            <p>
+				<button onclick="dsFieldCfg.insertRecord();">Insert</button>
+                <button onclick="dsFieldCfg.deleteRecord();">Delete</button>
+			</p>
             <div data-jslet="{type: 'DBEditPanel', dataset: 'fieldCfg', columnCount: 3, fields:[
 				{field: 'type', colSpan: 1, showLine: true},
 				{field: 'displayWidth', colSpan: 1, showLine: true},
@@ -45,17 +51,18 @@
 				{field: 'readOnly', colSpan: 1, showLine: true},
 				{field: 'required', colSpan: 1, showLine: true},
 				{field: 'regularExpr', colSpan: 2},
-				{field: 'lookupField', colSpan: 1, showLine: true},
+				{field: 'lookup', colSpan: 1, showLine: true},
 				{field: 'betweenStyle', colSpan: 1, showLine: true},
 				{field: 'clientTranslate', colSpan: 1, showLine: true}
-				]}" style="border: 1px solid gray; width: 100%; height: auto">
+				]}" style="border: 0; width: 100%; height: auto">
             </div>
         </div>
         <div id="testpanel" style="display:none;margin:5px">
-            <input type="button" value="&nbsp;Test&nbsp;" onclick="showTestWin();" />&nbsp;&nbsp;
-            <input type="button" value="Generate Javascript" onclick="showCode();" />
-            <input type="button" value="Get DataList" onclick="showDataList();" />
-            <br />
+			<p>
+            <button onclick="showTestWin();" >&nbsp;Test&nbsp;</button>&nbsp;&nbsp;
+            <button onclick="showCode();" >Generate Javascript</button>
+            <button onclick="showDataList();">Get DataList</button>
+            </p>
             <textarea id="genResult" rows="10" cols="1" style="width: 98%; height: 500px; overflow: scroll"></textarea>
         </div>
     </div>
@@ -84,12 +91,12 @@
     			{header: 'Test', closable: false, divId: 'testpanel'}]};
             
         function genDatasetScript(dsname, hasInvokeCode) {
-            var dsDataset = jslet('#tblDataset').dataset;
+            var dsDataset = jslet('#tblDataset').dataset();
 
             if (dsDataset.recordCount() == 0)
                 return '';
 
-            var dsField = jslet('#tblField').dataset;
+            var dsField = jslet('#tblField').dataset();
             if (dsField.recordCount() == 0) {
                 alert('There aren\'t fields in this dataset, can\'t generate script!');
                 return '';
@@ -97,7 +104,7 @@
             dsname = dsname ? dsname: dsDataset.getFieldValue('name');
             var curr = dsDataset.getRecord();
             var arr = ['var fldCfg='];
-            arr.push(jQuery.toJSON(dsDataset.getFieldValue('fields')));
+            arr.push(jslet.data.record2Json(dsDataset.getFieldValue('fields')));
             arr.push(';\n\n');
             arr.push('jslet.data.createDataset("');
             arr.push(dsname);
@@ -122,16 +129,16 @@
         }
 
         function showDataList() {
-            var dsDataset = jslet('#tblDataset').dataset;
+            var dsDataset = jslet('#tblDataset').dataset();
 
             if (dsDataset.recordCount() == 0)
                 return '';
-            var result = jQuery.toJSON(dsDataset.dataList());
+            var result = jslet.data.record2Json(dsDataset.dataList());
             $('#genResult')[0].value = result;
         }
 
         var testHtml = '<div data-jslet=\'type:"dbtable",dataset:"testdata"\' style="position:relative;top:2px;width:100%;height:150px"></div>'+
-        '<div style="padding-top:5px"><input type="button" value="Insert" onclick="doTestInsert()"></input>&nbsp;&nbsp;<input type="button" value="Delete" onclick="doTestDelete()"></input></div><hr />'+
+        '<div style="padding-top:5px"><button onclick="doTestInsert()">Insert</button>&nbsp;&nbsp;<button onclick="doTestDelete()">Delete</button></div><hr />'+
         '<div data-jslet=\'type:"dbeditpanel",dataset:"testdata",columnCount:2\' style="position:relative;top:2px;width:600px;height:200px"></div>';
 
         function showTestWin() {
@@ -148,11 +155,11 @@
         }
 
         function doTestInsert(){
-			jslet.data.getDataset('testdata').insertRec();
+			jslet.data.getDataset('testdata').insertRecord();
         }
 
         function doTestDelete(){
-			jslet.data.getDataset('testdata').deleteRec();
+			jslet.data.getDataset('testdata').deleteRecord();
         }
         
     </script>

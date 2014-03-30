@@ -16,7 +16,7 @@
             },
 
             refreshCell: function (otd, colCfg) {
-                otd.firstChild.src = "../../photo/" + this.dataset.getFieldValue(colCfg.field);
+                otd.firstChild.src = "../../photo/" + this.dataset().getFieldValue(colCfg.field);
             }
         };
         
@@ -30,14 +30,18 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - Customized Column Render</h2>
-    <hr />
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Employee List</legend>
 	<!-- tblCfg is a global variable defined in head tag.-->
-    <div data-jslet='tblCfg' style="width: 800px; height: 500px">
+    <div data-jslet='tblCfg' style="width: 100%; height: 500px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
-    <p>
-        &nbsp;&nbsp;&nbsp;Display photo of employee in table column.</p>
+    <div class="content">
+        &nbsp;&nbsp;&nbsp;Display photo of employee in table column.</div>
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=800"></script>

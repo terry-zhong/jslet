@@ -14,7 +14,7 @@
     <pre class="prettyprint linenums"><code>
     function changeDisplayFields(dispFlds) {
 	    var f = dsEmployee.getField("department");
-        var lkf = f.lookupField();
+        var lkf = f.lookup();
         lkf.displayFields(dispFlds);
         dsEmployee.refreshControl();
         dsEmployee.renderOptions();

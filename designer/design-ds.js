@@ -14,37 +14,38 @@ var dsFieldEditor = jslet.data.createEnumDataset('fieldEditor',
 );
 
 var fldCfg = [
-	{ name: 'index', type: 'N', length: 3, label: 'Num#', displayWidth: 6, defaultValue: 0, diaplayFormat: '##0', editControl:'DBSpinEdit' },
 	{ name: 'name', type: 'S', length: 30, label: 'Field Name', displayWidth: 20, required: true },
 	{ name: 'label', type: 'S', length: 30, label: 'Field Label', displayWidth: 20 },
-	{ name: 'type', type: 'S', length: 1, label: 'Data Type', lookupField: '{lookupDataset:"fieldDatatype"}', displayWidth: 10, defaultValue:'S' },
+	{ name: 'tip', type: 'S', length: 30, label: 'Field Tips', displayWidth: 20 },
+	{ name: 'type', type: 'S', length: 1, label: 'Data Type', lookup: '{dataset:"fieldDatatype"}', displayWidth: 10, defaultValue:'S' },
     { name: 'subDataset', type: 'S', length: 30, label: 'Sub-Dataset Name', displayWidth: 10 },
 	{ name: 'length', type: 'N', length: 3, label: 'Data Length', displayWidth: 10, diaplayFormat: '##0', editControl: 'DBSpinEdit' },
 	{ name: 'scale', type: 'N', length: 3, label: 'Data Scale', displayWidth: 6, diaplayFormat: '##0', editControl:'DBSpinEdit'},
-	{ name: 'defaultExpr', type: 'S', length: 100, label: 'Default Value', displayWidth: 10 },
-	{ name: 'valueStyle', type: 'S', label: 'Value Style', displayWidth: 10, lookupField: '{lookupDataset:"valueStyle"}',defaultValue: '0' },
+	{ name: 'defaultExpr', type: 'S', length: 100, label: 'Default Value Expr', displayWidth: 10 },
+	{ name: 'valueStyle', type: 'S', label: 'Value Style', displayWidth: 10, lookup: {dataset:"valueStyle"},defaultValue: '0' },
 
 	{ name: 'displayWidth', type: 'N', length: 3, label: 'Display Width', displayWidth: 10, diaplayFormat: '##0',editControl:'DBSpinEdit'},
-	{ name: 'alignment', type: 'S', length: 3, label: 'Alignment', displayWidth: 10, lookupField: '{lookupDataset:"fieldAlignment"}' },
+	{ name: 'displayOrder', type: 'N', length: 3, label: 'Display Order', displayWidth: 6, defaultValue: 0, diaplayFormat: '##0', editControl:'DBSpinEdit' },
+	{ name: 'alignment', type: 'S', length: 3, label: 'Alignment', displayWidth: 10, lookup: '{dataset:"fieldAlignment"}' },
 	{ name: 'displayFormat', type: 'S', length: 30, label: 'Display Format', displayWidth: 10 },
-	{ name: 'editControl', type: 'S', length: 100, label: 'Editor', displayWidth: 10, lookupField: '{lookupDataset:"fieldEditor"}',required:false,nullText:'(auto)' },
+	{ name: 'editControl', type: 'S', length: 100, label: 'Editor', displayWidth: 10, lookup: '{dataset:"fieldEditor"}',required:false,nullText:'(auto)' },
 
 	{ name: 'formula', type: 'S', length: 100, label: 'Formula', displayWidth: 10 },
 	{ name: 'readOnly', type: 'B', label: 'ReadOnly', displayWidth: 10 },
 	{ name: 'visible', type: 'B', label: 'Visible', displayWidth: 10 },
-	{ name: 'unitConverted', type: 'B', label: 'Scaleable', displayWidth: 10 },
+	{ name: 'unitConverted', type: 'B', label: 'Unit Conversion', displayWidth: 10 },
 
 	{ name: 'required', type: 'B', label: 'required', displayWidth: 10 },
 	{ name: 'range', type: 'S', length: 50, label: 'Data Range', displayWidth: 10 },
 	{ name: 'regularExpr', type: 'S', length: 50, label: 'Regular Expression', displayWidth: 10 },
 
-	{ name: 'lookupField', type: 'S', length: 100, label: 'Lookup Field', displayWidth: 10 },
+	{ name: 'lookup', type: 'S', length: 100, label: 'Lookup Field', displayWidth: 10 },
 	{ name: 'urlExpr', type: 'S', length: 100, label: 'HyperLink Expression', displayWidth: 10 },
-	{ name: 'urlTarget',type:'S',length:10,label:'HyperLink Target',lookupField:'{lookupDataset:"fieldUrlTarget"}'}
+	{ name: 'urlTarget',type:'S',length:10,label:'HyperLink Target',lookup:'{dataset:"fieldUrlTarget"}'}
 
 ];
 
-var dsFieldCfg = jslet.data.createDataset('fieldCfg', fldCfg, 'name', 'name', 'label');
+var dsFieldCfg = jslet.data.createDataset('fieldCfg', fldCfg, {keyField: 'name', codeField: 'name', nameField: 'label'});
 
 fldCfg = [
 	{ name: 'name', type: 'S', length: 30, label: 'Dataset Name', displayWidth: 20, required: true },
@@ -62,11 +63,11 @@ delete fldCfg;
 var data = [{ name: "employee", description: "Employee(Sample)", fields: 
 	[{index: 0, name: "workerid", label: "ID", type: "N", length: 10, required: true, valueStyle: '0' }, 
 	 {index: 1, name: "name", label: "Name", type: "S", length: 20, required: true, valueStyle: '0'}, 
-	 {index: 2, name: "gender", description: "Gender", type: "S", lookupField: "{lookupDataset: 'gender'}", nullText:"(Empty)", valueStyle: '0'},
+	 {index: 2, name: "gender", description: "Gender", type: "S", lookup: "{dataset: 'gender'}", nullText:"(Empty)", valueStyle: '0'},
 	 {index: 5, name: "age", label: "Age", type: "N", length: 6, valueStyle: '0'}, 
 	 {index: 7, name: "married", label: "Married", type: "B", valueStyle: '0'}, 
 	 {index: 8, name: "birthday", label: "Birthday", type: "D", valueStyle: '0'}, 
-	 {index: 10, name: "position", description: "Position", type: "S", lookupField: "{lookupDataset: 'position'}", nullText:"(Empty)", valueStyle: '0'}
+	 {index: 10, name: "position", description: "Position", type: "S", lookup: "{dataset: 'position'}", nullText:"(Empty)", valueStyle: '0'}
 	 ]
 	}];
 dsDatasetCfg.dataList(data);

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Jslet - Context Rule(Data Status Changed)</title>
+    <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
+    <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define("contact", "contacts.js", "jslet");
+        //jslet is the system defined module name
+        jslet.require("jslet,contact", initialize);
+
+        function initialize() {
+			var rule1 = {status: ['update','other'],
+				rules:[
+				{field:'id',meta:{disabled:true}}
+				]};
+			var rule2 = {status: ['insert'],
+				rules:[
+				{field:'id',meta:{disabled:false}}
+				]};
+			dsContact.contextRules([rule1,rule2]);
+			dsContact.enableContextRule();
+        }
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+    <h2>Jslet - Context Rule(Data Status Changed)</h2>
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+	<div class="content">
+	<p> In this example, field 'Num#' is only <b>editable</b> in INSERT status.
+	</p>
+	</div>	
+	<fieldset>
+	<div>
+		<button onclick="dsContact.insertRecord()"> Insert </button>
+		<button onclick="dsContact.editRecord()"> Update </button>
+		<button onclick="dsContact.cancel()"> Cancel </button>
+	</div>
+    <div data-jslet='type:"DBTable",dataset:"Contact"' style="width: 100%; height: 220px">
+    </div>
+    </fieldset>
+	<fieldset>
+		<legend>Edit Panel</legend>
+		<div data-jslet="type:'DBEditPanel',dataset: 'Contact'" />
+    </fieldset>
+
+    <h3>Demo Content:</h3>
+	<ol>
+		<li>Click "Insert" button;</li>
+		<li>Check Field 'Num#' in EditPanel;</li>
+		<li>Fill Data;</li>
+		<li>Scroll record cursor in DBTable;</li>
+		<li>Check Field 'Num#' in EditPanel;</li>
+	</ol>
+	<!-- Source Code -->
+	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
+
+</html>

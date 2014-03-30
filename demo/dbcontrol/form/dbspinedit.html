@@ -12,23 +12,29 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBSpinEdit Demo</h2>
-    <hr />
-    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 800px; height: 200px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Employee List</legend>
+    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
-
-    <p>
-        1. Set minValue=0, maxValue=10000, step=1:</p>
-    <div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",minValue:0,maxValue:10000,step:1'
+	<div class="content"><ol>
+    <li>
+        Set minValue=0, maxValue=10000, step=1:
+    <div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",step:1'
         style="width: 150px; height: 22px">
     </div>
-    <p>
-        2. Set minValue=10, maxValue=100, step=5:</p><div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",minValue:10,maxValue:100,step:5'
+	</li>
+    <li>
+        Set minValue=10, maxValue=100, step=5:</p><div data-jslet='type:"DBSpinEdit",dataset:"employee",field:"age",step:5'
             style="width: 150px; height: 22px">
         </div>
-        <p>&nbsp;&nbsp; Try to input value not in range (10, 100), you can see it is not allowed.</p>
-
+        <p>Try to input value not in range (10, 100), you can see it is not allowed.</p>
+	</li>
+	</ol></div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=400"></script>
 </body>

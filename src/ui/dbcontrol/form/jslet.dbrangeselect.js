@@ -13,288 +13,280 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * @class DBRangeSelect. 
  * Display a select which options produce with 'beginItem' and 'endItem'. Example:
  * <pre><code>
- * 		var jsletParam = {type:"DBRangeSelect",dataset:"employee",field:"age",beginItem:10,endItem:100,step:5};
+ * var jsletParam = {type:"DBRangeSelect",dataset:"employee",field:"age",beginItem:10,endItem:100,step:5};
  * 
  * //1. Declaring:
- *      &lt;select data-jslet='type:"DBRangeSelect",dataset:"employee",field:"age",beginItem:10,endItem:100,step:5' />
- *      or
- *      &lt;select data-jslet='jsletParam' />
- *      
+ * &lt;select data-jslet='type:"DBRangeSelect",dataset:"employee",field:"age",beginItem:10,endItem:100,step:5' />
+ * or
+ * &lt;select data-jslet='jsletParam' />
+ * 
  *  //2. Binding
- *      &lt;select id="ctrlId"  />
- *  	//Js snippet
- * 		var el = document.getElementById('ctrlId');
- *  	jslet.ui.bindControl(el, jsletParam);
+ * &lt;select id="ctrlId"  />
+ * //Js snippet
+ * var el = document.getElementById('ctrlId');
+ * jslet.ui.bindControl(el, jsletParam);
  *
  *  //3. Create dynamically
- *  	jslet.ui.createControl(jsletParam, document.body);
- *  	
+ * jslet.ui.createControl(jsletParam, document.body);
+ *
  * </code></pre>
  */
-jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBControl, {
+jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-    initialize: function ($super, el, params) {
+	initialize: function ($super, el, params) {
 		var Z = this;
-        if (!Z.allProperties) {
-            Z.allProperties = 'dataset,field,beginItem,endItem,step';
-        }
-        if (!Z.requiredProperties) {
-            Z.requiredProperties = 'field,beginItem,endItem,step';
-        }
+		Z.allProperties = 'dataset,field,beginItem,endItem,step';
+		if (!Z.requiredProperties) {
+			Z.requiredProperties = 'field,beginItem,endItem,step';
+		}
 
-        Z.dataset;
-        Z.field;
-        /**
-         * {Integer} Begin item 
-         */
-        Z.beginItem = 0;
-        /**
-         * {Integer} End item
-         */
-        Z.endItem = 10;
-        /**
-         * {Integer} Step
-         */
-        Z.step = 1;
-        $super(el, params);
-    },
+		/**
+		 * {Integer} Begin item 
+		 */
+		Z._beginItem = 0;
+		/**
+		 * {Integer} End item
+		 */
+		Z._endItem = 10;
+		/**
+		 * {Integer} Step
+		 */
+		Z._step = 1;
+		$super(el, params);
+	},
+
+	beginItem: function(beginItem) {
+		if(beginItem === undefined) {
+			return this._beginItem;
+		}
+		jslet.Checker.test('DBRangeSelect.beginItem', beginItem).isNumber();
+		this._beginItem = parseInt(beginItem);
+	},
+
+	endItem: function(endItem) {
+		if(endItem === undefined) {
+			return this._endItem;
+		}
+		jslet.Checker.test('DBRangeSelect.endItem', endItem).isNumber();
+		this._endItem = parseInt(endItem);
+	},
+
+	step: function(step) {
+		if(step === undefined) {
+			return this._step;
+		}
+		jslet.Checker.test('DBRangeSelect.step', step).isNumber();
+		this._step = parseInt(step);
+	},
 
 	/**
 	 * @override
 	 */
-    isValidTemplateTag: function (el) {
-        return (el.tagName.toLowerCase() == 'select');
-    },
+	isValidTemplateTag: function (el) {
+		return (el.tagName.toLowerCase() == 'select');
+	},
 
 	/**
 	 * @override
 	 */
-    bind: function () {
-        var Z = this,
-    		fldObj = Z.dataset.getField(Z.field),
-    		valueStyle = fldObj.valueStyle();
-        
-        if(Z.el.multiple && valueStyle != jslet.data.FieldValueStyle.MULTIPLE) {
-        	fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
-        } else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE && !Z.el.multiple) {
-        	Z.el.multiple = "multiple";	
-        }
+	bind: function () {
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field),
+			valueStyle = fldObj.valueStyle();
+		
+		if(Z.el.multiple && valueStyle != jslet.data.FieldValueStyle.MULTIPLE) {
+			fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+		} else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE && !Z.el.multiple) {
+			Z.el.multiple = "multiple";	
+		}
+		Z.renderAll();
+		jQuery(Z.el).on('change', Z._doChanged);// end observe
+		if(Z.el.multiple) {
+			jQuery(Z.el).on('click', 'option', function () {
+				Z._currOption = this;
+			});// end observe
+		}
+	}, // end bind
 
-        if (!Z.beginItem && isNaN(Z.beginItem)) {
-            throw new Error(jslet.formatString(jslet.locale.DBControl.propertyValueMustBeInt,
-							['begin-item']));
-        }
-        Z.beginItem = parseFloat(Z.beginItem);
-        if (!Z.endItem && isNaN(Z.endItem)) {
-            throw new Error(jslet.formatString(jslet.locale.DBControl.propertyValueMustBeInt,
-							['end-item']));
-        }
-        Z.endItem = parseFloat(Z.endItem);
-
-        if (!Z.step) {
-            Z.step = 1;
-        } else {
-            Z.step = parseInt(Z.step);
-        }
-        if (isNaN(Z.step)) {
-            throw new Error(jslet.formatString(jslet.locale.DBControl.propertyValueMustBeInt,
-							['step']));
-        }
-        Z.renderOptions();
-        Z.renderAll();
-
-        jQuery(Z.el).on('change', Z._doChanged);// end observe
-        if(Z.el.multiple) {
-            jQuery(Z.el).on('click', 'option', function () {
-                Z._currOption = this;
-            });// end observe
-        }
-    }, // end bind
-
-    _doChanged: function (event) {
-    	var Z = this.jslet;
-    	if(Z.el.multiple) {
-        	if(Z.inProcessing) {
-        		Z.inProcessing = false;
-        	}
-	    	var fldObj = Z.dataset.getField(Z.field),
-	    		limitCount = fldObj.valueCountLimit();
-		    if(limitCount) {
-		        var values = Z.dataset.getFieldValue(Z.field),
-		        	count = 1;
-		        if(jslet.isArray(values)) {
-		        	count = values.length;
-		        }
-		        if (count >= limitCount) {
-		            jslet.showException(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+	_doChanged: function (event) {
+		var Z = this.jslet;
+		if(Z.el.multiple) {
+			if(Z.inProcessing) {
+				Z.inProcessing = false;
+			}
+			var fldObj = Z._dataset.getField(Z._field),
+				limitCount = fldObj.valueCountLimit();
+			if(limitCount) {
+				var values = Z._dataset.getFieldValue(Z._field),
+					count = 1;
+				if(jslet.isArray(values)) {
+					count = values.length;
+				}
+				if (count >= limitCount) {
+					jslet.showException(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 							[''	+ limitCount]));
-		            
-		            window.setTimeout(function(){
-		            	if(Z._currOption) {
-		            		Z.inProcessing = true;
-		            		Z._currOption.selected = false;
-		            	}
-		            }, 10);
-		            return;
-		        }
-		    }
-    	}
-        this.jslet.updateToDataset();
-    },
-        
-    renderOptions: function () {
-        var Z = this,
-        	arrhtm = [];
-        
-        var fldObj = Z.dataset.getField(Z.field);
-        if (!fldObj.required() && fldObj.nullText()){
-        	arrhtm.push('<option value="_null_">');
-        	arrhtm.push(fldObj.nullText());
-        	arrhtm.push('</option>');
-        }
+					
+					window.setTimeout(function(){
+						if(Z._currOption) {
+							Z.inProcessing = true;
+							Z._currOption.selected = false;
+						}
+					}, 10);
+					return;
+				}
+			}
+		}
+		this.jslet.updateToDataset();
+	},
+		
+	renderOptions: function () {
+		var Z = this,
+			arrhtm = [];
+		
+		var fldObj = Z._dataset.getField(Z._field);
+		if (!fldObj.required() && fldObj.nullText()){
+			arrhtm.push('<option value="_null_">');
+			arrhtm.push(fldObj.nullText());
+			arrhtm.push('</option>');
+		}
 
-        for (var i = Z.beginItem; i <= Z.endItem; i += Z.step) {
-            arrhtm.push('<option value="');
-            arrhtm.push(i);
-            arrhtm.push('">');
-            arrhtm.push(i);
-            arrhtm.push('</option>');
-        }
-        jQuery(Z.el).html(arrhtm.join(''));
-        delete arrhtm;
-    }, // end renderOptions
+		for (var i = Z._beginItem; i <= Z._endItem; i += Z._step) {
+			arrhtm.push('<option value="');
+			arrhtm.push(i);
+			arrhtm.push('">');
+			arrhtm.push(i);
+			arrhtm.push('</option>');
+		}
+		jQuery(Z.el).html(arrhtm.join(''));
+	}, // end renderOptions
 
 	/**
 	 * @override
 	 */
-    refreshControl: function (evt, isForce) {
-        var Z = this;
-        if (Z._keep_silence_) {
-            return;
-        }
-        if (!isForce && !Z.isActiveRecord()) {
-        	return;
-        }
-        if (evt.eventType == jslet.data.UpdateEvent.METACHANGE) {
-            if (evt.eventInfo.enabled != undefined) {
-                Z.el.disabled = !evt.eventInfo.enabled;
-            }
-            if (evt.eventInfo.readOnly != undefined) {
-                Z.el.readOnly = evt.eventInfo.readOnly;
-            }
-            return;
-        }
-
-        if (evt.eventType == jslet.data.UpdateEvent.SCROLL
-						|| evt.eventType == jslet.data.UpdateEvent.UPDATEALL
-						|| evt.eventType == jslet.data.UpdateEvent.UPDATERECORD
-						|| evt.eventType == jslet.data.UpdateEvent.INSERT
-						|| evt.eventType == jslet.data.UpdateEvent.DELETE
-						|| evt.eventType == jslet.data.UpdateEvent.UPDATECOLUMN) {
-            if (evt.eventType == jslet.data.UpdateEvent.UPDATERECORD
-							&& evt.eventInfo != undefined
-							&& evt.eventInfo.fieldName != undefined
-							&& evt.eventInfo.fieldName != Z.field) {
-                return;
-            }
-            try {
-                if (!Z.el.multiple) {
-                    var value = Z.dataset.getFieldValue(Z.field, Z.valueIndex);
-                    if (value != null) {
-                        Z.el.value = value;
-                    } else {
-                        Z.el.value = null;
-                    }
-                } else {
-                    var arrValue = Z.dataset.getFieldValue(Z.field),
-                    	optCnt = Z.el.options.length, opt, selected;
-                    Z._keep_silence_ = true;
-                    try {
-                        for (var i = 0; i < optCnt; i++) {
-                            opt = Z.el.options[i];
-                            if (opt) {
-                                opt.selected = false;
-                            }
-                        }
-
-                        var vcnt = arrValue.length - 1;
-                        for (var i = 0; i < optCnt; i++) {
-                            opt = Z.el.options[i];
-                            for (j = vcnt; j >= 0; j--) {
-                                selected = (arrValue[j] == opt.value);
-                                if (selected) {
-                                   opt.selected = selected;
-                                }
-                            } // end for j
-                        } // end for i
-                    } finally {
-                        Z._keep_silence_ = false;
-                    }
-                }
-            } catch (e) {
-                jslet.showException(e);
-            }
-        }
-    }, // end refreshControl
-
-    focus: function() {
-    	this.el.focus();
-    },
-    
+	doMetaChanged: function($super, metaName){
+		$super(metaName);
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
+			var disabled = fldObj.disabled() || fldObj.readOnly();
+			Z.el.disabled = disabled;
+			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true);
+		}
+		if(metaName == 'message') {
+			Z.renderInvalid();
+		}
+	},
+	
 	/**
 	 * @override
 	 */
-    renderAll: function () {
-        this.refreshControl(jslet.data.UpdateEvent.updateAllEvent, true);
-    },
+	doValueChanged: function() {
+		var Z = this;
+		if (Z._keep_silence_) {
+			return;
+		}
+		var fldObj = Z._dataset.getField(Z._field);
+		if(fldObj.message(Z._valueIndex)) { 
+			return;
+		}
+		try {
+			if (!Z.el.multiple) {
+				var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+				if (value !== null) {
+					Z.el.value = value;
+				} else {
+					Z.el.value = null;
+				}
+			} else {
+				var arrValue = Z._dataset.getFieldValue(Z._field),
+					optCnt = Z.el.options.length, opt, selected, i;
+				Z._keep_silence_ = true;
+				try {
+					for (i = 0; i < optCnt; i++) {
+						opt = Z.el.options[i];
+						if (opt) {
+							opt.selected = false;
+						}
+					}
 
-    updateToDataset: function () {
-        var Z = this;
-        if (Z._keep_silence_) {
-            return;
-        }
-        var value,
-        	isMulti = Z.el.multiple;
-        if (!isMulti) {
-            value = Z.el.value;
-            var fldObj = Z.dataset.getField(Z.field);
-            if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
-            	value = null;
-            }
-        } else {
-            var opts = jQuery(Z.el).find('option'),
-            	optCnt = opts.length - 1,
-            	value = [];
-            for (var i = 0; i <= optCnt; i++) {
-                opt = opts[i];
-                if (opt.selected) {
-                    value.push(opt.value);
-                }
-            }
-        }
-        Z._keep_silence_ = true;
-        try {
-            if (!isMulti) {
-            	Z.dataset.setFieldValue(Z.field, value, Z.valueIndex);
-            } else {
-            	Z.dataset.setFieldValue(Z.field, value);
-            }
-        } catch (e) {
-            jslet.showException(e);
-        } finally {
-            Z._keep_silence_ = false;
-        }
-    },
-    
+					var vcnt = arrValue.length - 1;
+					for (i = 0; i < optCnt; i++) {
+						opt = Z.el.options[i];
+						for (j = vcnt; j >= 0; j--) {
+							selected = (arrValue[j] == opt.value);
+							if (selected) {
+								opt.selected = selected;
+							}
+						} // end for j
+					} // end for i
+				} finally {
+					Z._keep_silence_ = false;
+				}
+			}
+		} catch (e) {
+			jslet.showException(e);
+		}
+	},
+	
+	focus: function() {
+		this.el.focus();
+	},
+	
 	/**
 	 * @override
 	 */
-    destroy: function($super){
-    	jQuery(this.el).off();
-    	$super();
-    }    
+	renderAll: function () {
+		this.renderOptions();
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	},
+
+	updateToDataset: function () {
+		var Z = this;
+		if (Z._keep_silence_) {
+			return;
+		}
+		var value,
+			isMulti = Z.el.multiple;
+		if (!isMulti) {
+			value = Z.el.value;
+			var fldObj = Z._dataset.getField(Z._field);
+			if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
+				value = null;
+			}
+		} else {
+			var opts = jQuery(Z.el).find('option'),
+				optCnt = opts.length - 1;
+			value = [];
+			for (var i = 0; i <= optCnt; i++) {
+				opt = opts[i];
+				if (opt.selected) {
+					value.push(opt.value);
+				}
+			}
+		}
+		Z._keep_silence_ = true;
+		try {
+			if (!isMulti) {
+				Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+			} else {
+				Z._dataset.setFieldValue(Z._field, value);
+			}
+		} catch (e) {
+			jslet.showException(e);
+		} finally {
+			Z._keep_silence_ = false;
+		}
+	},
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		jQuery(this.el).off();
+		$super();
+	}
 });
 
 jslet.ui.register('DBRangeSelect', jslet.ui.DBRangeSelect);

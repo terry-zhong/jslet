@@ -2,21 +2,21 @@
 (function () {
     var lkf, dataList;
     //Dataset object: Gender. There are two fields in enum dataset: code, name
-    var dsGender = jslet.data.createEnumDataset('gender', {'F':'أنثى','M':'ذكر','U':'غير معروف'});
+    var dsGender = jslet.data.createEnumDataset('gender', 'F:أنثى,M:ذكر,U:غير معروف');
   //------------------------------------------------------------------------------------------------------
 
     //Dataset object: Position
-    var dsPosition = jslet.data.createEnumDataset('position',{'0':'Senior Manger','1':'Junior Manger','2':'Team Leader','3':'Employee'});
+    var dsPosition = jslet.data.createEnumDataset('position', '0:Senior Manger,1:Junior Manger,2:Team Leader,3:Employee');
   //------------------------------------------------------------------------------------------------------
     
     //Dataset object: Province
     //Global variable for demo
     dsProvince = jslet.data.createEnumDataset('province',
-    		{'01':'An Fei','02':'Bei Jing','03':'Fu Jian','04':'Gan Su','05':'Guang Dong','06':'Guang Xi',
-    		 '07':'Gui Zhou','08':'Hai Nan','09':'He Bei','10':'He Nan','11':'Hei Nong Jiang','12':'Hu Bei',
-             '13':'Hu Nan','14':'Ji Lin','15':'Jiang Su','16':'Jiang Xi','17':'Liao Ning','18':'Nei Men Gu',
-             '19':'Ning Xia','20':'Qing Hai','21':'Shang Dong','22':'Shang Xi','23':'Shan Xi','24':'Shang Hai',
-             '25':'Si Chuan','26':'Tian Jing','27':'Xi Zang','28':'Xin Jiang','29':'Yun Nan','30':'Zhe Jiang','31':'Chong Qing'});
+    		'01:Anhui,02:Beijing,03:Fujian,04:Gansu,05:Guangdong,06:Guangxi,' + 
+    		 '07:Guizhou,08:Hainan,09:Hebei,10:Henan,11:Hei Nongjiang,12:Hubei,'+
+             '13:Hunan,14:Jilin,15:Jiangsu,16:Jiangxi,17:Liaoning,18:Neimenggu,'+
+             '19:Ningxia,20:Qinghai,21:Shangdong,22:Shangxi,23:Shanxi,24:Shanghai,'+
+             '25:Sichuan,26:Tianjing,27:Xizang,28:Xinjiang,29:Yunnan,30:Zhejiang,31:Chongqing');
   //------------------------------------------------------------------------------------------------------
 
     //Dataset object: Department
@@ -42,8 +42,9 @@
         label: 'ParentID'
     }];
 
-    var dsDept = jslet.data.createDataset('department', fldCfg, 'deptid',
-            'deptid', 'name', 'parentid');
+    var dsDept = jslet.data.createDataset('department', fldCfg, 
+    		{keyField: 'deptid',codeField: 'deptid', nameField: 'name', 
+    		parentField: 'parentid', autoRefreshHostDataset: true});
 
     var data = [{
         deptid: '00',
@@ -114,17 +115,17 @@
     fldObj.label('قسم');
     fldObj.required(false);
     fldObj.nullText('(فارغ)');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsDept);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsDept);
+    fldObj.lookup(lkf);
 
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('gender', 20);
     fldObj.label('جنس');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsGender);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsGender);
+    fldObj.lookup(lkf);
     fldObj.displayWidth(16);
     dsEmployee.addField(fldObj);
 
@@ -148,9 +149,9 @@
 
     fldObj = jslet.data.createStringField('position', 20);
     fldObj.label('موقف');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsPosition);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsPosition);
+    fldObj.lookup(lkf);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createNumberField('salary', 16, 2);
@@ -165,9 +166,9 @@
 
     fldObj = jslet.data.createStringField('province', 20);
     fldObj.label('Province');
-    lkf = new jslet.data.LookupField();
-    lkf.lookupDataset(dsProvince);
-    fldObj.lookupField(lkf);
+    lkf = new jslet.data.FieldLookup();
+    lkf.dataset(dsProvince);
+    fldObj.lookup(lkf);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('city', 8);

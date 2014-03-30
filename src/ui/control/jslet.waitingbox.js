@@ -13,7 +13,7 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * @class WaitingBox. Example:
  * <pre><code>
  *   var wb = new jslet.ui.WaitingBox(document.getElementById("test"), "Gray", true);
- *    wb.show("Please wait a moment...");
+ *	wb.show("Please wait a moment...");
  * 
  * </code></pre>
  * @param {Html Element} container The container which waitingbox reside on.
@@ -21,44 +21,44 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * @param {Boolean} tipsAtNewLine Tips is at new line or not. If false, tips and waiting icon is at the same line.
  */
 jslet.ui.WaitingBox = function (container, overlayColor, tipsAtNewLine) {
-    var overlay = new jslet.ui.OverlayPanel(container);
-    var s = '<div class="jl-waitingbox"><b class="jl-waitingbox-icon"></b>';
-        s += '<span id="tips"></span></div>';
+	var overlay = new jslet.ui.OverlayPanel(container);
+	var s = '<div class="jl-waitingbox"><b class="jl-waitingbox-icon"></b>';
+		s += '<span id="tips"></span></div>';
 
-    jQuery(overlay.overlayPanel).html(s);
+	jQuery(overlay.overlayPanel).html(s);
 
-    /**
-     * Show wating box
-     * 
-     * @param {String} tips Tips
-     */
-    this.show = function (tips) {
-        var p = overlay.overlayPanel,
-        	box = p.firstChild,
-        	tipPanel = box.childNodes[1];
-        tipPanel.innerHTML = tips ? tips : '';
-        var jqPnl = jQuery(p),
-        	ph = jqPnl.height(),
-        	pw = jqPnl.width();
+	/**
+	 * Show wating box
+	 * 
+	 * @param {String} tips Tips
+	 */
+	this.show = function (tips) {
+		var p = overlay.overlayPanel,
+			box = p.firstChild,
+			tipPanel = box.childNodes[1];
+		tipPanel.innerHTML = tips ? tips : '';
+		var jqPnl = jQuery(p),
+			ph = jqPnl.height(),
+			pw = jqPnl.width();
 
-        setTimeout(function () {
-        	var jqBox = jQuery(box);
-            box.style.top = Math.round((ph - jqBox.height()) / 2) + 'px';
-            box.style.left = Math.round((pw - jqBox.width()) / 2) + 'px';
-        }, 10);
+		setTimeout(function () {
+			var jqBox = jQuery(box);
+			box.style.top = Math.round((ph - jqBox.height()) / 2) + 'px';
+			box.style.left = Math.round((pw - jqBox.width()) / 2) + 'px';
+		}, 10);
 
-        overlay.show();
-    }
+		overlay.show();
+	};
 
-    /**
-     * Hide waiting box
-     */
-    this.hide = function () {
-        overlay.hide();
-    }
+	/**
+	 * Hide waiting box
+	 */
+	this.hide = function () {
+		overlay.hide();
+	};
 
-    this.destroy = function () {
-        overlay.overlayPanel.innerHTML = '';
-        overlay.destroy();
-    }
-}
+	this.destroy = function () {
+		overlay.overlayPanel.innerHTML = '';
+		overlay.destroy();
+	};
+};

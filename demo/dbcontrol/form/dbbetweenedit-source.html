@@ -17,10 +17,10 @@
 			{ name: "date2", type: "D", length: 10, displayWidth: 15, label: "Date(To)" },
 			{ name: "amt1", type: "N", length: 12, scale: 2, displayFormat: "#,##0.00", label: "Number(From)" ,betweenStyle:true,maxValueField:"amt2"},
 			{ name: "amt2", type: "N", length: 12, scale: 2, displayFormat: "#,##0.00", label: "Number(TO)"  },
-			{ name: "department1", type: "S", length: 12, label: "Department(From)", lookupField: { lookupDataset: "department"},betweenStyle:true,maxValueField:"department2"},
-			{ name: "department2", type: "S", length: 12, label: "Department(To)", lookupField: { lookupDataset: "department"}}],
+			{ name: "department1", type: "S", length: 12, label: "Department(From)", lookupField: { dataset: "department"},betweenStyle:true,maxValueField:"department2"},
+			{ name: "department2", type: "S", length: 12, label: "Department(To)", lookupField: { dataset: "department"}}],
 			"id");
-            dsbtwdataset.insertRec();
+            dsbtwdataset.insertRecord();
         } 
         
     &lt;/script&gt;

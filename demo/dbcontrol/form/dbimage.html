@@ -21,8 +21,7 @@
 			}
 			//Create a photo field which content is genernated dynamicly in server.
 			var photoFld = dsEmployee.getField('photo');
-			var newPhotoFld = photoFld.clone();
-			newPhotoFld.name('dyncphoto');
+			var newPhotoFld = photoFld.clone('dyncphoto');
 			newPhotoFld.label('Dynamic Photo');
 			newPhotoFld.formula('"/getphoto?id=" + [workerid]');
 			dsEmployee.addField(newPhotoFld);
@@ -32,28 +31,33 @@
 </head>
 <body onunload="jslet.ui.uninstall()">
     <h2>Jslet - DBImage Demo</h2>
-    <hr />
-    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 800px; height: 150px">
+<!--[if lt IE 8]>
+<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+    <fieldset>
+		<legend>Employee List</legend>
+    <div data-jslet="type:'DBTable',dataset:'employee'" style="width: 100%; height: 150px">
     </div>
-    <hr />
+    </fieldset>
     <h3>Demo Content:</h3>
+	<fieldset>
     <div data-jslet='dataset:"employee"'>
-	<ol class="content-list">
-        <li>
+	<table style="width:100%">
+        <tr><td>
             Show image by file name: <br />
 			File name: <label data-jslet="type:'DBDataLabel',dataset:'employee',field:'photo'" style="color:red"></label> <br />
 			<img id="imgPhoto" alt="employee phote" src="" data-jslet="type:'DBImage',dataset:'employee',field:'photo',baseUrl:'../../photo/',altField:'name'"
                     style="height: 160px; width: 140px" />			
-        </li>
-        <li>
+        </td>
+        <td>
             Show image by dynamic parameter: <br />
 			File name: <label data-jslet="type:'DBDataLabel',dataset:'employee',field:'dyncphoto'" style="color:red"></label> <br />
 			<img id="imgPhoto" alt="employee phote" src="" data-jslet="type:'DBImage',dataset:'employee',field:'dyncphoto',altField:'name'"
                     style="height: 160px; width: 140px" />			
-		</li>
-		</ol>
+		</td>
+		</tr></table>
     </div>
-
+	</fieldset>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=750"></script>
 </body>
