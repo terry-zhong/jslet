@@ -22,11 +22,11 @@
 	<ul><li>Command script: </li></ul>
     <pre class="prettyprint linenums"><code>
 	//Query data
-	dsEmployee.applyQuery('/employee/findEmployee.jsp');
+	dsEmployee.applyQuery('../../employee/findEmployee.jsp');
 	
 	//Apply all changed data to server.
 	function applyToServer() {
-           dsEmployee.applyChanges('/employee/save.jsp');
+           dsEmployee.applyChanges('../../employee/save.jsp');
 	}
 
     </code></pre>

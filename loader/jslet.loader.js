@@ -15,7 +15,7 @@ If you are unsure which license is appropriate for your use, please visit: http:
 if (window.jslet === undefined || jslet === undefined){
 	jslet=window.jslet = function(id){
 		var ele = jQuery(id)[0];
-		return (ele && ele.jslet)?ele.jslet:null;
+		return (ele && ele.jslet)? ele.jslet: null;
 	};
 }
 
@@ -23,19 +23,104 @@ if (window.jslet === undefined || jslet === undefined){
 //jslet module configuration 
 /////////////////////////////////////////////////////////////
 
-//Distribution configuration begin
+//Debug configuration begin
 jslet._initialModules = [
 //css
-	{name: 'jslet-style', src: '../dist/resources/{theme}/jslet-min.css', baseOnLoader: true },
+	{ name: 'jslet-style', src: '../src/resources/{theme}/jslet-style.css', baseOnLoader: true },
+	{ name: 'jslet-container', src: '../src/resources/{theme}/jslet-container.css', baseOnLoader: true },
+	{ name: 'jslet-calendar', src: '../src/resources/{theme}/jslet-calendar.css', baseOnLoader: true },
+	{ name: 'jslet-window', src: '../src/resources/{theme}/jslet-window.css', baseOnLoader: true },
+	{ name: 'jslet-menu', src: '../src/resources/{theme}/jslet-menu.css', baseOnLoader: true },
+	{ name: 'jslet-treeview', src: '../src/resources/{theme}/jslet-treeview.css', baseOnLoader: true },
+	{ name: 'jslet-table', src: '../src/resources/{theme}/jslet-table.css', baseOnLoader: true },
+   //js-lib
+	{name: 'jquery', src: '../src/lib/jquery-1.11.0.js', baseOnLoader: true },
+
+   //Core
+	{ name: 'global', src: '../src/jslet.global.js', baseOnLoader: true },
+	{ name: 'common', src: '../src/core/jslet.common.js', deps: 'jquery', baseOnLoader: true },
+	{ name: 'class', src: '../src/core/jslet.class.js', deps: 'common', baseOnLoader: true },
+	{ name: 'cookie', src: '../src/core/jslet.cookie.js', deps: 'jquery', baseOnLoader: true },
+	{ name: 'resizeeventbus', src: '../src/core/jslet.resizeeventbus.js', deps: 'common', baseOnLoader: true },
+
+	{ name: 'core', deps: 'common,class,cookie,resizeeventbus,locale', baseOnLoader: true },
+	 
 //message for i18n
-	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
-//lib
-	{name: 'jquery', src: '../dist/lib/jquery-1.11.0.min.js', baseOnLoader: true },
-	{name: 'swfobject', src: '../dist/lib/swfobject.js', baseOnLoader: true },
-//jslet
-	{name: 'jslet', src: '../dist/jslet-3.0.min.js', deps: 'locale,jquery,jsonlib,jslet-style,swfobject', baseOnLoader: true }
+	{ name: 'locale', src: '../src/locale/{lang}/locale.js', deps: 'common', baseOnLoader: true },
+
+//data
+	{ name: 'provider', src: '../src/data/jslet.provider.js', deps: 'core,jsonlib', baseOnLoader: true },
+	{ name: 'datacommon', src: '../src/data/jslet.datacommon.js', deps: 'core', baseOnLoader: true },
+	{ name: 'expression', src: '../src/data/jslet.expression.js', deps: 'core', baseOnLoader: true },
+	{ name: 'field', src: '../src/data/jslet.field.js', deps: 'datacommon', baseOnLoader: true },
+	{ name: 'dataset', src: '../src/data/jslet.dataset.js', deps: 'datacommon', baseOnLoader: true },
+	{ name: 'contextrule', src: '../src/data/jslet.contextrule.js', deps: 'core', baseOnLoader: true },
+	
+	{ name: 'data', deps: 'provider,datacommon,expression,dataset,field,contextrule', baseOnLoader: true },
+	
+//ui
+	{ name: 'basecontrol', src: '../src/ui/jslet.control.js', deps: 'class', baseOnLoader: true },
+	{ name: 'dnd', src: '../src/ui/jslet.dnd.js', deps: 'common', baseOnLoader: true },
+	{ name: 'editmask', src: '../src/ui/jslet.editmask.js', deps: 'common', baseOnLoader: true },
+	{ name: 'uicommon', src: '../src/ui/jslet.uicommon.js', deps: 'control,jslet-style', baseOnLoader: true },
+
+	{ name: 'uicore', deps: 'basecontrol,dnd,editmask,uicommon', baseOnLoader: true },
+
+//control
+	{ name: 'overlaypanel', src: '../src/ui/control/jslet.overlaypanel.js', deps: 'uicore', baseOnLoader: true },
+	{ name: 'waitingbox', src: '../src/ui/control/jslet.waitingbox.js', deps: 'uicore,jslet-container,jslet-calendar', baseOnLoader: true },
+	{ name: 'calendar', src: '../src/ui/control/jslet.calendar.js', deps: 'uicore,jslet-calendar', baseOnLoader: true },
+	{ name: 'fieldset', src: '../src/ui/control/jslet.fieldset.js', deps: 'uicore', baseOnLoader: true },
+	{ name: 'tippanel', src: '../src/ui/control/jslet.tippanel.js', deps: 'uicore', baseOnLoader: true },
+	{ name: 'window', src: '../src/ui/control/jslet.window.js', deps: 'uicore,jslet-window', baseOnLoader: true },
+	{ name: 'accordion', src: '../src/ui/control/jslet.accordion.js', deps: 'uicore,jslet-container', baseOnLoader: true },
+	{ name: 'tabcontrol', src: '../src/ui/control/jslet.tabcontrol.js', deps: 'uicore,jslet-container', baseOnLoader: true },
+	{ name: 'splitpanel', src: '../src/ui/control/jslet.splitpanel.js', deps: 'uicore,jslet-container', baseOnLoader: true },
+	{ name: 'menu', src: '../src/ui/control/jslet.menu.js', deps: 'uicore,jslet-menu', baseOnLoader: true },
+	
+	{ name: 'uicontrols', deps: 'overlaypanel,waitingbox,calendar,fieldset,tippanel,window,accordion,tabcontrol,splitpanel,menu', baseOnLoader: true },
+//dbcontrol	
+	{ name: 'dbautocomplete', src: '../src/ui/dbcontrol/form/jslet.dbautocomplete.js', deps: 'dbtable', baseOnLoader: true },
+	{ name: 'dbbetweenedit', src: '../src/ui/dbcontrol/form/jslet.dbbetweenedit.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbcheckbox', src: '../src/ui/dbcontrol/form/jslet.dbcheckbox.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbcustomcombobox', src: '../src/ui/dbcontrol/form/jslet.dbcustomcombobox.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbcomboselect', src: '../src/ui/dbcontrol/form/jslet.dbcomboselect.js', deps: 'dbcustomcombobox,dbtable,dbtreeview', baseOnLoader: true },
+	{ name: 'dbdatepicker', src: '../src/ui/dbcontrol/form/jslet.dbdatepicker.js', deps: 'dbcustomcombobox,calendar', baseOnLoader: true },
+	{ name: 'dbtimepicker', src: '../src/ui/dbcontrol/form/jslet.dbtimepicker.js', deps: 'uicore', baseOnLoader: true },
+	{ name: 'dbdatalabel', src: '../src/ui/dbcontrol/form/jslet.dbdatalabel.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbhtml', src: '../src/ui/dbcontrol/form/jslet.dbhtml.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbimage', src: '../src/ui/dbcontrol/form/jslet.dbimage.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dblabel', src: '../src/ui/dbcontrol/form/jslet.dblabel.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dblookuplabel', src: '../src/ui/dbcontrol/form/jslet.dblookuplabel.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbcheckboxgroup', src: '../src/ui/dbcontrol/form/jslet.dbcheckboxgroup.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbradiogroup', src: '../src/ui/dbcontrol/form/jslet.dbradiogroup.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbrangeselect', src: '../src/ui/dbcontrol/form/jslet.dbrangeselect.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbrating', src: '../src/ui/dbcontrol/form/jslet.dbrating.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbselect', src: '../src/ui/dbcontrol/form/jslet.dbselect.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbspinedit', src: '../src/ui/dbcontrol/form/jslet.dbspinedit.js', deps: 'dbtext', baseOnLoader: true },
+	{ name: 'dbtext', src: '../src/ui/dbcontrol/form/jslet.dbtext.js', deps: 'data,uicore', baseOnLoader: true },
+	
+	{ name: 'formcontrols', deps: 'dbautocomplete,dbbetweenedit,dbcheckbox,dbcheckboxgroup,dbcomboselect,dbdatepicker,dbtimepicker,dbdatalabel,dbhtml,dbimage,dblabel,dblookuplabel,dbradiogroup,dbrangeselect,dbrating,dbselect,dbspinedit,dbtext', baseOnLoader: true },
+	
+	{ name: 'listviewmodel', src: '../src/ui/dbcontrol/container/jslet.listviewmodel.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbtable', src: '../src/ui/dbcontrol/container/jslet.dbtable.js', deps: 'jslet-table,listviewmodel', baseOnLoader: true },
+	{ name: 'dbinspector', src: '../src/ui/dbcontrol/container/jslet.dbinspector.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dbtreeview', src: '../src/ui/dbcontrol/container/jslet.dbtreeview.js', deps: 'jslet-treeview,listviewmodel', baseOnLoader: true },
+	{ name: 'dbeditpanel', src: '../src/ui/dbcontrol/container/jslet.dbeditpanel.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'swfobject', src: '../src/lib/swfobject.js', baseOnLoader: true },
+	{ name: 'dbchart', src: '../src/ui/dbcontrol/container/jslet.dbchart.js', deps: 'data,uicore,swfobject', baseOnLoader: true },
+
+	{ name: 'containercontrols', deps: 'dbtable,dbtreeview,dbeditpanel,dbinspector,dbchart', baseOnLoader: true },
+
+	{ name: 'dbpagebar', src: '../src/ui/dbcontrol/misc/jslet.dbpagebar.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'dberror', src: '../src/ui/dbcontrol/misc/jslet.dberror.js', deps: 'data,uicore', baseOnLoader: true },
+	{ name: 'misccontrols', deps: 'dbpagebar,dberror', baseOnLoader: true },
+
+	{ name: 'dbcontrols', deps: 'formcontrols,containercontrols,misccontrols', baseOnLoader: true },
+	
+	{ name: 'jslet', deps: 'core,uicontrols,data,dbcontrols,global', baseOnLoader: true }
 ];
-//Distribution configuration end
+//Debug configuration end
 /////////////////////////////////////////////////////////////////
 //End jslet module configuration 
 /////////////////////////////////////////////////////////////////
@@ -47,8 +132,9 @@ jslet._lang = 'en';
 
 
 if (!jslet.loaderUri) {
-	var ohead = document.getElementsByTagName('head')[0], uri = ohead.lastChild.src;
-	uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+	var ohead = document.getElementsByTagName('head')[0], 
+		uri = ohead.lastChild.src;
+	uri = uri.substring(0, uri.lastIndexOf('/')	+ 1);
 	jslet.loaderUri = uri;
 }
 
@@ -266,19 +352,20 @@ jslet.ModuleManager = function () {
 };
 
 jslet.getCookie = function( name ) {
-	var start = document.cookie.indexOf( name + '=' );
-	var len = start + name.length + 1;
-	if ( ( !start ) && ( name != document.cookie.substring( 0, name.length ) ) ) {
+	var start = document.cookie.indexOf( name + '=' ),
+		len = start + name.length + 1;
+
+	if ((!start) && (name != document.cookie.substring(0, name.length))) {
 		return null;
 	}
-	if ( start == -1 ) {
+	if (start == -1) {
 		return null;
 	}
-	var end = document.cookie.indexOf( ';', len );
-	if ( end == -1 ) {
+	var end = document.cookie.indexOf(';', len);
+	if (end == -1) {
 		end = document.cookie.length;
 	}
-	return unescape( document.cookie.substring( len, end ) );
+	return unescape(document.cookie.substring(len, end));
 };
 
 jslet.setCookie = function(name, value, expires, path, domain, secure) {
@@ -289,18 +376,18 @@ jslet.setCookie = function(name, value, expires, path, domain, secure) {
 	}
 	var expires_date = new Date(today.getTime() + (expires));
 	document.cookie = name + '=' + escape(value) +
-	((expires) ? ';expires=' + expires_date.toGMTString() : '') + //expires.toGMTString()
-	((path) ? ';path=' + path : '') +
-	((domain) ? ';domain=' + domain : '') +
-	((secure) ? ';secure' : '');
+		((expires) ? ';expires=' + expires_date.toGMTString() : '') + //expires.toGMTString()
+		((path) ? ';path=' + path : '') +
+		((domain) ? ';domain=' + domain : '') +
+		((secure) ? ';secure' : '');
 };
 
 jslet.module = new jslet.ModuleManager();
 
 jslet.define = function (name, src, deps, baseOnLoader) {
-	if(deps === undefined)
+	if(deps === undefined) {
 		deps = "jslet";
-	
+	}
 	jslet.module.define(name, src, deps, baseOnLoader);
 };
 
@@ -332,9 +419,11 @@ jslet.setLang = function (lang, saveToCookie) {
 	delete jslet._initialModules;
 
 	var lang = jslet.getCookie('jslet.lang');
-	if (lang)
+	if (lang) {
 		jslet._lang = lang;
+	}
 	var theme = jslet.getCookie('jslet.theme');
-	if (theme)
+	if (theme) {
 		jslet._theme = theme;
+	}
 })();

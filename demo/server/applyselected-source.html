@@ -30,14 +30,14 @@
     <pre class="prettyprint linenums"><code>
     //Query data
     function queryData() {
-        product.applyQuery('/product/findall.jsp');
+        product.applyQuery('../../product/findall.jsp');
     }
     
     //Apply selected to server
     function applyToServer() {
         var selRecs = product.selectedRecords();
         if(selRecs && selRecs.length > 0) {
-            product.applySelected('/product/audit.jsp');
+            product.applySelected('../../product/audit.jsp');
         } else {
             jslet.showInfo('Please select records to audit!');
         }

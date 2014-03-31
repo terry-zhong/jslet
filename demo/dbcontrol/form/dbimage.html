@@ -23,14 +23,14 @@
 			var photoFld = dsEmployee.getField('photo');
 			var newPhotoFld = photoFld.clone('dyncphoto');
 			newPhotoFld.label('Dynamic Photo');
-			newPhotoFld.formula('"/getphoto?id=" + [workerid]');
+			newPhotoFld.formula('"../../../getphoto?id=" + [workerid]');
 			dsEmployee.addField(newPhotoFld);
 		}
 		
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
-    <h2>Jslet - DBImage Demo</h2>
+    <h2 id="top">Jslet - DBImage Demo</h2>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->

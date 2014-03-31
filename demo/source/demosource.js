@@ -10,6 +10,7 @@ function showSource(){
 	    k = doc.lastIndexOf('.'),
 	    srcDoc = doc.substring(0, k) + '-source' + doc.substring(k);
 
+
 	var jsTags = document.getElementsByTagName('script'),
 	    url = jsTags[jsTags.length - 1].src;
 	k = url.indexOf("?height=");

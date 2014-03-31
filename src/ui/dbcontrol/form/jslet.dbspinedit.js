@@ -181,6 +181,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 				val = String(val);
 			}
 		}
+		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.el.value = val;
 		return true;
 	}, // end beforeUpdateToDataset
@@ -220,6 +221,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		if (val > maxValue) {
 			value = maxValue;
 		}
+		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.setValueToDataset(val);
 	}, // end incValue
 
@@ -257,6 +259,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		}
 		if (val < minValue)
 			val = minValue;
+		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.setValueToDataset(val);
 	}, // end decValue
 	
@@ -272,11 +275,12 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 	 */
 	doMetaChanged: function($super, metaName) {
 		$super(metaName);
-		var Z = this;
-		var fldObj = Z._dataset.getField(Z._field);
+		var Z = this,
+			jqEl = jQuery(this.el),
+			fldObj = Z._dataset.getField(Z._field);
+		
 		if(!metaName || metaName == 'disabled' || metaName == 'readOnly') {
 			var disabled = fldObj.disabled() || fldObj.readOnly(),
-				jqEl = jQuery(this.el),
 				jqUpBtn = jqEl.find('.jl-spinedit-upbtn'),
 				jqDownBtn = jqEl.find('.jl-spinedit-downbtn');
 				
@@ -287,6 +291,11 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 				jqUpBtn.removeClass('jl-spinedit-upbtn-disabled');
 				jqDownBtn.removeClass('jl-spinedit-downbtn-disabled');
 			}
+		}
+		if(!metaName || metaName == 'range') {
+			range = fldObj.range();
+			jqEl.attr('aria-valuemin', range && (range.min || range.min === 0) ? range.min: '');
+			jqEl.attr('aria-valuemin', range && (range.max || range.max === 0) ? range.max: '');
 		}
 	},
 	

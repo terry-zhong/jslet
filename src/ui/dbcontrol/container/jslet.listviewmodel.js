@@ -28,11 +28,11 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	this.fixedRows = 0;
 	var initial = function () {
 		if (!isTree) {
-		return false;
+			return false;
 		}
 		var ds = dataset;
 		if (!ds._parentField || !ds._keyField) {
-		return false;
+			return false;
 		}
 		return true;
 	};
@@ -40,7 +40,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		
 	this.refreshModel = function (expandLevel) {
 		if (!isTree) {
-		return;
+			return;
 		}
 		if(expandLevel === undefined) {
 			expandLevel = -1;
@@ -191,14 +191,14 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	
 	this.getLevel = function (recno) {
 		if (!isTree) {
-		return false;
+			return false;
 		}
 		if (!recno) {
-		recno = dataset.recno();
+			recno = dataset.recno();
 		}
 		var node = this._innerFindNode(allRows, recno);
 		if (node === null) {
-		return;
+			return;
 		}
 		return node.level;
 	};
@@ -290,9 +290,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this.getNeedShowRowCount = function () {
-		if (!isTree)
-		return dataset.recordCount()- this.fixedRows;
-		
+		if (!isTree) {
+			return dataset.recordCount()- this.fixedRows;
+		}
 		return needShowRows.length;
 	};
 	

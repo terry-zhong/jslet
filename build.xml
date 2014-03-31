@@ -92,11 +92,6 @@
 			    <file name="jslet.dberror.js" />
 			</filelist>
 		</concat>
-		<copy todir="${dist.dir}">
-			<filelist dir="${src.dir}">
-			    <file name="jslet.loader.js" />
-			</filelist>
-		</copy>
 		
 	</target>
 	
@@ -143,13 +138,6 @@
 		</java>
 		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
 			<arg line="${basedir}/dist/${jslet}.debug.js -o ${basedir}/dist/${jslet}.min.js" />
-	         <classpath>
-	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
-	           <pathelement path="${java.class.path}" />
-	         </classpath>
-		</java>
-		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
-			<arg line="${basedir}/dist/lib/jquery.json-2.3.js -o ${basedir}/dist/lib/jquery.json-2.3.js" />
 	         <classpath>
 	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
 	           <pathelement path="${java.class.path}" />

@@ -16,7 +16,7 @@ if (!jslet.rootUri) {
     jslet.rootUri = uri;
 }
 jslet.global = {
-	version: 3.0.0,
+	version: '3.0.0',
 	
 	//Used in jslet.data.Dataset_applyChanges
 	changeStateField: '_state_',

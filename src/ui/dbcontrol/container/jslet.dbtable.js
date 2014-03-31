@@ -428,14 +428,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
-		var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
-		var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
-		jqEl.on(wheelEvent, function (event) {
-			var originalEvent = event.originalEvent;
-			var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
-			Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
-			event.preventDefault();
-		});
+//		var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
+//		var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
+//		jqEl.on(wheelEvent, function (event) {
+//			var originalEvent = event.originalEvent;
+//			var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
+//			Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
+//			event.preventDefault();
+//		});
 		
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;

@@ -35,7 +35,7 @@
 				];
 			//Create dataset
 			product = jslet.data.createDataset('product', fldCfg);
-			product.queryUrl('/product/findall.jsp');
+			product.queryUrl('../../product/findall.jsp');
         }
 
 		function queryData() {
@@ -45,7 +45,7 @@
         function applyToServer() {
 			var selRecs = product.selectedRecords();
 			if(selRecs && selRecs.length > 0) {
-				product.submitSelected('/product/audit.jsp');
+				product.submitSelected('../../product/audit.jsp');
 			} else {
 				jslet.showInfo('Please select records to audit!');
 			}

@@ -24,7 +24,7 @@ function initinize() {
 	var newPhotoFld = photoFld.clone();
 	newPhotoFld.name('dyncphoto');
 	newPhotoFld.label('Dynamic Photo');
-	newPhotoFld.formula('"/getphoto.jsp?id=" + [workerid]');
+	newPhotoFld.formula('"../../../getphoto.jsp?id=" + [workerid]');
 	dsEmployee.addField(newPhotoFld);
 }
  &lt;/script&gt;
