@@ -31,9 +31,18 @@ jslet._initialModules = [
 	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
 //lib
 	{name: 'jquery', src: '../dist/lib/jquery-1.11.0.min.js', baseOnLoader: true },
-	{name: 'swfobject', src: '../dist/lib/swfobject.js', baseOnLoader: true },
+	
+//jqPlot	
+	{name: 'jqplotjs', src: '../dist/lib/jqplot/jquery.jqplot.min.js', deps: 'jquery', baseOnLoader: true },
+	{name: 'jqplotcss', src: '../dist/lib/jqplot/jquery.jqplot.min.css', baseOnLoader: true },
+	{name: 'categoryaxisrenderer', src: '../dist/lib/jqplot/plugins/jqplot.categoryaxisrenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	{name: 'pierenderer', src: '../dist/lib/jqplot/plugins/jqplot.pierenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	{name: 'barrenderer', src: '../dist/lib/jqplot/plugins/jqplot.barrenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	{name: 'jqplotplugs', deps: 'categoryAxisRenderer,pierenderer,barrenderer', baseOnLoader: true },
+	{name: 'jqplot', deps: 'jqplotcss,jqplotplugs', baseOnLoader: true },	
+	
 //jslet
-	{name: 'jslet', src: '../dist/jslet-3.0.min.js', deps: 'locale,jquery,jsonlib,jslet-style,swfobject', baseOnLoader: true }
+	{name: 'jslet', src: '../dist/jslet-3.0.min.js', deps: 'locale,jquery,jsonlib,jslet-style', baseOnLoader: true }
 ];
 //Distribution configuration end
 /////////////////////////////////////////////////////////////////

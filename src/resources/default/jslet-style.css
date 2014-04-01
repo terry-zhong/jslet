@@ -183,35 +183,28 @@ textarea {
 }
 
 .jl-readonly {
-	background-color: #e5e5e5;
-	border: 1px solid #bcbcbc;	
+	/*background-color: #e5e5e5!important;
+	border: 1px solid #bcbcbc!important;	*/
 }
 .jl-hidden {
 	display:none;	
 }
-/*inspector*/
-.jl-inspector {
-    border: solid #a4bed4 1px;/*#99bbe8*/
-    padding: 6px;
-}
 
-.jl-inspector-label {
-    padding-left: 5px;
-}
-
-.jl-inspector-editor {
-	padding-right: 5px;
-	padding-top: 3px;
-}
-
-.jl-inspector-editor >div {
-	padding: 0;
-	padding-right: 5px;
-	overflow: hidden;
-	width: 100%;
-	height: 100%;
+.jl-text {
+	height:22px;
+	line-height: 18px;
 	vertical-align: middle;
+	padding: 1px 3px;
+/*	border: 1px solid #7F9DB9;*/
 }
+
+select {
+	height:22px;
+	line-height: 18px;		
+	vertical-align: middle;
+/*	border: 1px solid #7F9DB9;*/
+}
+	
 /*DBLabel*/
 .jl-lbl-required {
     color: red;
@@ -227,6 +220,7 @@ textarea {
 }
 
 /* End of DBLabel*/
+
 
 /*SpinnerEdit"*/
 .jl-spinedit {
@@ -457,6 +451,29 @@ textarea {
     width: 60px;
 }
 
+/*inspector*/
+.jl-inspector {
+    border: solid #a4bed4 1px;/*#99bbe8*/
+    padding: 6px;
+}
+
+.jl-inspector-label {
+    padding-left: 5px;
+}
+
+.jl-inspector-editor {
+	padding-right: 5px;
+	padding-top: 3px;
+}
+
+.jl-inspector-editor >div {
+	padding: 0;
+	padding-right: 5px;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	vertical-align: middle;
+}
 
 
 /*DBPageBar*/

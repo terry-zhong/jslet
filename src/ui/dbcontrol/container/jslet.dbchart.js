@@ -32,20 +32,16 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * </code></pre>
  */
 jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
-	chartTypes: ['column', 'bar', 'line', 'area', 'pie'],
+	chartTypes: ['line', 'bar', 'stackbar', 'pie'],
 	legendPositions: ['none', 'top', 'bottom', 'left', 'right'],
 	/**
 	 * @override
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,chartUrl,chartType,chartTitle,chartColor,onlySelected,categoryFields,valueField,legendPos';
-		Z.requiredProperties = 'valueField,categoryFields';
+		Z.allProperties = 'dataset,chartType,chartTitle,categoryField,valueFields,legendPos';
+		Z.requiredProperties = 'valueFields,categoryField';
 		
-		/**
-		 * {String} Chart url. You don't care about this argument if you use default chart render.
-		 */
-		Z._chartUrl = null;
 		/**
 		 * {String} Chart type. Optional value is: column, bar, line, area, pie
 		 */
@@ -57,36 +53,22 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * {Number} Value field, only one field allowed.
 		 */
-		Z._valueField = null;
+		Z._valueFields = null;
 		/**
 		 * {String} Chart title
 		 */
 		Z._chartTitle = null;
-		/**
-		 * {String} Background color of chart, like: #FFF
-		 */
-		Z._chartColor = null;
-		/**
-		 * {Boolean} True - Only selected record will be shown in chart, false - All records will be shown.
-		 */
-		Z._onlySelected = false;
+
 		/**
 		 * {String} Legend position, optional value: none, top, bottom, left, right
 		 */
 		Z._legendPos = 'top';
 		
+		Z._fieldValidated = false;
+		
 		$super(el, params);
 	},
 
-	chartUrl: function(chartUrl) {
-		if(chartUrl === undefined) {
-			return this._chartUrl;
-		}
-		chartUrl = jQuery.trim(chartUrl);
-		jslet.Checker.test('DBChart.chartUrl', chartUrl).isString().required();
-		this._chartUrl = chartUrl;
-	},
-	
 	chartType: function(chartType) {
 		if(chartType === undefined) {
 			return this._chartType;
@@ -97,40 +79,32 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		this._chartType = chartType;
 	},
 	
-	categoryFields: function(categoryFields) {
-		if(categoryFields === undefined) {
-			return this._categoryFields;
+	categoryField: function(categoryField) {
+		if(categoryField === undefined) {
+			return this._categoryField;
 		}
-		categoryFields = jQuery.trim(categoryFields);
-		jslet.Checker.test('DBChart.categoryFields', categoryFields).isString().required();
-		this._categoryFields = categoryFields;
+		jslet.Checker.test('DBChart.categoryField', categoryField).isString().required();
+		categoryField = jQuery.trim(categoryField);
+		this._categoryField = categoryField;
+		this._fieldValidated = false;
 	},
 	
-	valueField: function(valueField) {
-		if(valueField === undefined) {
-			return this._valueField;
+	valueFields: function(valueFields) {
+		if(valueFields === undefined) {
+			return this._valueFields;
 		}
-		valueField = jQuery.trim(valueField);
-		jslet.Checker.test('DBChart.valueField', valueField).isString().required();
-		this._valueField = valueField;
+		jslet.Checker.test('DBChart.valueFields', valueFields).isString().required();
+		valueFields = jQuery.trim(valueFields);
+		this._valueFields = valueFields.split(',');
+		this._fieldValidated = false;
 	},
 	
 	chartTitle: function(chartTitle) {
 		if(chartTitle === undefined) {
 			return this._chartTitle;
 		}
-		chartTitle = jQuery.trim(chartTitle);
 		jslet.Checker.test('DBChart.chartTitle', chartTitle).isString();
 		this._chartTitle = chartTitle;
-	},
-	
-	chartColor: function(chartColor) {
-		if(chartColor === undefined) {
-			return this._chartColor;
-		}
-		chartColor = jQuery.trim(chartColor);
-		jslet.Checker.test('DBChart.chartColor', chartColor).isString();
-		this._chartColor = chartColor;
 	},
 	
 	legendPos: function(legendPos) {
@@ -143,13 +117,6 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		this._legendPos = legendPos;
 	},
 		
-	onlySelected: function(onlySelected) {
-		if(onlySelected === undefined) {
-			return this._onlySelected;
-		}
-		this._onlySelected = onlySelected ? true: false;
-	},
-	
 	/**
 	 * @override
 	 */
@@ -161,200 +128,210 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 	 * @override
 	 */
 	bind: function () {
-		var Z = this;
-		if (!Z._chartUrl) {
-			Z._chartUrl = jslet.rootUri + 'resources/common/jsletchart.swf';
+		if(!this.el.id) {
+			this.el.id = jslet.nextId();
 		}
-		var odiv = document.createElement('div');
-		Z.chartId = jslet.nextId();
-		odiv.id = Z.chartId;
-		Z.el.appendChild(odiv);
-
-		var params = {
-			allowScriptAccess: 'always',
-			no_flash: 'Sorry, you need to install flash to see this content.',
-			bgcolor: '#ffffff',
-			wmode: 'opaque'}, 
-			vars = {allowedDomain: document.location.hostname};
-
-		new swfobject.embedSWF(Z._chartUrl, Z.chartId, '100%', '100%',
-				'9.0.45', undefined, vars, params);
-
-		Z._onlySelected = Z._onlySelected ? true : false;
-		if (!Z._legendPos) {
-			Z._legendPos = 'none';
-		}
-		if (Z._chartTitle === undefined) {
-			Z._chartTitle = '';
-		}
-		Z.swf = document.getElementById(Z.chartId);
+		this.renderAll();
 	}, // end bind
 
-	/**
-	 * @override
-	 */
-	refreshControl: function (evt) {
+	_validateFields: function() {
+		var Z = this;
+		if(Z._fieldValidated) {
+			return;
+		}
+		var dsObj = Z._dataset,
+			fldName = Z._categoryField;
+		if (!dsObj.getField(fldName)) {
+			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+		}
+		
+		for(var i = 0, len = Z._valueFields.length; i < len; i++) {
+			fldName = Z._valueFields[i];
+			if(!dsObj.getField(fldName)) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			}
+		}
+		Z._fieldValidated = true;
 	},
-
-	drawChart: function () {
+	
+	_getLineData: function() {
 		var Z = this,
 			dsObj = Z._dataset;
 		if (dsObj.recordCount() === 0) {
-			return;
+			return {xLabels: [], yValues: []};
 		}
-		var arrCateFields = Z._categoryFields.split(','),
-			cnt = arrCateFields.length,
-			fldName, fldObj, i,
-			isMultiCateFld = arrCateFields.length > 1;
-		for (i = 0; i < cnt; i++) {
-			fldName = arrCateFields[i];
-			fldObj = dsObj.getField(fldName);
-			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-			}
-		}
-		var arrValueFields = Z._valueField.split(',');
-		cnt = arrValueFields.length;
-		for (i = 0; i < cnt; i++) {
-			fldName = arrValueFields[i];
-			fldObj = dsObj.getField(fldName);
-			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-			}
-			if (fldObj.getType() != jslet.data.DataType.NUMBER) {
-				throw new Error(jslet.formatString(jslet.locale.DBChart.onlyNumberFieldAllowed, [fldName]));
-			}
-		}
-		var chartData = {};
-		chartData.jslet = true;
-		var cateFldName = arrCateFields[0];
-		fldObj = dsObj.getField(cateFldName);
-		chartData.xFields = {
-			fieldName: cateFldName,
-			displayName: fldObj.label()
-		};
-
-		var arrYFields = [], arrData = [], dataObj, 
-			reccnt = dsObj.recordCount(),
-			preRecno = dsObj.recno();
-		if (isMultiCateFld) {
-			var arrCateValue = [],
-				hsValueFlds = new jslet.SimpleMap(),
-				titleFldName = arrCateFields[1], titleValue,
-				preCateValue = '', cateValue,
-				fldIdx = 1, k,
-				valFld = arrValueFields[0],
-				selRecs = dsObj.selectedRecords(),
-				noSel = selRecs === null || selRecs.length === 0,
-				currCateValue = null;
-			if (noSel) {
-				currCateValue = dsObj.getFieldText(cateFldName);
-			}
-			try {
-				for (i = 0; i < reccnt; i++) {
-					dsObj.innerSetRecno(i);
-					cateValue = dsObj.getFieldText(cateFldName);
-					if (Z._onlySelected) {
-						if (noSel) {
-							if (cateValue != currCateValue) {
-								continue;
-							}
-						} else if (!dsObj.selected()) {
-							continue;
-						}
-					}
-					k = arrCateValue.indexOf(cateValue);
-					if (k < 0) {
-						arrCateValue.push(cateValue);
-						dataObj = {};
-						dataObj[cateFldName] = cateValue;
-						arrData.push(dataObj);
+		var context = dsObj.startSilenceMove();
+		var oldRecno = dsObj.recno(),
+			xLabels = [],
+			yValues = [];
+			
+		try {
+			dsObj.first();
+			var isInit = false, valueFldName,
+				valueFldCnt = Z._valueFields.length,
+				valueArr,
+				legendLabels = [];
+			while(!dsObj.isEof()) {
+				xLabels.push(dsObj.getFieldText(Z._categoryField));
+				for(var i = 0; i < valueFldCnt; i++) {
+					valueFldName = Z._valueFields[i];
+					if(!isInit) {
+						valueArr = [];
+						yValues.push(valueArr);
+						legendLabels.push(dsObj.getField(valueFldName).label());
 					} else {
-						dataObj = arrData[k];
+						valueArr = yValues[i];
 					}
-					titleValue = dsObj.getFieldText(titleFldName);
-					fldName = hsValueFlds.get(titleValue);
-					if (!fldName) {
-						fldName = '_fld_' + fldIdx++;
-						hsValueFlds.set(titleValue, fldName);
-						arrYFields.push({
-							fieldName: fldName,
-							displayName: titleValue
-						});
-					}
-
-					dataObj[fldName] = dsObj.getFieldValue(valFld);
+					valueArr.push(dsObj.getFieldValue(valueFldName));
 				}
-			} finally {
-				dsObj.innerSetRecno(preRecno);
+				isInit = true;
+				dsObj.next();
 			}
-			chartData.yFields = arrYFields;
-			chartData.dataArray = arrData;
-		} else {
-			cnt = arrValueFields.length;
-			for (i = 0; i < cnt; i++) {
-				fldObj = dsObj.getField(arrValueFields[i]);
-				arrYFields.push({
-					fieldName: arrValueFields[i],
-					displayName: fldObj.label()
-				});
-			}
-			chartData.yFields = arrYFields;
-			try {
-				for (i = 0; i < reccnt; i++) {
-					dsObj.innerSetRecno(i);
-					if (Z._onlySelected && !dsObj.selected()) {
-						continue;
-					}
-					dataObj = {};
-					dataObj[cateFldName] = dsObj.getFieldText(cateFldName);
-					for (var j = 0; j < cnt; j++) {
-						dataObj[arrValueFields[j]] = dsObj.getFieldValue(arrValueFields[j]);
-					}
-					arrData.push(dataObj);
-				}
-			} finally {
-				dsObj.innerSetRecno(preRecno);
-				if (Z._onlySelected && arrData.length === 0) {
-					dataObj = {};
-					dataObj[arrCateFields[0]] = dsObj.getFieldText(arrCateFields[0]);
-					for (i = 0; i < cnt; i++) {
-						dataObj[arrValueFields[i]] = dsObj.getFieldValue(arrValueFields[i]);
-					}
-					arrData.push(dataObj);
-				}
-			}
-			chartData.dataArray = arrData;
+		} finally {
+			dsObj.recno(oldRecno);
+			dsObj.endSilenceMove(context);
 		}
-		if(Z._getSwf().drawChart) {
-			Z._getSwf().drawChart(Z._chartType, Z._chartTitle, chartData, Z._legendPos);
-		} else {
-			if(window.console && window.console.log) {
-				window.console.log('Chart components has not been loaded yet, please wait some while!');
-			}
-		}
-	}, // end refreshControl
+		return {xLabels: xLabels, yValues: yValues, legendLabels: legendLabels};
+	},
 
-	_getSwf: function() {
+	_getPieData: function() {
+		var Z = this,
+			dsObj = Z._dataset;
+		if (dsObj.recordCount() === 0) {
+			return [];
+		}
+		var context = dsObj.startSilenceMove();
+		var oldRecno = dsObj.recno(),
+			result = [];
+			
+		try {
+			dsObj.first();
+			var valueFldName = Z._valueFields[0],
+				label, value;
+			while(!dsObj.isEof()) {
+				label = dsObj.getFieldText(Z._categoryField);
+				value = dsObj.getFieldValue(valueFldName);
+				result.push([label, value]);
+				dsObj.next();
+			}
+		} finally {
+			dsObj.recno(oldRecno);
+			dsObj.endSilenceMove(context);
+		}
+		return result;
+	},
+
+	_drawLineChart: function() {
 		var Z = this;
-		if(!Z.swf) {
-			Z.swf = document.getElementById(Z.chartId);
-		}
-		return Z.swf;
+		var chartData = Z._getLineData();
+		
+		jQuery.jqplot(Z.el.id, chartData.yValues, 
+		{ 
+			title: Z._chartTitle, 
+            animate: !jQuery.jqplot.use_excanvas,
+			// Set default options on all series, turn on smoothing.
+			seriesDefaults: {
+				rendererOptions: {smooth: true},
+				pointLabels: {show: true, formatString: '%d'}				
+			},
+			
+			legend:{ show:true,
+				labels: chartData.legendLabels
+			},
+			
+            axes: {
+				xaxis: {
+					renderer: $.jqplot.CategoryAxisRenderer,
+					ticks: chartData.xLabels
+				}
+			}
+		});
+	},
+		
+	_drawPieChart: function() {
+		var Z = this;
+		var chartData = Z._getPieData();
+		
+		jQuery.jqplot(Z.el.id, [chartData], {
+			title: Z._chartTitle, 
+            animate: !jQuery.jqplot.use_excanvas,
+			seriesDefaults:{
+				renderer: $.jqplot.PieRenderer ,
+				pointLabels: {show: true, formatString: '%d'}				
+			},
+			legend:{ show:true }
+		});
 	},
 	
+	_drawBarChart: function(isStack) {
+		var Z = this;
+		var chartData = Z._getLineData();
+
+        jQuery.jqplot(Z.el.id, chartData.yValues, {
+			title: Z._chartTitle,
+			stackSeries: isStack,
+            // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
+            animate: !jQuery.jqplot.use_excanvas,
+            seriesDefaults:{
+                renderer:$.jqplot.BarRenderer,
+				pointLabels: {show: true, formatString: '%d'}				
+            },
+
+			legend:{ show:true,
+				labels: chartData.legendLabels
+			},
+			
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: chartData.xLabels
+                }
+            },
+            highlighter: { show: false }
+        });	
+	},
+	
+	drawChart: function () {
+		var Z = this,
+			dsObj = Z._dataset;
+			
+		Z.el.innerHTML = '';
+		Z._validateFields();
+		if(Z._chartType == 'pie') {
+			Z._drawPieChart();
+			return;
+		}
+		if(Z._chartType == 'line') {
+			Z._drawLineChart();
+			return;
+		}
+		if(Z._chartType == 'bar') {
+			Z._drawBarChart(false);
+			return;
+		}
+		if(Z._chartType == 'stackbar') {
+			Z._drawBarChart(true);
+			return;
+		}
+		
+		
+	}, // end draw chart
+
+	refreshControl: function (evt) {
+		var evtType = evt.eventType;
+		if (evtType == jslet.data.RefreshEvent.UPDATEALL || 
+			evtType == jslet.data.RefreshEvent.UPDATERECORD ||
+			evtType == jslet.data.RefreshEvent.UPDATECOLUMN || 
+			evtType == jslet.data.RefreshEvent.INSERT || 
+			evtType == jslet.data.RefreshEvent.DELETE) {
+			this.drawChart()
+		}
+	},
 	/**
 	 * @override
 	 */
 	renderAll: function () {
-		var Z = this;
-		if (Z._getSwf().drawChart) {
-			Z.drawChart();
-		} else {
-			setTimeout(function(){
-				Z.drawChart();
-			}, 200);
-		}
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
 	},
 	
 	/**

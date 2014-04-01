@@ -83,7 +83,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
-		jqEl.addClass('jl-border-box');
+		jqEl.addClass('jl-border-box jl-text');
 		
 		if (Z.doFocus) {
 			jqEl.on('focus', Z.doFocus);

@@ -23,7 +23,7 @@ DBChart is a powerful control. there are 5 chart types: Bar, Column, Line, Area 
 
  Sample:
  <pre><code class="sample">
- var jsletParam = {type:"dbchart", dataset:"summary", chartType:"column",categoryFields:"area,month",valueField:"amount"};
+ var jsletParam = {type:"dbchart", dataset:"summary", chartType:"column",categoryField:"month",valueFields:"amount"};
  
  //1. Declaring:
       &lt;div data-jslet='jsletParam' /&gt;
@@ -88,67 +88,35 @@ You can also see <a href="../../../demo/index.html#chartdemo"><span class="demo"
 </tr>
 
 <tr class="rowColor">
-<td class="pmename">categoryFields</td>
+<td class="pmename">categoryField</td>
 <td>String</td>
 <td>Yes</td>
 <td></td>
-<td>Category fields of chart.</td>
+<td>Category fields of chart, only one field allowed.</td>
 </tr>
 
 <tr class="altColor">
-<td class="pmename">valueField</td>
+<td class="pmename">valueFields</td>
 <td>String</td>
 <td>Yes</td>
 <td></td>
-<td>Value field of chart.</td>
+<td>Value fields of chart, multiple fields are separated with comma(,).</td>
 </tr>
 
 <tr class="rowColor">
-<td class="pmename">chartUrl</td>
-<td>String</td>
-<td></td>
-<td></td>
-<td>Chart url. You don't care about this argument if you use default chart render.</td>
-</tr>
-
-<tr class="altColor">
 <td class="pmename">chartType</td>
 <td>String</td>
 <td></td>
 <td>"line"</td>
-<td>Optional value is: column, bar, line, area, pie.</td>
+<td>Optional value is: line, bar, stackbar, pie.</td>
 </tr>
 
-<tr class="rowColor">
+<tr class="altColor">
 <td class="pmename">chartTitle</td>
 <td>String</td>
 <td></td>
 <td></td>
 <td>Chart title.</td>
-</tr>
-
-<tr class="altColor">
-<td class="pmename">chartColor</td>
-<td>String</td>
-<td></td>
-<td></td>
-<td>Background color of chart, like: #FFF.</td>
-</tr>
-
-<tr class="rowColor">
-<td class="pmename">legendPos</td>
-<td>String</td>
-<td></td>
-<td>"right"</td>
-<td>Legend position, optional value: none, top, bottom, left, right.</td>
-</tr>
-
-<tr class="altColor">
-<td class="pmename">onlySelected</td>
-<td>Boolean</td>
-<td></td>
-<td>false</td>
-<td>True - Only selected record will be displayed in chart, false - All records will be displayed.</td>
 </tr>
 
 

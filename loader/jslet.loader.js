@@ -107,8 +107,7 @@ jslet._initialModules = [
 	{ name: 'dbinspector', src: '../src/ui/dbcontrol/container/jslet.dbinspector.js', deps: 'data,uicore', baseOnLoader: true },
 	{ name: 'dbtreeview', src: '../src/ui/dbcontrol/container/jslet.dbtreeview.js', deps: 'jslet-treeview,listviewmodel', baseOnLoader: true },
 	{ name: 'dbeditpanel', src: '../src/ui/dbcontrol/container/jslet.dbeditpanel.js', deps: 'data,uicore', baseOnLoader: true },
-	{ name: 'swfobject', src: '../src/lib/swfobject.js', baseOnLoader: true },
-	{ name: 'dbchart', src: '../src/ui/dbcontrol/container/jslet.dbchart.js', deps: 'data,uicore,swfobject', baseOnLoader: true },
+	{ name: 'dbchart', src: '../src/ui/dbcontrol/container/jslet.dbchart.js', deps: 'data,uicore', baseOnLoader: true },
 
 	{ name: 'containercontrols', deps: 'dbtable,dbtreeview,dbeditpanel,dbinspector,dbchart', baseOnLoader: true },
 
@@ -117,6 +116,17 @@ jslet._initialModules = [
 	{ name: 'misccontrols', deps: 'dbpagebar,dberror', baseOnLoader: true },
 
 	{ name: 'dbcontrols', deps: 'formcontrols,containercontrols,misccontrols', baseOnLoader: true },
+//jqPlot	
+	{name: 'jqplotjs', src: '../src/lib/jqplot/jquery.jqplot.min.js', deps: 'jquery', baseOnLoader: true },
+	{name: 'jqplotcss', src: '../src/lib/jqplot/jquery.jqplot.min.css', baseOnLoader: true },
+	
+	{name: 'categoryaxisrenderer', src: '../src/lib/jqplot/plugins/jqplot.categoryaxisrenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	{name: 'pierenderer', src: '../src/lib/jqplot/plugins/jqplot.pierenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	{name: 'barrenderer', src: '../src/lib/jqplot/plugins/jqplot.barrenderer.min.js', deps: 'jqplotjs', baseOnLoader: true },
+	
+	{name: 'jqplotplugs', deps: 'categoryAxisRenderer,pierenderer,barrenderer', baseOnLoader: true },
+	{name: 'jqplot', deps: 'jqplotcss,jqplotplugs', baseOnLoader: true },
+	
 	
 	{ name: 'jslet', deps: 'core,uicontrols,data,dbcontrols,global', baseOnLoader: true }
 ];
