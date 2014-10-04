@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbtreeview.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBTreeView. 
@@ -264,7 +260,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		Z.nodeHeight = Z.iconWidth =  parseInt(jslet.ui.getCssValue('jl-tree-lines', 'width'));
 		Z.treePanelHeight = jqEl.height();
 		Z.treePanelWidth = jqEl.width();
-		Z.nodeCount = Math.floor(Z.treePanelHeight / Z.nodeHeight);
+		Z.nodeCount = Math.floor(Z.treePanelHeight / Z.nodeHeight) - 1;
 
 		Z._initVm();
 		Z._initFrame();
@@ -677,7 +673,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				//Text
 		var text = Z.evaluator.eval();
 		jslet.ui.textMeasurer.setElement(Z.el);
-		var width = Math.round(jslet.ui.textMeasurer.getWidth(text));
+		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length;
 		totalWidth += width + 10;
 		//node.style.width = totalWidth + 'px';
 		jslet.ui.textMeasurer.setElement();

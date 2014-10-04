@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Jslet-TreeGrid Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBTable(tree style)">
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -63,43 +65,43 @@
     </script>
 </head>
 <body>
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - TreeGrid Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-    <fieldset>
-    <legend>Agency List</legend>
+    <h4>Agency List</h4>
 	<!-- treeTblCfg is a global variable defined in head tag.-->
     <div id="tblRegion" data-jslet='treeTblCfg' style="width: 100%; height: 220px">
     </div>
-	</fieldset>
-<div>
-<button onclick='jslet("#tblRegion").expandAll();'> Expand All </button>
-<button onclick='jslet("#tblRegion").collapseAll();'> Colapse All </button>&nbsp;
 
-<button onclick='dsAgency.insertChild();'> Add Child </button>
-<button onclick='dsAgency.insertSibling();'> Add Sibling </button>&nbsp;
-<button onclick='dsAgency.deleteRecord();'> Delete </button>&nbsp;
-<button onclick='dsAgency.confirm();'> Confirm </button>
-<button onclick='dsAgency.cancel();'> Cancel </button>
+<div style="margin:10px">
+<button class="btn btn-default" onclick='jslet("#tblRegion").expandAll();'> Expand All </button>
+<button class="btn btn-default" onclick='jslet("#tblRegion").collapseAll();'> Colapse All </button>&nbsp;
+
+<button class="btn btn-default" onclick='dsAgency.insertChild();'> Add Child </button>
+<button class="btn btn-default" onclick='dsAgency.insertSibling();'> Add Sibling </button>&nbsp;
+<button class="btn btn-default" onclick='dsAgency.deleteRecord();'> Delete </button>&nbsp;
+<button class="btn btn-default" onclick='dsAgency.confirm();'> Confirm </button>
+<button class="btn btn-default" onclick='dsAgency.cancel();'> Cancel </button>
 </div>
-	<fieldset>
-		<legend>Edit Panel</legend>
-		<table>
-		<tr>
+	<h4>Edit Panel</h4>
+	<table>
+		<tr style="height:50px">
 			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"itemid"'></label></td>
 			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"itemid"'/></td>
 		</tr>
-		<tr>
+		<tr style="height:50px">
 			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"code"'></label></td>
 			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"code"'/></td>
 		</tr>
-		<tr>
+		<tr style="height:50px">
 			<td><label data-jslet='type:"DBLabel",dataset:"dsAgency",field:"name"'></label></td>
 			<td><input type="text" data-jslet='type:"DBText",dataset:"dsAgency",field:"name"'/></td>
 		</tr>
 	</table>
-	</fieldset>
 
 <h3>Demo Content:</h3>
 <ol class="content-list">
@@ -111,5 +113,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
+	</div>
 </body>
 </html>

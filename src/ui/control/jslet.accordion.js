@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.accordion.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class Accordion. Example:
@@ -116,13 +112,11 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 			} else {
 				caption = 'caption' + index;
 			}
-			return '<div class="jl-accordion-head jl-unselectable jl-bgcolor" jsletindex = "' + index + '"><a href="javascript:;">' + caption + '</a></div>';
+			return '<button class="btn btn-default jl-accordion-head" jsletindex = "' + index + '">' + caption + '</button>';
 		});
 
 		var jqCaptions = jqEl.find('>.jl-accordion-head');
 		jqCaptions.click(Z._doCaptionClick);
-		jqCaptions.on('mousemove', Z._doCaptionMouseMove);
-		jqCaptions.on('mouseout', Z._doCaptionMouseOut);
 		
 		headHeight = jqCaptions.outerHeight() * panels.length;
 		var contentHeight = jqEl.innerHeight() - headHeight-1;
@@ -136,16 +130,6 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 			Z = jslet.ui.findJsletParent(jqCaption[0]).jslet,
 			k = parseInt(jqCaption.attr('jsletindex'));
 		Z.setSelectedIndex(k);
-	},
-	
-	_doCaptionMouseMove: function(event){
-		var jqCaption = jQuery(event.currentTarget);
-		jqCaption.addClass('jl-accordion-head-hover');
-	},
-	
-	_doCaptionMouseOut: function(event){
-		var jqCaption = jQuery(event.currentTarget);
-		jqCaption.removeClass('jl-accordion-head-hover');
 	},
 	
 	/**

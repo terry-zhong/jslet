@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbdatepicker.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBDatePicker. Example:
@@ -54,8 +50,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			Z.focus();
 		};
 		
-		Z.comboButtonCls = 'jl-datepick-btn';
-		Z.comboButtonDisabledCls = 'jl-datepick-btn-disabled';
+		Z.comboButtonCls = 'fa-calendar';
 
 		$super(el, params);
 	},

@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jslet dataset export data">
     <title>Jslet - Export Data</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -11,27 +13,29 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - Export Data</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">Export data with CVS format.</div>
-    <fieldset>
-        <legend>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
-		<div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,hasSeqCol:true' style="width: 100%; height: 220px">
+    <h4>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</h4>
+	<div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true,hasSeqCol:true' style="width: 100%; height: 220px">
 		</div>
-	</fieldset>
-	<fieldset>
-		<legend>Export Options</legend>
+
+
+	<h4>Export Options</h4>
         <input id="dispValue" type="radio" checked="checked" name="export" />Export field's display value&nbsp;<input type="radio" name="export" />Export fields's real value<br />
         <input type="checkbox" id="selected" />Only selected records<br />
 		<input id="includeField" type="checkbox" checked="checked"/>With field name.
-	</fieldset>
-	<fieldset>
-		<legend>Export Data</legend>
-		<p><button onclick="doExport()"> Export .CSV </button>&nbsp;Export result:</p>
+
+
+	<h4>Export Data</h4>
+		<p><button class="btn btn-primary" onclick="doExport()"> Export .CSV </button></p>
 		<textarea id="result" rows="3" cols="5" style="height:200px; width:100%"></textarea>
-   </fieldset>
+
    <script type="text/javascript">
    		function doExport(){
 			var showDispValue = $("#dispValue")[0].checked;
@@ -43,5 +47,6 @@
    
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=430"></script>
+	</div>
 </body>
 </html>

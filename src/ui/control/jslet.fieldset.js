@@ -1,13 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+/* ========================================================================
+ * Jslet framework: jslet.fieldset.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class FieldSet. Example:
@@ -77,13 +73,13 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 	renderAll: function () {
 		var Z = this, jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-fieldset')) {
-			jqEl.addClass('jl-fieldset');
+			jqEl.addClass('jl-fieldset jl-round5');
 		}
 		
 		var tmpl = ['<legend class="jl-fieldset-legend">'];
-		tmpl.push('<span class="jl-fieldset-title"><input type="text" class="jl-fieldset-btn" readonly="readonly" tabindex="-1" value="▼"></input>');
+		tmpl.push('<span class="jl-fieldset-title"><i class="fa fa-chevron-circle-up jl-fieldset-btn">');
 		tmpl.push('<span>');
-		tmpl.push(Z._collapsed);
+		tmpl.push(Z._caption);
 		tmpl.push('</span></span></legend><div class="jl-fieldset-body"></div>');
 		
 		var nodes = Z.el.childNodes, 
@@ -101,7 +97,7 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 			obody.appendChild(children[i]);
 		}
 		
-		jqEl.find('input.jl-fieldset-btn').click(jQuery.proxy(Z._doExpandBtnClick, this));
+		jqEl.find('.jl-fieldset-btn').click(jQuery.proxy(Z._doExpandBtnClick, this));
 	},
 	
 	_doExpandBtnClick: function(){
@@ -110,11 +106,11 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 		if (!Z._collapsed){
 			fsBody.slideUp();
 			jqEl.addClass('jl-fieldset-collapse');
-			jqEl.find('input.jl-fieldset-btn').addClass('jl-fieldset-btn-up');
+			jqEl.find('.jl-fieldset-btn').addClass('fa-chevron-circle-down');
 		}else{
 			fsBody.slideDown();
 			jqEl.removeClass('jl-fieldset-collapse');
-			jqEl.find('input.jl-fieldset-btn').removeClass('jl-fieldset-btn-up');
+			jqEl.find('.jl-fieldset-btn').removeClass('fa-chevron-circle-down');
 		}
 		fsBody[0].focus();
 		Z._collapsed = !Z._collapsed;

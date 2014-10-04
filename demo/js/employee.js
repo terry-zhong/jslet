@@ -24,7 +24,7 @@
         name: 'deptid',
         type: 'S',
         length: 6,
-        label: 'ID'
+        label: 'Dept Code'
     }, {
         name: 'name',
         type: 'S',
@@ -39,6 +39,7 @@
         name: 'parentid',
         type: 'S',
         length: 6,
+        visible:false,
         label: 'ParentID'
     }];
 
@@ -134,7 +135,7 @@
     fldObj = jslet.data.createNumberField('age', 5, 0);
     fldObj.label('Age');
     fldObj.displayWidth(6);
-    fldObj.range({ from: 0, to: 100 });
+    fldObj.range({ min: 18, max: 60 });
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createBooleanField('married');
@@ -147,7 +148,7 @@
     fldObj = jslet.data.createDateField('birthday');
     fldObj.label('Birthday');
     fldObj.displayFormat('yyyy-MM-dd');
-    fldObj.range({ from: new Date(1950, 1, 1) });
+    fldObj.range({ min: new Date(1960, 1, 1) });
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('position', 10);
@@ -214,11 +215,15 @@
     fldObj.visible(false);
     dsEmployee.addField(fldObj);
 
+    dsEmployee.keyField('workerid');
+    dsEmployee.codeField('workerid');
+    dsEmployee.nameField('name');
+    
     //Add data into dsEmployee
     var dataList = [{
         workerid: 1,
         name: 'Tom',
-        department: '01',
+        department: '0101',
         gender: 'M',
         age: 48,
         birthday: new Date(1961, 1, 23),
@@ -250,7 +255,7 @@
     {
         workerid: 3,
         name: 'Jerry',
-        department: '02',
+        department: '0201',
         gender: 'M',
         age: 32,
         birthday: new Date(1977, 5, 22),

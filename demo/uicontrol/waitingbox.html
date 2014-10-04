@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use UI widget: WaitingBox">
     <title>Jslet - WaitingBox Demo</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -10,23 +12,25 @@
     </script>
 </head>
 <body style="height: 600px">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - WaitingBox Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">Demonstrate how to use WaitingBox control.</div>
-    <fieldset>
     <div>
-        <button onclick="showWaiting1()"> In body </button>&nbsp;&nbsp;|&nbsp;&nbsp;
-        <button onclick="showWaiting2()"> In below Div(Display) </button>
-        <button onclick="hideWaiting2()"> In below Div(Hide) </button>
+        <button onclick="showWaiting1()"> Show In body </button>&nbsp;&nbsp;|&nbsp;&nbsp;
+        <button onclick="showWaiting2()"> Show In below Div(Display) </button>
+        <button onclick="hideWaiting2()"> Show In below Div(Hide) </button>
     </div>
     <div id="test" style="border: 1px solid red; position: relative; top: 0px; left: 200px;
         width: 400px; height: 200px; vertical-align:middle; text-align:center">
         Test Panel<br />
         <input type="button" value="button" />
     </div>
-	</fieldset>
+
     <script type="text/javascript">
         function showWaiting1() {
             waitingbox = new jslet.ui.WaitingBox(document.body, "#CCCCCC");
@@ -49,5 +53,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+	</div>
 </body>
 </html>

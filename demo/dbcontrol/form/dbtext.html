@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBText">
     <title>Jslet - DBText Demo</title>
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -20,47 +22,57 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - DBText Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-    <fieldset>
-		<legend>Employee List</legend>
+    <h4>Employee List</h4>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    </fieldset>
+
     <h3>Demo Content:</h3>
     <div data-jslet='dataset:"employee"' class="content"><ol>
-        <li>
-            Input any characters: <br />
-            <label data-jslet='type:"DBLabel",field:"name"'>
-            </label>
-            :
-            <input type="text" data-jslet='type:"DBText",field:"name"' /></li>
-        <li>
-            Only department code allowed:<br />
-            <label data-jslet='type:"DBLabel",field:"department"'>
-            </label>
-            :
-            <input id="gg" type="text" data-jslet='type:"DBText",field:"department"' />,department code: 01,02,03,04</li>
-        <li>
-            Input Date value:<br />
-            <label data-jslet='type:"DBLabel",field:"birthday"'>
-            </label>
-            :
-            <input type="text" data-jslet='type:"DBText",field:"birthday"' />, date format: yyyy-MM-dd(zh-cn) or MM/dd/yyyy(en)</li>
-        <li>
-            Input float value:<br />
-            <label data-jslet='type:"DBLabel",field:"salary"'>
-            </label>
-            :
-            <input type="text" data-jslet='type:"DBText",field:"salary"' />, valid characters: minus(-), 0-9 and decimal point(.)</li>
-        <li>
-            Input integer value:<br />
-            <label data-jslet='type:"DBLabel",field:"age"'>
-            </label>
-            :
-            <input type="text" data-jslet='type:"DBText",field:"age"' name="T1" size="20" />,valid characters: minus(-), 0-9
+        <li><h4>Input any characters: </h4>
+			<div class="row">
+				<label class="col-xs-1" data-jslet='type:"DBLabel",field:"name"'></label>
+				<div class="col-xs-3">
+					<input type="text" data-jslet='type:"DBText",field:"name"' />
+				</div>
+			</div>
+		</li>
+        <li><h4>Only department code allowed:</h4>
+			<div class="row">
+	            <label class="col-xs-1" data-jslet='type:"DBLabel",field:"department"'></label>
+				<div class="col-xs-3">
+			        <input type="text" data-jslet='type:"DBText",field:"department"' />Department code: 01,02,03,04
+				</div>
+			</div>
+        <li><h4>Input Date value:</h4>
+			<div class="row">
+	            <label class="col-xs-1" data-jslet='type:"DBLabel",field:"birthday"'></label>
+				<div class="col-xs-3">
+		            <input type="text" data-jslet='type:"DBText",field:"birthday"' />Date format: yyyy-MM-dd
+				</div>
+			</div>
+		</li>
+        <li><h4>Input float value:</h4>
+			<div class="row">
+	            <label class="col-xs-1" data-jslet='type:"DBLabel",field:"salary"'></label>
+    			<div class="col-xs-3">
+			        <input type="text" data-jslet='type:"DBText",field:"salary"' />Valid characters: minus(-), 0-9 and decimal point(.)
+				</div>
+			</div>
+		</li>
+        <li><h4>Input integer value:</h4>
+			<div class="row">
+	            <label class="col-xs-1" data-jslet='type:"DBLabel",field:"age"'></label>
+    			<div class="col-xs-3">
+					<input type="text" data-jslet='type:"DBText",field:"age"' size="20" />Valid characters: minus(-), 0-9
+				</div>
+			</div>
         </li>
         <!-- p>
             6. Customized rule, for example, only Chinese charactor allowed: <input id="txtValidChars" type="text" value="abc123"
@@ -76,5 +88,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=400"></script>
+	</div>
 </body>
 </html>

@@ -1,23 +1,29 @@
-/*
-This file is part of Jslet framework
+/* ========================================================================
+ * Jslet framework: jslet.provider.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
-
-if (!jslet.data)
+if (!jslet.data) {
 	jslet.data = {};
+}
 
-jslet.data.ApplyAction = {};
-jslet.data.ApplyAction.QUERY = 'query';
-jslet.data.ApplyAction.SAVE = 'save';
-jslet.data.ApplyAction.SELECTED = 'selected';
+/**
+ * @static
+ * @private
+ * 
+ */
+jslet.data.ApplyAction = {QUERY: 'query', SAVE: 'save', SELECTED: 'selected'};
 
-jslet.data.DataProvider = function() {
+/**
+ * @class jslet.data.DataProvider
+ * @constructor
+ * 
+ * @param {jslet.data.Dataset} dataset
+ * @required
+ */
+jslet.data.DataProvider = function(dataset) {
 	this.url = '';
 	var result = null, errorMsg = null, self = this;
 	
@@ -44,12 +50,12 @@ jslet.data.DataProvider = function() {
 					}
 					self.csrfToken = jqXHR.getResponseHeader("csrftoken");
 					successHandler.call(dataset, result, callBackOption);
-			},
+				},
 
-			error : function(jqXHR, textStatus, errorThrown) {
-				errorHandler.call(dataset, actionName, textStatus + ':' + errorThrown);
-			}
-		};
+				error : function(jqXHR, textStatus, errorThrown) {
+					errorHandler.call(dataset, actionName, textStatus + ':' + errorThrown);
+				}
+			};
 		if(reqOptions) {
 			for(var prop in reqOptions) {
 				options[prop] = reqOptions[prop];
@@ -77,13 +83,13 @@ jslet.data.DataProvider = function() {
 
 	this.submit = function(dataset, url, changedRecs, successHandler, errorHandler) {
 		var options = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
-		sendRequest(dataset, url, jslet.data.record2Json(changedRecs), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
+		sendRequest(dataset, url, jslet.data.record2Json(changedRecs, true), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
 	};
 	
 	this.submitSelected = function(dataset, url, selectedData, successHandler, errorHandler, deleteOnSuccess) {
 		var reqOptions = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
 		var callBackOpt = {deleteOnSuccess: deleteOnSuccess};
-		sendRequest(dataset, url, jslet.data.record2Json(selectedData), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
+		sendRequest(dataset, url, jslet.data.record2Json(selectedData, true), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
 	};
 
 	this._combineRequestData = function(data) {
@@ -91,8 +97,8 @@ jslet.data.DataProvider = function() {
 			return '';
 		}
 		var result = data;
-		if (!jslet.isString(condition)) {
-			result = jslet.data.record2Json(data);
+		if (!jslet.isString(data)) {
+			result = jslet.data.record2Json(data, true);
 		}
 		return 'jsletdata=' + result;
 	};

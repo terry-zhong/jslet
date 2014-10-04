@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbcomboselect.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBCombodlg. 
@@ -57,8 +53,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		Z._popupHeight = 0;
 		
 		Z.contentPanel = null;
-		Z.comboButtonCls = 'jl-combosel-btn';
-		Z.comboButtonDisabledCls = 'jl-combosel-btn-disabled';		
+	
 		$super(el, params);
 	},
 
@@ -218,15 +213,15 @@ jslet.ui.DBComboSelectPanel = function (jsletCombo) {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = lkfld.dataset();
 
-		var template = ['<div class="jl-combopnl-head"><label>',
+		var template = ['<div class="jl-combopnl-head row"><div class="col-xs-12"><label class="control-label">',
 			jslet.locale.DBComboSelect.find,
-			':</label><select style="width:100px"></select><label> = </label><input type="text" size="20" style="width:100px"></input></div>',
+			'</label><select class="form-control" style="display:inline;width:100px"></select><label class="control-label"> = </label><input class="form-control" type="text" size="20"  style="display:inline;width:100px"></input></div></div>',
 			'<div class="jl-combopnl-content"></div>',
-			'<div class="jl-combopnl-footer" style="display:none"><input type="button" value="',
+			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default" >',
 			jslet.locale.MessageBox.cancel,
-			'" class="jl-combopnl-footer-cancel" ></input><input type="button" value="',
+			'</button><button type="button" class="jl-combopnl-footer-ok btn btn-default" >',
 			jslet.locale.MessageBox.ok,
-			'" class="jl-combopnl-footer-ok" ></input></div>'];
+			'</button></div>'];
 
 		Z.panel.innerHTML = template.join('');
 		var jqPanel = jQuery(Z.panel),
@@ -305,9 +300,9 @@ jslet.ui.DBComboSelectPanel = function (jsletCombo) {
 			lkfld = fldObj.lookup();
 		lkds.selectAll(false);
 		if(lkfld.onlyLeafLevel()) {
-			lkds.onCheckSelectable = function(){
+			lkds.onCheckSelectable(function(){
 				return !this.hasChildren();
-			};
+			});
 		}
 		if (fldValue) {
 			var arrKeyValues = fldValue;
@@ -385,7 +380,7 @@ jslet.ui.DBComboSelectPanel = function (jsletCombo) {
 		var fldObj = Z.dataset.getField(Z.field),
 			lkfld = fldObj.lookup();
 		if(Z.isMulti && lkfld.onlyLeafLevel()) {
-			Z.lkDataset.onCheckSelectable = null;
+			Z.lkDataset.onCheckSelectable(null);
 		}
 		
 		self.popup.hide();

@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBAutoComplete">
     <title>Jslet - AutoComplete Demo</title>
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -14,42 +16,64 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - AutoComplete Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-	<fieldset>
-		<legend>Employee List</legend>
+	<h4>Employee List</h4>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
     </div>
-    </fieldset>
+    
     <h3>Demo Content: </h3>
     <div data-jslet='dataset:"employee"' class="content">
-        <p>
-            1. Normal: <br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>
-            </label>
-            :<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"department"' />&nbsp;Match Mode: <select
-                onchange="jslet('#cboAuto').matchMode = this.value;jslet('#cboAuto').renderAll();">
-                <option selected>start</option>
-                <option>end</option>
-                <option>any</option>
-            </select></p>
-        <p>
-            2. Popup up after inputting 2 characters: <br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>
-            </label>
-            :<input type="text" data-jslet='type:"DBAutoComplete",field:"department",minChars:2' /></p>
-        <p>
-            3. Popup up after elapsing 500ms:<br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>
-            </label>
-            :<input type="text" data-jslet='type:"DBAutoComplete",field:"department",minDelay:500' /></p>
-        <p>
-            4. Search field can be specified dynamically according to the first character, if it is number, use "code" field to search data, otherwise use "name" field; <br />
-            &nbsp;&nbsp;&nbsp;<label data-jslet='type:"DBLabel",field:"department"'>
-            </label>
-            :<input type="text" data-jslet='type:"DBAutoComplete",field:"department", onGetFilterField:doGetFilterField' /></p>
+        <h4>1. Normal: </h4>
+		<div class="form-horizontal">
+			<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
+			<div class="col-sm-5">
+			<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"department"' />
+			</div>
+			<label class="col-sm-2 control-label"> Match Mode: </label>
+			<div class="col-sm-2">
+			<select class="form-control"
+				onchange="jslet('#cboAuto').matchMode = this.value;jslet('#cboAuto').renderAll();">
+				<option selected>start</option>
+				<option>end</option>
+				<option>any</option>
+			</select>
+			</div>
+			</div>
+		</div>
+        <h4>2. Popup up after inputting 2 characters: </h4>
+		<div class="form-horizontal">
+			<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
+			<div class="col-sm-5">
+			<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"department",minChars:2' />
+			</div>
+			</div>
+		</div>
+        <h4>3. Popup up after elapsing 500ms:</h4>
+		<div class="form-horizontal">
+			<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
+			<div class="col-sm-5">
+			<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"department",minDelay:500' />
+			</div>
+			</div>
+		</div>
+        <h4>4. Search field can be specified dynamically according to the first character, if it is number, use "code" field to search data, otherwise use "name" field; </h4>
+		<div class="form-horizontal">
+			<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
+			<div class="col-sm-5">
+			<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"department",onGetFilterField:doGetFilterField' />
+			</div>
+			</div>
+		</div>
     </div>
     <script type="text/javascript">
         function doGetFilterField(lkds, inputValue) {
@@ -63,5 +87,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
+	</div>
 </body>
 </html>

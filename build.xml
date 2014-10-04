@@ -3,8 +3,8 @@
 	<description>concatenate all js files</description>
 	<dirname property="basedir" file="$(ant.file}" />
 	<property name="src.dir" value="${basedir}/src" />
+	<property name="version" value="3.0.0" />
 	<property name="dist.dir" value="${basedir}/dist" />
-	<property name="jslet" value="jslet-3.0" />
 
 	<target name="init">
 		<tstamp />
@@ -16,11 +16,11 @@
 		</delete>
 	</target>
 
-	<target name="build" depends="clean,init,build-css,build-js,copy-resources,copy-lib-lang,obscure">
+	<target name="build" depends="clean,init,build-css,build-js,copy-asset,copy-lib-lang,obscure">
 	</target>
-		
-	<target name="build-js" depends="clean,init">
-		<concat destfile="${dist.dir}/${jslet}.debug.js" encoding="UTF-8">
+
+	<target name="build-js-data" depends="clean,init">
+		<concat destfile="${dist.dir}/jslet-data.debug.js" encoding="UTF-8">
 			<filelist dir="${src.dir}">
 			    <file name="jslet.global.js" />
 			</filelist>
@@ -28,7 +28,6 @@
 			    <file name="jslet.common.js" />
 			    <file name="jslet.class.js" />
 			    <file name="jslet.cookie.js" />
-			    <file name="jslet.resizeeventbus.js" />
 			</filelist>
 			<filelist dir="${src.dir}/data">
 				<file name="jslet.datacommon.js" />
@@ -38,11 +37,17 @@
 			    <file name="jslet.field.js" />
 			    <file name="jslet.contextrule.js" />
 			</filelist>
+		</concat>
+	</target>	
+	
+	<target name="build-js-ui" depends="clean,init">
+		<concat destfile="${dist.dir}/jslet-ui.debug.js" encoding="UTF-8">
 			<filelist dir="${src.dir}/ui">
 			    <file name="jslet.uicommon.js" />
 			    <file name="jslet.control.js" />
 			    <file name="jslet.dnd.js" />
 			    <file name="jslet.editmask.js" />
+			    <file name="jslet.resizeeventbus.js" />
 			</filelist>
 
 			<filelist dir="${src.dir}/ui/control">
@@ -95,18 +100,21 @@
 		
 	</target>
 	
+	<target name="build-js" depends="build-js-data,build-js-ui">
+	</target>
+	
 	<target name="build-css">
-	  <concat destfile="${dist.dir}/resources/default/jslet-all.css">
-		<fileset dir="${src.dir}/resources/default"  includes="*.css" />
+	  <concat destfile="${dist.dir}/asset/default/jslet-all.css">
+		<fileset dir="${src.dir}/asset/default"  includes="*.css" />
 	  </concat>
-	  <concat destfile="${dist.dir}/resources/gray/jslet-all.css" append="true">
-		<fileset dir="${src.dir}/resources/gray" includes="*.css" />
+	  <concat destfile="${dist.dir}/asset/gray/jslet-all.css" append="true">
+		<fileset dir="${src.dir}/asset/gray" includes="*.css" />
 	  </concat>	
 	</target>
 	
-	<target name="copy-resources">
-		<copy todir="${dist.dir}/resources">
-			<fileset dir="${src.dir}/resources">
+	<target name="copy-asset">
+		<copy todir="${dist.dir}/asset">
+			<fileset dir="${src.dir}/asset">
 			 <exclude name="**/*.css" />
 			 <exclude name="**/*.db" />
 			</fileset>
@@ -123,28 +131,28 @@
 	</target>
 	<target name="obscure" depends="build-js">
 		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
-			<arg line="${basedir}/dist/resources/default/jslet-all.css --type css -o ${basedir}/dist/resources/default/jslet-min.css" />
+			<arg line="${dist.dir}/asset/default/jslet-all.css --type css -o ${dist.dir}/asset/default/jslet-min.css" />
 	         <classpath>
 	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
 	           <pathelement path="${java.class.path}" />
 	         </classpath>
 		</java>
 		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
-			<arg line="${basedir}/dist/resources/gray/jslet-all.css --type css -o ${basedir}/dist/resources/gray/jslet-min.css" />
+			<arg line="${dist.dir}/asset/gray/jslet-all.css --type css -o ${dist.dir}/asset/gray/jslet-min.css" />
 	         <classpath>
 	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
 	           <pathelement path="${java.class.path}" />
 	         </classpath>
 		</java>
 		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
-			<arg line="${basedir}/dist/${jslet}.debug.js -o ${basedir}/dist/${jslet}.min.js" />
+			<arg line="${dist.dir}/jslet-data.debug.js -o ${dist.dir}/jslet-data.min.js" />
 	         <classpath>
 	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
 	           <pathelement path="${java.class.path}" />
 	         </classpath>
 		</java>
 		<java jar="${basedir}/compress/yuicompressor-2.4.7.jar" fork="true" dir="${basedir}">
-			<arg line="${basedir}/dist/lib/swfobject.js -o ${basedir}/dist/lib/swfobject.js" />
+			<arg line="${dist.dir}/jslet-ui.debug.js -o ${dist.dir}/jslet-ui.min.js" />
 	         <classpath>
 	           <pathelement location="${basedir}/compress/yuicompressor-2.4.7.jar" />
 	           <pathelement path="${java.class.path}" />

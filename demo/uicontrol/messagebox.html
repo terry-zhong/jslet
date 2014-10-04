@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use UI widget: MessageBox">
     <title>Jslet - MessageBox Demo</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -17,28 +19,27 @@
     </style>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - MessageBox Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">Demonstrate how to use MessageBox control.</div>
-    <fieldset>
-		<legend>Simple Message Box</legend>
+    
+	<h4>Simple Message Box</h4>
     <p>Single line message: <button onclick='jslet.ui.MessageBox.alert("You has to fill that blank!", "Tips");'> Show </button> </p>
     <p>Multiple line message: <button onclick='openwin1();'> Show </button> </p>
     <p>Error message: <button onclick='jslet.ui.MessageBox.error("You made a mistake!", "Error");'> Show </button> </p>
     <p>Warning message: <button onclick='jslet.ui.MessageBox.warn("This is a warning for you!", "Warning");'> Show </button> </p>
-	</fieldset>
-    <fieldset>
-		<legend>Choice Message Box</legend>
+
+	<h4>Choice Message Box</h4>
     <p>Confirm/Cancel dialog: <button onclick='openwin2();'> Show </button><span id="result2" class="result"></span> </p>
     <p>Yes/No/Cancel dialog: <button onclick='openwin3();'> Show </button><span id="result3" class="result"></span> </p>
-	</fieldset>
-    <fieldset>
-		<legend>Input Message Box</legend>
+	<h4>Input Message Box</h4>
     <p>Single line input box(with default value and，required test): <button onclick='openwin4();'> Show </button><span id="result4" class="result"></span> </p>
     <p>Multiple line input box: <button onclick='openwin5();'> Show </button><span id="result5" class="result"></span> </p>
-    </fieldset>
 
     <script type="text/javascript">
 		//alert
@@ -90,5 +91,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+	</div>
 </body>
 </html>

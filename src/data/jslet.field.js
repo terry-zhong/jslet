@@ -1,13 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+/* ========================================================================
+ * Jslet framework: jslet.field.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class Field 
@@ -16,8 +12,9 @@ If you are unsure which license is appropriate for your use, please visit: http:
  * @param {jslet.data.DataType} dataType Data type of field
  */
 jslet.data.Field = function (fieldName, dataType) {
+	jslet.Checker.test('Field#fieldName', fieldName).isString();
 	fieldName = jQuery.trim(fieldName);
-	jslet.Checker.test('Field#fieldName', fieldName).isString().required();
+	jslet.Checker.test('Field#fieldName', fieldName).required();
 	jslet.Checker.test('Field#dataType', dataType).isString().required();
 
 	var Z = this;
@@ -413,9 +410,9 @@ jslet.data.Field.prototype = {
 			}
 			return Z._alignment;
 		}
-		alignment = jQuery.trim(alignment);
+		
 		jslet.Checker.test('Field.alignment', alignment).isString();
-		Z._alignment = alignment;
+		Z._alignment = jQuery.trim(alignment);
 		Z._fireColumnUpdatedEvent();
 		return this;
 	},
@@ -499,9 +496,8 @@ jslet.data.Field.prototype = {
 			}
 		}
 		
-		format = jQuery.trim(format);
 		jslet.Checker.test('Field.format', format).isString();
-		Z._displayFormat = format;
+		Z._displayFormat = jQuery.trim(format);
 		Z._dateFormat = null;
 		Z._dateChar = null;
 		Z._dateRegular = null;
@@ -560,7 +556,7 @@ jslet.data.Field.prototype = {
 		}
 		if(mask) {
 			if (jslet.isString(mask)) {
-				mask = {mask: mask};
+				mask = {mask: mask,keepChar:true};
 			}
 		} else {
 			mask = null;
@@ -654,9 +650,9 @@ jslet.data.Field.prototype = {
 		if (formula === undefined) {
 			return Z._formula;
 		}
-		formula = jQuery.trim(formula);
+		
 		jslet.Checker.test('Field.formula', formula).isString();
-		Z._formula = formula;
+		Z._formula = jQuery.trim(formula);
 		Z._clearFieldCache();		
 		if (this.dataset()) {
 			this.dataset().removeInnerFormularFields(Z._fieldName);
@@ -778,8 +774,8 @@ jslet.data.Field.prototype = {
 			
 			return Z._valueStyle;
 		}
-		mvalueStyle = jQuery.trim(mvalueStyle);
-		jslet.Checker.test('Field.valueStyle', mvalueStyle).isString();
+		
+		jslet.Checker.test('Field.valueStyle', mvalueStyle).isNumber().inArray([0,1,2]);
 		Z._valueStyle = mvalueStyle;
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
@@ -950,9 +946,9 @@ jslet.data.Field.prototype = {
 		if (urlExpr === undefined) {
 			return Z._urlExpr;
 		}
-		urlExpr = jQuery.trim(urlExpr);
+
 		jslet.Checker.test('Field.urlExpr', urlExpr).isString();
-		Z._urlExpr = urlExpr;
+		Z._urlExpr = jQuery.trim(urlExpr);
 		Z._innerUrlExpr = null;
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
@@ -964,9 +960,9 @@ jslet.data.Field.prototype = {
 		if (target === undefined){
 			return !Z._urlTarget ? jslet.data.Field.URLTARGETBLANK : Z._urlTarget;
 		}
-		target = jQuery.trim(target);
+
 		jslet.Checker.test('Field.urlTarget', target).isString();
-		Z._urlTarget = target;
+		Z._urlTarget = jQuery.trim(target);
 		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
 	},
@@ -1452,9 +1448,9 @@ jslet.data.FieldLookup.prototype = {
 		if (keyFldName === undefined){
 			return Z._keyField || Z._dataset.keyField();
 		}
-		keyFldName = jQuery.trim(keyFldName);
+
 		jslet.Checker.test('Field.keyField', keyFldName).isString();
-		Z._keyField = keyFldName;
+		Z._keyField = jQuery.trim(keyFldName);
 		return this;
 	},
 
@@ -1470,9 +1466,9 @@ jslet.data.FieldLookup.prototype = {
 		if (codeFldName === undefined){
 			return Z._codeField || Z._dataset.codeField();
 		}
-		codeFldName = jQuery.trim(codeFldName);
+
 		jslet.Checker.test('Field.codeField', codeFldName).isString();
-		Z._codeField = codeFldName;
+		Z._codeField = jQuery.trim(codeFldName);
 		return this;
 	},
 	
@@ -1481,9 +1477,9 @@ jslet.data.FieldLookup.prototype = {
 		if (format === undefined) {
 			return Z._codeFormat;
 		}
-		format = jQuery.trim(format);
+
 		jslet.Checker.test('Field.codeFormat', format).isString();
-		Z._codeFormat = format;
+		Z._codeFormat = jQuery.trim(format);
 		return this;
 	},
 
@@ -1499,9 +1495,9 @@ jslet.data.FieldLookup.prototype = {
 		if (nameFldName === undefined){
 			return Z._nameField || Z._dataset.nameField();
 		}
-		nameFldName = jQuery.trim(nameFldName);
+
 		jslet.Checker.test('Field.nameField', nameFldName).isString();
-		Z._nameField = nameFldName;
+		Z._nameField = jQuery.trim(nameFldName);
 		return this;
 	},
 
@@ -1517,9 +1513,9 @@ jslet.data.FieldLookup.prototype = {
 		if (parentFldName === undefined){
 			return Z._parentField || Z._dataset.parentField();
 		}
-		parentFldName = jQuery.trim(parentFldName);
+
 		jslet.Checker.test('Field.parentField', parentFldName).isString();
-		Z._parentField = parentFldName;
+		Z._parentField = jQuery.trim(parentFldName);
 		return this;
 	},
 
@@ -1532,10 +1528,10 @@ jslet.data.FieldLookup.prototype = {
 	displayFields: function(fieldExpr) {
 		var Z = this;
 		if (fieldExpr === undefined) {
-			return !Z._displayFields? this.getDefaultDisplayFields(): Z._displayFields;
+			return Z._displayFields? Z._displayFields: this.getDefaultDisplayFields();
 		}
-		fieldExpr = jQuery.trim(fieldExpr);
 		jslet.Checker.test('Field.displayFields', fieldExpr).isString();
+		fieldExpr = jQuery.trim(fieldExpr);
 		if (Z._displayFields != fieldExpr) {
 			Z._displayFields = fieldExpr;
 			Z._innerdisplayFields = null;
@@ -1577,7 +1573,7 @@ jslet.data.FieldLookup.prototype = {
 			this.displayFields(this.getDefaultDisplayFields());
 		}
 		if(!Z._innerdisplayFields) {
-			Z._innerdisplayFields = new jslet.Expression(Z._dataset, Z._displayFields);
+			Z._innerdisplayFields = new jslet.Expression(Z._dataset, Z.displayFields());
 		}
 		
 		return Z._innerdisplayFields.eval();

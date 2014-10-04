@@ -1,13 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+/* ========================================================================
+ * Jslet framework: jslet.tabcontrol.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class TabControl. Example:
@@ -96,10 +92,14 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		 * {Array of jslet.ui.TabItem} Tab item configuration.
 		 */
 		Z._items = [];
-
+		
+		Z._itemsWidth = [];
+		Z._containerWidth = 0;
+		Z._ready = false;
+		
 		Z._leftIndex = 0;
 		Z._rightIndex = 0;
-		Z._naviBtnWidth = 0;
+
 		Z._tabControlWidth = jQuery(Z.el).width();
 		jslet.resizeEventBus.subscribe(this);
 		$super(el, params);
@@ -110,7 +110,11 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			return this._selectedIndex;
 		}
 		jslet.Checker.test('TabControl.selectedIndex', index).isGTEZero();
-		this._selectedIndex = index;
+		if(this._ready) {
+			this._chgSelectedIndex(index);
+		} else {
+			this._selectedIndex = index;
+		}
 	},
 	
 	newable: function(newable) {
@@ -187,7 +191,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			template = [
 			'<div class="jl-tab-header jl-unselectable"><div class="jl-tab-container jl-unselectable"><ul class="jl-tab-list">',
 			Z._newable ? '<li><a href="javascript:;" class="jl-tab-inner"><span class="jl-tab-new">+</span></a></li>' : '',
-			'</ul></div><a class="jl-tab-left jl-tab-left-disabled"></a><a class="jl-tab-right"></a></div><div class="jl-tab-items"></div>'];
+			'</ul></div><a class="jl-tab-left jl-hidden"><span class="jl-nav-btn glyphicon glyphicon-circle-arrow-left"></span></a><a class="jl-tab-right  jl-hidden"><span class="jl-nav-btn glyphicon glyphicon-circle-arrow-right"></span></a></div><div class="jl-tab-items jl-round5"></div>'];
 
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-tabcontrol'))
@@ -210,18 +214,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				}
 				Z._items.push(itemCfg);
 				Z.addTabItem(itemCfg);
-				Z.changeSelectedIndex(Z._items.length - 1);
-				if (Z._rightIndex > 0) {
-					Z._changeLeftIndex(1);
-				}
+				Z._calcItemsWidth();
+				Z.selectedIndex(Z._items.length - 1);
 			};
 		}
 
 		var jqNavBtn = jqEl.find('.jl-tab-left');
-		Z._naviBtnWidth += jqNavBtn.width();
 		
 		jqNavBtn.on("click",function (event) {
-			Z._changeLeftIndex(-1);
+			Z._setVisiTabItems(Z._leftIndex - 1)
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			return false;
@@ -232,10 +233,9 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			return false;
 		});
 		jqNavBtn = jqEl.find('.jl-tab-right');
-		Z._naviBtnWidth += jqNavBtn.width();
 
 		jqNavBtn.on("click",function (event) {
-			Z._changeLeftIndex(1);
+			Z._setVisiTabItems(Z._leftIndex + 1)
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			return false;
@@ -253,118 +253,194 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				oitem = Z._items[i];
 				Z.addTabItem(oitem, true);
 			}
-			Z._refreshRightIndex();
-			Z.changeSelectedIndex(Z._selectedIndex);
 		}
-		Z._createContextMenu();
+		Z._calcItemsWidth();
+		Z._ready = true;
+		Z._chgSelectedIndex(Z._selectedIndex);
 	},
 
 	addItem: function (itemCfg) {
 		this._items[this._items.length] = itemCfg;
 	},
 
-	_createContextMenu: function () {
+	tabLabel: function(index, label) {
+		jslet.Checker.test('tabLabel#index', index).isGTEZero();
+		jslet.Checker.test('tabLabel#label', label).required().isString();
+		
 		var Z = this;
-		if (!jslet.ui.Menu || !Z._closable) {
+		var itemCfg = Z._getTabItemCfg(index);
+		if(!itemCfg) {
 			return;
 		}
-		var menuCfg = { type: 'Menu', onItemClick: Z._menuItemClick, items: [
-			{ id: 'close', name: jslet.locale.TabControl.close},
-			{ id: 'closeOther', name: jslet.locale.TabControl.closeOther}]};
-		if (Z._onCreateContextMenu) {
-			Z._onCreateContextMenu.call(Z, menuCfg.items);
-		}
 
-		if (menuCfg.items.length === 0) {
-			return;
-		}
-		Z.contextMenu = jslet.ui.createControl(menuCfg);
-
-		var head = jQuery(Z.el).find('.jl-tab-header')[0];
-
-		head.oncontextmenu = function (event) {
-			var evt = event || window.event;
-			Z.contextMenu.showContextMenu(evt, Z);
-		};
+		itemCfg.label(label);
+		var jqEl = jQuery(Z.el);
+		var panelContainer = jqEl.find('.jl-tab-items')[0];
+		var nodes = panelContainer.childNodes;
+		jQuery(nodes[index]).find('.jl-tab-title').html(label);
+		Z._calcItemsWidth();
 	},
-
-	_menuItemClick: function (menuid, checked) {
-		if (menuid == 'close') {
-			this.close();
-		} else {
-			if (menuid == 'closeOther') {
-				this.closeOther();
-			}
-		}
-	},
-
-	_changeLeftIndex: function (delta) {
+	
+	tabDisabled: function(index, disabled) {
+		jslet.Checker.test('tabLabel#index', index).isGTEZero();
 		var Z = this;
-		var newIndex = Z._leftIndex + delta;
-		if (newIndex < 0 || newIndex > Z._rightIndex + 1) {
+		var itemCfg = Z._getTabItemCfg(index);
+		if(!itemCfg) {
 			return;
 		}
-		var odiv = jQuery(Z.el).find('.jl-tab-container')[0];
-		var oul = jQuery(odiv).find('.jl-tab-list')[0];
-		var nodes = oul.childNodes;
-		if (newIndex > 0) {
-			var pos = jQuery(nodes[newIndex]).offset();
-			odiv.scrollLeft = jslet.locale.isRtl ? (5000 -( pos.left - 15)):(pos.left - 15);
-		} else {
-			odiv.scrollLeft = jslet.locale.isRtl ? 5000 : 0;
+		if(index == Z._selectedIndex) {
+			console.warn('Cannot set current tab item to disabled.');
+			return;
 		}
-		Z._leftIndex = newIndex;
-		var jqBtnLeft = jQuery(Z.el).find('.jl-tab-left');
-		var disabledLeft = jqBtnLeft.hasClass('jl-tab-left-disabled');
-		if (newIndex === 0) {
-			if (!disabledLeft) {
-				jqBtnLeft.addClass('jl-tab-left-disabled');
-			}
+		itemCfg.disabled(disabled);
+		var jqEl = jQuery(Z.el);
+		var panelContainer = jqEl.find('.jl-tab-items')[0];
+		var nodes = panelContainer.childNodes;
+		var jqItem = jQuery(nodes[index]);
+		if(disabled) {
+			jqItem.addClass('jl-tab-disabled');
 		} else {
-			if (disabledLeft) {
-				jqBtnLeft.removeClass('jl-tab-left-disabled');
-			}
-		}
-
-		var jqBtnRight = jQuery(Z.el).find('.jl-tab-right');
-		var disabledRight = jqBtnRight.hasClass('jl-tab-right-disabled');
-		if (newIndex == Z._rightIndex + 1) {
-			if (!disabledRight) {
-				jqBtnRight.addClass('jl-tab-right-disabled');
-			}
-		} else {
-			if (disabledRight) {
-				jqBtnRight.removeClass('jl-tab-right-disabled');
-			}
+			jqItem.removeClass('jl-tab-disabled');
 		}
 	},
-
-	_refreshRightIndex: function () {
-		var Z = this,
-			jqEl =jQuery(Z.el),
+	
+	/**
+	 * Change selected tab item.
+	 * 
+	 * @param {Integer} index Tab item index which will be toggled to.
+	 */
+	_chgSelectedIndex: function (index) {
+		var Z = this;
+	
+		var itemCfg = Z._getTabItemCfg(index);
+		if(!itemCfg || itemCfg.disabled) {
+			return;
+		}
+		if (Z._onSelectedChanged) {
+			var canChanged = Z._onSelectedChanged.call(Z, Z._selectedIndex, index);
+			if (canChanged !== undefined && !canChanged) {
+				return;
+			}
+		}
+		
+		var jqEl = jQuery(Z.el),
+			oli, 
 			oul = jqEl.find('.jl-tab-list')[0],
 			nodes = oul.childNodes,
-			cnt = nodes.length - 1,
-			w = 0,
-			totalW = jQuery(oul.parentNode).width() - Z._naviBtnWidth;
-		Z._rightIndex = 0;
-		for (var i = cnt; i >= 0; i--) {
-			w += jQuery(nodes[i]).width() + 1;
-			if (w > totalW) {
-				Z._rightIndex = i + 1;
-				break;
+			cnt = nodes.length - (Z._newable ? 2 : 1);
+
+		var itemContainer = jqEl.find('.jl-tab-items')[0],
+			item, 
+			items = itemContainer.childNodes;
+		for (var i = 0; i <= cnt; i++) {
+			oli = jQuery(nodes[i]);
+			item = items[i];
+			if (i == index) {
+				oli.addClass('jl-tab-selected');
+				item.style.display = 'block';
+			}
+			else {
+				oli.removeClass('jl-tab-selected');
+				item.style.display = 'none';
 			}
 		}
-		if (Z._rightIndex < Z._leftIndex){
-			Z._changeLeftIndex(Z._rightIndex - Z._leftIndex);
+		Z._selectedIndex = index;
+		if(index < Z._leftIndex || index >= Z._rightIndex) {
+			Z._setVisiTabItems(null, Z._selectedIndex);
 		}
-		var displayStr = Z._rightIndex > 0 ? 'block' : 'none',
-			btnLeft = jqEl.find('.jl-tab-left')[0],
-			btnRight = jqEl.find('.jl-tab-right')[0];
-		btnLeft.style.display = displayStr;
-		btnRight.style.display = displayStr;
 	},
+	
+	_getTabItemCfg: function(index) {
+		var Z = this;
+		if(Z._items.length <= index) {
+			return null;
+		}
+		return Z._items[index];
+	},
+	
+	_calcItemsWidth: function() {
+		var Z = this,
+			jqEl =jQuery(Z.el),
+			nodes = jqEl.find('.jl-tab-list').children();
+		Z._itemsWidth = [];
+		nodes.each(function(index){
+			Z._itemsWidth[index] = $(this).outerWidth() + 5;
+		});
 
+		Z._containerWidth = jqEl.find('.jl-tab-container').innerWidth();
+	},
+	
+	_setVisiTabItems: function(leftIndex, rightIndex) {
+		var Z = this, w;
+		if(!leftIndex && leftIndex !== 0) {
+			if(!rightIndex) {
+				return;
+			}
+			if(Z._newable) {
+				rightIndex++;
+			}
+			w = Z._itemsWidth[rightIndex];
+			Z._leftIndex = rightIndex;
+			for(var i = rightIndex - 1; i >= 0; i--) {
+				w += Z._itemsWidth[i];
+				if(w > Z._containerWidth) {
+					Z._leftIndex = i + 1;
+					break;
+				}
+				Z._leftIndex = i;
+			}
+			leftIndex = Z._leftIndex;
+		} else {
+			Z._leftIndex = leftIndex;
+		}
+		w = 0;
+		Z._rightIndex = leftIndex;
+		for(var i = leftIndex, len = Z._itemsWidth.length; i < len; i++) {
+			w += Z._itemsWidth[i];
+			if(w > Z._containerWidth) {
+				Z._rightIndex = i - 1;
+				break;
+			}
+			Z._rightIndex = i;
+		}
+		var leftPos = 0;
+		for(var i = 0; i < Z._leftIndex; i++) {
+			leftPos += Z._itemsWidth[i];
+		}
+		leftPos += 5;
+		var jqEl = jQuery(Z.el);
+		jqEl.find('.jl-tab-container').scrollLeft(jslet.locale.isRtl ? 50000 - leftPos: leftPos);
+		Z._setNavBtnVisible();
+	},
+	
+	_setNavBtnVisible: function() {
+		var Z = this,
+			jqEl = jQuery(Z.el),
+			jqBtnLeft = jqEl.find('.jl-tab-left'),
+			isHidden = jqBtnLeft.hasClass('jl-hidden');
+		if(Z._leftIndex > 0) {
+			if(isHidden) {
+				jqBtnLeft.removeClass('jl-hidden');
+			}
+		} else {
+			if(!isHidden) {
+				jqBtnLeft.addClass('jl-hidden');
+			}
+		}
+		var jqBtnRight = jqEl.find('.jl-tab-right');
+		var isHidden = jqBtnRight.hasClass('jl-hidden');
+		var totalCnt = Z._itemsWidth.length;
+		if(Z._rightIndex < totalCnt - 1) {
+			if(isHidden) {
+				jqBtnRight.removeClass('jl-hidden');
+			}
+		} else {
+			if(!isHidden) {
+				jqBtnRight.addClass('jl-hidden');
+			}
+		}
+	},
+	
 	_createHeader: function (parent, itemCfg) {
 		var Z = this,
 			tmpl = ['<a href="javascript:;" class="jl-tab-inner" onclick="javascript:this.blur();"><span class="jl-tab-title '],
@@ -373,22 +449,17 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			tmpl.push('jl-tab-close-loc ');
 		}
 
-		if (itemCfg.iconClass) {
-			tmpl.push('jl-tab-icon-loc ');
-		}
 		tmpl.push('">');
 		tmpl.push(itemCfg.header);
 		tmpl.push('</span>');
-		if (itemCfg.iconClass){
-			tmpl.push('<span class="jl-tab-icon ');
-			tmpl.push(itemCfg.iconClass);
-			tmpl.push('"></span>');
-		}
 		tmpl.push('</a>');
 		if (canClose) {
-			tmpl.push('<a href="javascript:;" class="jl-tab-close"></a>');
+			tmpl.push('<a href="javascript:;" class="jl-tab-close glyphicon glyphicon-remove"></a>');
 		}
 		var oli = document.createElement('li');
+		if(itemCfg.disabled) {
+			jQuery(oli).addClass('jl-tab-disabled');	
+		}
 		oli.innerHTML = tmpl.join('');
 
 		if (Z._newable) {
@@ -414,7 +485,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				break;
 			}
 		}
-		this.jslet.changeSelectedIndex(index);
+		this.jslet._chgSelectedIndex(index);
 	},
 
 	_doCloseBtnClick: function (event) {
@@ -443,17 +514,17 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var padding = 4,
 			jqEl = jQuery(Z.el),
 			jqHead = jqEl.find('.jl-tab-header'),
-			w = jqEl.width() - padding,
-			h = jqEl.height() - padding - jqHead.height();
+			h = itemCfg.height;
+		h = h ? h: 300;
 
 		if (itemCfg.content || itemCfg.divId) {
 			var ocontent = itemCfg.content ? itemCfg.content : jQuery('#'+itemCfg.divId)[0];
 			if (ocontent) {
 				var pNode = ocontent.parentNode;
-				if (pNode != odiv) {
+				if (pNode && pNode != odiv) {
 					pNode.removeChild(ocontent);
-					odiv.appendChild(ocontent);
 				}
+				odiv.appendChild(ocontent);
 				ocontent.style.display = 'block';
 				return;
 			}
@@ -463,54 +534,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			if (itemCfg.useIFrame) {
 				var s = '<iframe scrolling="yes" frameborder="0" src="' + 
 				itemCfg.url + 
-				'" style="padding-left:5px;padding-top:5px;width: ' + 
-				w + 'px;height:' + 
-				h + 'px;"></iframe>';
+				'" style="width: 100%;height:' + h  + 'px;"></iframe>';
 				jqDiv.html(s);
 			}
 		}
 	},
 
-	/**
-	 * Change selected tab item.
-	 * 
-	 * @param {Integer} index Tab item index which will be toggled to.
-	 */
-	changeSelectedIndex: function (index) {
-		var Z = this,
-			jqEl = jQuery(Z.el),
-			oli, 
-			oul = jqEl.find('.jl-tab-list')[0],
-			nodes = oul.childNodes,
-			cnt = nodes.length - (Z._newable ? 2 : 1);
-		if (index > cnt || index < 0) {
-			return;
-		}
-
-		if (Z._onSelectedChanged) {
-			var canChanged = Z._onSelectedChanged.call(Z, Z._selectedIndex, index);
-			if (canChanged !== undefined && !canChanged) {
-				return;
-			}
-		}
-
-		var itemContainer = jqEl.find('.jl-tab-items')[0],
-			item, 
-			items = itemContainer.childNodes;
-		for (var i = 0; i <= cnt; i++) {
-			oli = jQuery(nodes[i]);
-			item = items[i];
-			if (i == index) {
-				oli.addClass('jl-tab-selected');
-				item.style.display = 'block';
-			}
-			else {
-				oli.removeClass('jl-tab-selected');
-				item.style.display = 'none';
-			}
-		}
-		Z._selectedIndex = index;
-	},
 
 	/**
 	 * Add tab item dynamically.
@@ -526,9 +555,6 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 
 		var panelContainer = jqEl.find('.jl-tab-items')[0];
 		Z._createBody(panelContainer, newItemCfg);
-		if (!notRefreshRightIdx) {
-			Z._refreshRightIndex();
-		}
 	},
 
 	/**
@@ -559,25 +585,35 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var panelContainer = jqEl.find('.jl-tab-items')[0];
 		nodes = panelContainer.childNodes;
 		panelContainer.removeChild(nodes[tabIndex]);
+		Z._calcItemsWidth();
 
 		if (selected) {
 			cnt--;
-			if (tabIndex < cnt) {
-				tabIndex++;
-			} else {
-				tabIndex--;
-			}
+			tabIndex = Z._getNextValidIndex(tabIndex, tabIndex >= cnt)
 			if (tabIndex >= 0) {
-				Z.changeSelectedIndex(tabIndex);
+				Z._chgSelectedIndex(tabIndex);
 			}
-		}
-		Z._refreshRightIndex();
-
-		if (Z._leftIndex >= Z._rightIndex) {
-			Z._changeLeftIndex(Z._rightIndex - Z._leftIndex);
 		}
 	},
 
+	_getNextValidIndex: function(start, isLeft) {
+		var Z = this;
+		if(isLeft) {
+			for(var i = start - 1; i >= 0; i--) {
+				if(!Z._items[i].disabled) {
+					return i;
+				}
+			}
+		} else {
+			for(var i = start + 1, len = Z._items.length; i < len; i++) {
+				if(!Z._items[i].disabled) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	},
+	
 	/**
 	 * Close the current active tab item  if this tab item is closable.
 	 */
@@ -587,6 +623,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		if (k >= 0 && Z._items[k].closable) {
 			Z.removeTabItem(k);
 		}
+		Z._calcItemsWidth();
 	},
 
 	/**
@@ -602,6 +639,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				Z.removeTabItem(i);
 			}
 		}
+		Z._calcItemsWidth();
 	},
 	
 	/**
@@ -613,10 +651,46 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			currWidth = jQuery(Z.el).width();
 		if ( Z._tabControlWidth != currWidth){
 			Z._tabControlWidth = currWidth;
-			Z._refreshRightIndex();
+			Z._calcItemsWidth();
+			Z._setVisiTabItems(Z._leftIndex);
 		}
 	},
 	
+	_createContextMenu: function () {
+		var Z = this;
+		if (!jslet.ui.Menu || !Z._closable) {
+			return;
+		}
+		var menuCfg = { type: 'Menu', onItemClick: Z._menuItemClick, items: [
+			{ id: 'close', name: jslet.locale.TabControl.close},
+			{ id: 'closeOther', name: jslet.locale.TabControl.closeOther}]};
+		if (Z._onCreateContextMenu) {
+			Z._onCreateContextMenu.call(Z, menuCfg.items);
+		}
+
+		if (menuCfg.items.length === 0) {
+			return;
+		}
+		Z.contextMenu = jslet.ui.createControl(menuCfg);
+
+		var head = jQuery(Z.el).find('.jl-tab-container')[0];
+
+		head.oncontextmenu = function (event) {
+			var evt = event || window.event;
+			Z.contextMenu.showContextMenu(evt, Z);
+		};
+	},
+
+	_menuItemClick: function (menuid, checked) {
+		if (menuid == 'close') {
+			this.close();
+		} else {
+			if (menuid == 'closeOther') {
+				this.closeOther();
+			}
+		}
+	},
+
 	/**
 	 * @override
 	 */
@@ -654,12 +728,11 @@ jslet.ui.TabItem = function () {
 	var Z = this;
 	Z.id = null; //{String} Element Id
 	Z.index = -1; //{Integer} TabItem index
-	Z.iconClass = null; //{String} The icon class of tab item head 
 	Z.header = null; //{String} Head of tab item
 	Z.closable = false; //{Boolean} Can be closed or not
-	Z.enable = true; //{Boolean} 
-	Z.visible = true; //{Boolean} 
-	Z.useIFrame = false; //{Boolean} 
+	Z.disabled = false; //{Boolean} 
+	Z.useIFrame = false; //{Boolean}
+	Z.height = 100;
 	Z.url = null; //{String} 
 	Z.divId = null; //{String} 
 	Z.content = null; //{String} 

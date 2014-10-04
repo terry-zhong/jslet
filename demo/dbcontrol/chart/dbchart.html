@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBChart">
     <title>Jslet - DBChart Demo</title>
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
@@ -42,19 +44,20 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - DBChart Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
     <div class="content">Tips: DBChart is designed with Flash. Cause the .swf file size is 514k, it is probably slow when open it first time.</div>
-    <fieldset>
-		<legend>Summary List</legend>
-    <div id="table1" data-jslet='type:"DBTable",dataset:"summary",hasSelectCol:true,selectBy:"area"'
+    <h4>Summary List</h4>
+    <div data-jslet='type:"DBTable",dataset:"summary",hasSelectCol:true,selectBy:"area"'
         style="width: 600px; height: 200px">
     </div>
-	</fieldset>
-	<fieldset>
-		<legend>Chart Area</legend>
+
+	<h4>Chart Area</h4>
     <table>
         <tr>
             <td>
@@ -71,7 +74,8 @@
                         <option value="stackbar">Stack Bar Chart</option>
                         <!--option value="area">Area Chart</option -->
                         <option value="pie">Pie Chart</option>
-                    </select> 
+                    </select>
+				</li>
                 <li>
                     Value Data : <select id="selValueField" onchange="doChangeValueField()">
                         <option value="amount,netprofit">Amount+Net Profit </option>
@@ -92,7 +96,7 @@
             </td>
         </tr>
     </table>
-	</fieldset>
+
 	<script type="text/javascript">
 		//Change Chart Type
 		function doChangeChartType() {
@@ -133,5 +137,6 @@
 	</script>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=900"></script>
+	</div>
 </body>
 </html>

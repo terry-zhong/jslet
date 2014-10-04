@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jslet dataset edit data">
     <title>Jslet - Edit Data</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -48,125 +50,107 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
-    <h2 id="top">Jslet - Edit Data</h2>
-<!--[if lt IE 8]>
-<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
-<![endif]-->
-	<div class="content">Demonstrate how to insert, append, update, delete, set default value, validate data and so on.</div>
-    <fieldset>
-        <legend>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
+	<div class="container-fluid">
+	<!--[if lt IE 8]>
+	<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+	<![endif]-->
+	<div class="page-header" id="top">
+		<h2>Jslet - Edit Data</h2>
+		<p class="lead">Demonstrate how to insert, append, update, delete, set default value, validate data and so on.</p>
+	</div>
+    <h4>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</h4>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
-	</fieldset>
-    <div>
-    <button onclick="dsEmployee.insertRecord();" title='Add record after current cursor'> Insert </button>
-    <button onclick="dsEmployee.appendRecord();" title='Add record after last record'> Append </button>
-    <button onclick="dsEmployee.editRecord();"> Edit </button>
-    <button onclick="dsEmployee.deleteRecord();"> Delete </button>
-    <button onclick="dsEmployee.confirm();"> Confirm </button>
-    <button onclick="dsEmployee.cancel();"> Cancel </button>
-    <button onclick="apply();" title="Submit data to server"> Submit Changes</button>
+    <div class="row" style="margin:10px">
+    <button class="btn btn-primary" onclick="dsEmployee.insertRecord();"  title='Add record after current cursor'> Insert </button>
+    <button class="btn btn-primary" onclick="dsEmployee.appendRecord();" title='Add record after last record'> Append </button>
+    <button class="btn btn-primary" onclick="dsEmployee.editRecord();"> Edit </button>
+    <button class="btn btn-primary" onclick="dsEmployee.deleteRecord();"> Delete </button>
+    <button class="btn btn-primary" onclick="dsEmployee.confirm();"> Confirm </button>
+    <button class="btn btn-primary" onclick="dsEmployee.cancel();"> Cancel </button>
+    <button class="btn btn-primary" onclick="apply();" title="Submit data to server"> Submit Changes</button>
     </div>
-	<fieldset>
-		<legend>Edit Panel</legend>
-		<table data-jslet='dataset:"employee"' style="width:100%">
-			<tr>
-				<td style="width:15%">
-					<label data-jslet='type:"DBLabel",field:"workerid"'></label>:
-				</td>
-				<td style="width:35%">
-					<input type="text" data-jslet='type:"DBText",field:"workerid"' class="editor" ></input>
-					<label data-jslet='type:"DBDataLabel",field:"workerid"'></label>
-				</td>
-				<td style="width:15%">
-					<label data-jslet='type:"DBLabel",field:"name"'></label>:
-				</td>
-				<td style="width:35%">
-					<input type="text" data-jslet='type:"DBText",field:"name"' class="editor" />
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"gender"'></label>:
-				</td>
-				<td>
-					<div data-jslet='type:"DBRadioGroup",field:"gender"' class="editor"></div>
-				</td>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"married"'></label>:
-				</td>
-				<td style="text-align:left">
-					<input type="checkbox" data-jslet='type:"DBCheckBox",field:"married"' />
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"department"'></label>:
-				</td>
-				<td>
-					<div data-jslet='type:"DBComboSelect",field:"department",textReadOnly:true' class="editor" ></select>
-				</td>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"age"'></label>:
-				</td>
-				<td>
-					<input type="text" data-jslet='type:"DBText",field:"age"'  class="editor" />
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"birthday"'></label>:
-				</td>
-				<td>
-					<div data-jslet='type:"DBDatePicker",field:"birthday"' class="editor"></div>
-				</td>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"position"'></label>:
-				</td>
-				<td>
-					<select data-jslet='type:"DBSelect",field:"position"' class="editor"></select>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"province"'></label>:
-				</td>
-				<td>
-					<select data-jslet='type:"DBSelect",field:"province"' class="editor">
-					</select>
-				</td>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"salary"'></label>:
-				</td>
-				<td>
-					<input type="text" data-jslet='type:"DBText",field:"salary"' class="editor" />
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label data-jslet='type:"DBLabel",field:"university"'></label>:
-				</td>
-				<td>
-					<input type="text" data-jslet='type:"DBText",field:"university"' class="editor" />
-				</td>
-			</tr>
-		</table>
-    </fieldset>
-	<fieldset>
-		<legend>Dataset Event Log</legend>
-        <input type="button" value=" Clear " onclick="$('#eventpanel')[0].value=''"><br />
-        <textarea id="eventpanel" style="width: 100%; height: 100px" rows="1" cols="1"></textarea>
-    </fieldset>
+	
+	
+	<div class="form-horizontal" data-jslet='dataset:"employee"' role="form">
+		<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"workerid"'></label>
+			<div class="col-sm-3">
+			<input type="text" data-jslet='type:"DBText",field:"workerid"'></input>
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"name"'></label>
+			<div class="col-sm-3">
+				<input type="text" data-jslet='type:"DBText",field:"name"' />
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"gender"'></label>
+			<div class="col-sm-3">
+			<div data-jslet='type:"DBRadioGroup",field:"gender"'></div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-1">&nbsp;</div>
+			<div class="col-sm-3">
+				<input id="chkmarried" type="checkbox" data-jslet='type:"DBCheckBox",field:"married"' />
+				<label data-jslet='type:"DBLabel",field:"married"' for="chkmarried"></label>
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
+			<div class="col-sm-3">
+				<div data-jslet='type:"DBComboSelect",field:"department"'></div>
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"age"'></label>
+			<div class="col-sm-3">
+				<div data-jslet='type:"DBSpinEdit",field:"age"'></div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"birthday"'></label>
+			<div class="col-sm-3">
+				<div data-jslet='type:"DBDatePicker",field:"birthday"' ></div>
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"position"'></label>
+			<div class="col-sm-3">
+				<select data-jslet='type:"DBSelect",field:"position"'></select>
+			</div>
+			<label class="control-label col-sm-1" data-jslet='type:"DBLabel",field:"province"'></label>
+			<div class="col-sm-3">
+				<select data-jslet='type:"DBSelect",field:"province"'></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"salary"'></label>
+			<div class="col-sm-3">
+			<input type="text" data-jslet='type:"DBText",field:"salary"'></input>
+			</div>
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"university"'></label>
+			<div class="col-sm-3">
+				<input type="text"  data-jslet='type:"DBText",field:"university"' />
+			</div>
+		</div>
+
+
+	</div>
+	<hr />
+	<section>
+	<p><b>Dataset Event Log</b>
+        <button class="btn btn-default" onclick="$('#eventpanel')[0].value=''">Clear</button>
+	</p>
+    <textarea id="eventpanel" style="width: 100%; height: 100px" rows="1" cols="1"></textarea>
+	</section>
+	<section>
 	<h3>Demo Comments:</h3>
 	<div class="cotent">
 		<ol>
 		<li>Modify data in an edit control and observe the above data table changes;</li>
-		<li>The label with red star(*) is required;</li>
+		<li>The label with red star(*) means field is required;</li>
 		<li>Click the tool button, and see the dataset event log;</li>
 		<li>Set default value of field "ID" when insert a new record;</li>
 		<li>Click "Delete" button, and see how to intercept the delete action.</li>
 		</ol>
 	</div>
+	</section>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=1050"></script>
+	</div>
 </body>
 </html>

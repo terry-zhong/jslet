@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbspinedit.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBSpinEdit. 
@@ -70,7 +66,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		var Z = this,
 			jqEl = jQuery(Z.el);
 		if(!jqEl.hasClass('jl-spinedit')) {
-			jqEl.addClass('jl-spinedit');
+			jqEl.addClass('input-group jl-spinedit');
 			jqEl.attr('role', 'spinbutton');
 		}
 		Z._createControl();
@@ -80,15 +76,15 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 	_createControl: function() {
 		var Z = this,
 			jqEl = jQuery(Z.el),
-			s = '<div class="jl-spinedit-input"><input class="jl-border-box" role="presentation"/></div>' + 
-		'<div class="jl-spinedit-upbtn jl-spinedit-upbtn-up jl-unselectable" unselectable="on" ondblclick="return false;"></div>' + 
-		'<div class="jl-spinedit-downbtn jl-spinedit-downbtn-up jl-unselectable" ondblclick="return false;" unselectable="on"></div>';
-
+			s = '<input type="text" class="form-control">' + 
+		    	'<div class="jl-spinedit-btn-group">' +
+		    	'<button class="btn btn-default jl-spinedit-up"><i class="fa fa-caret-up"></i></button>' + 
+		    	'<button class="btn btn-default jl-spinedit-down"><i class="fa fa-caret-down"></i></button>';
 		jqEl.html(s);
 		
-		var editor = jqEl.find('.jl-border-box')[0],
-			upButton = jqEl.find('.jl-spinedit-upbtn-up')[0],
-			downButton = jqEl.find('.jl-spinedit-downbtn-up')[0];
+		var editor = jqEl.find('input')[0],
+			upButton = jqEl.find('.jl-spinedit-up')[0],
+			downButton = jqEl.find('.jl-spinedit-down')[0];
 		Z.editor = editor;
 		jQuery(Z.editor).on("keydown", function(event){
 			if(Z._isDisabled()) {
@@ -112,37 +108,13 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 			beforeUpdateToDataset: Z.beforeUpdateToDataset,
 			valueIndex: Z._valueIndex
 		});
-
-		jQuery(upButton).on('mousedown', function () {
-			if(Z._isDisabled()) {
-				return;
-			}
-			this.className = 'jl-spinedit-upbtn jl-spinedit-upbtn-down jl-unselectable';
-			Z.editor.blur();
+		
+		jQuery(upButton).on('click', function () {
 			Z.incValue();
-			Z.editor.focus();
-		});
-		jQuery(upButton).on('mouseup', function () {
-			if(Z._isDisabled()) {
-				return;
-			}
-			this.className = 'jl-spinedit-upbtn jl-spinedit-upbtn-up jl-unselectable';
 		});
 		
-		jQuery(downButton).on('mousedown', function () {
-			if(Z._isDisabled()) {
-				return;
-			}
-			this.className = 'jl-spinedit-downbtn jl-spinedit-downbtn-down jl-unselectable';
-			Z.editor.blur();
+		jQuery(downButton).on('click', function () {
 			Z.decValue();
-			Z.editor.focus();
-		});
-		jQuery(downButton).on('mouseup', function () {
-			if(Z._isDisabled()) {
-				return;
-			}
-			this.className = 'jl-spinedit-downbtn jl-spinedit-downbtn-up jl-unselectable';
 		});
 	},
 	
@@ -281,15 +253,15 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		
 		if(!metaName || metaName == 'disabled' || metaName == 'readOnly') {
 			var disabled = fldObj.disabled() || fldObj.readOnly(),
-				jqUpBtn = jqEl.find('.jl-spinedit-upbtn'),
-				jqDownBtn = jqEl.find('.jl-spinedit-downbtn');
+				jqUpBtn = jqEl.find('.jl-spinedit-up'),
+				jqDownBtn = jqEl.find('.jl-spinedit-down');
 				
 			if (disabled) {
-				jqUpBtn.addClass('jl-spinedit-upbtn-disabled');
-				jqDownBtn.addClass('jl-spinedit-downbtn-disabled');
+				jqUpBtn.attr('disabled', 'disabled');
+				jqDownBtn.attr('disabled', 'disabled');
 			} else {
-				jqUpBtn.removeClass('jl-spinedit-upbtn-disabled');
-				jqDownBtn.removeClass('jl-spinedit-downbtn-disabled');
+				jqUpBtn.attr('disabled', false);
+				jqDownBtn.attr('disabled', false);
 			}
 		}
 		if(!metaName || metaName == 'range') {

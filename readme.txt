@@ -2,7 +2,7 @@
 ==============================================================================
 This file is intended to help you get started with the Jslet framework.
 
-For more information see http://www.jslet.com
+For more information see http://jslet.github.io/jslet/
 ==============================================================================
 
 
@@ -15,9 +15,9 @@ Jslet framework is an open source javascript framework. Features:
 3. Jslet can run in all of major browser, like IE7+, Chrome, Firefox, Sarari, Opera;
 4. Jslet supports UI theme changing and localization, especially, it support "right-to-left", like Arab  
 
-For more detail features, please run demo examples or visit http://www.jslet.com/en/demo.html;
+For more detail features, please run demo examples or visit http://jslet.github.io/jslet/;
  
-For license information, please visit http://www.jslet.com/en/license.html
+License: MIT
 
 
 What is in this package?
@@ -49,7 +49,7 @@ What should I do if I encounter a problem?
 
 Docs is available in our website:
 
-    http://www.jslet.com
+     http://jslet.github.io/jslet/
 
 If you have any questions, please contact us with e-mail:
 

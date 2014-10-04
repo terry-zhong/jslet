@@ -1,13 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+/* ========================================================================
+ * Jslet framework: jslet.datacommon.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * keep all dataset object,
@@ -324,7 +320,7 @@ jslet.data.FieldValidator.prototype = {
 				return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
 			}
 		}
-		//Customized sort
+		//Customized validation
 		if (fldObj.customValidator()) {
 			return fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
 		}
@@ -477,12 +473,27 @@ jslet.data._record2JsonFilter = function(key, value) {
 	return key == jslet.data.FieldValueCache.CACHENAME ? undefined: value;
 };
 
-jslet.data.record2Json = function(records) {
+jslet.data._record2JsonAndEncodingFilter = function(key, value) {
+	if(key == jslet.data.FieldValueCache.CACHENAME) {
+		return undefined;
+	}
+	if(value && typeof value == 'string') {
+		return encodeURIComponent(value);
+	} else {
+		return value;
+	}
+};
+
+jslet.data.record2Json = function(records, urlEncoding) {
 	if(!window.JSON || !JSON) {
 		alert('Your browser does not support JSON!');
 		return;
 	}
-	return JSON.stringify(records, jslet.data._record2JsonFilter);
+	if(urlEncoding) {
+		return JSON.stringify(records, jslet.data._record2JsonAndEncodingFilter);
+	} else {
+		return JSON.stringify(records, jslet.data._record2JsonFilter);
+	}
 };
 
 /*Field value cache manager*/
@@ -496,18 +507,29 @@ jslet.data.FieldValueCache = {
 			record[this.CACHENAME] = cacheObj;
 		}
 		if(valueIndex || valueIndex === 0) {
-			fieldName += '.' + valueIndex;
+			var fldCacheObj = cacheObj[fieldName];
+			if(!fldCacheObj || !jslet.isObject(fldCacheObj)){
+				fldCacheObj = {};
+				cacheObj[fieldName] = fldCacheObj;
+			}
+			fldCacheObj[valueIndex+""] = value;
+		} else {
+			cacheObj[fieldName] = value;
 		}
-		cacheObj[fieldName] = value;
 	},
 	
 	get: function(record, fieldName, valueIndex) {
 		var cacheObj = record[this.CACHENAME];
 		if(cacheObj) {
 			if(valueIndex || valueIndex === 0) {
-				fieldName += '.' + valueIndex;
+				var fldCacheObj = cacheObj[fieldName];
+				if(fldCacheObj && jslet.isObject(fldCacheObj)){
+					return fldCacheObj[valueIndex+""];
+				}
+				return undefined;
+			} else {
+				return cacheObj[fieldName];
 			}
-			return cacheObj[fieldName];
 		} else {
 			return undefined;
 		}
@@ -584,3 +606,44 @@ jslet.data.DatasetRelationManager = function() {
 	};
 };
 jslet.data.datasetRelationManager = new jslet.data.DatasetRelationManager();
+
+jslet.data.convertDateFieldValue = function(dataset, records) {
+	var Z = dataset;
+	if(!records) {
+		records = Z.dataList();
+	}
+	if (!records || records.length === 0) {
+		return;
+	}
+
+	var dateFlds = [], i,
+		fields = Z.getNormalFields(),
+		cnt = fields.length, fldObj;
+	for (i = 0; i < cnt; i++) {
+		fldObj = fields[i];
+		if (fldObj.getType() == jslet.data.DataType.DATE) {
+			dateFlds.push(fldObj.name());
+		}
+	}
+	if (dateFlds.length === 0) {
+		return;
+	}
+
+	var rec, fname, value,
+		recCnt = records.length;
+	for (i = 0; i < recCnt; i++) {
+		rec = records[i];
+		for (var j = 0, fcnt = dateFlds.length; j < fcnt; j++) {
+			fname = dateFlds[j];
+			value = rec[fname];
+			if (!jslet.isDate(value)) {
+				value = jslet.convertISODate(value);
+				if (value) {
+					rec[fname] = value;
+				} else {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fldName]));
+				}
+			} //end if
+		} //end for j
+	} //end for i
+}

@@ -1,13 +1,13 @@
-/*
-This file is part of Jslet framework
+/* ========================================================================
+ * Jslet framework: jslet.uicommon.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+if(!jslet.ui) {
+	jslet.ui = {};
+}
 
 jslet.ui.htmlclass = {};
 jslet.ui.GlobalZIndex = 100;
@@ -55,6 +55,11 @@ jslet.ui.PopupPanel = function () {
 		}
 	};
 
+	this._stopMouseEvent = function(event) {
+		event.stopImmediatePropagation();
+		event.preventDefault();
+	};
+	
 	/**
 	 * Private, create popup panel
 	 */
@@ -62,23 +67,19 @@ jslet.ui.PopupPanel = function () {
 		if (!jslet.ui._popupPanel) {
 			var p = document.createElement('div');
 			p.style.display = 'none';
-			p.className = 'jl-popuppanel jl-opaque jl-border-box';
+			p.className = 'jl-popup-panel jl-opaque jl-border-box dropdown-menu';
 			p.style.position = 'absolute';
 			p.style.zIndex = 99000;
 			document.body.appendChild(p);
-/*
-			var shadow = document.createElement('div');
-			shadow.style.display = 'none';
-			shadow.className = 'jl-shadow';
-			shadow.style.zIndex = 99998;
-			document.body.appendChild(shadow);
-			jslet.ui._popupShadow = shadow;
-*/
+			
 			jQuery(document).on('click', this.documentClickHandler);
+//			jQuery(p).on('click', this._stopMouseEvent);
+//			jQuery(p).on('mousedown', this._stopMouseEvent);
+//			jQuery(p).on('mouseup', this._stopMouseEvent);
 			jslet.ui._popupPanel = p;
 		}
 	};
-
+	
 	/**
 	 * Show popup panel in specified position with specified size.
 	 * 
@@ -232,7 +233,7 @@ jslet.ui.inPopupPanel = function (htmlElement) {
 	if (!htmlElement || htmlElement == document) {
 		return false;
 	}
-	if (jQuery(htmlElement).hasClass('jl-popuppanel')) {
+	if (jQuery(htmlElement).hasClass('jl-popup-panel')) {
 		return true;
 	} else {
 		return jslet.ui.inPopupPanel(htmlElement.parentNode);

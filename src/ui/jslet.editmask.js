@@ -1,13 +1,13 @@
-/*
-This file is part of Jslet framework
+/* ========================================================================
+ * Jslet framework: jslet.editmask.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+if(!jslet.ui) {
+	jslet.ui = {};
+}
 
 /**
  * @class EditMask
@@ -126,7 +126,7 @@ jslet.ui.EditMask.prototype = {
 			if(this.readOnly || !Z._mask) {
 				return true;
 			}
-			Z._doCut(event.clipboardData || window.clipboardData);
+			Z._doCut(event.originalEvent.clipboardData || window.clipboardData);
 			event.preventDefault();
 			return false;
 		});
@@ -135,7 +135,7 @@ jslet.ui.EditMask.prototype = {
 			if(this.readOnly || !Z._mask) {
 				return true;
 			}
-			if (!Z._doPaste(event.clipboardData || window.clipboardData)) {
+			if (!Z._doPaste(event.originalEvent.clipboardData || window.clipboardData)) {
 				event.preventDefault();
 			}
 		});
@@ -550,12 +550,13 @@ jslet.ui.EditMask.prototype = {
 		if (!pasteValue) {
 			return false;
 		}
-		var pos = jslet.ui.textutil.getCursorPos(this._target), begin, ch;
+		var pos = jslet.ui.textutil.getCursorPos(this._target), begin = 0, ch;
+		pos.end = pos.begin;
 		for (var i = 0; i < pasteValue.length; i++) {
 			ch = pasteValue.charAt(i);
-			pos.begin += i;
-			pos.end = pos.begin;
 			begin = this._updateBuffer(pos, ch);
+			pos.begin = i;
+			pos.end = pos.begin;
 		}
 		this._showValue();
 		if (begin >= 0) {

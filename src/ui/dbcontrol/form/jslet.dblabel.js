@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dblabel.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBLabel. 
@@ -46,6 +42,7 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	bind: function () {
+		jQuery(this.el).addClass('control-label');
 		this.renderAll();
 	},
 
@@ -96,18 +93,21 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var jqEl = jQuery(this.el),
 			subType = this.fieldMeta();
 		
+		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent());
 		if(subType == 'message') {
 			if(!jqEl.hasClass('jl-lbl-message')) {
 				jqEl.addClass('jl-lbl-message');
 			}
-		}
+		} else 
 		if(subType == 'tip') {
 			if(!jqEl.hasClass('jl-lbl-tip')) {
 				jqEl.addClass('jl-lbl-tip');
 			}
+		} else {
+			if(!jqEl.hasClass('jl-lbl')) {
+				jqEl.addClass('jl-lbl');
+			}
 		}
-		
-		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent());
 	}
 });
 

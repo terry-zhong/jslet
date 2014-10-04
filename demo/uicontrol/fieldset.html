@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use UI widget: FieldSet">
     <title>Jslet - FieldSet Demo</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -13,20 +15,19 @@
     </style>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - FieldSet Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">Demonstrate how to use FieldSet control.</div>
 
-    <fieldset data-jslet='type: "FieldSet", caption: " Fieldset caption "'
+    <fieldset data-jslet='type: "FieldSet", caption: " Fieldset Title "'
         style="width: 300px; margin-left: 20px">
         <div style="height: 200px">
-        <p>content1</p>
-        <p>content2</p>
-        <p>content3</p>
-        <p>content4</p>
-        <p>content5</p>
+        <p>The quick brown fox jumps over the lazy dog</p>
         </div>
    </fieldset>
 
@@ -35,5 +36,6 @@
 
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=630"></script>
+	</div>
 </body>
 </html>

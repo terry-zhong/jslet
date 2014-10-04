@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbtext.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBText is a powerful control, it can input any data type, like:
@@ -83,7 +79,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
-		jqEl.addClass('jl-border-box jl-text');
+		jqEl.addClass('form-control');
 		
 		if (Z.doFocus) {
 			jqEl.on('focus', Z.doFocus);
@@ -121,6 +117,11 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
 		}
+		var jqEl = jQuery(this.el);
+		if(jqEl.attr('readOnly') || jqEl.attr('disabled')) {
+			return;
+		}
+
 		Z.updateToDataset();
 		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 	},
@@ -159,7 +160,10 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	},
 
 	focus: function() {
-		this.el.focus();
+		var jqEl = jQuery(this.el);
+		if(!jqEl.attr('disabled')) {
+			this.el.focus();
+		}
 	},
 	
 	/**

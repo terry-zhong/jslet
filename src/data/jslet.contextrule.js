@@ -1,13 +1,10 @@
-/*
-This file is part of Jslet framework
+/* ========================================================================
+ * Jslet framework: jslet.contextrule.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
 jslet.data.ContextRule = function() {
 	var Z = this;
 	Z._name = '';
@@ -29,8 +26,8 @@ jslet.data.ContextRule.prototype = {
 			return this._name;
 		}
 		
-		name = jQuery.trim(name);
 		jslet.Checker.test('ContextRule.name', name).isString();
+		this._name = jQuery.trim(name);
 		return this;
 	},
 
@@ -59,9 +56,8 @@ jslet.data.ContextRule.prototype = {
 			return this._condition;
 		}
 		
-		condition = jQuery.trim(condition);
 		jslet.Checker.test('ContextRule.status', condition).isString();
-		this._condition = condition;
+		this._condition = jQuery.trim(condition);
 		return this;
 	},
 	
@@ -78,8 +74,9 @@ jslet.data.ContextRule.prototype = {
 
 jslet.data.ContextRuleItem = function(fldName) {
 	var Z = this;
+	jslet.Checker.test('ContextRule.field', fldName).isString();
 	fldName = jQuery.trim(fldName);
-	jslet.Checker.test('ContextRule.field', fldName).isString().required();
+	jslet.Checker.test('ContextRule.field', fldName).required();
 	Z._field = fldName;
 	
 	Z._meta = undefined;
@@ -198,9 +195,9 @@ jslet.data.ContextRuleMeta.prototype = {
 		if (nullText === undefined) {
 			return this._nullText;
 		}
-		nullText = jQuery.trim(nullText);
+		
 		jslet.Checker.test('ContextRuleMeta.nullText', nullText).isString();
-		this._nullText = nullText;
+		this._nullText = jQuery.trim(nullText);
 		return this;
 	},
 	
@@ -310,9 +307,9 @@ jslet.data.ContextRuleMeta.prototype = {
 		if (formula === undefined) {
 			return Z._formula;
 		}
-		formula = jQuery.trim(formula);
+		
 		jslet.Checker.test('ContextRuleMeta.formula', formula).isString();
-		Z._formula = formula;
+		Z._formula = jQuery.trim(formula);
 		return this;
 	},
 
@@ -330,9 +327,8 @@ jslet.data.ContextRuleMeta.prototype = {
 			return Z._displayFormat;
 		}
 		
-		format = jQuery.trim(format);
 		jslet.Checker.test('ContextRuleMeta.format', format).isString();
-		Z._displayFormat = format;
+		Z._displayFormat = jQuery.trim(format);
 		return this;
 	},
 
@@ -478,9 +474,9 @@ jslet.data.ContextRuleMeta.prototype = {
 		if (chars === undefined){
 			return Z._validChars;
 		}
-		chars = jQuery.trim(chars);
+		
 		jslet.Checker.test('ContextRuleMeta.validChars', chars).isString();
-		Z._validChars = chars;
+		Z._validChars = jQuery.trim(chars);
 	}
 	
 };
@@ -507,7 +503,7 @@ jslet.data.ContextRuleLookup.prototype ={
 			return Z._dataset;
 		}
 		jslet.Checker.test('ContextRuleLookup.dataset', datasetName).isString();
-		Z._dataset = datasetName;
+		Z._dataset = jQuery.trim(datasetName);
 	},
 
 	filter: function(filter){
@@ -516,7 +512,7 @@ jslet.data.ContextRuleLookup.prototype ={
 			return Z._filter;
 		}
 		jslet.Checker.test('ContextRuleLookup.filter', filter).isString();
-		Z._filter = filter;
+		Z._filter = jQuery.trim(filter);
 	},
 
 	criteria: function(criteria){
@@ -525,7 +521,7 @@ jslet.data.ContextRuleLookup.prototype ={
 			return Z._criteria;
 		}
 		jslet.Checker.test('ContextRuleLookup.criteria', criteria).isString();
-		Z._criteria = criteria;
+		Z._criteria = jQuery.trim(criteria);
 	},
 
 	displayFields: function(displayFields){
@@ -534,7 +530,7 @@ jslet.data.ContextRuleLookup.prototype ={
 			return Z._displayFields;
 		}
 		jslet.Checker.test('ContextRuleLookup.displayFields', displayFields).isString();
-		Z._displayFields = displayFields;
+		Z._displayFields = jQuery.trim(displayFields);
 	},
 
 	onlyLeafLevel: function(onlyLeafLevel){
@@ -542,8 +538,7 @@ jslet.data.ContextRuleLookup.prototype ={
 		if (onlyLeafLevel === undefined){
 			return Z._onlyLeafLevel;
 		}
-		jslet.Checker.test('ContextRuleLookup.criteria', criteria).isString();
-		Z._onlyLeafLevel = onlyLeafLevel;
+		Z._onlyLeafLevel = onlyLeafLevel ? true: false;
 	}
 };
 
@@ -815,11 +810,11 @@ jslet.data.ContextRuleEngine.prototype = {
 					}
 				}
 			}
-			this._evalRuleItems(ruleObj.rules())
+			this._evalRuleItems(ruleObj.rules(), changingFldName? true: false)
 		}
 	},
 	
-	_evalRuleItems: function(rules) {
+	_evalRuleItems: function(rules, isValueChanged) {
 		var fldName, ruleItem, matchedRule;
 		for(var i = 0, len = rules.length; i < len; i++) {
 			ruleItem = rules[i];
@@ -828,17 +823,20 @@ jslet.data.ContextRuleEngine.prototype = {
 			if(!matchedRule) {
 				matchedRule = new jslet.data.ContextRuleItem(fldName);
 			}
+			
 			var meta = ruleItem.meta(); 
 			if(meta) {
 				matchedRule.meta(new jslet.data.ContextRuleMeta());
 				this._copyProperties(meta, matchedRule.meta());
 			}
+			
 			var lookup = ruleItem.lookup(); 
 			if(lookup) {
 				matchedRule.lookup(new jslet.data.ContextRuleLookup());
 				this._copyProperties(lookup, matchedRule.lookup());
 			}
-			if(ruleItem.value() !== undefined) {
+
+			if(isValueChanged && ruleItem.value() !== undefined) {
 				matchedRule.value(this._evalExpr(ruleItem, 'value'));
 			}
 			this._matchedRules.push(matchedRule);

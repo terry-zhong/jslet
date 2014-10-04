@@ -50,10 +50,10 @@ var dsFieldCfg = jslet.data.createDataset('fieldCfg', fldCfg, {keyField: 'name',
 fldCfg = [
 	{ name: 'name', type: 'S', length: 30, label: 'Dataset Name', displayWidth: 20, required: true },
 	{ name: 'description', type: 'S', length: 100, label: 'description', displayWidth: 20 },
-	{ name: 'keyField', type: 'S', length: 30, label: 'Key Field', displayWidth: 10,required: false },
-	{ name: 'inputValueField', type: 'S', length: 30, label: 'Input Value Field', displayWidth: 10 },
-	{ name: 'displayValueField', type: 'S', length: 30, label: 'Display Value Field', displayWidth: 10 },
-	{ name: 'parentField', type: 'S', length: 30, label: 'Parent Field', displayWidth: 10 },
+	{ name: 'keyField', type: 'S', length: 30, label: 'ID Field', displayWidth: 10,required: false },
+	{ name: 'inputValueField', type: 'S', length: 30, label: 'Code Field', displayWidth: 10 },
+	{ name: 'displayValueField', type: 'S', length: 30, label: 'Name Field', displayWidth: 10 },
+	{ name: 'parentField', type: 'S', length: 30, label: 'Parent ID Field', displayWidth: 10 },
 	{ name: 'fields', type: 'V', label: 'fields',subDataset:'fieldCfg', visible:false }
     ];
 

@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Take a glance at Jslet framework">
     <title>Jslet - Glance</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
 	<script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -13,122 +15,91 @@
 	
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - Glance</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-	<div class="content">Take a quick glance to know how Jslet framework works.</div>
-    <fieldset>
-    <legend>Employee List:  (<a href="../model/EmployeeDataModel.htm">Data Model</a>)</legend>
+	<div class="content">Take a quick glance to know how Jslet framework works(<a href="../model/EmployeeDataModel.htm">Data Model</a>).</div>
+
 	<!-- Employee List -->
-    <table cellpadding="2" style="width:100%">
-        <tr>
-            <td>
-                <div data-jslet="type:'DBTable',dataset:'employee',hasSelectCol:true,rowHeight:25"
-                    style="width: 100%; height: 200px">
+    <div class="form-horizontal">
+		<div class="form-group">
+		<div class="col-sm-10">
+        <div data-jslet="type:'DBTable',dataset:'employee',hasSelectCol:true,rowHeight:25">
                 </div>
-            </td>
-            <td style="width:140px">
+		</div>
+		<div class="col-sm-2">
                 <img id="imgPhoto" alt="employee phote" src="" data-jslet="type:'DBImage',dataset:'employee',field:'photo',baseUrl:'../photo/'"
                     style="height: 160px; width: 140px" />
-            </td>
-        </tr>
-    </table>
-    </fieldset>
+        </div>
+		</div>
+    </div>
+	<hr />
 	<!-- Employee Navigator, dsEmployee is a global variable defined in employee.js -->
-    <button onclick="dsEmployee.first();"> First </button>
-    <button onclick="dsEmployee.prior();"> Prior </button>
-    <button onclick="dsEmployee.next();"> Next </button>
-    <button onclick="dsEmployee.last();" > Last </button>
+    <button class="btn btn-primary" onclick="dsEmployee.first();"> First </button>
+    <button class="btn btn-primary" onclick="dsEmployee.prior();"> Prior </button>
+    <button class="btn btn-primary" onclick="dsEmployee.next();"> Next </button>
+    <button class="btn btn-primary" onclick="dsEmployee.last();" > Last </button>
+	<hr />
 	<!-- Employee Editor -->
-	<fieldset>
-		<legend>Edit Panel</legend>
-    <table data-jslet="dataset:'employee'" cellspacing="10">
-		<col width="150px" />
-		<col width="300px" />
-		<col width="150px" />
-		<col width="300px"/>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'workerid'"></label>
-            </td>
-            <td>
-                <input type="text" data-jslet="type:'DBText',field:'workerid'" class="editor" />
-            </td>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'name'"></label>
-            </td>
-            <td>
-                <input type="text" data-jslet="type:'DBText',field:'name'" class="editor" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'gender'"></label>
-            </td>
-            <td>
-                <div data-jslet="type:'DBRadioGroup',field:'gender'" class="editor" ></div>
-            </td>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'department'" ></label>
-            </td>
-            <td>
-                <select data-jslet="type:'DBSelect',field:'department'" class="editor" ></select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'department'" ></label>
-            </td>
-            <td>
-                <div data-jslet="type:'DBComboSelect',field:'department',textReadOnly:true" class="editor" ></div>
-            </td>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'age'"></label>
-            </td>
-            <td>
-                <div data-jslet="type:'DBSpinEdit',field:'age'" class="editor" ></div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'birthday'" ></label>
-            </td>
-            <td>
-                <div data-jslet="type:'DBDatePicker',field:'birthday'" class="editor" ></div>
-            </td>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'position'" ></label>
-            </td>
-            <td>
-                <select data-jslet="type:'DBSelect',field:'position'" class="editor" ></select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'province'" ></label>
-            </td>
-            <td>
-                <select data-jslet="type:'DBSelect',field:'province'" class="editor" ></select>
-            </td>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'salary'" ></label>
-            </td>
-            <td>
-                <input type="text" data-jslet="type:'DBText',field:'salary'" class="editor"/>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label data-jslet="type:'DBLabel',field:'university'" ></label>
-            </td>
-            <td>
-                <input type="text" data-jslet="type:'DBText',field:'university'" class="editor"/>
-            </td>
-        </tr>
-    </table>
-</fieldset>
+
+    <div class="form-horizontal" data-jslet="dataset:'employee'">
+		<div class="form-group">
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'workerid'"></label>
+			<div class="col-sm-3">
+				<input type="text" data-jslet="type:'DBText',field:'workerid'"/>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'name'"></label>
+			<div class="col-sm-3">
+				<input type="text" data-jslet="type:'DBText',field:'name'"/>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'gender'"></label>
+			<div class="col-sm-3">
+                <div data-jslet="type:'DBRadioGroup',field:'gender'"></div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'department'"></label>
+			<div class="col-sm-3">
+				<select data-jslet="type:'DBSelect',field:'department'"></select>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'age'"></label>
+			<div class="col-sm-3">
+				<div data-jslet="type:'DBSpinEdit',field:'age'"></div>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'birthday'"></label>
+			<div class="col-sm-3">
+               <div data-jslet="type:'DBDatePicker',field:'birthday'"></div>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'position'"></label>
+			<div class="col-sm-3">
+				<select data-jslet="type:'DBSelect',field:'position'"></select>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'province'"></label>
+			<div class="col-sm-3">
+				<select data-jslet="type:'DBSelect',field:'province'"></select>
+			</div>
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'salary'"></label>
+			<div class="col-sm-3">
+               <input type="text" data-jslet="type:'DBText',field:'salary'"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-1"  data-jslet="type:'DBLabel',field:'university'"></label>
+			<div class="col-sm-3">
+               <input type="text" data-jslet="type:'DBText',field:'university'"/>
+			</div>
+		</div>
+	</div>
+	
 	<!-- Source Code -->
 	<script type="text/javascript" src="../source/demosource.js?height=900"></script>
+	</div>
 </body>
 </html>

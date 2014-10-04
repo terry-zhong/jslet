@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jslet dataset context rule">
     <title>Jslet - Context Rule(Data Status Changed)</title>
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -25,7 +27,10 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
-    <h2 id="top">Jslet - Context Rule(Data Status Changed)</h2>
+	<div class="container">
+    <div class="page-header">
+		<h2 id="top">Jslet - Context Rule(Data Status Changed)</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
@@ -33,19 +38,24 @@
 	<p> In this example, field 'Num#' is only <b>editable</b> in INSERT status.
 	</p>
 	</div>	
-	<fieldset>
-	<div>
-		<button onclick="dsContact.insertRecord()"> Insert </button>
-		<button onclick="dsContact.editRecord()"> Update </button>
-		<button onclick="dsContact.cancel()"> Cancel </button>
+
+	<div class="toolbar">
+		<div class="btn-group">
+		<button onclick="dsContact.insertRecord()" class="btn btn-default"> Insert </button>
+		<button onclick="dsContact.editRecord()" class="btn btn-default"> Update </button>
+		<button onclick="dsContact.deleteRecord()" class="btn btn-default"> Delete </button>
+		</div>
+		<div class="btn-group">
+		<button onclick="dsContact.confirm()" class="btn btn-default"> Confirm </button>
+		<button onclick="dsContact.cancel()" class="btn btn-default"> Cancel </button>
+		</div>
 	</div>
     <div data-jslet='type:"DBTable",dataset:"Contact"' style="width: 100%; height: 220px">
     </div>
-    </fieldset>
-	<fieldset>
-		<legend>Edit Panel</legend>
+  
+
+	<h4>Edit Panel</h4>
 		<div data-jslet="type:'DBEditPanel',dataset: 'Contact'" />
-    </fieldset>
 
     <h3>Demo Content:</h3>
 	<ol>
@@ -55,7 +65,9 @@
 		<li>Scroll record cursor in DBTable;</li>
 		<li>Check Field 'Num#' in EditPanel;</li>
 	</ol>
+	
+
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
-
+	</div>
 </html>

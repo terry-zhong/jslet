@@ -207,6 +207,10 @@
     fldObj.visible(false);
     dsEmployee.addField(fldObj);
 
+    dsEmployee.keyField('workerid');
+    dsEmployee.codeField('workerid');
+    dsEmployee.nameField('name');
+
     //Add data into dsEmployee
     var dataList = [{
         workerid: 1,

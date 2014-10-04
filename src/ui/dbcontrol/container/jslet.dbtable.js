@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbtable.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 jslet.ui.htmlclass.TABLECLASS = {
 	currentrow: 'jl-tbl-current',
@@ -113,11 +109,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * {Integer} Row height.
 		 */
-		Z._rowHeight = 25;
+		Z._rowHeight = 30;
 		/**
 		 * {Integer} Row height of table header.
 		 */
-		Z._headRowHeight = 25;
+		Z._headRowHeight = 30;
 		/**
 		 * {String} Display table as tree style, only one field name allowed. If this property is set, the dataset must be a tree style dataset, 
 		 *  means dataset.parentField() and dataset.levelField() can not be empty.
@@ -217,7 +213,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(rows === undefined) {
 			return this._fixedRows;
 		}
-			jslet.Checker.test('DBTable.fixedRows', rows).isGTZero();
+			jslet.Checker.test('DBTable.fixedRows', rows).isNumber();
 		this._fixedRows = parseInt(rows);
 	},
 	
@@ -231,7 +227,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(cols === undefined) {
 			return this._fixedCols;
 		}
-		jslet.Checker.test('DBTable.fixedCols', cols).isGTZero();
+		jslet.Checker.test('DBTable.fixedCols', cols).isNumber();
 		this._fixedCols = parseInt(cols);
 	},
 	
@@ -416,7 +412,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.resizeEventBus.subscribe(Z);
 		
 		jslet.ui.textMeasurer.setElement(Z.el);
-		//Z.charWidth = jslet.ui.textMeasurer.getWidth('M');
 		Z.charHeight = jslet.ui.textMeasurer.getHeight('M')+4;
 		jslet.ui.textMeasurer.setElement();
 		Z.charWidth = 12;
@@ -428,23 +423,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
-//		var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
-//		var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
-//		jqEl.on(wheelEvent, function (event) {
-//			var originalEvent = event.originalEvent;
-//			var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
-//			Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
-//			event.preventDefault();
-//		});
 		
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			if (keyCode == 38) {//KEY_UP
-				//if (Z._readOnly)
 				Z.listvm.priorRow();
 				event.preventDefault();
 			} else if (keyCode == 40) {//KEY_DOWN
-				//if (Z._readOnly)
 				Z.listvm.nextRow();
 				event.preventDefault();
 			} else if (keyCode == 33) {//KEY_PAGEUP
@@ -816,14 +801,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_changeContentWidth: function (deltaW) {
 		var Z = this,
-			totalWidth = Z.getTotalWidth() + 'px';
-		
-		Z.rightHeadTbl.parentNode.style.width = totalWidth;
+			totalWidth = Z.getTotalWidth(),
+			totalWidthStr = totalWidth + 'px';
+		Z.setRightHeadWidth(totalWidth);
 		if (Z.footSectionHt) {
-			Z.rightFootTbl.style.width = totalWidth;
+			Z.rightFootTbl.style.width = totalWidthStr;
 		}
-		Z.rightFixedTbl.parentNode.style.width = totalWidth;
-		Z.rightContentTbl.parentNode.style.width = totalWidth;
+		Z.rightFixedTbl.parentNode.style.width = totalWidthStr;
+		Z.rightContentTbl.parentNode.style.width = totalWidthStr;
 		Z._checkHoriOverflow();
 	},
 
@@ -844,8 +829,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.locale.DBTable.norecord,
 			'</div>',
 			'<table class="jl-tbl-container" style="width:100%"><tr>',
-			'<td class="jl-tbl-fixedcol-td jl-tbl-header-cell"><div class="jl-tbl-fixedcol"><table class="jl-tbl-data"><tbody /></table><table class="jl-tbl-data"><tbody /></table><div class="jl-tbl-content-div"><table class="jl-tbl-data"><tbody /></table></div><table><tbody /></table></div></td>',
-			'<td><div class="jl-tbl-contentcol"><div><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><div><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><div class="jl-tbl-content-div"><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><table class="jl-tbl-content-table jl-tbl-fixedcol-td"><tbody /></table></div></td>',
+			'<td class="jl-tbl-fixedcol-td"><div class="jl-tbl-fixedcol"><table class="jl-tbl-data"><tbody /></table><table class="jl-tbl-data"><tbody /></table><div class="jl-tbl-content-div"><table class="jl-tbl-data"><tbody /></table></div><table><tbody /></table></div></td>',
+			'<td><div class="jl-tbl-contentcol"><div><table class="jl-tbl-data jl-tbl-content-table" border="0" cellpadding="0" cellspacing="0"><tbody /></table></div><div><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><div class="jl-tbl-content-div"><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><table class="jl-tbl-content-table jl-tbl-fixedcol-td"><tbody /></table></div></td>',
 			'<td class="jl-scrollbar-width"><div class="jl-tbl-vscroll-head"></div><div class="jl-tbl-vscroll"><div /></div></td></tr></table>'];
 
 		
@@ -1066,7 +1051,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._createWidthHiddenRow(Z.leftContentTbl, true);
 		Z._createWidthHiddenRow(Z.leftFootTbl, true);
 
-		Z._createWidthHiddenRow(Z.rightHeadTbl);
+		Z._createWidthHiddenRow(Z.rightHeadTbl, false, true);
 		Z._createWidthHiddenRow(Z.rightFixedTbl);
 		Z._createWidthHiddenRow(Z.rightContentTbl);
 		Z._createWidthHiddenRow(Z.rightFootTbl);
@@ -1079,14 +1064,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._hideHead) {
 			Z.headSectionHt = 0;
 		} else {
-			Z.headSectionHt = Z.maxHeadRows * Z._headRowHeight;//jQuery(Z.rightHeadTbl.parentNode).outerHeight();
+			Z.headSectionHt = Z.maxHeadRows * Z._headRowHeight;
 		}
 		Z._checkHoriOverflow();
 		Z._calcAndSetContentHeight();
 
 		Z.noRecordDiv.style.top = Z.headSectionHt + 'px';
 		Z.noRecordDiv.style.left = jqEl.find('.jl-tbl-fixedcol').width() + 5 + 'px';
-		jqEl.find('.jl-tbl-vscroll-head').height(Z.headSectionHt + Z.fixedSectionHt);
+		jqEl.find('.jl-tbl-vscroll-head').height(Z.headSectionHt + Z.fixedSectionHt + 2);
 		Z._renderBody();
 	},
 
@@ -1120,7 +1105,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._calcAndSetContentHeight();
 	},
 	
-	_createWidthHiddenRow: function(oTable, isFixedCol){
+	_createWidthHiddenRow: function(oTable, isFixedCol, isHead){
 		var Z = this;
 		if (isFixedCol && !Z.hasFixedCol) {
 			return;
@@ -1152,6 +1137,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			oth.style.width = colCfg.width + 'px';
 			otr.appendChild(oth);
 		}
+		
+		if(!isFixedCol && isHead) {
+			oth = document.createElement('th');
+			Z.rightHeadTbl.rows[0].appendChild(oth);
+		}
+
 	},
 	
 	_createHeadCell: function (otr, cobj) {
@@ -1164,9 +1155,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			colSpan = cobj.colSpan;
 		}
 		var oth = document.createElement('th');
-		oth.className = 'jl-tbl-header-cell jl-unselectable' + 
-			(otr.rowIndex == 1 ? ' jl-first-row' : '') + 
-			(otr.cells.length === 0 ? ' jl-first-col': '');
+		oth.className = 'jl-tbl-header-cell jl-unselectable';
 		oth.noWrap = true;
 		oth.jsletcolcfg = cobj;
 		if (rowSpan && rowSpan > 1) {
@@ -1234,9 +1223,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jqTr2.height(h);
 		}
 		
+		var extraCell = document.createElement('th');
+		extraCell.colSpan = Z.maxHeadRows;
+		extraCell.className = 'jl-tbl-extra-head jl-unselectable';
+		extraCell.innerHTML = '<div style="position: relative" unselectable="on" class="jl-unselectable jl-tbl-cell jl-border-box">&nbsp;</div>';
+		Z.rightHeadTbl.rows[1].appendChild(extraCell);
+		
 		var totalWidth = Z.getTotalWidth();
-//		var totalWidth = jQuery(Z.rightHeadTbl).width();
-		jQuery(Z.rightHeadTbl.parentNode).width(totalWidth);
+		Z.setRightHeadWidth(totalWidth);
 		jQuery(Z.rightFixedTbl.parentNode).width(totalWidth);
 		jQuery(Z.rightContentTbl.parentNode).width(totalWidth);
 		jQuery(Z.rightTotalTbl).width(totalWidth);
@@ -1244,6 +1238,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.indexField = null;
 	}, // end renderHead
 
+	setRightHeadWidth: function(width) {
+		var Z = this,
+			jqEl = jQuery(Z.el);
+		var headColWidth = Z.rightHeadTbl.parentNode.parentNode.clientWidth;
+		if(width < headColWidth) {
+			jQuery(Z.rightHeadTbl.parentNode).width(headColWidth);
+		} else {
+			jQuery(Z.rightHeadTbl.parentNode).width(width);
+		}
+	},
+	
 	getTotalWidth: function(){
 		var Z= this,
 		totalWidth = 0;
@@ -1253,62 +1258,60 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		return totalWidth;
 	},
 	
-	_ajustTableBorder: function () {
+	_adjustTableBorder: function () {
 		var Z = this;
-
-		function setTopBorder(row) {
-			if (!row) {
+	
+		function clearTableBorder(tblObj, noTopBorder, noBottomBorder, noLeftBorder,noRightBorder) {
+			var rows = tblObj.rows;
+			if(rows.length < 2) {
 				return;
 			}
-			var cells, cell;
-			cells = row.cells;
-			for (var i = 0, cnt = cells.length; i < cnt; i++) {
+			var row, cell, cells, i, cellCnt, rowCnt;
+			cells = rows[1].cells;
+			cellCnt = cells.length;
+			for(i = 0; i < cellCnt; i++) {
 				cell = cells[i];
-				cell.style.borderTopWidth = '0';
-				if (i === 0) {
-					cell.style.borderLeftWidth = '0';
-				}
+				cell.style.borderTopWidth = 0;
 			}
-		}
-		var hasHead = !Z._hideHead;
-		var hasLeft = (Z._fixedRows > 0 || Z._sysColumns.length > 0);
-		if (hasHead) {
-			if (hasLeft) {
-				setTopBorder(Z.leftHeadTbl.createTHead().rows[1]);
+			row = rows[rows.length - 1];
+			cells = row.cells;
+			cellCnt = cells.length;
+			for(i = 0; i < cellCnt; i++) {
+				cell = cells[i];
+				cell.style.borderBottomWidth = 0;
 			}
-			setTopBorder(Z.rightHeadTbl.createTHead().rows[1]);
-		}
-		if (hasLeft) {
-			setTopBorder(Z.leftContentTbl.tBodies[0].rows[0]);
-		}
-		setTopBorder(Z.rightContentTbl.tBodies[0].rows[0]);
 
-		function setLeftRightBorder(tbl) {
-			var rows = tbl.rows;
-			var row, cell;
-			for (var i = 0, cnt = rows.length; i < cnt; i++) {
+			rowCnt = rows.length;
+			cellCnt--;
+			for(i = 1; i < rowCnt; i++) {
 				row = rows[i];
-				if (row.cells.length === 0) {
+				cellCnt = row.cells.length;
+				if(cellCnt == 0) {
 					continue;
 				}
 				cell = row.cells[0];
-				cell.style.borderLeftWidth = '0px';
-				
-				cell = row.cells[row.cells.length - 1];
-				cell.style.borderRightWidth = '0px';
+				cell.style.borderLeftWidth = 0;
+				cell = row.cells[cellCnt - 1];
+				cell.style.borderRightWidth = 0;
+			}
+			if(noTopBorder) {
+				tblObj.style.borderTopWidth = 0;
+			}
+			if(noBottomBorder) {
+				tblObj.style.borderBottomWidth = 0;
+			}
+			if(noLeftBorder) {
+				tblObj.style.borderLeftWidth = 0;
+			}
+			if(noRightBorder) {
+				tblObj.style.borderRightWidth = 0;
 			}
 		}
-
-		if (hasHead) {
-			if (hasLeft) {
-				setLeftRightBorder(Z.leftHeadTbl);
-			}
-			setLeftRightBorder(Z.rightHeadTbl);
-		}
-		if (hasLeft) {
-			setLeftRightBorder(Z.leftContentTbl);
-		}
-		setLeftRightBorder(Z.rightContentTbl);
+		
+		clearTableBorder(Z.leftHeadTbl, true, true, true, true);
+		clearTableBorder(Z.rightHeadTbl, true, true, false, false);
+		clearTableBorder(Z.leftContentTbl, false, false, true, true);
+		clearTableBorder(Z.rightContentTbl, false, false, false, false);
 	},
 
 	_doSplitHookDown: function (event) {
@@ -1323,7 +1326,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var jqTblContainer = jQuery(tblContainer);
 		
 		var jqBody = jQuery(document.body); 
-//		jqBody.css('cursor','e-resize');
 		var bodyMTop = parseInt(jqBody.css('margin-top'));
 		var bodyMleft = parseInt(jqBody.css('margin-left'));
 		var y = jqTblContainer.position().top - bodyMTop;
@@ -1482,7 +1484,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var leftHeadObj = Z.leftHeadTbl.createTHead(),
 			rightHeadObj = Z.rightHeadTbl.createTHead(),
 			leftHeadCells = jQuery(leftHeadObj).find('th'),
-			allHeadCells = jQuery(rightHeadObj).find('th'), oth;
+			rightHeadCells = jQuery(rightHeadObj).find('th'),
+			allHeadCells = [], oth;
 
 		for (var i = 0, cnt = leftHeadCells.length; i < cnt; i++){
 			oth = leftHeadCells[i];
@@ -1491,10 +1494,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 
-		for(var i = allHeadCells.length - 1; i >=0; i--){
-			oth = allHeadCells[i];
-			if (!oth.jsletcolcfg) {
-				allHeadCells.splice(i,1);
+		for (var i = 0, cnt = rightHeadCells.length; i < cnt; i++){
+			oth = rightHeadCells[i];
+			if (oth.jsletcolcfg) {
+				allHeadCells[allHeadCells.length] = oth;
 			}
 		}
 
@@ -1568,7 +1571,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 
 		var Z = otable.jslet;
-		//Z.showEditPanel();
 		if (Z._onRowDblClick) {
 			Z._onRowDblClick.call(Z, event);
 		}
@@ -1592,9 +1594,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var otd = document.createElement('td');
 		otd.noWrap = true;
 		otd.jsletColCfg = colCfg;
-		if (isFirstCol) {
-			otd.className = 'jl-first-col';
-		}
 		if (colCfg.cellRender) {
 			colCfg.cellRender.createCell.call(Z, otd, colCfg);
 		} else if (!Z._isCellEditable(colCfg)) {
@@ -1696,7 +1695,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			preRecno = Z._dataset.recno();
 		try {
 			for (var i = 0; i < recCnt; i++) {
-				Z._dataset.innerSetRecno(i);
+				Z._dataset.recnoSilence(i);
 				for (var j = 0; j < len; j++) {
 					cobj = Z.innerColumns[j];
 					fldName = cobj.field;
@@ -1706,7 +1705,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 			}
 		} finally {
-			Z._dataset.innerSetRecno(preRecno);
+			Z._dataset.recnoSilence(preRecno);
 		}
 	},
 
@@ -1719,7 +1718,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._renderRow(2);
 			Z._renderRow(3);
 		}
-
+		Z._adjustTableBorder();
 	}, // end _renderBody
 
 	_fillTotalSection: function () {
@@ -1757,10 +1756,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_fillData: function () {
 		var Z = this;
-//		var contextEnabled = Z._dataset.isContextRuleEnabled();
-//		if (contextEnabled) {
-//			Z._dataset.disableContextRule();
-//		}
 		var preRecno = Z._dataset.recno(),
 			allCnt = Z.listvm.getNeedShowRowCount(),
 			h = allCnt * Z._rowHeight;
@@ -1774,8 +1769,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._fillTotalSection();
 			}
 		} finally {
-//			if (contextEnabled)
-//				Z._dataset.enableContextRule();
 			Z._dataset.endSilenceMove(context);
 		}
 	},
@@ -1828,9 +1821,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (hasLeft) {
 				otr = fixedRows[i];
 				otr.jsletrecno = recNo;
-//				if (Z._onFillRow) {
-//					Z._onFillRow.call(Z, otr, Z._dataset);
-//				}
 				otr.style.display = '';
 				cells = otr.childNodes;
 				clen = cells.length;
@@ -2092,7 +2082,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					if (otr.style.display == 'none') {
 						break;
 					}
-					Z._dataset.innerSetRecno(otr.jsletrecno);
+					Z._dataset.recnoSilence(otr.jsletrecno);
 					checked = Z._dataset.selected() ? true : false;
 					otd = otr.cells[col];
 					ocheckbox = otd.firstChild;
@@ -2105,7 +2095,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					if (otr.style.display == 'none') {
 						break;
 					}
-					Z._dataset.innerSetRecno(otr.jsletrecno);
+					Z._dataset.recnoSilence(otr.jsletrecno);
 					checked = Z._dataset.selected() ? true : false;
 					otd = otr.cells[col];
 					ocheckbox = jQuery(otd).find('[type=checkbox]')[0];
@@ -2113,7 +2103,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					ocheckbox.defaultChecked = checked;
 				}
 			} finally {
-				Z._dataset.innerSetRecno(oldRecno);
+				Z._dataset.recnoSilence(oldRecno);
 			}
 		}
 	}, // refreshControl
@@ -2242,7 +2232,6 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		var odiv = document.createElement('div');
 		otd.appendChild(odiv);
 		jQuery(odiv).addClass(jslet.ui.htmlclass.TABLECLASS.celldiv);
-		//odiv.style.height = Z._rowHeight - 2 + 'px';
 	},
 								
 	refreshCell: function (otd, colCfg) {
@@ -2291,7 +2280,6 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			this.jslet._dataset.recno(this.jslet.currRecno());
 		});
 		editCtrl.style.border = '0px';
-		//editCtrl.style.height = '100%';
 		otd.style.paddingLeft = '2px';
 		otd.style.paddingRight = '2px';
 		otd.appendChild(editCtrl);
@@ -2310,7 +2298,7 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 
 jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 	createHeader: function(otd, colCfg) {
-		
+		otd.innerHTML = '<div class="jl-tbl-cell">&nbsp;</div>';
 	},
 	
 	createCell: function (otd, colCfg) {
@@ -2320,7 +2308,6 @@ jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		var odiv = document.createElement('div');
 		otd.appendChild(odiv);
 		odiv.className = jslet.ui.htmlclass.TABLECLASS.celldiv;
-		//jQuery(odiv).addClass(jslet.ui.htmlclass.TABLECLASS.celldiv).height(Z._rowHeight - 2);
 	},
 	
 	refreshCell: function (otd, colCfg) {
@@ -2339,7 +2326,6 @@ jslet.ui.SelectCellRender = jslet.Class.create(jslet.ui.CellRender, {
 	createHeader: function(otd, colCfg) {
 		otd.noWrap = true;
 		otd.style.textAlign = 'center';
-		//jQuery(otd).html('<input type="checkbox" />');
 		var ocheckbox = document.createElement('input');
 		ocheckbox.type = 'checkbox';
 		var Z = this;
@@ -2427,7 +2413,7 @@ jslet.ui.TreeCellRender = jslet.Class.create(jslet.ui.CellRender, {
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			Z._dataset.recno(otr.jsletrecno);
-			if(Z._dataset.isAbort()) {
+			if(Z._dataset.aborted()) {
 				return false;
 			}
 			if (this.expanded) {

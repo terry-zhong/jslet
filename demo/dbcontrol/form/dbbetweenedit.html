@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBBetweenEdit(from...to style)">
     <title>Jslet - Between Style Editor Demo</title>
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -24,15 +26,16 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - Between Style Editor Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-    <fieldset>
-    <legend>Data List</legend>
+    <h4>Data List</h4>
     <div data-jslet='type:"DBTable",dataset:"btwdataset"' style="width: 100%; height: 120px">
     </div>
-	</fieldset>
 	
     <h3>Demo Content:</h3>
     <div class="content">
@@ -40,7 +43,7 @@
     <table data-jslet='dataset:"btwdataset"' style="margin-left:20px">
         <col />
         <col style="width:300px" />
-        <tr>
+        <tr style="height:50px">
             <td>String field:&nbsp;&nbsp;
                 <label data-jslet="type:'DBLabel',field:'name'">
                 </label>:
@@ -50,7 +53,7 @@
                 </div>
             </td>
         </tr>
-        <tr>
+        <tr style="height:50px">
             <td>Date Field:&nbsp;&nbsp;
                 <label data-jslet="type:'DBLabel',field:'birthday'">
                 </label>
@@ -61,7 +64,7 @@
                 </div>
             </td>
         </tr>
-        <tr>
+        <tr style="height:50px">
             <td>Number Field:&nbsp;&nbsp;
                 <label data-jslet="type:'DBLabel',field:'salary'">
                 </label>
@@ -72,7 +75,7 @@
                 </div>
             </td>
         </tr>
-        <tr>
+        <tr style="height:50px">
             <td>The field with lookup field: &nbsp;&nbsp;
                 <label data-jslet="type:'DBLabel',field:'department'">
                 </label>
@@ -87,10 +90,11 @@
 
     <b>&nbsp;&nbsp;2. Generate between style editor automatically according to the field config. </b>
     <br />
-    <div data-jslet="type:'DBEditPanel',dataset:'btwdataset',columnWidth:300,columnCount:2" style="width:1000px;height:120px" style="margin-left:20px">
+    <div data-jslet="type:'DBEditPanel',dataset:'btwdataset',columnCount:2" style="width:1000px;height:120px" style="margin-left:20px">
     </div>
 </div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=630"></script>
+	</div>
 </body>
 </html>

@@ -3,6 +3,8 @@
 <head>
     <title>Jslet - Selectable DBTreeView(Non-Correlate) Demo</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use Jslet widget: DBTreeView(Non-Correlate Checking)">
     <link type="text/css" rel="stylesheet" href="tree.css" />
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
@@ -26,19 +28,20 @@
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - Selectable DBTreeView(Non-Correlate) Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">
 	Demonstrate how non-correlate check tree view works(Tree node count: 1000).
 	</div>
-    <fieldset>
-		<legend>CheckBox Tree</legend>
-		<!-- treeCfg2 is a global variable defined in Head tag.-->
-		<div id="tree2" data-jslet="treeCfg2" style="width: 400px; height: 200px">
-		</div>
-	</fieldset> 
+    <h4>CheckBox Tree</h4>
+	<!-- treeCfg2 is a global variable defined in Head tag.-->
+	<div id="tree2" data-jslet="treeCfg2" style="width: 400px; height: 200px">
+	</div>
 
     <h3>Demo Content:</h3>
 	<div class="content">
@@ -56,5 +59,6 @@
 	</div>
 	<!-- Source Code -->
 	<script type="text/javascript" src="../../source/demosource.js?height=700"></script>
+	</div>
 </body>
 </html>

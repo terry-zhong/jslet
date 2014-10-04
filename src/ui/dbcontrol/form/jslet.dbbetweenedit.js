@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbbetweenedit.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBBetweenEdit. 
@@ -70,8 +66,9 @@ jslet.ui.DBBetweenEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jslet.ui.textMeasurer.setElement(Z.el);
 		var lbl = jslet.locale.Dataset.betweenLabel;
 		if (!lbl) {
-			lbl = ' - ';
+			lbl = '-';
 		}
+		lbl = '&nbsp;' + lbl + '&nbsp;';
 		var w = jslet.ui.textMeasurer.getWidth(lbl);
 
 		var template = ['<table style="width:100%;margin:0px" cellspacing="0" cellpadding="0"><col /><col width="', w,

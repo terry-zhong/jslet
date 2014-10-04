@@ -1,13 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+/* ========================================================================
+ * Jslet framework: jslet.common.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 if (window.jslet === undefined || jslet === undefined){
 	/**
@@ -24,7 +20,6 @@ if (window.jslet === undefined || jslet === undefined){
         return (ele && ele.jslet) ? ele.jslet : null;
     };
 }
-jslet.version = '2.0.0.35';
 
 jslet._AUTOID = 0;
 jslet.nextId = function(){
@@ -37,9 +32,7 @@ jslet.nextId = function(){
 if(!jslet.data) {
 	jslet.data = {};
 }
-if(!jslet.ui) {
-	jslet.ui = {};
-}
+
 if(!jslet.locale) {
 	jslet.locale={};
 }
@@ -125,6 +118,26 @@ if(!String.prototype.endsWith){
 	};
 }
 
+
+jslet.debounce = function(func, wait, immediate) {
+	var timeoutHander;
+	return function() {
+		var context = this, args = arguments;
+		if(!wait) {
+			func.apply(context, args);
+			return;
+		}
+		var later = function() {
+			timeoutHander = null;
+			func.apply(context, args);
+		};
+		if(timeoutHander) {
+			clearTimeout(timeoutHander);
+		}
+		timeoutHander = setTimeout(later, wait);
+	};
+};
+
 /*
  * Javascript language enhancement(end)
  */
@@ -188,7 +201,7 @@ jslet.SimpleMap = function () {
     this.unset = function (key) {
         var len = _keys.length;
         for (var i = 0; i < len; i++) {
-            if (_keys[key] == key) {
+            if (_keys[i] == key) {
                 _keys.splice(i, 1);
                 _values.splice(i, 1);
                 return;
@@ -217,25 +230,31 @@ jslet.SimpleMap = function () {
  * @return formatted message
  */
 jslet.formatString = function (msg, args) {
-    if (!args) {
-        return msg;
+	jslet.Checker.test('jslet.formatString#msg', msg).required().isString();
+    if(args === undefined || args === null) {
+    	return msg; 
     }
-    if (typeof (args) == 'string') {
-        return msg.replace('{0}', args);
+    if(args === false) {
+    	args = 'false';
+    }
+    if(args === true) {
+    	args = 'true';
     }
     var result = msg, cnt, i;
-    if (args.length) {// array
+    if (jslet.isArray(args)) {// array
         cnt = args.length;
         for (i = 0; i < cnt; i++) {
             result = result.replace('{' + i + '}', args[i]);
         }
-    } else {// Hash
+    } else if(args.keys){// Hash
         var arrKeys = args.keys(), sKey;
         cnt = arrKeys.length;
         for (i = 0; i < cnt; i++) {
             sKey = arrKeys[i];
             result = result.replace('{' + sKey + '}', args.get(sKey));
         }
+    } else {
+    	return msg.replace('{0}', args);
     }
     return result;
 };
@@ -265,6 +284,9 @@ jslet._SCALEFACTOR = '100000000000000000000000000000000000';
 jslet.formatNumber = function(num, pattern) {
 	if (!pattern) {
 		return num;
+	}
+	if(!num && num !== 0) {
+		return '';
 	}
 	var preFix = '', c, i;
 	for (i = 0; i < pattern.length; i++) {
@@ -379,6 +401,11 @@ jslet.formatNumber = function(num, pattern) {
  * @return {String} String date after format
  */
 jslet.formatDate = function(date, format) {
+	if(!date) {
+		return '';
+	}
+	jslet.Checker.test('jslet.formatDate#date', date).isDate();
+	jslet.Checker.test('jslet.formatDate#format', format).required().isString();
 	var o = {
 		'M+' : date.getMonth() + 1, // month
 		'd+' : date.getDate(), // day
@@ -415,9 +442,15 @@ jslet.formatDate = function(date, format) {
  * @return Date Object
  */
 jslet.parseDate = function(strDate, format) {
+	if(!strDate) {
+		return null;
+	}
+	jslet.Checker.test('jslet.parseDate#strDate', strDate).isString();
+	jslet.Checker.test('jslet.parseDate#format', format).required().isString();
+	
 	var preChar = null, ch, 
-	begin = -1, 
-	end = 0;
+		begin = -1, 
+		end = 0;
 	var dateParts = {'y': 0, 'M': 0,'d': 0, 'h': 0,	'm': 0, 's': 0, 'S': 0};
 	
 	for(var i = 0, len = format.length; i < len; i++) {
@@ -450,14 +483,17 @@ jslet.parseDate = function(strDate, format) {
  * @return {Date} 
  */
 jslet.convertISODate= function(dateStr) {
-    var a;
-    if (typeof dateStr === 'string') {
-        a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(dateStr);
-        if (a) {
-            return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
-                            +a[5], +a[6]));
-        }
-    }
+	if(!dateStr) {
+		return null;
+	}
+	if(jslet.isDate(dateStr)) {
+		return dateStr;
+	}
+    var a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(dateStr);
+	if (a) {
+		return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+			+a[5], +a[6]));
+	}
     return dateStr;
 };
 
@@ -575,7 +611,7 @@ jslet.between = between = window.between = function(testValue, minValue, maxValu
 };
 
 /**
- * Test if the value is in the following list. Eexample:
+ * Test if the value is in the following list. Example:
  * <pre><code>
  * return inlist('a','c','d','e') // false
  * 
@@ -626,6 +662,10 @@ jslet.isDate = function(testValue) {
 jslet.isString = function(testValue) {
 	return testValue === null || testValue === undefined || typeof testValue == 'string';
 };
+
+jslet.isObject = function(testValue) {
+	return testValue === null || testValue === undefined || jQuery.type(this.varValue) !== "object";	
+}
 
 jslet.setTimeout = function(obj, func, time) {
     jslet.delayFunc = function () {
@@ -723,6 +763,18 @@ jslet.Checker = {
 		return this;
 	},
 	
+	isBoolean: function() {
+		if(this.varValue !== null && 
+		   this.varValue !== undefined &&
+		   this.varValue !== '' &&
+		   this.varValue !== 0 && 
+		   this.varValue !== true && 
+		   this.varValue !== false) {
+			throw new Error('[' + this.varName + '] must be a boolean value!');
+		}
+		return this;
+	},
+	
 	isString: function() {
 		if(this.varValue !== null && 
 			this.varValue !== undefined &&
@@ -764,6 +816,20 @@ jslet.Checker = {
 		this.isNumber();
 		if(this.varValue < 0) {
 			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than or equal zero!');
+		}
+	},
+	between: function(minValue, maxValue) {
+		var checkMin = minValue !== null && minValue !== undefined;
+		var checkMax = maxValue !== null && maxValue !== undefined;
+		if(checkMin && checkMax && (this.varValue < minValue || this.varValue > maxValue)) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be between [' + 
+					minValue + '] and [' + maxValue + ']!');
+		}
+		if(!checkMin && checkMax && this.varValue > maxValue) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be less than [' + maxValue + ']!');
+		}
+		if(checkMin && !checkMax && this.varValue < minValue) {
+			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than [' + minValue + ']!');
 		}
 	},
 	

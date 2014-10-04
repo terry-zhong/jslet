@@ -1,18 +1,9 @@
-/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
-
-/**
- * keep all dataset object,
- * key for dataset name, value for dataset object
- */
+/* ========================================================================
+ * Jslet framework: jslet.dataset.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 jslet.data.dataModule = new jslet.SimpleMap();
 jslet.data.getDataset = function (dsName) {
@@ -25,9 +16,10 @@ jslet.data.getDataset = function (dsName) {
  * @param {String} name dataset's name that must be unique in jslet.data.dataModule variable.
  */
 jslet.data.Dataset = function (name) {
+	jslet.Checker.test('Dataset.name', name).isString();
 	name = jQuery.trim(name);
-	jslet.Checker.test('Dataset.name', name).isString().required();
-
+	jslet.Checker.test('Dataset.name', name).required();
+	
 	var Z = this;
 	Z._name = null; //Dataset name
 	Z._dataList = null; //Array of data records
@@ -42,7 +34,7 @@ jslet.data.Dataset = function (name) {
 	Z._unitConvertFactor = 1;
 	Z._unitName = null;
 
-	Z._isAborted = false;
+	Z._aborted = false;
 	Z._insertedDelta = []; //Array of record
 	Z._updatedDelta = []; //Array of record
 	Z._deletedDelta = []; //Array of record
@@ -144,7 +136,7 @@ jslet.data.Dataset.prototype = {
 	*/
 	name: function() {
 		if(arguments.length >0) {
-			alert("Can't change dataset name!");
+			throw new Error("Can't change dataset name! Use new jslet.data.Dataset('dsName') instead!");
 		}
 		return this._name;
 	},
@@ -159,7 +151,7 @@ jslet.data.Dataset.prototype = {
 	clone: function (newDsName, fieldNames) {
 		var Z = this;
 		if (!newDsName) {
-			newDsName = Z._name + '_copy';
+			newDsName = Z._name + '_clone';
 		}
 		var result = new jslet.data.Dataset(newDsName);
 		result._datasetListener = Z._datasetListener;
@@ -171,11 +163,24 @@ jslet.data.Dataset.prototype = {
 		result._filtered = Z._filtered;
 		result._logChanged = Z._logChanged;
 		result._indexFields = Z._indexFields;
-		result._keyField = Z._keyField;
-		result._codeField = Z._codeField;
-		result._nameField = Z._nameField;
-		result._parentField = Z._parentField;
-		result._selectField = Z._selectField;
+		var keyFldName = Z._keyField,
+			codeFldName = Z._codeField,
+			nameFldName = Z._nameField,
+			parentFldName = Z._parentField,
+			selectFldName = Z._selectField;
+		if (fieldNames) {
+			keyFldName = keyFldName && fieldNames.indexOf(keyFldName) >= 0 ? keyFldName: null;
+			codeFldName = codeFldName && fieldNames.indexOf(codeFldName) >= 0 ? codeFldName: null;
+			nameFldName = nameFldName && fieldNames.indexOf(nameFldName) >= 0 ? nameFldName: null;
+			parentFldName = parentFldName && fieldNames.indexOf(parentFldName) >= 0 ? parentFldName: null;
+			selectFldName = selectFldName && fieldNames.indexOf(selectFldName) >= 0 ? selectFldName: null;
+		}
+		result._keyField = keyFldName;
+		result._codeField = codeFldName;
+		result._nameField = nameFldName;
+		result._parentField = parentFldName;
+		result._selectField = selectFldName;
+
 		result._contextRules = Z._contextRules;
 		var fldObj, fldName;
 		for(var i = 0, cnt = Z._fields.length; i < cnt; i++) {
@@ -198,16 +203,19 @@ jslet.data.Dataset.prototype = {
 	 * @param {Array of String} fieldNames a list of field names which will be copied to this dataset.
 	 */
 	addFieldFromDataset: function(srcDataset, fieldNames) {
-		var fldObj, fldName, srcFields = srcDataset.getFields();
+		jslet.Checker.test('Dataset.addFieldFromDataset#srcDataset', srcDataset).required().isClass(jslet.data.Dataset.className);
+		jslet.Checker.test('Dataset.addFieldFromDataset#fieldNames', fieldNames).isArray();
+		var fldObj, fldName, 
+			srcFields = srcDataset.getFields();
 		for(var i = 0, cnt = srcFields.length; i < cnt; i++) {
 			fldObj = srcFields[i];
+			fldName = fldObj.name();
 			if (fieldNames) {
-				fldName = fldObj.name();
 				if (fieldNames.indexOf(fldName) < 0) {
 					continue;
 				}
 			}
-			this.addField(fldObj.clone(this));
+			this.addField(fldObj.clone(fldName, this));
 		}
 	},
 	
@@ -392,9 +400,19 @@ jslet.data.Dataset.prototype = {
 		return this._normalFields;
 	},
 	
+	/**
+	 * Set the specified fields to be visible, others to be hidden.
+	 * 
+	 * Example:
+	 * <pre><code>
+	 *   dsFoo.setVisibleFields(['field1', 'field3']);
+	 * </code></pre>
+	 * 
+	 * @param {String[]} fieldNameArray array of field name
+	 */
 	setVisibleFields: function(fieldNameArray) {
 		jslet.Checker.test('Dataset.setVisibleFields#fieldNameArray', fieldNameArray).isArray();
-		this.travelField(this._fields, function(fldObj) {
+		this._travelField(this._fields, function(fldObj) {
 			fldObj.visible(false);
 			return false; //Identify if cancel traveling or not
 		});
@@ -413,7 +431,7 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * @private
 	 */
-	travelField: function(fields, callBackFn) {
+	_travelField: function(fields, callBackFn) {
 		if (!callBackFn || !fields) {
 			return;
 		}
@@ -426,7 +444,7 @@ jslet.data.Dataset.prototype = {
 			}
 			
 			if (fldObj.getType() == jslet.data.DataType.GROUP) {
-				isBreak = this.travelField(fldObj.children(), callBackFn);
+				isBreak = this._travelField(fldObj.children(), callBackFn);
 				if (isBreak) {
 					break;
 				}
@@ -440,7 +458,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	_cacheNormalFields: function() {
 		var arrFields = this._normalFields = [];
-		this.travelField(this._fields, function(fldObj) {
+		this._travelField(this._fields, function(fldObj) {
 			if (fldObj.getType() != jslet.data.DataType.GROUP) {
 				arrFields.push(fldObj);
 			}
@@ -454,11 +472,12 @@ jslet.data.Dataset.prototype = {
 	 * @param {Field} datasetField, "dataset field" in master dataset.
 	 * @return {jslet.data.Field or this}
 	 */
-	datasetField: function(datasetField) {
-		if (datasetField === undefined) {
+	datasetField: function(fldObj) {
+		if (fldObj === undefined) {
 			return this._datasetField;
 		}
-		this._datasetField = datasetField;
+		jslet.Checker.test('Dataset.datasetField#fldObj', fldObj).isClass(jslet.data.Field.className);
+		this._datasetField = fldObj;
 		return this;
 	},
 
@@ -468,6 +487,7 @@ jslet.data.Dataset.prototype = {
 	* @param {jslet.data.Field} fldObj: field object.
 	*/
 	addField: function (fldObj) {
+		jslet.Checker.test('Dataset.addField#fldObj', fldObj).required().isClass(jslet.data.Field.className);
 		var Z = this;
 		Z._fields.push(fldObj);
 		fldObj.dataset(Z);
@@ -480,6 +500,7 @@ jslet.data.Dataset.prototype = {
 			Z._subDatasetFields.push(fldObj);
 		}
 		Z._cacheNormalFields();
+		return Z;
 	},
 
 	/**
@@ -488,8 +509,10 @@ jslet.data.Dataset.prototype = {
 	 * @param {String} fldName: field name.
 	 */
 	removeField: function (fldName) {
-		var Z = this;
-		var fldObj = Z.getField(fldName);
+		jslet.Checker.test('Dataset.removeField#fldName', fldName).required().isString();
+		fldName = jQuery.trim(fldName);
+		var Z = this,
+			fldObj = Z.getField(fldName);
 		if (fldObj) {
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {
 				var k = Z._subDatasetFields.indexOf(fldObj);
@@ -497,11 +520,13 @@ jslet.data.Dataset.prototype = {
 					Z._subDatasetFields.splice(k, 1);
 				}
 			}
+			var i = Z._fields.indexOf(fldObj);
 			Z._fields.splice(i, 1);
 			fldObj.dataset(null);
 			Z._cacheNormalFields();
 			jslet.data.FieldValueCache.clearAll(Z, fldName);
 		}
+		return Z;
 	},
 
 	/**
@@ -512,10 +537,11 @@ jslet.data.Dataset.prototype = {
 	 */
 	getField: function (fldName) {
 		jslet.Checker.test('Dataset.getField#fldName', fldName).isString().required();
+		fldName = jQuery.trim(fldName);
 
 		var arrField = fldName.split('.'), fldName1 = arrField[0];
 		var fldObj = null;
-		this.travelField(this._fields, function(fldObj1) {
+		this._travelField(this._fields, function(fldObj1) {
 			var cancelTravel = false;
 			if (fldObj1.name() == fldName1) {
 				fldObj = fldObj1;
@@ -551,17 +577,17 @@ jslet.data.Dataset.prototype = {
 	 * @return jslet.data.Field
 	 */
 	getTopField: function (fldName) {
-		if (!fldName || typeof (fldName) != 'string') {
-			return null;
-		}
+		jslet.Checker.test('Dataset.getField#fldName', fldName).isString().required();
+		fldName = jQuery.trim(fldName);
+		
 		var fldObj = this.getField(fldName);
-		if (fldObj !== null) {
+		if (fldObj) {
 			while(true) {
 				if (fldObj.parent() === null) {
 					return fldObj;
 				}
+				fldObj = fldObj.parent();
 			}
-			fldObj = fldObj.parent();
 		}
 		return null;
 	},
@@ -613,8 +639,8 @@ jslet.data.Dataset.prototype = {
 			return Z._indexFields;
 		}
 		
-		indFlds = jQuery.trim(indFlds);
 		jslet.Checker.test('Dataset.indexFields#indFlds', indFlds).isString();
+		indFlds = jQuery.trim(indFlds);
 		Z._indexFields = indFlds;
 		if (!Z._dataList || Z._dataList.length === 0 || !indFlds) {
 			return;
@@ -637,7 +663,8 @@ jslet.data.Dataset.prototype = {
 			Z._createIndexCfg(fname, order);
 		} //end for
 
-		var currec = Z.getRecord(), flag = Z.isContextRuleEnabled();
+		var currRec = Z.getRecord(), 
+		flag = Z.isContextRuleEnabled();
 		if (flag) {
 			Z.disableContextRule();
 		}
@@ -646,19 +673,9 @@ jslet.data.Dataset.prototype = {
 		try {
 			Z._dataList.sort(Z.sortFunc);
 			Z._refreshInnerRecno();
-			var recCnt = Z.recordCount();
-			if (recCnt > 2) {
-				var rec;
-				for (i = 0; i < recCnt; i++) {
-					Z.innerSetRecno(i);
-					rec = Z.getRecord();
-					if (rec === currec) {
-						break;
-					}
-				}
-			}
 		} finally {
 			jslet.temp.sortDataset = null;
+			Z.moveToRecord(currRec);
 			if (flag) {
 				Z.enableContextRule();
 			}
@@ -728,8 +745,8 @@ jslet.data.Dataset.prototype = {
 			return Z._filter;
 		}
 		
-		filterExpr = jQuery.trim(filterExpr);
 		jslet.Checker.test('dataset.filter#filterExpr', filterExpr).isString();
+		filterExpr = jQuery.trim(filterExpr);
 		var oldFilter = Z._filter;
 		if (!filterExpr) {
 			Z._innerFilter = null;
@@ -855,6 +872,10 @@ jslet.data.Dataset.prototype = {
 		return 0;
 	},
 
+	hasRecord: function () {
+		return this.recordCount() > 0;
+	},
+	
 	/**
 	 * Set or get record number
 	 * 
@@ -866,52 +887,35 @@ jslet.data.Dataset.prototype = {
 		if (recno === undefined) {
 			return Z._recno;
 		}
-		
+		jslet.Checker.test('dataset.recno#recno', recno).isGTEZero();
 		recno = parseInt(recno);
+		if(!Z.hasRecord()) {
+			Z._bof = Z._eof = true;
+			return this;
+		}
+		
 		if (recno == Z._recno) {
 			return this;
 		}
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
 			Z.confirm();
-			if (Z._isAborted) {
+			if (Z._aborted) {
 				return this;
 			}
 		}
-		Z._gotoRecno(this._checkEofBof(recno));
+		Z._gotoRecno(recno);
+		Z._bof = Z._eof = false;
 		return this;
 	},
 	
-	/**
-	 * @private
-	 */
-	_checkEofBof: function (recno) {
-		var Z = this, cnt = Z.recordCount();
-		if (cnt === 0) {
-			Z._bof = true;
-			Z._eof = true;
-			return;
-		}
-		Z._eof = false;
-		Z._bof = false;
-		if (recno >= cnt) {
-			recno = cnt - 1;
-			Z._eof = true;
-		}
-		if (recno < 0) {
-			recno = 0;
-			Z._bof = true;
-		}
-		return recno;
-	},
-
 	/**
 	 * @private
 	 * Set record number(Private)
 	 * 
 	 * @param {Integer}recno - record number
 	 */
-	innerSetRecno: function (recno) {
-		this._recno = this._checkEofBof(recno);
+	recnoSilence: function (recno) {
+		this._recno = recno;
 	},
 
 	/**
@@ -922,38 +926,35 @@ jslet.data.Dataset.prototype = {
 	 */
 	_gotoRecno: function (recno) {
 		var Z = this;
-		if (Z._recno == recno) {
+		var recCnt = Z.recordCount();
+		if(recCnt == 0) {
 			return false;
 		}
-		var cnt = Z.recordCount(), k;
-		if (cnt > 0) {
-			if (recno < cnt || recno >= 0) {
-				k = recno;
-			} else {
-				k = -1;
-			}
-		} else {
-			k = -1;
+		if (recno >= recCnt) {
+			recno = recCnt - 1;
+		} else if (recno < 0) {
+			recno = 0;
 		}
-
-		if (k < 0) {
+		
+		if (Z._recno == recno) {
 			return false;
 		}
 		var evt;
 		if (!Z._silence) {
-			Z._isAborted = false;
+			Z._aborted = false;
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESCROLL);
-			if (Z._isAborted) {
+			if (Z._aborted) {
 				return false;
 			}
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.beforeScrollEvent(Z._recno);
-				Z._refreshInnerControl(evt);
+				jslet.debounce(Z.refreshControl, 100).call(Z, evt);
 			}
 		}
 
 		var preno = Z._recno;
-		Z._recno = k;
+		Z._recno = recno;
+		
 		if (Z._subDatasetFields && Z._subDatasetFields.length > 0) {
 			var fldObj, subds;
 			for (var i = 0, len = Z._subDatasetFields.length; i < len; i++) {
@@ -979,21 +980,27 @@ jslet.data.Dataset.prototype = {
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.scrollEvent(Z._recno, preno);
-				Z._refreshInnerControl(evt);
+				jslet.debounce(Z.refreshControl, 100).call(Z, evt);
 			}
 		}
 		return true;
 	},
 
 	/**
-	 * Abort insert/update/delete
+	 * Abort insert/update/delete action before insert/update/delete.
+	 * 
 	 */
 	abort: function () {
-		this._isAborted = true;
+		this._aborted = true;
 	},
 
-	isAbort: function() {
-		return this._isAborted;
+	/**
+	 * Get aborted status.
+	 * 
+	 * @return {Boolean}
+	 */
+	aborted: function() {
+		return this._aborted;
 	},
 	
 	/**
@@ -1002,55 +1009,16 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * @param {Integer}startRecno - record number
 	 */
-	moveCursorPrior: function (startRecno) {
+	_moveCursor: function (recno) {
 		var Z = this;
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
 			Z.confirm();
-			if (Z._isAborted)
-				return;
-		}
-
-		if (Z.recordCount() === 0) {
-			Z._bof = true;
-			Z._eof = true;
-			return;
-		}
-		if (startRecno < 0) {
-			Z._bof = true;
-			return;
-		}
-		Z._eof = false;
-		Z._bof = false;
-		Z._gotoRecno(startRecno - 1);
-	},
-
-	/**
-	 * @private
-	 * Move cursor forward to startRecno(Private)
-	 * 
-	 * @param {Integer}startRecno - record number
-	 */
-	moveCursorNext: function (startRecno) {
-		var Z = this;
-		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			Z.confirm();
-			if (Z._isAborted) {
+			if (Z._aborted) {
 				return;
 			}
 		}
-		var recCnt = Z.recordCount();
-		if (recCnt === 0) {
-			Z._bof = true;
-			Z._eof = true;
-			return;
-		}
-		if (startRecno == recCnt - 1) {
-			Z._eof = true;
-			return;
-		}
-		Z._bof = false;
-		Z._eof = false;
-		Z._gotoRecno(startRecno + 1);
+
+		Z._gotoRecno(recno);
 	},
 
 	/**
@@ -1059,17 +1027,18 @@ jslet.data.Dataset.prototype = {
 	 * @param {Object}recordObj - record object
 	 * @return {Boolean} true - Move successfully, false otherwise. 
 	 */
-	moveTo: function (recordObj) {
+	moveToRecord: function (recordObj) {
 		var Z = this;
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
 			Z.confirm();
-			if (Z._isAborted) {
+			if (Z._aborted) {
 				return;
 			}
 		}
 		if (!Z._dataList || Z._dataList.length === 0) {
 			return false;
 		}
+		jslet.Checker.test('dataset.moveToRecord#recordObj', recordObj).required().isObject();
 		var k = Z._dataList.indexOf(recordObj);
 		if (k < 0) {
 			return false;
@@ -1133,37 +1102,71 @@ jslet.data.Dataset.prototype = {
 	 * Move cursor to first record
 	 */
 	first: function () {
-		this.moveCursorNext(-1);
+		var Z = this;
+		if(!Z.hasRecord()) {
+			Z._bof = Z._eof = true;
+			return;
+		}
+		Z._moveCursor(0);
+		Z._bof = Z._eof = false;
 	},
 
 	/**
 	 * Move cursor to last record
 	 */
 	next: function () {
-		this.moveCursorNext(this._recno);
-		return false;
+		var Z = this;
+		var recCnt = Z.recordCount();
+		if(recCnt === 0) {
+			Z._bof = Z._eof = true;
+			return;
+		}
+		if(Z._recno == recCnt - 1) {
+			Z._bof = false;
+			Z._eof = true;
+			return;
+		}
+		Z._bof = Z._eof = false;
+		Z._moveCursor(Z._recno + 1);
 	},
 
 	/**
 	 * Move cursor to prior record
 	 */
 	prior: function () {
-		this.moveCursorPrior(this._recno);
-		return false;
+		var Z = this;
+		if(!Z.hasRecord()) {
+			Z._bof = Z._eof = true;
+			return;
+		}
+		if(Z._recno === 0) {
+			Z._bof = true;
+			Z._eof = false;
+			return;
+		}
+		Z._bof = Z._eof = false;
+		Z._moveCursor(Z._recno - 1);
 	},
 
 	/**
 	 * Move cursor to next record
 	 */
 	last: function () {
-		this.moveCursorPrior(this.recordCount());
+		var Z = this;
+		if(!Z.hasRecord()) {
+			Z._bof = Z._eof = true;
+			return;
+		}
+		Z._bof = Z._eof = false;
+		Z._moveCursor(Z.recordCount() - 1);
+		Z._bof = Z._eof = false;
 	},
 
 	/**
 	 * @private
 	 * Check dataset status and confirm dataset 
 	 */
-	checkStatusAndConfirm: function () {
+	_checkStatusAndConfirm: function () {
 		if (this._status != jslet.data.DataSetStatus.BROWSE) {
 			this.confirm();
 		}
@@ -1297,11 +1300,17 @@ jslet.data.Dataset.prototype = {
 		Z.insertRecord();
 	},
 
+	/**
+	 * @private
+	 */
 	status: function(status) {
 		this._status = status;
 		return this;
 	},
 	
+	/**
+	 * @private
+	 */
 	changedStatus: function(status) {
 		var record = this.getRecord(),
 			cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
@@ -1343,14 +1352,14 @@ jslet.data.Dataset.prototype = {
 		if (Z._dataList === null) {
 			Z._dataList = [];
 		}
-		Z._isAborted = false;
-		Z.checkStatusAndConfirm();
-		if (Z._isAborted) {
+		Z._aborted = false;
+		Z._checkStatusAndConfirm();
+		if (Z._aborted) {
 			return;
 		}
 
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREINSERT);
-		if (Z._isAborted) {
+		if (Z._aborted) {
 			return;
 		}
 
@@ -1392,7 +1401,7 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 
-		Z._isAborted = false;
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		var evt = jslet.data.RefreshEvent.insertEvent(preRecno, Z.recno(), Z._recno < Z.recordCount() - 1);
 		Z.refreshControl(evt);
@@ -1566,9 +1575,9 @@ jslet.data.Dataset.prototype = {
 		if (Z._dataList === null || Z._dataList.length === 0) {
 			Z.insertRecord();
 		} else {
-			Z._isAborted = false;
+			Z._aborted = false;
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREUPDATE);
-			if (Z._isAborted) {
+			if (Z._aborted) {
 				return;
 			}
 
@@ -1582,7 +1591,7 @@ jslet.data.Dataset.prototype = {
 			Z.status(jslet.data.DataSetStatus.UPDATE);
 			Z.changedStatus(jslet.data.DataSetStatus.UPDATE);
 						
-			Z._isAborted = false;
+			Z._aborted = false;
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERUPDATE);
 		}
 	},
@@ -1613,9 +1622,9 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		Z._isAborted = false;
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREDELETE);
-		if (Z._isAborted) {
+		if (Z._aborted) {
 			return;
 		}
 		if (Z._logChanged) {
@@ -1720,6 +1729,9 @@ jslet.data.Dataset.prototype = {
 		} //end for i
 	},
 
+	/**
+	 * @private
+	 */
 	errorMessage: function(errMessage) {
 		var evt = jslet.data.RefreshEvent.errorEvent(errMessage || '');
 		this.refreshControl(evt);
@@ -1739,16 +1751,16 @@ jslet.data.Dataset.prototype = {
 			if (Z._autoShowError) { 
 				jslet.showInfo(jslet.locale.Dataset.cannotConfirm);
 			}
-			Z._isAborted = true;
+			Z._aborted = true;
 			evt = jslet.data.RefreshEvent.updateRecordEvent();
 			Z.refreshControl(evt);
 			Z.errorMessage(jslet.locale.Dataset.cannotConfirm);			
 			return false;
 		}
 		Z.errorMessage();
-		Z._isAborted = false;
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECONFIRM);
-		if (Z._isAborted) {
+		if (Z._aborted) {
 			return false;
 		}
 		var rec;
@@ -1792,9 +1804,9 @@ jslet.data.Dataset.prototype = {
 		if (Z.recordCount() === 0) {
 			return;
 		}
-		Z._isAborted = false;
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECANCEL);
-		if (Z._isAborted) {
+		if (Z._aborted) {
 			return;
 		}
 
@@ -1825,7 +1837,7 @@ jslet.data.Dataset.prototype = {
 
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
-		Z._isAborted = false;
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
@@ -1892,49 +1904,6 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
-	 * @private
-	 */
-	_convertDate: function (records) {
-		var Z = this;
-		if(!records) {
-			records = Z._dataList;
-		}
-		if (!records || records.length === 0) {
-			return;
-		}
-
-		var dateFlds = [], i,
-			cnt = Z._normalFields.length, fldObj;
-		for (i = 0; i < cnt; i++) {
-			fldObj = Z._normalFields[i];
-			if (fldObj.getType() == jslet.data.DataType.DATE) {
-				dateFlds.push(fldObj.name());
-			}
-		}
-		if (dateFlds.length === 0) {
-			return;
-		}
-
-		var rec, fname, value,
-			recCnt = records.length;
-		for (i = 0; i < recCnt; i++) {
-			rec = records[i];
-			for (var j = 0, fcnt = dateFlds.length; j < fcnt; j++) {
-				fname = dateFlds[j];
-				value = rec[fname];
-				if (!jslet.isDate(value)) {
-					value = jslet.convertISODate(value);
-					if (value) {
-						rec[fname] = value;
-					} else {
-						throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fldName]));
-					}
-				} //end if
-			} //end for j
-		} //end for i
-	},
-
-	/**
 	 * Get field value of current record
 	 * 
 	 * @param {String} fldName - field name
@@ -1965,11 +1934,11 @@ jslet.data.Dataset.prototype = {
 	 */
 	setFieldValue: function (fldName, value, valueIndex) {
 		var Z = this,
-			currRec = Z.getRecord(),
 			fldObj = Z.getField(fldName);
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
+		var currRec = Z.getRecord();
 		if(fldObj.valueStyle() == jslet.data.FieldValueStyle.NORMAL || valueIndex === undefined) {
 			currRec[fldName] = value;
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
@@ -2212,12 +2181,14 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	updateFormula: function () {
-		var cnt = this._normalFields.length, fldObj;
+		var cnt = this._normalFields.length, 
+			fldObj,
+			currRec = this.getRecord();
 		for (var i = 0; i < cnt; i++) {
 			fldObj = this._normalFields[i];
 			var fldName = fldObj.name();
-			jslet.data.FieldValueCache.clear(this.getRecord(), fldName);
 			if (fldObj.formula()) {//update all formular field
+				jslet.data.FieldValueCache.clear(currRec, fldName);
 				var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 				this.refreshControl(evt);
 			}
@@ -2341,7 +2312,7 @@ jslet.data.Dataset.prototype = {
 		var foundRecno = -1, oldRecno = Z._recno;
 		try {
 			Z.first();
-			while (!Z._eof) {
+			while (!Z.isEof()) {
 				if (Z._innerFindCondition.eval()) {
 					foundRecno = Z._recno;
 					break;
@@ -2397,7 +2368,7 @@ jslet.data.Dataset.prototype = {
 		try {
 			var cnt = Z.recordCount();
 			for (i = 0; i < cnt; i++) {
-				Z.innerSetRecno(i);
+				Z.recnoSilence(i);
 				value = Z.getFieldValue(fldName);
 				if (value == findingValue) {
 					foundRecno = Z._recno;
@@ -2405,7 +2376,7 @@ jslet.data.Dataset.prototype = {
 				}
 			}
 		} finally {
-			Z.innerSetRecno(oldRecno);
+			Z.recnoSilence(oldRecno);
 		}
 		if (foundRecno >= 0) {// can fire scroll event
 			Z._gotoRecno(foundRecno);
@@ -2481,7 +2452,7 @@ jslet.data.Dataset.prototype = {
 		Z._silence++;
 		try {
 			Z.first();
-			while (!Z._eof) {
+			while (!Z.isEof()) {
 				result.push(Z.getRecord());
 				Z.next();
 			}
@@ -2505,10 +2476,8 @@ jslet.data.Dataset.prototype = {
 		if (keyFldName === undefined) {
 			return this._keyField;
 		}
-		keyFldName = jQuery.trim(keyFldName);
 		jslet.Checker.test('Dataset.keyField', keyFldName).isString();
-		
-		this._keyField = keyFldName;
+		this._keyField = jQuery.trim(keyFldName);
 		return this;
 	},
 
@@ -2523,9 +2492,8 @@ jslet.data.Dataset.prototype = {
 			return this._codeField;
 		}
 		
-		codeFldName = jQuery.trim(codeFldName);
 		jslet.Checker.test('Dataset.codeField', codeFldName).isString();
-		this._codeField = codeFldName;
+		this._codeField = jQuery.trim(codeFldName);
 		return this;
 	},
 	
@@ -2540,9 +2508,8 @@ jslet.data.Dataset.prototype = {
 			return this._nameField;
 		}
 		
-		nameFldName = jQuery.trim(nameFldName);
 		jslet.Checker.test('Dataset.nameField', nameFldName).isString();
-		this._nameField = nameFldName;
+		this._nameField = jQuery.trim(nameFldName);
 		return this;
 	},
 
@@ -2557,9 +2524,8 @@ jslet.data.Dataset.prototype = {
 			return this._parentField;
 		}
 		
-		parentFldName = jQuery.trim(parentFldName);
 		jslet.Checker.test('Dataset.parentField', parentFldName).isString();
-		this._parentField = parentFldName;
+		this._parentField = jQuery.trim(parentFldName);
 		return this;
 	},
 	
@@ -2574,7 +2540,6 @@ jslet.data.Dataset.prototype = {
 			return this._selectField;
 		}
 		
-		selectFldName = jQuery.trim(selectFldName);
 		jslet.Checker.test('Dataset.selectField', selectFldName).isString();
 		this._selectField = jQuery.trim(selectFldName);
 		return this;
@@ -2757,7 +2722,7 @@ jslet.data.Dataset.prototype = {
 		var oldRecno = Z.recno();
 		try {
 			for (var i = 0, cnt = Z.recordCount(); i < cnt; i++) {
-				Z.innerSetRecno(i);
+				Z.recnoSilence(i);
 
 				if (onSelectAll) {
 					var flag = onSelectAll(this, selected);
@@ -2768,7 +2733,7 @@ jslet.data.Dataset.prototype = {
 				Z.selected(selected);
 			}
 		} finally {
-			Z.innerSetRecno(oldRecno);
+			Z.recnoSilence(oldRecno);
 		}
 		if (!noRefresh) {
 			var evt = jslet.data.RefreshEvent.selectAllEvent(selected);
@@ -2790,7 +2755,7 @@ jslet.data.Dataset.prototype = {
 			v, changedRecNum = [];
 		try {
 			for (var i = 0; i < cnt; i++) {
-				Z.innerSetRecno(i);
+				Z.recnoSilence(i);
 				v = Z.getFieldValue(Z._keyField);
 				if (v == keyValue) {
 					Z.selected(selected);
@@ -2799,7 +2764,7 @@ jslet.data.Dataset.prototype = {
 				}
 			} //end for
 		} finally {
-			Z.innerSetRecno(oldRecno);
+			Z.recnoSilence(oldRecno);
 		}
 		if (!noRefresh) {
 			var evt = jslet.data.RefreshEvent.selectRecordEvent(changedRecNum, selected);
@@ -2838,7 +2803,7 @@ jslet.data.Dataset.prototype = {
 			var v, preRecno = Z.recno(), flag;
 			try {
 				for (var k = 0, recCnt = Z.recordCount(); k < recCnt; k++) {
-					Z.innerSetRecno(k);
+					Z.recnoSilence(k);
 					flag = 1;
 					for (i = 0; i < fldCnt; i++) {
 						v = Z.getFieldValue(arrFlds[i]);
@@ -2853,7 +2818,7 @@ jslet.data.Dataset.prototype = {
 					}
 				}
 			} finally {
-				Z.innerSetRecno(preRecno);
+				Z.recnoSilence(preRecno);
 			}
 		}
 
@@ -2892,7 +2857,7 @@ jslet.data.Dataset.prototype = {
 	 * @return {Array of Object} 
 	 */
 	insertedRecords: function () {
-		this.checkStatusAndConfirm();
+		this._checkStatusAndConfirm();
 		return this._insertedDelta;
 	},
 
@@ -2902,7 +2867,7 @@ jslet.data.Dataset.prototype = {
 	 * @return {Array of Object}
 	 */
 	updatedRecords: function () {
-		this.checkStatusAndConfirm();
+		this._checkStatusAndConfirm();
 		return this._updatedDelta;
 	},
 
@@ -2929,13 +2894,13 @@ jslet.data.Dataset.prototype = {
 		var preRecno = Z.recno(), result = [];
 		try {
 			for (var k = 0, recCnt = Z.recordCount(); k < recCnt; k++) {
-				Z.innerSetRecno(k);
+				Z.recnoSilence(k);
 				if(Z.selected()) {
 					result.push(Z.getRecord());
 				}
 			}
 		} finally {
-			Z.innerSetRecno(preRecno);
+			Z.recnoSilence(preRecno);
 		}
 		
 		return result;
@@ -2950,13 +2915,13 @@ jslet.data.Dataset.prototype = {
 		var oldRecno = this.recno(), result = [];
 		try {
 			for (var i = 0, cnt = this.recordCount(); i < cnt; i++) {
-				this.innerSetRecno(i);
+				this.recnoSilence(i);
 				if (this.selected()) {
 					result.push(this.getFieldValue(this._keyField));
 				}
 			}
 		} finally {
-			this.innerSetRecno(oldRecno);
+			this.recnoSilence(oldRecno);
 		}
 		if (result.length > 0) {
 			return result;
@@ -2969,9 +2934,8 @@ jslet.data.Dataset.prototype = {
 		if(url === undefined) {
 			return this._queryUrl;
 		}
-		url = jQuery.trim(url);
 		jslet.Checker.test('Dataset.queryUrl', url).isString();
-		this._queryUrl = url;
+		this._queryUrl = jQuery.trim(url);
 		return this;
 	},
 	
@@ -3080,7 +3044,7 @@ jslet.data.Dataset.prototype = {
 		if (!result) {
 			return;
 		}
-		this._convertDate(result);
+		jslet.data.convertDateFieldValue(this, result);
 		var Z = this, state, rec, c, oldRecs, oldRec;
 		for(var i = 0, len = result.length; i < len; i++) {
 			rec = result[i];
@@ -3118,9 +3082,9 @@ jslet.data.Dataset.prototype = {
 		if(url === undefined) {
 			return this._submitUrl;
 		}
-		url = jQuery.trim(url);
+
 		jslet.Checker.test('Dataset.submitUrl', url).isString();
-		this._submitUrl = url;
+		this._submitUrl = jQuery.trim(url);
 		return this;
 	},
 	
@@ -3188,7 +3152,7 @@ jslet.data.Dataset.prototype = {
 			}
 		} else {
 			var newRec, oldRec, len;
-			this._convertDate(result);
+			jslet.data.convertDateFieldValue(this, result);
 			for(i = arrRecs.length - 1; i >= 0; i--) {
 				oldRec = arrRecs[i];
 				len = result.length;
@@ -3298,21 +3262,21 @@ jslet.data.Dataset.prototype = {
 		if (!updateEvt) {
 			updateEvt = jslet.data.RefreshEvent.updateAllEvent();
 		}
-		if (updateEvt.eventType == jslet.data.RefreshEvent.UPDATEALL) {
-			var flag = this.isContextRuleEnabled();
-			if (flag) {
-				this.disableContextRule();
-			}
-			try {
-				this._refreshInnerControl(updateEvt);
-			} finally {
-				if (flag) {
-					this.enableContextRule();
-				}
-			}
-		} else {
+//		if (updateEvt.eventType == jslet.data.RefreshEvent.UPDATEALL) {
+//			var flag = this.isContextRuleEnabled();
+//			if (flag) {
+//				this.disableContextRule();
+//			}
+//			try {
+//				this._refreshInnerControl(updateEvt);
+//			} finally {
+//				if (flag) {
+//					this.enableContextRule();
+//				}
+//			}
+//		} else {
 			this._refreshInnerControl(updateEvt);
-		}
+//		}
 	},
 
 	/**
@@ -3420,7 +3384,7 @@ jslet.data.Dataset.prototype = {
 		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
 		Z._dataList = datalst;
-		Z._convertDate();
+		jslet.data.convertDateFieldValue(Z);
 		Z._insertedDelta.length = 0;
 		Z._updatedDelta.length = 0;
 		Z._deletedDelta.length = 0;
@@ -3445,7 +3409,7 @@ jslet.data.Dataset.prototype = {
 			fldObj, fldName, textValue, textRec;
 		try {
 			for (var i = 0, cnt = Z.recordCount(); i < cnt; i++) {
-				Z.innerSetRecno(i);
+				Z.recnoSilence(i);
 				textRec = {};
 				for(var j = 0; j < fldCnt; j++) {
 					fldObj = Z._normalFields[j];
@@ -3457,20 +3421,22 @@ jslet.data.Dataset.prototype = {
 			}
 			return result;
 		} finally {
-			this.innerSetRecno(oldRecno);
+			this.recnoSilence(oldRecno);
 		}
 	},
 	
 	destroy: function () {
 		var Z = this;
 		Z._masterDataset = null;
-		Z._detailDatasets.length = 0;
-		Z._fields.length = 0;
-		Z._linkedControls.length = 0;
+		Z._detailDatasets = null;
+		Z._fields = null;
+		Z._linkedControls = null;
 		Z._innerFilter = null;
 		Z._innerFindCondition = null;
 		Z._innerIndexFields = null;
 		Z._innerFormularFields = null;
+		
+		jslet.data.dataModule.unset(Z._name);
 	}
 	
 };
@@ -3491,10 +3457,9 @@ jslet.data.Dataset.prototype = {
  * @param {String or Object} enumStrOrObject a string or an object which stores enumeration data; if it's a string, the format must be:<code>:<name>,<code>:<name>
  * @return {jslet.data.Dataset}
  */
-jslet.data.createEnumDataset = function(dsName, enumStr) {
-	enumStr = jQuery.trim(enumStr);
-	jslet.Checker.test('createEnumDataset#enumStr', enumStr).isString().required();
-	
+jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
+	jslet.Checker.test('createEnumDataset#enumStrOrObj', enumStrOrObj).required();
+		
 	var dsObj = new jslet.data.Dataset(dsName);
 	dsObj.addField(jslet.data.createStringField('code', 10));
 	dsObj.addField(jslet.data.createStringField('name', 20));
@@ -3502,18 +3467,27 @@ jslet.data.createEnumDataset = function(dsName, enumStr) {
 	dsObj.keyField('code');
 	dsObj.codeField('code');
 	dsObj.nameField('name');
-	var dataList = [];
-	var recs = enumStr.split(','), recstr;
-	for (var i = 0, cnt = recs.length; i < cnt; i++) {
-		recstr = jQuery.trim(recs[i]);
-		rec = recstr.split(':');
 
-		dataList[dataList.length] = {
-			'code' : jQuery.trim(rec[0]),
-			'name' : jQuery.trim(rec[1])
-		};
+	var dataList = [];
+	if(jslet.isString(enumStrOrObj)) {
+		var enumStr = jQuery.trim(enumStrOrObj);
+		var recs = enumStr.split(','), recstr;
+		for (var i = 0, cnt = recs.length; i < cnt; i++) {
+			recstr = jQuery.trim(recs[i]);
+			rec = recstr.split(':');
+	
+			dataList[dataList.length] = {
+				'code' : jQuery.trim(rec[0]),
+				'name' : jQuery.trim(rec[1])
+			};
+		}
+	} else {
+		for(var key in enumStrOrObj) {
+			dataList[dataList.length] = {code: key, name: enumStrOrObj[key]};
+		}
 	}
 	dsObj.dataList(dataList);
+	dsObj.indexFields('code');
 	return dsObj;
 };
 

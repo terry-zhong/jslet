@@ -1,13 +1,9 @@
-﻿/*
-This file is part of Jslet framework
-
-Copyright (c) 2013 Jslet Team
-
-GNU General Public License(GPL 3.0) Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please visit: http://www.jslet.com/license.
-*/
+﻿/* ========================================================================
+ * Jslet framework: jslet.dbcheckboxgroup.js
+ *
+ * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
+ * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
+ * ======================================================================== */
 
 /**
  * @class DBCheckBoxGroup. 
@@ -67,9 +63,12 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	bind: function () {
 		this.renderAll();
-		jQuery(this.el).on('click', 'input[type="checkbox"]', function (event) {
+		var jqEl = jQuery(this.el);
+		jqEl.on('click', 'input[type="checkbox"]', function (event) {
 			event.delegateTarget.jslet.updateToDataset(this);
 		});
+		jqEl.addClass('form-control');//Bootstrap class
+		jqEl.css('height', 'auto');
 	},
 
 	/**
@@ -157,7 +156,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			isNewRow = false;
 
 			for (var k = 0; k < cnt; k++) {
-				lkds.innerSetRecno(k);
+				lkds.recnoSilence(k);
 				isNewRow = (k % Z._columnCount === 0);
 				if (isNewRow) {
 					if (k > 0) {

@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Demeostrate how to use UI widget: Menu and Context Menu">
     <title>Jslet - Menu Demo</title>
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
@@ -16,31 +18,29 @@
     </style>
 </head>
 <body onunload="jslet.ui.uninstall()">
+	<div class="container">
+    <div class="page-header">
     <h2 id="top">Jslet - Menu Demo</h2>
+	</div>
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
 	<div class="content">Demonstrate how to use menu bar, menu and context menu control.</div>
-    <fieldset>
-		<legend>Menu Bar</legend>
+	<h4>Menu Bar</h4>
 		<!-- Bar menu, barMenuCfg is a global variable. -->
-		<div data-jslet="barMenuCfg"></div>
-	</fieldset>
-	<fieldset>
-		<legend>Content Menu</legend>
+	<div data-jslet="barMenuCfg"></div>
+	<h4>Content Menu</h4>
 	<!-- Context menu host -->
     <div class="round4" style="border: 1px solid green; width: 600px; height: 300px; overflow: auto;
         background-color: #eee; vertical-align: middle; position: relative"
         oncontextmenu="showPopupMenu(event)">
         <span style="position: absolute; top: 40%;margin-left:40px">Right click on this area!</span>
     </div>
-    </fieldset>
-	<fieldset>
-		<legend>Drop Down Button</legend>
+	<h4>Drop Down Button</h4>
 	<div>
 		<button onclick="showDropDownMenu(this)"> Dropdown Button </button>
 	</div>
-    </fieldset>
+    
     <h3>Demo Content:</h3>
     <div style="margin-left: 20px" class="content">
 		<ol>
@@ -169,6 +169,6 @@
 
 	<!-- Source Code 	-->
 	<script type="text/javascript" src="../source/demosource.js?height=1500"></script>
-
+	</div>
 </body>
 </html>
