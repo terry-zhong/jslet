@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <base target="contents" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Jslet - Make web development easier, faster and more flexible</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript">
+        function doLoad() {
+            var str = document.location.href;
+            var k = str.indexOf("&");
+            var frame = document.getElementById("innerframe");
+            var h, uri;
+            if (k > 0) {
+                h = parseInt(str.substring(k + 1));
+                uri = str.substring(str.indexOf("=") + 1, k);
+                frame.style.height = h + "px";
+                frame.src = uri;
+            } else
+                frame.src = (str.substring(str.indexOf("=") + 1));
+        }
+    </script>
+</head>
+<body  class="sitebody" onload="doLoad();">
+    <div class="frame">
+        <table style="width: 100%">
+            <tr>
+                <td nowrap="nowrap">
+                    <img class="logimg" src="images/logo.png" alt="" /><font
+                        size="5"><b>Jslet </b>- <i>挑战桌面应用程序的开发速度和可操控性</i></font>
+                </td>
+                <td style="width: 140px" nowrap="nowrap">
+                    <!--<a href="index.html" target=_top>中文</a>&nbsp;&nbsp;<a href="#">English</a>-->
+                </td>
+            </tr>
+        </table>
+        <div id="menu" style="text-align: left">
+            &nbsp;<a target="_self" href="overview.html">首页</a> |
+            &nbsp;<a href="demo.html" target="_self">演示程序</a> |
+            &nbsp;<a href="download.html" target="_self">下载</a>|
+            &nbsp;<a href="tutorial.html" target="_self">开发指南</a>|
+            &nbsp;<a href="apidoc.html" target="_self" class="selected">文档</a>|
+            &nbsp;<a target="_self" href="license.html">授权许可</a> |
+            &nbsp;<a href="contactus.html" target="_self">联系我们</a>
+        </div>
+    </div>
+    <br />
+    <div class="frame" style="text-align: left">
+        <iframe frameborder="0" style="width: 100%; height: 800px;margin:0px;padding:0px" id="innerframe"></iframe>
+    </div>
+    <div style="text-align: center">
+        Copyright (C) JSLET TEAM 2011, All Rights Reserved，粤ICP备09083159号</div>
+</body>
+</html>
