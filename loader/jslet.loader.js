@@ -22,12 +22,22 @@ if (window.jslet === undefined || jslet === undefined){
 //Distribution configuration begin
 jslet._initialModules = [
 //css
-	{name: 'jslet-style', src: '../dist/resources/{theme}/jslet-min.css', baseOnLoader: true },
+	{name: 'jslet-style', src: '../dist/asset/{theme}/jslet-min.css', baseOnLoader: true },
 //message for i18n
 	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
-//lib
-	{name: 'jquery', src: '../dist/lib/jquery-1.11.0.min.js', baseOnLoader: true },
-	
+	   //js-lib
+	{name: 'jquery', src: '../dist/lib/jquery-1.11.0.js', baseOnLoader: true },
+
+	//Bootstrap
+	{name: 'bootstrap-js', src: '../dist/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },
+	{name: 'bootstrap-css', src: '../dist/lib/bootstrap-3.2.0-dist/css/bootstrap.min.css', baseOnLoader: true },
+	{name: 'bootstrap-theme', src: '../dist/lib/bootstrap-3.2.0-dist/css/bootstrap-theme.min.css', baseOnLoader: true },
+
+	//fontawesome
+	{name: 'fontawesome', src: '../dist/lib/fontawesome/css/font-awesome.min.css', baseOnLoader: true },
+
+	{ name: 'bootstrap', deps: ['bootstrap-js','bootstrap-css','bootstrap-theme','fontawesome']},
+		
 //jqPlot	
 	{name: 'jqplotjs', src: '../dist/lib/jqplot/jquery.jqplot.min.js', deps: ['jquery'], baseOnLoader: true },
 	{name: 'jqplotcss', src: '../dist/lib/jqplot/jquery.jqplot.min.css', baseOnLoader: true },
@@ -38,7 +48,9 @@ jslet._initialModules = [
 	{name: 'jqplot', deps: ['jqplotcss','jqplotplugs'], baseOnLoader: true },	
 	
 //jslet
-	{name: 'jslet', src: '../dist/jslet-3.0.min.js', deps: ['locale','jquery','jsonlib','jslet-style'], baseOnLoader: true }
+	{name: 'jslet-data', src: '../dist/jslet-data.min.js', deps: ['locale','jquery',], baseOnLoader: true },
+	{name: 'jslet-ui', src: '../dist/jslet-ui.min.js', deps: ['jslet-data','jslet-style','bootstrap'], baseOnLoader: true },
+	{name: 'jslet', deps: ['jslet-data','jslet-ui'], baseOnLoader: true }
 ];
 //Distribution configuration end
 /////////////////////////////////////////////////////////////////
@@ -91,6 +103,9 @@ jslet.ModuleManager = function () {
 			}
 		}
 		else {
+			if(deps && typeof deps == 'string') {
+				deps = deps.trim().split(',');
+			}
 			omod = { 'name': name.toLowerCase().trim(), 'deps': deps, 'src': src?src.trim():null, 'baseOnLoader': baseOnLoader ? true : false };
 			_checkModule(omod);
 			_modules[_modules.length] = omod;
@@ -147,7 +162,9 @@ jslet.ModuleManager = function () {
 				if (onLoaded) {
 					onLoaded();
 				}
-				jslet.ui.install(onJsletReady);
+				if(jslet.ui) {
+					jslet.ui.install(onJsletReady);
+				}
 			}
 		} else {
 			this._innerloadjs(loadingModules, function () {
@@ -158,7 +175,9 @@ jslet.ModuleManager = function () {
 					if (onLoaded) {
 						onLoaded();
 					}
-					jslet.ui.install(onJsletReady);
+					if(jslet.ui) {
+						jslet.ui.install(onJsletReady);
+					}
 				}
 			});
 		}
