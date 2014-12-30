@@ -67,27 +67,27 @@ jslet.data.DataProvider = function(dataset) {
 	this.query = function(dataset, url, condition, pageNo, pageSize, successHandler, errorHandler) {
 		result = null;
 		var strParam = this._combineRequestData(condition);
-
+		url = url.trim();
 		if (pageNo && pageNo > 0) {
-			if (strParam) {
-				strParam += '&';
-			} else {
-				strParam = '';
+			if (!url.endsWith("?")) {
+				url += '?';
 			}
-			strParam += 'pageNo=' + pageNo + '&pageSize=' + 
-					String(pageSize > 0 ? pageSize : 200);
+			url += 'pageNo=' + pageNo + '&pageSize=' + 
+					String(pageSize > 0 ? pageSize : 500);
 		}
-		
-		sendRequest(dataset, url, strParam, successHandler, errorHandler, jslet.data.ApplyAction.QUERY, {async : true, type: 'GET'});
+		if(!condition) {
+			condition = jslet.data.record2Json(condition, true);
+		}
+		sendRequest(dataset, url, condition, successHandler, errorHandler, jslet.data.ApplyAction.QUERY, {async : true, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'});
 	};
 
 	this.submit = function(dataset, url, changedRecs, successHandler, errorHandler) {
-		var options = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
+		var options = {async : false, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'};
 		sendRequest(dataset, url, jslet.data.record2Json(changedRecs, true), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
 	};
 	
 	this.submitSelected = function(dataset, url, selectedData, successHandler, errorHandler, deleteOnSuccess) {
-		var reqOptions = {async : false, type: 'POST', contentType: 'application/json', mimeType: 'application/json'};
+		var reqOptions = {async : false, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'};
 		var callBackOpt = {deleteOnSuccess: deleteOnSuccess};
 		sendRequest(dataset, url, jslet.data.record2Json(selectedData, true), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
 	};
