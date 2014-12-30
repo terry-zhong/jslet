@@ -212,7 +212,6 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 					itemCfg.header = 'new tab';
 					itemCfg.closable = true;
 				}
-				Z._items.push(itemCfg);
 				Z.addTabItem(itemCfg);
 				Z._calcItemsWidth();
 				Z.selectedIndex(Z._items.length - 1);
@@ -551,10 +550,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			oul = jqEl.find('.jl-tab-list')[0];
+		Z._items.push(newItemCfg);
 		Z._createHeader(oul, newItemCfg);
 
 		var panelContainer = jqEl.find('.jl-tab-items')[0];
 		Z._createBody(panelContainer, newItemCfg);
+		if(!notRefreshRightIdx) {
+			Z._calcItemsWidth();
+			Z._chgSelectedIndex(Z._selectedIndex + 1);
+		}
 	},
 
 	/**

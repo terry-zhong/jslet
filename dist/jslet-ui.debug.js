@@ -2152,7 +2152,7 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 		var contentHeight = jqEl.innerHeight() - headHeight-1;
 		
 		panels.wrap('<div class="jl-accordion-body" style="height:'+contentHeight+'px;display:none"></div>');
-		Z.setSelectedIndex(Z._selectedIndex);
+        Z.setSelectedIndex(Z._selectedIndex, true);
 	},
 	
 	_doCaptionClick: function(event){
@@ -2167,7 +2167,7 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 	 * 
 	 * @param {Integer} index Panel index, start at 0.
 	 */
-	setSelectedIndex: function(index){
+	setSelectedIndex: function(index, isRenderAll){
 		if (!index) {
 			index = 0;
 		}
@@ -2180,7 +2180,9 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 
 		if (Z._selectedIndex == index && index < pnlCnt){
 			jQuery(jqBodies[index]).slideUp('fast');
-			index++;
+			if(!isRenderAll || isRenderAll && index > 0) {
+				index++;
+			}
 			jQuery(jqBodies[index]).slideDown('fast');
 			Z._selectedIndex = index;
 			if (Z._onChanged){
@@ -4339,7 +4341,6 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 					itemCfg.header = 'new tab';
 					itemCfg.closable = true;
 				}
-				Z._items.push(itemCfg);
 				Z.addTabItem(itemCfg);
 				Z._calcItemsWidth();
 				Z.selectedIndex(Z._items.length - 1);
@@ -4678,10 +4679,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			oul = jqEl.find('.jl-tab-list')[0];
+		Z._items.push(newItemCfg);
 		Z._createHeader(oul, newItemCfg);
 
 		var panelContainer = jqEl.find('.jl-tab-items')[0];
 		Z._createBody(panelContainer, newItemCfg);
+		if(!notRefreshRightIdx) {
+			Z._calcItemsWidth();
+			Z._chgSelectedIndex(Z._selectedIndex + 1);
+		}
 	},
 
 	/**

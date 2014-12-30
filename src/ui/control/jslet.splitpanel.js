@@ -162,9 +162,9 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 				size = Z.isHori ? jqPanel.outerWidth(): jqPanel.outerHeight();
 			} else {
 				if (Z.isHori) {
-					jqPanel.width(size);
+					jqPanel.width(size - 5);
 				} else {
-					jqPanel.height(size);
+					jqPanel.height(size - 5);
 				}
 			}
 				
