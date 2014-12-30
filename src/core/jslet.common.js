@@ -489,10 +489,20 @@ jslet.convertISODate= function(dateStr) {
 	if(jslet.isDate(dateStr)) {
 		return dateStr;
 	}
-    var a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(dateStr);
-	if (a) {
-		return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
-			+a[5], +a[6]));
+	var flag = dateStr.substr(10,1);
+	if('T' == flag) {
+		var year = dateStr.substr(0,4),
+		month = dateStr.substr(5,2),
+		day = dateStr.substr(8,2),
+		hour = dateStr.substr(11,2),
+		minute = dateStr.substr(14,2),
+		second = dateStr.substr(17,2);
+		if('Z' == dateStr.substr(-1,1)) {
+			return new Date(Date.UTC(+year, +month - 1, +day, +hour,
+					+minute, +second));
+		}
+		return new Date(+year, +month - 1, +day, +hour,
+				+minute, +second);
 	}
     return dateStr;
 };

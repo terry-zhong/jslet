@@ -115,12 +115,18 @@
                 arr.push('//use these codes to query data \n var yourParams = {};\n');
                 arr.push('jslet.data.getDataset("');
                 arr.push(dsname);
-                arr.push('").applyQuery(yourUrl, yourParams);\n');
+                arr.push('").queryUrl(yourUrl);\n');
+                arr.push('jslet.data.getDataset("');
+                arr.push(dsname);
+                arr.push('").query(yourParams);\n');
 
                 arr.push('//or use these codes to insert/update/delete data \n');
                 arr.push('jslet.data.getDataset("');
                 arr.push(dsname);
-                arr.push('").applyChanges(url);\n');
+                arr.push('").submitUrl(url);\n');
+                arr.push('jslet.data.getDataset("');
+                arr.push(dsname);
+                arr.push('").submit();\n');
             }
             return arr.join('');
         }
