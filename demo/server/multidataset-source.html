@@ -12,14 +12,15 @@
 
         function initialize() {
             dsEmployee.dataList(null);
-			jslet.data.getDataset('department').dataList(null);
+            jslet.data.getDataset('department').dataList(null);
+            dsEmployee.queryUrl('../../employee/findMultiDataset.jsp');
         }
     &nbsp;/script&gt;
     </code></pre>
 	
 	<ul><li>Command script: </li></ul>
     <pre class="prettyprint linenums"><code>
-dsEmployee.applyQuery('../../employee/findMultiDataset.jsp');";
+     dsEmployee.query();
     </code></pre>
 	
     <script type="text/javascript">

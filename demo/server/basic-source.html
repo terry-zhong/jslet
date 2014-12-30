@@ -11,9 +11,11 @@
         });
 
         function initialize() {
-			//Clear all records which are created at client side.
-			//We need all employee data to query from server side.
+            //Clear all records which are created at client side.
+            //We need all employee data to query from server side.
             dsEmployee.dataList(null);
+            dsEmployee.queryUrl('../../employee/findEmployee.jsp');
+            dsEmployee.submitUrl('../../employee/save.jsp');
         }
 
     &lt;/script&gt;
@@ -21,13 +23,20 @@
 	
 	<ul><li>Command script: </li></ul>
     <pre class="prettyprint linenums"><code>
-	//Query data
-	dsEmployee.applyQuery('../../employee/findEmployee.jsp');
-	
-	//Apply all changed data to server.
-	function applyToServer() {
-           dsEmployee.applyChanges('../../employee/save.jsp');
-	}
+
+        function applyToServer() {
+            dsEmployee.submit();
+        }
+		
+        function processServerError() {
+            var oldUrl = dsEmployee.queryUrl();
+            try {
+                dsEmployee.queryUrl('../../employee/getServerErrMsg.jsp');
+                dsEmployee.query();
+            }finally{
+                dsEmployee.queryUrl(oldUrl);
+            }
+        }
 
     </code></pre>
 	
