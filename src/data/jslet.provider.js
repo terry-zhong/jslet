@@ -18,88 +18,58 @@ jslet.data.ApplyAction = {QUERY: 'query', SAVE: 'save', SELECTED: 'selected'};
 
 /**
  * @class jslet.data.DataProvider
- * @constructor
  * 
- * @param {jslet.data.Dataset} dataset
  * @required
  */
-jslet.data.DataProvider = function(dataset) {
-	this.url = '';
-	var result = null, errorMsg = null, self = this;
+jslet.data.DataProvider = function() {
 	
-	var sendRequest = function(dataset, url, params, successHandler, errorHandler, actionName, reqOptions, callBackOption) {
-		result = null;
+	/**
+	 * @param dataset jslet.data.Dataset;
+	 * @param url String the request url;
+	 * @param reqData String the request data which need to send to server.
+	 */
+	this.sendRequest = function(dataset, url, reqData) {
 		var headers = {};
-		if(self.csrfToken) {
-			headers.csrfToken = self.csrfToken;
+		if(dataset.csrfToken) {
+			headers.csrfToken = dataset.csrfToken;
 		}
-		var options = {
-				headers: headers,
-				data : params,
-				success : function(data, textStatus, jqXHR) {
-					var text = data, result;
-					if (text && typeof(text) == 'string') {
-						result = jQuery.parseJSON(text);
-					} else {
-						result = text;
-					}
-					errorMsg = result.errorMessage;
-					if (errorMsg) {
-						errorHandler.call(dataset, actionName, errorMsg);
-						return;
-					}
-					self.csrfToken = jqXHR.getResponseHeader("csrftoken");
-					successHandler.call(dataset, result, callBackOption);
-				},
-
-				error : function(jqXHR, textStatus, errorThrown) {
-					errorHandler.call(dataset, actionName, textStatus + ':' + errorThrown);
+		var settings = {
+			async : true, 
+			type: 'POST', 
+			contentType: 'application/json', 
+			mimeType: 'application/json',
+			dataType: 'json',
+			headers: headers,
+			data : reqData,
+			context: dataset
+		};
+		
+		var defer = jQuery.Deferred();
+		jQuery.ajax(url, settings)
+		.done(function(data, textStatus, jqXHR) {
+			if(data) {
+				if(data.csrfToken) {
+					this.csrfToken = data.csrfToken;
 				}
-			};
-		if(reqOptions) {
-			for(var prop in reqOptions) {
-				options[prop] = reqOptions[prop];
+				var errorCode = data.errorCode;
+				if (errorCode) {
+					defer.reject(data, this);
+					return;
+				}
 			}
-		}
-		new jQuery.ajax(url, options);
-	};
-
-	this.query = function(dataset, url, condition, pageNo, pageSize, successHandler, errorHandler) {
-		result = null;
-		var strParam = this._combineRequestData(condition);
-		url = url.trim();
-		if (pageNo && pageNo > 0) {
-			if (!url.endsWith("?")) {
-				url += '?';
+			defer.resolve(data, this);
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {
+			var data = {errorCode: textStatus, errorMessage: errorThrown};
+			defer.reject(data, this);
+		})
+		.always(function(dataOrJqXHR, textStatus, jqXHRorErrorThrown) {
+			if(jQuery.isFunction(dataOrJqXHR.done)) { //fail
+				defer.always({errorCode: textStatus, errorMessage: jqXHRorErrorThrown}, this);
+			} else {
+				defer.always(dataOrJqXHR, this);
 			}
-			url += 'pageNo=' + pageNo + '&pageSize=' + 
-					String(pageSize > 0 ? pageSize : 500);
-		}
-		if(!condition) {
-			condition = jslet.data.record2Json(condition, true);
-		}
-		sendRequest(dataset, url, condition, successHandler, errorHandler, jslet.data.ApplyAction.QUERY, {async : true, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'});
-	};
-
-	this.submit = function(dataset, url, changedRecs, successHandler, errorHandler) {
-		var options = {async : false, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'};
-		sendRequest(dataset, url, jslet.data.record2Json(changedRecs, true), successHandler, errorHandler, jslet.data.ApplyAction.SAVE, options);
-	};
-	
-	this.submitSelected = function(dataset, url, selectedData, successHandler, errorHandler, deleteOnSuccess) {
-		var reqOptions = {async : false, type: 'POST', contentType: 'application/jslet', mimeType: 'application/jslet'};
-		var callBackOpt = {deleteOnSuccess: deleteOnSuccess};
-		sendRequest(dataset, url, jslet.data.record2Json(selectedData, true), successHandler, errorHandler, jslet.data.ApplyAction.SELECTED, reqOptions, callBackOpt);
-	};
-
-	this._combineRequestData = function(data) {
-		if(!data) {
-			return '';
-		}
-		var result = data;
-		if (!jslet.isString(data)) {
-			result = jslet.data.record2Json(data, true);
-		}
-		return 'jsletdata=' + result;
+		});
+		return defer.promise();
 	};
 };

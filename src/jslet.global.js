@@ -15,7 +15,7 @@ jslet.global = {
 	version: '3.0.0',
 	
 	//Used in jslet.data.Dataset_applyChanges
-	changeStateField: '_state_',
+	changeStateField: 'rs',
 	
 	//Used in jslet.data.Dataset_selected
 	selectStateField: '_sel_',
