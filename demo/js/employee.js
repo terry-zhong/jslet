@@ -140,8 +140,8 @@
 
     fldObj = jslet.data.createBooleanField('married');
     fldObj.label('Married');
-    fldObj.trueValue = 1;
-    fldObj.falseValue = 0;
+    fldObj.trueValue(1);
+    fldObj.falseValue(0);
     fldObj.displayWidth(10);
     dsEmployee.addField(fldObj);
 
@@ -161,6 +161,8 @@
     fldObj = jslet.data.createNumberField('salary', 16, 2);
     fldObj.label('Salary');
     fldObj.displayFormat('￥#,##0.00');
+    fldObj.urlExpr('"javascript:alert(\'"+[workerid] + "\')"');
+    fldObj.urlTarget('_self');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('university', 20);

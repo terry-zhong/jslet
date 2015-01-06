@@ -3930,6 +3930,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return;
 		}
+		Z.clearFieldErrorMessage();
 		if (Z.recordCount() === 0) {
 			return;
 		}
@@ -3939,7 +3940,6 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		Z.clearFieldErrorMessage();
 		var evt, k = Z._recno;
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			var no = Z.recno();
@@ -5187,6 +5187,7 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	_doSaveSuccess: function(result, dataset) {
+		dataset.clearFieldErrorMessage();
 		if (!result) {
 			return;
 		}
@@ -5289,6 +5290,7 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	_doSubmitSelectedSuccess: function(result, dataset) {
+		dataset.clearFieldErrorMessage();
 		result = result.main;
 		if (!result || result.length === 0) {
 			return;
@@ -5544,6 +5546,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	dataList: function (datalst) {
 		var Z = this;
+		Z.clearFieldErrorMessage();
 		if (datalst === undefined) {
 			return Z._dataList;
 		}
