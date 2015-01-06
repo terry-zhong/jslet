@@ -22,7 +22,6 @@ jslet.data.Dataset = function (name) {
 	
 	var Z = this;
 	Z._name = null; //Dataset name
-	Z._recordClass = null; //Record class, used for serialized/deserialize
 	Z._dataList = null; //Array of data records
 	
 	Z._datasetListener = null; //Dataset event listener object, like: function(eventType/*jslet.data.DatasetEvent*/) {}
@@ -88,8 +87,8 @@ jslet.data.Dataset = function (name) {
 	Z._queryCriteria = null; //String query parameters 
 	Z._queryUrl = null; //String query URL 
 	Z._submitUrl = null; //String submit URL
-	Z._pageSize = 500;
-	Z._pageNo = 0;  
+	Z._pageSize = 0;
+	Z._pageNo = 1;
 	Z._pageCount = 0;
 	//The following attributes are used for private.
 	Z._ignoreFilter = false;
@@ -113,7 +112,7 @@ jslet.data.Dataset = function (name) {
 	 *   //return: Boolean, true - record can be selected, false - otherwise.
 	 */
 	Z._onCheckSelectable = null;
-	Z._autoShowError = false;
+	Z._autoShowError = true;
 	Z._autoRefreshHostDataset = false;
 	
 	var dsName = this._name;
@@ -140,22 +139,6 @@ jslet.data.Dataset.prototype = {
 			throw new Error("Can't change dataset name! Use new jslet.data.Dataset('dsName') instead!");
 		}
 		return this._name;
-	},
-		
-	/**
-	* Set dataset's name.
-	* 
-	* @param {String} name Dataset's name that must be unique in jslet.data.dataModule variable.
-	* @return {String or this}
-	*/
-	recordClass: function(clazz) {
-		var Z = this;
-		if (clazz === undefined) {
-			return Z._recordClass;
-		}
-		jslet.Checker.test('Dataset.recordClass', clazz).isString();
-		Z._recordClass = clazz ? clazz.trim() : null;
-		return this;
 	},
 		
 	/**
@@ -275,6 +258,27 @@ jslet.data.Dataset.prototype = {
 	 */
 	pageCount: function() {
 		return this._pageCount;
+	},
+	
+	/**
+	 * Normally, Jslet can process csrfToken automatically(In jslet.data.DataProvider).
+	 * If you want to use your own csrf token, you can use this property.
+	 * 
+	 * @param {String} token.
+	 * @return {String or this}
+	 */
+	csrfToken: function(token) {
+		var dataProvider = this.dataProvider();
+		if(!dataProvider) {
+			return;
+		}
+			
+		if (token === undefined) {
+			return dataProvider.csrfToken;
+		}
+		
+		dataProvider.csrfToken = token;
+		return this;
 	},
 	
 	/**
@@ -2946,47 +2950,55 @@ jslet.data.Dataset.prototype = {
 	 */
 	query: function (criteria) {
 		this._queryCriteria = criteria;
-		return this.requery();
+		this.requery();
 	},
 
-	_doQuerySuccess: function(result, dataset) {
-		var Z = dataset;
+	_doQuerySuccess: function(result) {
+		var Z = this;
 		if (!result) {
 			Z.dataList(null);
 			return;
 		}
-		var mainData = result.main;
-		if (mainData) {
-			Z.dataList(mainData);
-		}
-		var extraData = result.extraEntities;
-		if(extraData) {
-			var dsName, ds;
-			for (var dsName in extraData) {
+
+		if (result.result === undefined) {
+			Z.dataList(result);
+		} else {
+			var keys = Object.keys(result), dsName, ds;
+			for (var i = 0, cnt = keys.length; i < cnt; i++) {
+				dsName = keys[i];
+				if (dsName == 'result') {
+					continue;
+				}
 				ds = jslet.data.dataModule.get(dsName);
 				if (ds) {
-					ds.dataList(extraData[dsName]);
+					ds.dataList(result[dsName]);
 				}
 			}
-		}
-		if (result.pageNo) {
-			Z._pageNo = result.pageNo;
-		}
-		if (result.pageCount) {
-			Z._pageCount = result.pageCount;
-		}
+			Z.dataList(result.result);
+			if (result.pageNo) {
+				Z._pageNo = result.pageNo;
+			}
+			if (result.pageCount) {
+				Z._pageCount = result.pageCount;
+			}
 
-		var evt = jslet.data.RefreshEvent.changePageEvent();
-		Z.refreshControl(evt);
+			var evt = jslet.data.RefreshEvent.changePageEvent();
+			Z.refreshControl(evt);
+			if(Z.onApplySuccess) {
+				Z.onApplySuccess("query");
+			}
+		}
 	},
 	
-	_doApplyError: function(result, dataset) {
-		var Z = dataset,
-			errCode = result.errorCode,
-			errMsg = result.errorMessage;
-		Z.errorMessage(errCode + " : " + errMsg);
-		if(Z._autoShowError) {
-			jslet.showException(errCode + " : " + errMsg);
+	_doApplyError: function(actionName, errorMessage) {
+		var Z = this;
+		Z.errorMessage(errorMessage);
+		if(Z.onApplyError) {
+			Z.onApplyError(actionName, errorMessage);
+		} else {
+			if(Z._autoShowError) {
+				jslet.showException(errorMessage);
+			}
 		}
 	},
 	
@@ -2999,45 +3011,20 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		if(!this._queryUrl) {
-			throw new Error('QueryUrl required! Use: yourDataset.queryUrl(yourUrl)');
+			alert('QueryUrl required! Use: yourDataset.queryUrl(yourUrl)');
+			return;
 		}
 
-		var reqData = {};
-		if(Z._pageNo > 0) {
-			reqData.pageNo = Z._pageNo;
-			reqData.pageSize = Z._pageSize;
-		}
-		var criteria = Z._queryCriteria;
-		if(criteria) {
-			if(jslet.isArray(criteria)) {
-				reqData.criteria = criteria;
-			} else {
-				reqData.simpleCriteria = criteria;
-			}
-		}
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
-		}
-		var reqData = jslet.data.record2Json(reqData);
-		return Z._dataProvider.sendRequest(Z, Z._queryUrl, reqData)
-		.done(Z._doQuerySuccess)
-		.fail(Z._doApplyError);
+		Z._dataProvider.query(Z, Z._queryUrl, Z._queryCriteria, Z._pageNo,
+				Z._pageSize, Z._doQuerySuccess, Z._doApplyError);
 	},
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
 		if (chgRecs && chgRecs.length > 0) {
-			var pRec = {};
-			var recClazz = this._recordClass;
-			if(recClazz) {
-				pRec["@type"] = recClazz;
-			}
 			for (var i = 0, cnt = chgRecs.length; i < cnt; i++) {
 				rec = chgRecs[i];
 				rec[jslet.global.changeStateField] = flag + i;
-				for(var prop in rec) {
-					pRec[prop] = rec[prop];
-				}
-				pendingRecs.push(pRec);
+				pendingRecs.push(rec);
 			}
 		}
 	},
@@ -3053,14 +3040,12 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 	
-	_doSaveSuccess: function(result, dataset) {
+	_doSaveSuccess: function(result) {
 		if (!result) {
 			return;
 		}
-		result = result.main;
-		var Z = dataset;
-		jslet.data.convertDateFieldValue(Z, result);
-		var state, rec, c, oldRecs, oldRec;
+		jslet.data.convertDateFieldValue(this, result);
+		var Z = this, state, rec, c, oldRecs, oldRec;
 		for(var i = 0, len = result.length; i < len; i++) {
 			rec = result[i];
 			state = rec[jslet.global.changeStateField];
@@ -3125,17 +3110,16 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * @param {String} url Url
 	 */
-	submit: function(url) {
+	submit: function() {
 		var Z = this;
 		if (!Z._checkDataProvider()) {
 			return;
 		}
-		if(url) {
-			Z._submitUrl = url.trim();
-		}
 		if(!Z._submitUrl) {
-			alert('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
-			return;
+			if(!this._queryUrl) {
+				alert('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
+				return;
+			}
 		}
 		var changedRecs = [];
 		Z._setChangedState('i', Z.insertedRecords(), changedRecs);
@@ -3145,25 +3129,20 @@ jslet.data.Dataset.prototype = {
 		if (!changedRecs || changedRecs.length === 0) {
 			return;
 		}
-		var reqData = {main: changedRecs};
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
-		}
-		reqData = jslet.data.record2Json(reqData);
-		return Z._dataProvider.sendRequest(Z, Z._submitUrl, reqData)
-		.done(Z._doSaveSuccess)
-		.fail(Z._doApplyError);
+		Z._dataProvider.submit(Z, Z._submitUrl, changedRecs, Z._doSaveSuccess, Z._doApplyError);
 	},
 	
-	_doSubmitSelectedSuccess: function(result, dataset) {
-		result = result.main;
+	_doSubmitSelectedSuccess: function(result, callBackOption) {
 		if (!result || result.length === 0) {
 			return;
 		}
-		var Z = dataset;
-		var deleteOnSuccess = Z._deleteOnSuccess_;
+		var deleteOnSuccess = false;
+		if(callBackOption && callBackOption.deleteOnSuccess) {
+			deleteOnSuccess = true;
+		}
 		
-		var arrRecs = Z.selectedRecords(),
+		var Z = this, 
+			arrRecs = Z.selectedRecords(),
 			i, k;
 		if(deleteOnSuccess) {
 			for(i = arrRecs.length; i >= 0; i--) {
@@ -3217,25 +3196,13 @@ jslet.data.Dataset.prototype = {
 		if (!Z._checkDataProvider()) {
 			return;
 		}
-		if(!url) {
-			alert('Url required! Use: yourDataset.submitSelected(yourUrl)');
-			return;
-		}
 		var changedRecs = [];
 		Z._setChangedState('s', Z.selectedRecords(), changedRecs);
 		var arrRecs = Z.selectedRecords();
 		if (!changedRecs || changedRecs.length === 0) {
 			return;
 		}
-		Z._deleteOnSuccess_ = deleteOnSuccess;
-		var reqData = {main: changedRecs};
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
-		}
-		reqData = jslet.data.record2Json(reqData);
-		return Z._dataProvider.sendRequest(Z, url, reqData)
-		.done(Z._doSubmitSelectedSuccess)
-		.fail(Z._doApplyError);
+		Z._dataProvider.submitSelected(Z, url, changedRecs, Z._doSubmitSelectedSuccess, Z._doApplyError, deleteOnSuccess);
 	},
 
 	/**

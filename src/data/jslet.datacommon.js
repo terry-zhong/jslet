@@ -470,19 +470,30 @@ jslet.data.getValueConverter = function(fldObj) {
 /* End of field value converter */
 
 jslet.data._record2JsonFilter = function(key, value) {
+	return key == jslet.data.FieldValueCache.CACHENAME ? undefined: value;
+};
+
+jslet.data._record2JsonAndEncodingFilter = function(key, value) {
 	if(key == jslet.data.FieldValueCache.CACHENAME) {
 		return undefined;
+	}
+	if(value && typeof value == 'string') {
+		return encodeURIComponent(value);
 	} else {
 		return value;
 	}
 };
 
-jslet.data.record2Json = function(records) {
+jslet.data.record2Json = function(records, urlEncoding) {
 	if(!window.JSON || !JSON) {
 		alert('Your browser does not support JSON!');
 		return;
 	}
-	return JSON.stringify(records, jslet.data._record2JsonFilter);
+	if(urlEncoding) {
+		return JSON.stringify(records, jslet.data._record2JsonAndEncodingFilter);
+	} else {
+		return JSON.stringify(records, jslet.data._record2JsonFilter);
+	}
 };
 
 /*Field value cache manager*/
@@ -626,7 +637,7 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 			fname = dateFlds[j];
 			value = rec[fname];
 			if (!jslet.isDate(value)) {
-				value = jslet.parseDate(value,'yyyy-MM-ddThh:mm:ss');
+				value = jslet.convertISODate(value);
 				if (value) {
 					rec[fname] = value;
 				} else {
