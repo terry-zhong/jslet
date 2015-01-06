@@ -102,7 +102,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			fldObj = Z._dataset.getField(Z._field);
 		try {
 			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
-			if (value !== null && value == fldObj.trueValue) {
+			if (value !== null && value == fldObj.trueValue()) {
 				Z.el.checked = true;
 			} else {
 				Z.el.checked = false;
@@ -131,9 +131,9 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var fldObj = Z._dataset.getField(Z._field),
 			value;
 		if (Z.el.checked) {
-			value = fldObj.trueValue;
+			value = fldObj.trueValue();
 		} else {
-			value = fldObj.falseValue;
+			value = fldObj.falseValue();
 		}
 		Z._keep_silence_ = true;
 		try {

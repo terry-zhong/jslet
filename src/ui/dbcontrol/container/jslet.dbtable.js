@@ -2378,7 +2378,7 @@ jslet.ui.BoolCellRender = jslet.Class.create(jslet.ui.DefaultCellRender, {
 		var Z = this,
 			fldName = colCfg.field, 
 			fldObj = Z._dataset.getField(fldName);
-		if (fldObj.trueValue == Z._dataset.getFieldValue(fldName)) {
+		if (fldObj.trueValue() == Z._dataset.getFieldValue(fldName)) {
 			jqDiv.addClass('jl-tbl-checked');
 			jqDiv.removeClass('jl-tbl-unchecked');
 		}

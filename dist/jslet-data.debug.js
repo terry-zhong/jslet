@@ -504,6 +504,13 @@ jslet.parseDate = function(strDate, format) {
 };
 
 /**
+ * Convert Date to SO8601
+ */
+Date.prototype.toJSON = function() {
+	return jslet.formatDate(this, 'yyyy-MM-ddThh:mm:ss');
+}
+
+/**
  * Convert string(ISO date format) to date
  * 
  * @param {String} dateStr date string with ISO date format. Example: 2012-12-21T09:30:24Z
@@ -5152,13 +5159,13 @@ jslet.data.Dataset.prototype = {
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
 		if (chgRecs && chgRecs.length > 0) {
-			var pRec = {};
 			var recClazz = this._recordClass;
-			if(recClazz) {
-				pRec["@type"] = recClazz;
-			}
 			for (var i = 0, cnt = chgRecs.length; i < cnt; i++) {
 				rec = chgRecs[i];
+				var pRec = {};
+				if(recClazz) {
+					pRec["@type"] = recClazz;
+				}
 				rec[jslet.global.changeStateField] = flag + i;
 				for(var prop in rec) {
 					pRec[prop] = rec[prop];
@@ -5860,9 +5867,9 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dateChar = null;
 	Z._dateRegular = null;
 	Z._parent = null; //parent field object
-	Z._childrenv = null; //child field object, only group field has child field object.
-	
-	Z.initialize();
+	Z._children = null; //child field object, only group field has child field object.
+	Z._trueValue = true;
+	Z._falseValue = false;
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -6671,24 +6678,6 @@ jslet.data.Field.prototype = {
 	 *   //return: String, field text;
 	 */
 	onCustomFormatFieldText: null, // (fieldName, value)
-
-	initialize: function() {
-		/**
-		 * Set boolean display value.
-		 */
-		if (this._dataType == jslet.data.DataType.BOOLEAN) {
-			this.trueValue = true;
-			this.falseValue = false;
-		} else {
-			if (this._dataType == jslet.data.DataType.NUMBER) {
-				this.trueValue = 1;
-				this.falseValue = 0;
-			} else {
-				this.trueValue = 'True';
-				this.falseValue = 'False';
-			}
-		}
-	},
 	
 	addLookupRelation: function() {
 		var Z = this;
@@ -6916,6 +6905,31 @@ jslet.data.Field.prototype = {
 		Z._validChars = chars;
 	},
 	
+	/**
+	 * Use for Boolean field, actual value for 'true'
+	 */
+	trueValue: function(value) {
+		var Z = this;
+		if (value === undefined) {
+			return Z._trueValue;
+		}
+		jslet.Checker.test('Field.trueValue', value).required();
+		Z._trueValue = value;
+		return this;		
+	},
+	
+	/**
+	 * Use for Boolean field, actual value for 'false'
+	 */
+	falseValue: function(value) {
+		var Z = this;
+		if (value === undefined) {
+			return Z._falseValue;
+		}
+		Z._falseValue = value;
+		return this;		
+	},
+	
 	getValue: function(valueIndex) {
 		return this._dataset.getFieldValue(this._fieldName, valueIndex);
 	},
@@ -7078,6 +7092,15 @@ jslet.data.createField = function (fieldConfig, parent) {
 	if (cfg.customValidator) {
 		fldObj.customValidator(cfg.customValidator);
 	}
+	
+	if (cfg.trueValue !== undefined) {
+		fldObj.trueValue(cfg.trueValue);
+	}
+	if (cfg.falseValue !== undefined) {
+		fldObj.falseValue(cfg.falseValue);
+	}
+
+	
 	return fldObj;
 };
 
