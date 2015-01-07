@@ -260,6 +260,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._keep_silence_) {
 			return true;
 		}
+		var value = Z.el.value;
 		Z._dataset.editRecord();
 		if (this.editMask && !this.editMask.validateValue()) {
 			return false;
@@ -272,7 +273,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 		Z._keep_silence_ = true;
 		try {
-			var value = Z.el.value;
 			if (Z.editMask) {
 				value = Z.editMask.getValue();
 			}

@@ -140,8 +140,8 @@
 
     fldObj = jslet.data.createBooleanField('married');
     fldObj.label('Married');
-    fldObj.trueValue = 1;
-    fldObj.falseValue = 0;
+    fldObj.trueValue(1);
+    fldObj.falseValue(0);
     fldObj.displayWidth(10);
     dsEmployee.addField(fldObj);
 

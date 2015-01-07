@@ -1797,6 +1797,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return;
 		}
+		Z.clearFieldErrorMessage();
 		if (Z.recordCount() === 0) {
 			return;
 		}
@@ -1806,7 +1807,6 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		Z.clearFieldErrorMessage();
 		var evt, k = Z._recno;
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			var no = Z.recno();
@@ -3026,13 +3026,13 @@ jslet.data.Dataset.prototype = {
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
 		if (chgRecs && chgRecs.length > 0) {
-			var pRec = {};
 			var recClazz = this._recordClass;
-			if(recClazz) {
-				pRec["@type"] = recClazz;
-			}
 			for (var i = 0, cnt = chgRecs.length; i < cnt; i++) {
 				rec = chgRecs[i];
+				var pRec = {};
+				if(recClazz) {
+					pRec["@type"] = recClazz;
+				}
 				rec[jslet.global.changeStateField] = flag + i;
 				for(var prop in rec) {
 					pRec[prop] = rec[prop];
@@ -3417,6 +3417,7 @@ jslet.data.Dataset.prototype = {
 		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
 		Z._dataList = datalst;
+		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
 		Z._insertedDelta.length = 0;
 		Z._updatedDelta.length = 0;

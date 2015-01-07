@@ -477,6 +477,13 @@ jslet.parseDate = function(strDate, format) {
 };
 
 /**
+ * Convert Date to SO8601
+ */
+Date.prototype.toJSON = function() {
+	return jslet.formatDate(this, 'yyyy-MM-ddThh:mm:ss');
+}
+
+/**
  * Convert string(ISO date format) to date
  * 
  * @param {String} dateStr date string with ISO date format. Example: 2012-12-21T09:30:24Z

@@ -592,6 +592,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				ohead.label = label? label: "";
 				ohead.level = 0;
 				ohead.colNum = context.lastColNum++;
+				colObj.colNum = ohead.colNum;
 				ohead.id = jslet.nextId();
 				Z.innerHeads.push(ohead);
 				Z.innerColumns.push(colObj);
@@ -2378,7 +2379,7 @@ jslet.ui.BoolCellRender = jslet.Class.create(jslet.ui.DefaultCellRender, {
 		var Z = this,
 			fldName = colCfg.field, 
 			fldObj = Z._dataset.getField(fldName);
-		if (fldObj.trueValue == Z._dataset.getFieldValue(fldName)) {
+		if (fldObj.trueValue() == Z._dataset.getFieldValue(fldName)) {
 			jqDiv.addClass('jl-tbl-checked');
 			jqDiv.removeClass('jl-tbl-unchecked');
 		}
