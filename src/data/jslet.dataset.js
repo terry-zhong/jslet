@@ -1399,6 +1399,7 @@ jslet.data.Dataset.prototype = {
 
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 		var evt = jslet.data.RefreshEvent.insertEvent(preRecno, Z.recno(), Z._recno < Z.recordCount() - 1);
 		Z.refreshControl(evt);
 	},
@@ -1463,7 +1464,7 @@ jslet.data.Dataset.prototype = {
 				continue;
 			}
 			value = fldObj.defaultValue();
-			if (!value) {
+			if (value === undefined || value === null) {
 				expr = fldObj.defaultExpr();
 				if (!expr) {
 					continue;
@@ -1671,6 +1672,7 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		if (Z.isBof() && Z.isEof()) {
 			return;
 		}
@@ -1822,6 +1824,7 @@ jslet.data.Dataset.prototype = {
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -1835,6 +1838,7 @@ jslet.data.Dataset.prototype = {
 		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
