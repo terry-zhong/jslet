@@ -448,7 +448,7 @@ jslet.parseDate = function(strDate, format) {
 	jslet.Checker.test('jslet.parseDate#strDate', strDate).isString();
 	jslet.Checker.test('jslet.parseDate#format', format).required().isString();
 	
-	var preChar = null, ch, 
+	var preChar = null, ch, v, 
 		begin = -1, 
 		end = 0;
 	var dateParts = {'y': 0, 'M': 0,'d': 0, 'h': 0,	'm': 0, 's': 0, 'S': 0};
@@ -459,14 +459,16 @@ jslet.parseDate = function(strDate, format) {
 		if(ch != preChar) {
 			if(preChar && dateParts[preChar] !== undefined && begin >= 0) {
 				end = i;
-				dateParts[preChar] = parseInt(strDate.substring(begin, end));
+				v = parseInt(strDate.substring(begin, end));
+				dateParts[preChar] = isNaN(v)?0:v;
 			}
 			begin = i;
 			preChar = ch;
 		}
 	}
 	if(begin >= 0) {
-		dateParts[ch] = parseInt(strDate.substring(begin));
+		v = parseInt(strDate.substring(begin));
+		dateParts[ch] = isNaN(v)?0:v;
 	}
 	var year = dateParts.y;
 	if(year < 100) {

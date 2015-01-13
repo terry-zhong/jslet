@@ -717,7 +717,7 @@ jslet.data.ContextRuleEngine.prototype = {
 			ruleObj = contextRules[i];
 			ruleStatus = ruleObj.status();
 			if(ruleStatus && ruleStatus.indexOf(status) >= 0) {
-				this._evalRuleItems(ruleObj.rules());
+				this._evalRuleItems(ruleObj.rules(), status == 'insert' || status == 'update');
 			}
 		}
 		this._syncMatchedRules();

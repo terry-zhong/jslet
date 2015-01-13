@@ -336,7 +336,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		currentRowno = rowno;
 		if (recno >= 0){
 			dataset.recno(recno);
-			if (dataset._isAborted) {
+			if (dataset.aborted()) {
 				return null;
 			}
 		}
