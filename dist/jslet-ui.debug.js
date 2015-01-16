@@ -4492,7 +4492,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			nodes = jqEl.find('.jl-tab-list').children();
 		Z._itemsWidth = [];
 		nodes.each(function(index){
-			Z._itemsWidth[index] = $(this).outerWidth() + 5;
+			Z._itemsWidth[index] = jQuery(this).outerWidth() + 5;
 		});
 
 		Z._containerWidth = jqEl.find('.jl-tab-container').innerWidth();
@@ -6658,7 +6658,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		currentRowno = rowno;
 		if (recno >= 0){
 			dataset.recno(recno);
-			if (dataset._isAborted) {
+			if (dataset.aborted()) {
 				return null;
 			}
 		}
@@ -9808,6 +9808,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._updateSortFlag(true);
 			Z._fillData();
 			Z._showCurrentRow(true);
+			//Clear "Select all" checkbox
+			if(Z._hasSelectCol) {
+				jQuery(Z.el).find('.jl-tbl-select-all')[0].checked = false;
+			}
 		} else if (evtType == jslet.data.RefreshEvent.UPDATERECORD) {
 			Z.refreshCurrentRow();
 		} else if (evtType == jslet.data.RefreshEvent.UPDATECOLUMN) {
@@ -10108,7 +10112,7 @@ jslet.ui.SelectCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		var ocheckbox = document.createElement('input');
 		ocheckbox.type = 'checkbox';
 		var Z = this;
-		jQuery(ocheckbox).addClass('jl-tbl-select-check').on('click', function (event) {
+		jQuery(ocheckbox).addClass('jl-tbl-select-check jl-tbl-select-all').on('click', function (event) {
 			Z._dataset.selectAll(this.checked ? 1 : 0, Z._onSelectAll);
 		});
 		otd.appendChild(ocheckbox);
@@ -10583,10 +10587,10 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		});
 		jqEl.on('mouseenter', 'table.jl-tree-nodes', function(event){
-			$(this).addClass('jl-tree-nodes-hover');
+			jQuery(this).addClass('jl-tree-nodes-hover');
 		});
 		jqEl.on('mouseleave', 'table.jl-tree-nodes', function(event){
-			$(this).removeClass('jl-tree-nodes-hover');
+			jQuery(this).removeClass('jl-tree-nodes-hover');
 		});
 		if (!jqEl.hasClass('jl-tree')) {
 			jqEl.addClass('jl-tree');
@@ -11350,6 +11354,11 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var keyCode = event.which;
 		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode))) {
 			event.preventDefault();
+		}
+		//When press 'enter', write data to dataset.
+		if(keyCode == 13) {
+			Z.updateToDataset();
+			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		}
 	},
 
@@ -13303,7 +13312,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		var width = Z._popupWidth,
 			height = Z._popupHeight,
 			dateValue = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
-			range = fldObj.range(),
+			range = fldObj.dataRange(),
 			minDate = null,
 			maxDate = null;
 		
@@ -13446,7 +13455,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			fldObj = Z._dataset.getField(Z._field),
-			range = fldObj.range(),
+			range = fldObj.dataRange(),
 			minTimePart = {hour: 0, minute: 0, second: 0},
 			maxTimePart = {hour: 23, minute: 59, second: 59};
 		

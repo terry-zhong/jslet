@@ -25,3 +25,14 @@ jslet.global = {
 	
 	debugMode: true
 };
+
+/**
+ * Global server error handler
+ * 
+ * @errCode {String} error code
+ * @errMsg {String} error message
+ * @return {Boolean} Identify if handler catch this error, if catched, the rest handler will not process it.
+ */
+jslet.global.serverErrorHandler = function(errCode, errMsg) {
+	return false;
+}

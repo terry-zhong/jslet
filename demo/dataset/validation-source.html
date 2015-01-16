@@ -14,10 +14,10 @@
             dsEmployee.datasetListener(doDatasetEvent);
 
             var fldObj = dsEmployee.getField("birthday");
-            fldObj.range({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
+            fldObj.dataRange({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
 
             var fldObj = dsEmployee.getField("age");
-            fldObj.range({from: 18, to: 60});
+            fldObj.dataRange({from: 18, to: 60});
         }
 	&lt;/script&gt;
     </code></pre>
@@ -31,10 +31,10 @@
     <pre class="prettyprint linenums"><code>
         var fldObj = dsEmployee.getField('birthday');
 		fldObj.required(true);
-        fldObj.range({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
+        fldObj.dataRange({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
 		
         fldObj = dsEmployee.getField('age');
-        fldObj.range({from: 18, to: 60});
+        fldObj.dataRange({from: 18, to: 60});
 		
 		fldObj = dsEmployee.getField('officephone');
 		fldObj.regularExpr(/(\(\d{3,4}\)|\d{3,4}-|\s)?\d{8}/ig, 'Invalid phone number!');//like: 0755-12345678

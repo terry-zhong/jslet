@@ -31,7 +31,7 @@ var fldCfg = [
 	{ name: 'unitConverted', type: 'B', label: 'Scaleable', displayWidth: 10 },
 
 	{ name: 'required', type: 'B', label: 'required', displayWidth: 10 },
-	{ name: 'range', type: 'S', length: 50, label: 'Data Range', displayWidth: 10 },
+	{ name: 'dataRange', type: 'S', length: 50, label: 'Data Range', displayWidth: 10 },
 	{ name: 'regularExpr', type: 'S', length: 50, label: 'Regular Expression', displayWidth: 10 },
 
 	{ name: 'lookupField', type: 'S', length: 100, label: 'Lookup Field', displayWidth: 10 },

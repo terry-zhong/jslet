@@ -139,6 +139,11 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode))) {
 			event.preventDefault();
 		}
+		//When press 'enter', write data to dataset.
+		if(keyCode == 13) {
+			Z.updateToDataset();
+			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+		}
 	},
 
 	doChange: function (event) {

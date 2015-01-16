@@ -363,7 +363,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			nodes = jqEl.find('.jl-tab-list').children();
 		Z._itemsWidth = [];
 		nodes.each(function(index){
-			Z._itemsWidth[index] = $(this).outerWidth() + 5;
+			Z._itemsWidth[index] = jQuery(this).outerWidth() + 5;
 		});
 
 		Z._containerWidth = jqEl.find('.jl-tab-container').innerWidth();

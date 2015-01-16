@@ -282,7 +282,7 @@ jslet.data.FieldValidator.prototype = {
 	checkValue: function(fldObj, value) {
 		var fldType = fldObj.getType();
 		//Check range
-		var fldRange = fldObj.range(),
+		var fldRange = fldObj.dataRange(),
 			hasLookup = fldObj.lookup()? true: false;
 		
 		if (hasLookup) {//lookup field need compare code value of the Lookup

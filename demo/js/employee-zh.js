@@ -133,7 +133,7 @@
     fldObj = jslet.data.createNumberField('age', 5, 0);
     fldObj.label('年龄');
     fldObj.displayWidth(6);
-    fldObj.range({ from: 0, to: 100 });
+    fldObj.dataRange({ from: 0, to: 100 });
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createBooleanField('married');
@@ -146,7 +146,7 @@
     fldObj = jslet.data.createDateField('birthday');
     fldObj.label('出生日期');
     fldObj.displayFormat('yyyy-MM-dd');
-    fldObj.range({ from: new Date(1950, 1, 1) });
+    fldObj.dataRange({ from: new Date(1950, 1, 1) });
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('position', 20);

@@ -2030,6 +2030,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._updateSortFlag(true);
 			Z._fillData();
 			Z._showCurrentRow(true);
+			//Clear "Select all" checkbox
+			if(Z._hasSelectCol) {
+				jQuery(Z.el).find('.jl-tbl-select-all')[0].checked = false;
+			}
 		} else if (evtType == jslet.data.RefreshEvent.UPDATERECORD) {
 			Z.refreshCurrentRow();
 		} else if (evtType == jslet.data.RefreshEvent.UPDATECOLUMN) {
@@ -2330,7 +2334,7 @@ jslet.ui.SelectCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		var ocheckbox = document.createElement('input');
 		ocheckbox.type = 'checkbox';
 		var Z = this;
-		jQuery(ocheckbox).addClass('jl-tbl-select-check').on('click', function (event) {
+		jQuery(ocheckbox).addClass('jl-tbl-select-check jl-tbl-select-all').on('click', function (event) {
 			Z._dataset.selectAll(this.checked ? 1 : 0, Z._onSelectAll);
 		});
 		otd.appendChild(ocheckbox);

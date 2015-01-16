@@ -19,7 +19,7 @@
 <hr>
 <br>
 <div class="block">
-jslet.data.Field is used for store field configuration，support data type： String, Number, Date, Boolean, Group, Dataset;
+jslet.data.Field is used for store field configuration support data type: String, Number, Date, Boolean, Group, Dataset;
 </div>
  
 <dl><dt><span class="strong">Since:</span></dt>
@@ -388,8 +388,8 @@ jslet.data.Field is used for store field configuration，support data type： St
 <tr class="altColor">
 <td class="colFirst"><code>Object/String <br />this</code></td>
 <td class="colLast"><code>
-	<strong><a href="#range()">range</a></strong>() <br />
-	<strong><a href="#range()">range</a></strong>(range)
+	<strong><a href="#dataRange()">dataRange</a></strong>() <br />
+	<strong><a href="#dataRange()">dataRange</a></strong>(range)
 	</code>
 <div class="block">Get or set the range of field value.</div>
 </td>
@@ -1155,17 +1155,17 @@ fldObj.displayControl(editCtrlCfg);
 <dt><span class="strong">Since:</span></dt><dd>1.0</dd>
 </dl></li></ul>
 
-<a name="range()"></a>
+<a name="dataRange()"></a>
 <ul class="blockList">
 <li class="blockList">
-<h4>range</h4>
-<pre>range()</pre>
+<h4>dataRange</h4>
+<pre>dataRange()</pre>
 <div class="block">Get field value range.</div>
 <dl>
 <dt><span class="strong">Returns:</span></dt><dd>An object like: { from: value1, to: value2}.</dd>
 </dl>
 <hr />
-<pre>range(range)</pre>
+<pre>dataRange(range)</pre>
 <div class="block">Set field value range. Example:
 <pre><code class="sample">
 //For String field
@@ -1174,7 +1174,7 @@ fldObj.displayControl(editCtrlCfg);
   var range = {from: new Date(2000,1,1), to: new Date(2010,12,31)};
 //For Number field
   var range = {from: 0, to: 100};
-fldObj.range(range);
+fldObj.dataRange(range);
 </code></pre>	
 </div>
 <dl>

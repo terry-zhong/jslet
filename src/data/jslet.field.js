@@ -51,7 +51,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._valueCountLimit = 0;
 	Z._required = false;
 	Z._nullText = jslet.locale.Dataset.nullText;
-	Z._range = null;
+	Z._dataRange= null;
 	Z._regularExpr = null;
 	Z._antiXss = true;
 	Z._customValidator = null;
@@ -104,7 +104,7 @@ jslet.data.Field.prototype = {
 		result.valueCountLimit(Z._valueCountLimit);
 		result.required(Z._required);
 		result.nullText(Z._nullText);
-		result.range(Z._range);
+		result.dataRange(Z._dataRange);
 		if (Z._regularExpr) {
 			result.regularExpr(Z._regularExpr);
 		}
@@ -985,30 +985,30 @@ jslet.data.Field.prototype = {
 	 *	var range = {min: new Date(2000,1,1), max: new Date(2010,12,31)};
 	 *  //For Number field
 	 *	var range = {min: 0, max: 100};
-	 *  fldObj.range(range);
+	 *  fldObj.dataRange(range);
 	 * </code></pre>
 	 * 
 	 * @param {Range or Json String} range Field range;
 	 * @return {Range or this}
 	 */
-	range: function (range) {
+	dataRange: function (range) {
 		var Z = this;
 		if (range === undefined) {
-			return Z._range;
+			return Z._dataRange;
 		}
 		if(range && jslet.isString(range)) {
 			range = jslet.JSON.parse(range);
 		}
-		jslet.Checker.test('Field.range', range).isObject();
+		jslet.Checker.test('Field.dataRange', range).isObject();
 		if(range) {
 			if(range.min) {
-				jslet.Checker.test('Field.range.min', range.min).isDataType(Z._dateType);
+				jslet.Checker.test('Field.dataRange.min', range.min).isDataType(Z._dateType);
 			}
 			if(range.max) {
-				jslet.Checker.test('Field.range.max', range.max).isDataType(Z._dateType);
+				jslet.Checker.test('Field.dataRange.max', range.max).isDataType(Z._dateType);
 			}
 		}
-		Z._range = range;
+		Z._dataRange = range;
 		return this;
 	},
 
@@ -1278,8 +1278,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.valueCountLimit(cfg.valueCountLimit);
 	}
 	
-	if (cfg.range) {
-		fldObj.range(cfg.range);
+	if (cfg.dataRange) {
+		fldObj.dataRange(cfg.dataRange);
 	}
 	if (cfg.customValidator) {
 		fldObj.customValidator(cfg.customValidator);

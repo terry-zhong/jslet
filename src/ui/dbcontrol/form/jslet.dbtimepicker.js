@@ -81,7 +81,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			fldObj = Z._dataset.getField(Z._field),
-			range = fldObj.range(),
+			range = fldObj.dataRange(),
 			minTimePart = {hour: 0, minute: 0, second: 0},
 			maxTimePart = {hour: 23, minute: 59, second: 59};
 		

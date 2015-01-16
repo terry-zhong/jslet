@@ -232,10 +232,10 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		});
 		jqEl.on('mouseenter', 'table.jl-tree-nodes', function(event){
-			$(this).addClass('jl-tree-nodes-hover');
+			jQuery(this).addClass('jl-tree-nodes-hover');
 		});
 		jqEl.on('mouseleave', 'table.jl-tree-nodes', function(event){
-			$(this).removeClass('jl-tree-nodes-hover');
+			jQuery(this).removeClass('jl-tree-nodes-hover');
 		});
 		if (!jqEl.hasClass('jl-tree')) {
 			jqEl.addClass('jl-tree');

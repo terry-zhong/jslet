@@ -1308,8 +1308,11 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	changedStatus: function(status) {
-		var record = this.getRecord(),
-			cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
+		var record = this.getRecord();
+		if(!record) {
+			return null;
+		}
+		var cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
 		
 		if(status === undefined) {
 			if(!cacheObj) {
@@ -2660,6 +2663,9 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	calcContextRule: function (changedField) {
+		if(this.recordCount() === 0) {
+			return;
+		}
 		if(this._contextRuleEngine) {
 			if(!changedField) {
 				this._contextRuleEngine.evalStatus();
@@ -2988,6 +2994,12 @@ jslet.data.Dataset.prototype = {
 		var Z = dataset,
 			errCode = result.errorCode,
 			errMsg = result.errorMessage;
+		if(jslet.global.serverErrorHandler) {
+			var catched = jslet.global.serverErrorHandler(errCode, errMsg);
+			if(catched) {
+				return;
+			}
+		}
 		Z.errorMessage(errCode + " : " + errMsg);
 		if(Z._autoShowError) {
 			jslet.showException(errCode + " : " + errMsg);

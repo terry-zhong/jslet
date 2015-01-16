@@ -25,7 +25,17 @@ jslet.global = {
 	
 	debugMode: true
 };
-/* ========================================================================
+
+/**
+ * Global server error handler
+ * 
+ * @errCode {String} error code
+ * @errMsg {String} error message
+ * @return {Boolean} Identify if handler catch this error, if catched, the rest handler will not process it.
+ */
+jslet.global.serverErrorHandler = function(errCode, errMsg) {
+	return false;
+}/* ========================================================================
  * Jslet framework: jslet.common.js
  *
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
@@ -475,7 +485,7 @@ jslet.parseDate = function(strDate, format) {
 	jslet.Checker.test('jslet.parseDate#strDate', strDate).isString();
 	jslet.Checker.test('jslet.parseDate#format', format).required().isString();
 	
-	var preChar = null, ch, 
+	var preChar = null, ch, v, 
 		begin = -1, 
 		end = 0;
 	var dateParts = {'y': 0, 'M': 0,'d': 0, 'h': 0,	'm': 0, 's': 0, 'S': 0};
@@ -486,14 +496,16 @@ jslet.parseDate = function(strDate, format) {
 		if(ch != preChar) {
 			if(preChar && dateParts[preChar] !== undefined && begin >= 0) {
 				end = i;
-				dateParts[preChar] = parseInt(strDate.substring(begin, end));
+				v = parseInt(strDate.substring(begin, end));
+				dateParts[preChar] = isNaN(v)?0:v;
 			}
 			begin = i;
 			preChar = ch;
 		}
 	}
 	if(begin >= 0) {
-		dateParts[ch] = parseInt(strDate.substring(begin));
+		v = parseInt(strDate.substring(begin));
+		dateParts[ch] = isNaN(v)?0:v;
 	}
 	var year = dateParts.y;
 	if(year < 100) {
@@ -1622,7 +1634,7 @@ jslet.data.FieldValidator.prototype = {
 	checkValue: function(fldObj, value) {
 		var fldType = fldObj.getType();
 		//Check range
-		var fldRange = fldObj.range(),
+		var fldRange = fldObj.dataRange(),
 			hasLookup = fldObj.lookup()? true: false;
 		
 		if (hasLookup) {//lookup field need compare code value of the Lookup
@@ -3441,8 +3453,11 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	changedStatus: function(status) {
-		var record = this.getRecord(),
-			cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
+		var record = this.getRecord();
+		if(!record) {
+			return null;
+		}
+		var cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
 		
 		if(status === undefined) {
 			if(!cacheObj) {
@@ -3532,6 +3547,7 @@ jslet.data.Dataset.prototype = {
 
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 		var evt = jslet.data.RefreshEvent.insertEvent(preRecno, Z.recno(), Z._recno < Z.recordCount() - 1);
 		Z.refreshControl(evt);
 	},
@@ -3596,7 +3612,7 @@ jslet.data.Dataset.prototype = {
 				continue;
 			}
 			value = fldObj.defaultValue();
-			if (!value) {
+			if (value === undefined || value === null) {
 				expr = fldObj.defaultExpr();
 				if (!expr) {
 					continue;
@@ -3804,6 +3820,7 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		if (Z.isBof() && Z.isEof()) {
 			return;
 		}
@@ -3955,6 +3972,7 @@ jslet.data.Dataset.prototype = {
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -3968,6 +3986,7 @@ jslet.data.Dataset.prototype = {
 		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
@@ -4789,6 +4808,9 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	calcContextRule: function (changedField) {
+		if(this.recordCount() === 0) {
+			return;
+		}
 		if(this._contextRuleEngine) {
 			if(!changedField) {
 				this._contextRuleEngine.evalStatus();
@@ -5117,6 +5139,12 @@ jslet.data.Dataset.prototype = {
 		var Z = dataset,
 			errCode = result.errorCode,
 			errMsg = result.errorMessage;
+		if(jslet.global.serverErrorHandler) {
+			var catched = jslet.global.serverErrorHandler(errCode, errMsg);
+			if(catched) {
+				return;
+			}
+		}
 		Z.errorMessage(errCode + " : " + errMsg);
 		if(Z._autoShowError) {
 			jslet.showException(errCode + " : " + errMsg);
@@ -5860,7 +5888,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._valueCountLimit = 0;
 	Z._required = false;
 	Z._nullText = jslet.locale.Dataset.nullText;
-	Z._range = null;
+	Z._dataRange= null;
 	Z._regularExpr = null;
 	Z._antiXss = true;
 	Z._customValidator = null;
@@ -5913,7 +5941,7 @@ jslet.data.Field.prototype = {
 		result.valueCountLimit(Z._valueCountLimit);
 		result.required(Z._required);
 		result.nullText(Z._nullText);
-		result.range(Z._range);
+		result.dataRange(Z._dataRange);
 		if (Z._regularExpr) {
 			result.regularExpr(Z._regularExpr);
 		}
@@ -6794,30 +6822,30 @@ jslet.data.Field.prototype = {
 	 *	var range = {min: new Date(2000,1,1), max: new Date(2010,12,31)};
 	 *  //For Number field
 	 *	var range = {min: 0, max: 100};
-	 *  fldObj.range(range);
+	 *  fldObj.dataRange(range);
 	 * </code></pre>
 	 * 
 	 * @param {Range or Json String} range Field range;
 	 * @return {Range or this}
 	 */
-	range: function (range) {
+	dataRange: function (range) {
 		var Z = this;
 		if (range === undefined) {
-			return Z._range;
+			return Z._dataRange;
 		}
 		if(range && jslet.isString(range)) {
 			range = jslet.JSON.parse(range);
 		}
-		jslet.Checker.test('Field.range', range).isObject();
+		jslet.Checker.test('Field.dataRange', range).isObject();
 		if(range) {
 			if(range.min) {
-				jslet.Checker.test('Field.range.min', range.min).isDataType(Z._dateType);
+				jslet.Checker.test('Field.dataRange.min', range.min).isDataType(Z._dateType);
 			}
 			if(range.max) {
-				jslet.Checker.test('Field.range.max', range.max).isDataType(Z._dateType);
+				jslet.Checker.test('Field.dataRange.max', range.max).isDataType(Z._dateType);
 			}
 		}
-		Z._range = range;
+		Z._dataRange = range;
 		return this;
 	},
 
@@ -7087,8 +7115,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.valueCountLimit(cfg.valueCountLimit);
 	}
 	
-	if (cfg.range) {
-		fldObj.range(cfg.range);
+	if (cfg.dataRange) {
+		fldObj.dataRange(cfg.dataRange);
 	}
 	if (cfg.customValidator) {
 		fldObj.customValidator(cfg.customValidator);
@@ -8180,7 +8208,7 @@ jslet.data.ContextRuleEngine.prototype = {
 			ruleObj = contextRules[i];
 			ruleStatus = ruleObj.status();
 			if(ruleStatus && ruleStatus.indexOf(status) >= 0) {
-				this._evalRuleItems(ruleObj.rules());
+				this._evalRuleItems(ruleObj.rules(), status == 'insert' || status == 'update');
 			}
 		}
 		this._syncMatchedRules();
