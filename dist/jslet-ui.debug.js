@@ -7787,7 +7787,7 @@ jslet.ui.htmlclass.TABLECLASS = {
 	currentrow: 'jl-tbl-current',
 	celldiv: 'jl-tbl-cell',
 	scrollBarWidth: 17,
-	selectColWidth: 22,
+	selectColWidth: 30,
 	hoverrow: 'jl-tbl-row-hover',
 	
 	sortAscChar: '&#8593;',
@@ -9087,8 +9087,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 		
-		clearTableBorder(Z.leftHeadTbl, true, true, true, true);
-		clearTableBorder(Z.rightHeadTbl, true, true, false, false);
+		clearTableBorder(Z.leftHeadTbl, false, false, true, true);
+		clearTableBorder(Z.rightHeadTbl, false, false, false, false);
+
+		clearTableBorder(Z.leftFixedTbl, true, true, true, true);
+		clearTableBorder(Z.rightFixedTbl, true, true, false, false);
+		
 		clearTableBorder(Z.leftContentTbl, false, false, true, true);
 		clearTableBorder(Z.rightContentTbl, false, false, false, false);
 	},
