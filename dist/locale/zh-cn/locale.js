@@ -39,6 +39,7 @@
 			lessThanValue: '录入的值必须小于: {0}',
 			moreThanValue: '录入的值必须大于: {0}',
 			cannotDelParent: '该笔数据下还有下级数据,不能删除!',
+			notUnique: '数据不能重复!',
 			
 			betweenLabel: ' - ',
 			value: '值',

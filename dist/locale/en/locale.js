@@ -39,6 +39,7 @@
 		lessThanValue: 'Input value must less than: {0}',
 		moreThanValue: 'Input value must more than: {0}',
 		cannotDelParent: 'Cannot delete record which has children!',
+		notUnique: 'Input value is not unique!',
 		
 		betweenLabel: ' - ',
 		value: 'Value',

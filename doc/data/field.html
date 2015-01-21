@@ -322,6 +322,17 @@ jslet.data.Field is used for store field configuration support data type: String
 <div class="block">Get or set field's default value.</div>
 </td>
 </tr>
+
+<tr class="rowColor">
+<td class="colFirst"><code>Boolean <br />this</code></td>
+<td class="colLast"><code>
+	<strong><a href="#unique()">unique</a></strong>() <br />
+	<strong><a href="#unique()">unique</a></strong>(unique)
+	</code>
+<div class="block">Get or set if field is unique.</div>
+</td>
+</tr>
+
 <tr class="rowColor">
 <td class="colFirst"><code>Boolean <br />this</code></td>
 <td class="colLast"><code>
@@ -1042,6 +1053,25 @@ This expression will be calculated when inserting a record.
 <dl>
 <dt><span class="strong">Parameters:</span></dt>
 <dd><code>defaultValue</code> - (Required) Object, field default value.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>this</dd>
+<dt><span class="strong">Since:</span></dt><dd>1.0</dd>
+</dl></li></ul>
+
+<a name="unique()"></a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unique</h4>
+<pre>unique()</pre>
+<div class="block">Get field unique or not.</div>
+<dl>
+<dt><span class="strong">Returns:</span></dt><dd>Boolean, field unique or not.</dd>
+</dl>
+<hr />
+<pre>unique(unique)</pre>
+<div class="block">Set field display unique.</div>
+<dl>
+<dt><span class="strong">Parameters:</span></dt>
+<dd><code>unique</code> - (Required) Boolean, field unique.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this</dd>
 <dt><span class="strong">Since:</span></dt><dd>1.0</dd>
 </dl></li></ul>

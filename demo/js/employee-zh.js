@@ -110,6 +110,8 @@
     fldObj = jslet.data.createStringField('name', 20);
     fldObj.label('姓名');
     fldObj.required(true);
+    fldObj.unique(true);
+    fldObj.tip('姓名必填并且唯一');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('department', 20);

@@ -320,6 +320,27 @@ jslet.data.FieldValidator.prototype = {
 				return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
 			}
 		}
+		
+		//Check unique in local data, if need check at server side, use 'customValidator' instead.
+		if(fldObj.unique()) {
+			var currDs = fldObj.dataset(),
+				dataList = currDs.dataList();
+			
+			if(value !== null && value !== undefined && dataList && dataList.length > 1) {
+				var currRec = currDs.getRecord(), 
+					fldName = fldObj.name(),
+					rec;
+				for(var i = 0, len = dataList.length; i < len; i++) {
+					rec = dataList[i];
+					if(rec === currRec) {
+						continue;
+					}
+					if(rec[fldName] == value) {
+						return jslet.locale.Dataset.notUnique;
+					}
+				}
+			}
+		}
 		//Customized validation
 		if (fldObj.customValidator()) {
 			return fldObj.customValidator().call(fldObj.dataset(), fldObj, value);

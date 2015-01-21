@@ -8,8 +8,10 @@
 if (!jslet.rootUri) {
     var ohead = document.getElementsByTagName('head')[0], 
         uri = ohead.lastChild.src;
-    uri = uri.substring(0, uri.lastIndexOf('/') + 1);
-    jslet.rootUri = uri;
+    if(uri) {
+	    uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+	    jslet.rootUri = uri;
+    }
 }
 jslet.global = {
 	version: '3.0.0',
@@ -1670,6 +1672,27 @@ jslet.data.FieldValidator.prototype = {
 			}
 			if (min === undefined && max !== undefined && value > max) {
 				return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
+			}
+		}
+		
+		//Check unique in local data, if need check at server side, use 'customValidator' instead.
+		if(fldObj.unique()) {
+			var currDs = fldObj.dataset(),
+				dataList = currDs.dataList();
+			
+			if(value !== null && value !== undefined && dataList && dataList.length > 1) {
+				var currRec = currDs.getRecord(), 
+					fldName = fldObj.name(),
+					rec;
+				for(var i = 0, len = dataList.length; i < len; i++) {
+					rec = dataList[i];
+					if(rec === currRec) {
+						continue;
+					}
+					if(rec[fldName] == value) {
+						return jslet.locale.Dataset.notUnique;
+					}
+				}
 			}
 		}
 		//Customized validation
@@ -5861,6 +5884,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dataType = dataType;
 	Z._length = 0;
 	Z._scale = 0;
+	Z._unique = false;
 	Z._alignment = 'left';
 	Z._defaultExpr = null;
 	Z._defaultValue = null;
@@ -5925,6 +5949,8 @@ jslet.data.Field.prototype = {
 		result.displayFormat(Z._displayFormat);
 		result.dateFormat(Z._dateFormat);
 		result.formula(Z._formula);
+		result.unique(Z._unique);
+		result.required(Z._required);
 		result.readOnly(Z._readOnly);
 		result.visible(Z._visible);
 		result.disabled(Z._disabled);
@@ -5939,7 +5965,6 @@ jslet.data.Field.prototype = {
 		result.urlTarget(Z._urlTarget);
 		result.valueStyle(Z._valueStyle);
 		result.valueCountLimit(Z._valueCountLimit);
-		result.required(Z._required);
 		result.nullText(Z._nullText);
 		result.dataRange(Z._dataRange);
 		if (Z._regularExpr) {
@@ -6364,6 +6389,21 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
+	/**
+	 * Get or set field is unique or not.
+	 * 
+	 * @param {Boolean or undefined} required Field is unique or not.
+	 * @return {Boolean or this}
+	 */
+	unique: function (unique) {
+		var Z = this;
+		if (unique === undefined) {
+			return Z._unique;
+		}
+		Z._unique = unique ? true: false;
+		return this;
+	},
+	
 	/**
 	 * Get or set field is required or not.
 	 * 
@@ -7035,6 +7075,12 @@ jslet.data.createField = function (fieldConfig, parent) {
 		return fldObj;
 	}
 	
+	if (cfg.unique !== undefined) {
+		fldObj.unique(cfg.unique);
+	}
+	if (cfg.required !== undefined) {
+		fldObj.required(cfg.required);
+	}
 	if (cfg.readOnly !== undefined) {
 		fldObj.readOnly(cfg.readOnly);
 	}
@@ -7081,9 +7127,6 @@ jslet.data.createField = function (fieldConfig, parent) {
 	}
 	if (cfg.formula !== undefined) {
 		fldObj.formula(cfg.formula);
-	}
-	if (cfg.required !== undefined) {
-		fldObj.required(cfg.required);
 	}
 	if (cfg.nullText !== undefined) {
 		fldObj.nullText(cfg.nullText);

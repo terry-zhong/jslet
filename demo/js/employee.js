@@ -111,6 +111,8 @@
     fldObj = jslet.data.createStringField('name', 12);
     fldObj.label('Name');
     fldObj.required(true);
+    fldObj.unique(true);
+    fldObj.tip('Name is required and unique');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('department', 6);

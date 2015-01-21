@@ -131,7 +131,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		var Z = this,
 			val = Z.el.value;
 		var fldObj = Z._dataset.getField(Z._field),
-			range = fldObj.range(),
+			range = fldObj.dataRange(),
 			minValue = Number.NEGATIVE_INFINITY, 
 			maxValue = Number.POSITIVE_INFINITY;
 		
@@ -200,7 +200,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 	_getRange: function() {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field),
-			range = fldObj.range(),
+			range = fldObj.dataRange(),
 			minValue = Number.NEGATIVE_INFINITY, 
 			maxValue = Number.POSITIVE_INFINITY;
 		
@@ -264,8 +264,8 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 				jqDownBtn.attr('disabled', false);
 			}
 		}
-		if(!metaName || metaName == 'range') {
-			range = fldObj.range();
+		if(!metaName || metaName == 'dataRange') {
+			range = fldObj.dataRange();
 			jqEl.attr('aria-valuemin', range && (range.min || range.min === 0) ? range.min: '');
 			jqEl.attr('aria-valuemin', range && (range.max || range.max === 0) ? range.max: '');
 		}

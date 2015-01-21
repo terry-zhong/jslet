@@ -8,8 +8,10 @@
 if (!jslet.rootUri) {
     var ohead = document.getElementsByTagName('head')[0], 
         uri = ohead.lastChild.src;
-    uri = uri.substring(0, uri.lastIndexOf('/') + 1);
-    jslet.rootUri = uri;
+    if(uri) {
+	    uri = uri.substring(0, uri.lastIndexOf('/') + 1);
+	    jslet.rootUri = uri;
+    }
 }
 jslet.global = {
 	version: '3.0.0',
