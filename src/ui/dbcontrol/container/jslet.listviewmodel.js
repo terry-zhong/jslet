@@ -240,13 +240,14 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this.setVisibleStartRow = function (rowno, notFireEvt) {
-		if (rowno < 0) {
-			rowno = 0;
-		} else {
+		if (rowno >= 0) {
 			var maxVisibleNo = this.getNeedShowRowCount() - visibleCount;
 			if (rowno > maxVisibleNo) {
 				rowno = maxVisibleNo;
 			}
+		}
+		if (rowno < 0) {
+			rowno = 0;
 		}
 		if (visibleStartRow == rowno) {
 			return;

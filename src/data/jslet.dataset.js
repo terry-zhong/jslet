@@ -3139,15 +3139,12 @@ jslet.data.Dataset.prototype = {
 	 * dsFoo.submit();
 	 * </code></pre>
 	 * 
-	 * @param {String} url Url
+	 * @param {Object} extraInfo extraInfo
 	 */
-	submit: function(url) {
+	submit: function(extraInfo) {
 		var Z = this;
 		if (!Z._checkDataProvider()) {
 			return;
-		}
-		if(url) {
-			Z._submitUrl = url.trim();
 		}
 		if(!Z._submitUrl) {
 			alert('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
@@ -3162,6 +3159,9 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		var reqData = {main: changedRecs};
+		if(extraInfo) {
+			reqData.extraInfo = extraInfo;
+		}
 		if(Z.csrfToken) {
 			reqData.csrfToken = Z.csrfToken;
 		}
@@ -3227,8 +3227,9 @@ jslet.data.Dataset.prototype = {
 	 * </code></pre>
 	 * @param {String} url Url
 	 * @param {Boolean} deleteOnSuccess If processing successfully at server side, delete the selected record or not.
+	 * @param {Object} extraInfo extraInfo
 	 */
-	submitSelected: function (url, deleteOnSuccess) {
+	submitSelected: function (url, deleteOnSuccess, extraInfo) {
 		var Z = this;
 		if (!Z._checkDataProvider()) {
 			return;
@@ -3247,6 +3248,9 @@ jslet.data.Dataset.prototype = {
 		var reqData = {main: changedRecs};
 		if(Z.csrfToken) {
 			reqData.csrfToken = Z.csrfToken;
+		}
+		if(extraInfo) {
+			reqData.extraInfo = extraInfo;
 		}
 		reqData = jslet.data.record2Json(reqData);
 		return Z._dataProvider.sendRequest(Z, url, reqData)
