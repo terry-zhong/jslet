@@ -214,6 +214,38 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
+	 * Clone one record to another
+	 * 
+	 * @param {Plan Object} srcRecord source record
+	 * @param {Plan Object} destRecord destination record
+	 */
+	cloneRecord: function(srcRecord, destRecord) {
+		var result = destRecord || {}, 
+			fldName, fldObj, fldValue, newValue, 
+			arrFieldObj = this.getNormalFields();
+
+		for(var i = 0, len = arrFieldObj.length; i < len; i++) {
+			fldObj = arrFieldObj[i];
+			fldName = fldObj.name();
+			fldValue = srcRecord[fldName];
+			if(fldValue === undefined) {
+				continue;
+			}
+			if(fldValue && jslet.isArray(fldValue)) {
+				newValue = [];
+				for(var j = 0, cnt = fldValue.length; j < cnt; j++) {
+					newValue.push(fldValue[j]);
+				}
+			} else {
+				newValue = fldValue;
+			}
+			result[fldName] = newValue;
+		}
+		jslet.data.FieldValueCache.removeCache(result);
+		return result;
+	},
+	
+	/**
 	 * Add specified fields of source dataset into this dataset.
 	 * 
 	 * @param {jslet.data.Dataset} srcDataset New dataset's name.
@@ -1414,6 +1446,7 @@ jslet.data.Dataset.prototype = {
 	 * @param {Integer}srcDataset - source dataset
 	 */
 	insertDataset: function (srcDataset) {
+		var Z = this;
 		Z.filtered(false);
 		var k;
 		if (this.recordCount() > 0) {
@@ -1452,6 +1485,46 @@ jslet.data.Dataset.prototype = {
 		Z.insertDataset(srcDataset);
 	},
 
+	/**
+	 * Append records into dataset.
+	 * 
+	 * @param {Array} records An array of object which need to append to dataset
+	 * @param {Boolean} replaceExists true - replace the record if it exists, false - skip to append if it exists. 
+	 */
+	batchAppendRecords: function(records, replaceExists) {
+		jslet.Checker.test('dataset.records', records).required().isArray();
+		var Z = this;
+		Z.disableControls();
+		try{
+			var keyField = Z.keyField(), rec,
+				keyValue;
+			for(var i = 0, len = records.length; i < len; i++) {
+				rec = records[i];
+				keyValue = rec[keyField];
+				if(!keyValue) {
+					throw new Error('batchAppend: Key Value required!');
+				}
+				if(Z.findByKey(keyValue)) {
+					if(replaceExists) {
+						Z.editRecord();
+						Z.cloneRecord(rec, Z.getRecord());
+						Z.confirm();
+					} else {
+						continue;
+					}
+				} else {
+					Z.appendRecord();
+					Z.cloneRecord(rec, Z.getRecord());
+					Z.confirm();
+				}
+			}
+		} finally {
+			Z.enableControls();
+			Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
+			Z.refreshHostDataset();
+		}
+	},
+	
 	/**
 	 * @rivate
 	 * Calculate default value.
@@ -2851,10 +2924,8 @@ jslet.data.Dataset.prototype = {
 	 */
 	_checkDataProvider: function () {
 		if (!this._dataProvider) {
-			alert('DataProvider required, use: yourDataset.dataProvider(yourDataProvider);');
-			return false;
+			throw new Error('DataProvider required, use: yourDataset.dataProvider(yourDataProvider);');
 		}
-		return true;
 	},
 
 	/**
@@ -3011,9 +3082,8 @@ jslet.data.Dataset.prototype = {
 	 */
 	requery: function () {
 		var Z = this;
-		if (!Z._checkDataProvider()) {
-			return;
-		}
+		Z._checkDataProvider();
+
 		if(!this._queryUrl) {
 			throw new Error('QueryUrl required! Use: yourDataset.queryUrl(yourUrl)');
 		}
@@ -3143,12 +3213,10 @@ jslet.data.Dataset.prototype = {
 	 */
 	submit: function(extraInfo) {
 		var Z = this;
-		if (!Z._checkDataProvider()) {
-			return;
-		}
+		Z._checkDataProvider();
+
 		if(!Z._submitUrl) {
-			alert('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
-			return;
+			throw new Error('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
 		}
 		var changedRecs = [];
 		Z._setChangedState('i', Z.insertedRecords(), changedRecs);
@@ -3189,7 +3257,7 @@ jslet.data.Dataset.prototype = {
 			}
 		} else {
 			var newRec, oldRec, len;
-			jslet.data.convertDateFieldValue(this, result);
+			jslet.data.convertDateFieldValue(Z, result);
 			for(i = arrRecs.length - 1; i >= 0; i--) {
 				oldRec = arrRecs[i];
 				len = result.length;
@@ -3203,7 +3271,7 @@ jslet.data.Dataset.prototype = {
 						//clear change state flag
 						delete oldRec[jslet.global.changeStateField];
 						//clear selected flag
-						var selFld = this._selectField || jslet.global.selectStateField;
+						var selFld = Z._selectField || jslet.global.selectStateField;
 						delete oldRec[selFld];
 						break;
 					}
@@ -3231,19 +3299,13 @@ jslet.data.Dataset.prototype = {
 	 */
 	submitSelected: function (url, deleteOnSuccess, extraInfo) {
 		var Z = this;
-		if (!Z._checkDataProvider()) {
-			return;
-		}
+		Z._checkDataProvider();
 		if(!url) {
-			alert('Url required! Use: yourDataset.submitSelected(yourUrl)');
-			return;
+			throw new Error('Url required! Use: yourDataset.submitSelected(yourUrl)');
 		}
 		var changedRecs = [];
-		Z._setChangedState('s', Z.selectedRecords(), changedRecs);
 		var arrRecs = Z.selectedRecords();
-		if (!changedRecs || changedRecs.length === 0) {
-			return;
-		}
+		Z._setChangedState('s', arrRecs, changedRecs);
 		Z._deleteOnSuccess_ = deleteOnSuccess;
 		var reqData = {main: changedRecs};
 		if(Z.csrfToken) {
@@ -3446,7 +3508,7 @@ jslet.data.Dataset.prototype = {
 		Z.filter(null);
 		Z.indexFields(Z.indexFields());
 		Z.first();
-		Z.refreshControl(jslet.data.RefreshEvent.updateAllEvent);
+		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
 		Z.refreshHostDataset();
 		return this;
 	},
@@ -3619,3 +3681,4 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	}
 	return dsObj;
 };
+

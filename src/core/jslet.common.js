@@ -62,6 +62,7 @@ if(!Array.indexOf){
 }
 
 if(!Object.deepClone){
+	
 	/**
 	 * Deep clone object.
 	 * <pre><code>
@@ -69,14 +70,9 @@ if(!Object.deepClone){
      *  var objClone = obj.deepClone();
      * </code></pre>
      * 
-     * @param {Function} callBack Identify these attributes will not be cloned.
-     * pattern:
-     *   function(object, attrName){}
-     *   //object: Object, cloning object
-     *   //attrName: String, attribute name
-     *   //return: 
      */
-/*    Object.prototype.deepClone = function(callBack){
+	/*
+    Object.prototype.deepClone = function(){
         var objClone;
         if (this.constructor == Object){
             objClone = new this.constructor(); 
@@ -95,7 +91,7 @@ if(!Object.deepClone){
         objClone.toString = this.toString;
         objClone.valueOf = this.valueOf;
         return objClone; 
-    }*/ 
+    } */
 }
 
 if(!String.prototype.trim){

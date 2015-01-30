@@ -616,10 +616,6 @@ jslet.data.createContextRule = function(cxtRuleCfg) {
 			meta.scale(metaCfg.scale);
 		}
 		
-		if(metaCfg.defaultValue !== undefined) {
-			meta.defaultValue(metaCfg.defaultValue);
-		}
-		
 		if(metaCfg.required !== undefined) {
 			meta.required(metaCfg.required);
 		}

@@ -137,8 +137,10 @@
 	border-top: 0;
 }
 	
-.jl-tbl-select-check {
-	
+.jl-table .jl-tbl-select-check {
+	margin-top: 5px;
+	width: 16px;
+	height: 16px;
 }
 
 .jl-tbl-extra-head, .jl-tbl-header-cell, .jl-scrollbar-width, .jl-tbl-vscroll-head {

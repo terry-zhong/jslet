@@ -109,11 +109,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * {Integer} Row height.
 		 */
-		Z._rowHeight = 30;
+		Z._rowHeight = 35;
 		/**
 		 * {Integer} Row height of table header.
 		 */
-		Z._headRowHeight = 30;
+		Z._headRowHeight = 35;
 		/**
 		 * {String} Display table as tree style, only one field name allowed. If this property is set, the dataset must be a tree style dataset, 
 		 *  means dataset.parentField() and dataset.levelField() can not be empty.
@@ -2031,6 +2031,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			Z._showCurrentRow(true);
 		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL) {
+			Z.listvm.refreshModel();
+			Z.listvm.setVisibleStartRow(0, true);
 			Z._updateSortFlag(true);
 			Z._fillData();
 			Z._showCurrentRow(true);

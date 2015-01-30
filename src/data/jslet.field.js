@@ -1277,7 +1277,11 @@ jslet.data.createField = function (fieldConfig, parent) {
 	var lkfCfg = cfg.lookup;
 	if (lkfCfg !== undefined) {
 		if (jslet.isString(lkfCfg)) {
-			lkfCfg = jslet.JSON.parse(lkfCfg);
+			if(lkfCfg.trim().startsWith('{')) {
+				lkfCfg = jslet.JSON.parse(lkfCfg);
+			} else {
+				lkfCfg = {dataset: lkfCfg};
+			}
 		}
 		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg));
 	}
