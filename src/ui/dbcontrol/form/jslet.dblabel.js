@@ -63,6 +63,9 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this, subType = Z._fieldMeta,
 			fldObj = Z._dataset.getField(Z._field),
 			content = '';
+		if(!fldObj) {
+			throw new Error('Field: ' + this._field + ' NOT exist!');
+		}
 		if((!subType || subType == 'label') && (!metaName || metaName == 'label' || metaName == 'required')) {
 			content = fldObj.label();
 			if (fldObj.required()) {

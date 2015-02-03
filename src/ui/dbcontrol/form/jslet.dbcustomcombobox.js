@@ -67,7 +67,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.textCtrl = new jslet.ui.DBText(dbtext, {
 			type: 'dbtext',
 			dataset: Z._dataset,
-			field: Z._field,
+			field: Z._textField || Z._field,
 			enableInvalidTip: true,
 			valueIndex: Z._valueIndex
 		});

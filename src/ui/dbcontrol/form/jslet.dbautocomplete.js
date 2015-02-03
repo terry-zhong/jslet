@@ -332,6 +332,20 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 		var fldValue = Z.lkDataset.keyValue();
 		if (fldValue) {
 			Z.dataset.setFieldValue(Z.field, fldValue, Z.valueIndex);
+			
+			var fldObj = Z.dataset.getField(Z.field),
+				lkfldObj = fldObj.lookup(),
+				fieldMap = lkfldObj.returnFieldMap();
+			if(fieldMap) {
+				var lookupDs = lkfldObj.dataset();
+					mainDs = Z.dataset;
+				var fldName, lkFldName;
+				for(var fldName in fieldMap) {
+					lkFldName = fieldMap[fldName];
+					mainDs.setFieldValue(fldName, lookupDs.getFieldValue(lkFldName));
+				}
+			}
+			
 			Z.comboCfg.el.focus();
 		}
 		if (Z.comboCfg.afterSelect) {

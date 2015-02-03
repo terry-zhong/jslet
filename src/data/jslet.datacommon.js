@@ -438,15 +438,26 @@ jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConve
 jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText, valueIndex) {
 		var value = '',
-			Z = this,
-			lkFld = fldObj.lookup();
+			lkFldObj = fldObj.lookup();
 		
-		value = lkFld.dataset()._convertFieldValue(
-				lkFld.codeField(), inputText, lkFld.keyField());
+		value = lkFldObj.dataset()._convertFieldValue(
+				lkFldObj.codeField(), inputText, lkFldObj.keyField());
 		if (value === null) {
 			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
 			fldObj.message(invalidMsg, valueIndex);
 			return null;
+		}
+		if(fldObj.valueStyle() === jslet.data.FieldValueStyle.NORMAL) {
+			var fieldMap = lkFldObj.returnFieldMap(),
+				lookupDs = lkFldObj.dataset();
+			mainDs = this;
+			if(lookupDs.findByKey(value)) {
+				var fldName, lkFldName;
+				for(var fldName in fieldMap) {
+					lkFldName = fieldMap[fldName];
+					mainDs.setFieldValue(fldName, lookupDs.getFieldValue(lkFldName));
+				}
+			}
 		}
 		return value;
 	},
@@ -511,6 +522,9 @@ jslet.data.FieldValueCache = {
 	CACHENAME: '_cache_',
 	
 	put: function(record, fieldName, value, valueIndex) {
+		if(!record) {
+			throw new Error('Record can\'t be null!')
+		}
 		var cacheObj = record[this.CACHENAME];
 		if(!cacheObj) {
 			cacheObj = {};
@@ -529,6 +543,9 @@ jslet.data.FieldValueCache = {
 	},
 	
 	get: function(record, fieldName, valueIndex) {
+		if(!record) {
+			return undefined;
+		}
 		var cacheObj = record[this.CACHENAME];
 		if(cacheObj) {
 			if(valueIndex || valueIndex === 0) {
@@ -546,6 +563,9 @@ jslet.data.FieldValueCache = {
 	},
 	
 	clear: function(record, fieldName) {
+		if(!record) {
+			return;
+		}
 		var cacheObj = record[this.CACHENAME];
 		if(cacheObj) {
 			cacheObj[fieldName] = undefined;

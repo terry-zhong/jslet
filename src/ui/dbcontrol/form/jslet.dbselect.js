@@ -346,9 +346,23 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					value = null;
 				}
 				Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+				var lkfldObj = fldObj.lookup(),
+					fieldMap = lkfldObj.returnFieldMap();
+				if(fieldMap) {
+					var lookupDs = lkfldObj.dataset();
+						mainDs = Z._dataset;
+					if(lookupDs.findByKey(value)) {
+						var fldName, lkFldName;
+						for(var fldName in fieldMap) {
+							lkFldName = fieldMap[fldName];
+							mainDs.setFieldValue(fldName, lookupDs.getFieldValue(lkFldName));
+						}
+					}
+				}				
 			} else {
 				Z._dataset.setFieldValue(Z._field, value);
 			}
+			
 		} catch (e) {
 			jslet.showException(e);
 		} finally {

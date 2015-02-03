@@ -39,7 +39,7 @@
 			<label class="col-sm-2 control-label"> Match Mode: </label>
 			<div class="col-sm-2">
 			<select class="form-control"
-				onchange="jslet('#cboAuto').matchMode = this.value;jslet('#cboAuto').renderAll();">
+				onchange="jslet('#cboAuto').matchMode(this.value);jslet('#cboAuto').renderAll();">
 				<option selected>start</option>
 				<option>end</option>
 				<option>any</option>

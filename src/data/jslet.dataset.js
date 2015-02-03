@@ -1419,7 +1419,7 @@ jslet.data.Dataset.prototype = {
 		
 		Z.status(jslet.data.DataSetStatus.INSERT);
 		Z.changedStatus(jslet.data.DataSetStatus.INSERT);
-		Z.calDefaultValue();
+		Z._calcDefaultValue();
 		if (beforeInsertFn) {
 			beforeInsertFn(Z._modiObject);
 		}
@@ -1427,7 +1427,7 @@ jslet.data.Dataset.prototype = {
 		if (mfld && mds) {
 			mds.editRecord();
 			var subFields = mfld.name();
-			if (!mds.setFieldValue(subFields)) {
+			if (!mds.getFieldValue(subFields)) {
 				mds.setFieldValue(subFields, Z._dataList);
 			}
 		}
@@ -1529,7 +1529,7 @@ jslet.data.Dataset.prototype = {
 	 * @rivate
 	 * Calculate default value.
 	 */
-	calDefaultValue: function () {
+	_calcDefaultValue: function () {
 		var Z = this, fldObj, expr, value, fname;
 		for (var i = 0, fldcnt = Z._normalFields.length; i < fldcnt; i++) {
 			fldObj = Z._normalFields[i];
@@ -1546,10 +1546,15 @@ jslet.data.Dataset.prototype = {
 					continue;
 				}
 				value = window.eval(expr);
-				Z.setFieldValue(fname, value);
-			} else {
-				Z.setFieldValue(fname, value);
 			}
+			var valueStyle = fldObj.valueStyle();
+			if(valueStyle == jslet.data.FieldValueStyle.BETWEEN) {
+				value = [value, value];
+			} else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE) {
+				value = [value];
+			}
+			Z.setFieldValue(fname, value);
+			
 		}
 	},
 
@@ -1822,7 +1827,8 @@ jslet.data.Dataset.prototype = {
 		Z._innerValidateData();
 		var evt;
 		if (Z.hasFieldErrorMessage()) {
-			if (Z._autoShowError) { 
+			console.error(jslet.locale.Dataset.cannotConfirm);
+			if (Z._autoShowError) {
 				jslet.showInfo(jslet.locale.Dataset.cannotConfirm);
 			}
 			Z._aborted = true;
@@ -1906,8 +1912,10 @@ jslet.data.Dataset.prototype = {
 			if (Z._filteredRecnoArray) {
 				k = Z._filteredRecnoArray[Z._recno];
 			}
+			jslet.data.FieldValueCache.removeCache(Z._modiObject);
 			Z._dataList[k] = Z._modiObject;
 			Z._modiObject = null;
+			
 		}
 
 		Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -2083,9 +2091,6 @@ jslet.data.Dataset.prototype = {
 			subfldName, fldValue = null,
 			fldObj = Z.getField(fldName),
 			value, lkds;
-		if (!fldObj) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-		}
 		if (k > 0) {
 			subfldName = fldName.substr(0, k);
 			fldObj = Z.getField(subfldName);
@@ -2102,6 +2107,9 @@ jslet.data.Dataset.prototype = {
 							[lkds.name(),lkds.keyField(), value]));
 			}
 		} else {
+			if (!fldObj) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			}
 			var formula = fldObj.formula();
 			if (!formula) {
 				value = dataRec[fldName];
@@ -2130,6 +2138,7 @@ jslet.data.Dataset.prototype = {
 		var fields = this.getNormalFields();
 		for(var i = 0, len = fields.length; i < len; i++) {
 			if(fields[i].message()) {
+				console.error(fields[i].message());
 				return true;
 			}
 		}
@@ -3217,6 +3226,9 @@ jslet.data.Dataset.prototype = {
 
 		if(!Z._submitUrl) {
 			throw new Error('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
+		}
+		if(!Z.confirm()) {
+			return;
 		}
 		var changedRecs = [];
 		Z._setChangedState('i', Z.insertedRecords(), changedRecs);

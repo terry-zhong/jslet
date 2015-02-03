@@ -333,7 +333,11 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	doMetaChanged: function($super, metaName){
 		$super(metaName);
 		if(!metaName || metaName == 'tip') {
-			var tip = this._dataset.getField(this._field).tip();
+			var fldObj = this._dataset.getField(this._field);
+			if(!fldObj) {
+				throw new Error('Field: ' + this._field + ' NOT exist!');
+			}
+			var tip = fldObj.tip();
 			tip = tip ? tip: '';
 			this.el.title = tip;
 		}

@@ -1431,6 +1431,7 @@ jslet.data.FieldLookup = function() {
 	Z._innerdisplayFields = null;
 	Z._parentField = null;
 	Z._onlyLeafLevel = true;
+	Z._returnFieldMap = null;
 };
 jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 
@@ -1455,7 +1456,7 @@ jslet.data.FieldLookup.prototype = {
 		if (fldObj === undefined) {
 			return Z._hostField;
 		}
-		jslet.Checker.test('Field.hostField', fldObj).isClass(jslet.data.Field.className);
+		jslet.Checker.test('FieldLookup.hostField', fldObj).isClass(jslet.data.Field.className);
 		Z._hostField = fldObj;
 		return this;
 	},
@@ -1488,7 +1489,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._keyField || Z._dataset.keyField();
 		}
 
-		jslet.Checker.test('Field.keyField', keyFldName).isString();
+		jslet.Checker.test('FieldLookup.keyField', keyFldName).isString();
 		Z._keyField = jQuery.trim(keyFldName);
 		return this;
 	},
@@ -1506,7 +1507,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._codeField || Z._dataset.codeField();
 		}
 
-		jslet.Checker.test('Field.codeField', codeFldName).isString();
+		jslet.Checker.test('FieldLookup.codeField', codeFldName).isString();
 		Z._codeField = jQuery.trim(codeFldName);
 		return this;
 	},
@@ -1517,7 +1518,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._codeFormat;
 		}
 
-		jslet.Checker.test('Field.codeFormat', format).isString();
+		jslet.Checker.test('FieldLookup.codeFormat', format).isString();
 		Z._codeFormat = jQuery.trim(format);
 		return this;
 	},
@@ -1535,7 +1536,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._nameField || Z._dataset.nameField();
 		}
 
-		jslet.Checker.test('Field.nameField', nameFldName).isString();
+		jslet.Checker.test('FieldLookup.nameField', nameFldName).isString();
 		Z._nameField = jQuery.trim(nameFldName);
 		return this;
 	},
@@ -1553,7 +1554,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._parentField || Z._dataset.parentField();
 		}
 
-		jslet.Checker.test('Field.parentField', parentFldName).isString();
+		jslet.Checker.test('FieldLookup.parentField', parentFldName).isString();
 		Z._parentField = jQuery.trim(parentFldName);
 		return this;
 	},
@@ -1569,7 +1570,7 @@ jslet.data.FieldLookup.prototype = {
 		if (fieldExpr === undefined) {
 			return Z._displayFields? Z._displayFields: this.getDefaultDisplayFields();
 		}
-		jslet.Checker.test('Field.displayFields', fieldExpr).isString();
+		jslet.Checker.test('FieldLookup.displayFields', fieldExpr).isString();
 		fieldExpr = jQuery.trim(fieldExpr);
 		if (Z._displayFields != fieldExpr) {
 			Z._displayFields = fieldExpr;
@@ -1579,6 +1580,20 @@ jslet.data.FieldLookup.prototype = {
 			}
 		}
 		return this;
+	},
+	
+	/**
+	 * Return extra field values of lookup dataset into main dataset:
+	 * <pre><code>
+	 * lookupFldObj.returnFieldMap({"main dataset field name":"lookup dataset field name", ...}); 
+	 * </code></pre>
+	 */
+	returnFieldMap: function(returnFieldMap) {
+		if(returnFieldMap === undefined) {
+			return this._returnFieldMap;
+		}
+		jslet.Checker.test('FieldLookup.returnFieldMap', returnFieldMap).isObject();
+		this._returnFieldMap = returnFieldMap;
 	},
 	
 	/**
@@ -1646,33 +1661,36 @@ jslet.data.createFieldLookup = function(param) {
 	if (!lkds) {
 		throw new Error('Property: dataset required!');
 	}
-	var lkf = new jslet.data.FieldLookup();
+	var lkFldObj = new jslet.data.FieldLookup();
 
 	if (typeof(lkds) == 'string') {
 		lkds = jslet.data.dataModule.get(lkds);
 	}
-	lkf.dataset(lkds);
+	lkFldObj.dataset(lkds);
 	if (param.keyField !== undefined) {
-		lkf.keyField(param.keyField);
+		lkFldObj.keyField(param.keyField);
 	}
 	if (param.codeField !== undefined) {
-		lkf.codeField(param.codeField);
+		lkFldObj.codeField(param.codeField);
 	}
 	if (param.nameField !== undefined) {
-		lkf.nameField(param.nameField);
+		lkFldObj.nameField(param.nameField);
 	}
 	if (param.codeFormat !== undefined) {
-		lkf.codeFormat(param.codeFormat);
+		lkFldObj.codeFormat(param.codeFormat);
 	}
 	if (param.displayFields !== undefined) {
-		lkf.displayFields(param.displayFields);
+		lkFldObj.displayFields(param.displayFields);
 	}
 	if (param.parentField !== undefined) {
-		lkf.parentField(param.parentField);
+		lkFldObj.parentField(param.parentField);
 	}
 	if (param.onlyLeafLevel !== undefined) {
-		lkf.onlyLeafLevel(param.onlyLeafLevel);
+		lkFldObj.onlyLeafLevel(param.onlyLeafLevel);
 	}
-	return lkf;
+	if (param.returnFieldMap !== undefined) {
+		lkFldObj.returnFieldMap(param.returnFieldMap);
+	}
+	return lkFldObj;
 };
 
