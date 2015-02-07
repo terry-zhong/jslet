@@ -115,6 +115,7 @@ jslet.data.Dataset = function (name) {
 	Z._onCheckSelectable = null;
 	Z._autoShowError = false;
 	Z._autoRefreshHostDataset = false;
+	Z._readOnly = false;
 	
 	var dsName = this._name;
 	if (dsName) {
@@ -266,6 +267,28 @@ jslet.data.Dataset.prototype = {
 			}
 			this.addField(fldObj.clone(fldName, this));
 		}
+	},
+	
+	/**
+	 * Set or get dataset is readonly or not.
+	 * 
+	 * @param {Boolean} readOnly.
+	 * @return {Boolean or this}
+	 */
+	readOnly: function(readOnly) {
+		var Z = this;
+		if (readOnly === undefined) {
+			return Z._readOnly;
+		}
+		
+		Z._readOnly = readOnly? true: false;
+		var fields = Z.getNormalFields(),
+			fldObj;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			fldObj._fireMetaChangedEvent('readOnly');
+		}
+		return this;
 	},
 	
 	/**
@@ -1553,8 +1576,7 @@ jslet.data.Dataset.prototype = {
 			} else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE) {
 				value = [value];
 			}
-			Z.setFieldValue(fname, value);
-			
+			Z.setFieldValue(fname, value);		
 		}
 	},
 
@@ -1824,9 +1846,10 @@ jslet.data.Dataset.prototype = {
 		if (Z._silence || Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return true;
 		}
+		
 		Z._innerValidateData();
 		var evt;
-		if (Z.hasFieldErrorMessage()) {
+		if (Z.hasFieldErrorMessage() || !Z._confirmSubDataset()) {
 			console.error(jslet.locale.Dataset.cannotConfirm);
 			if (Z._autoShowError) {
 				jslet.showInfo(jslet.locale.Dataset.cannotConfirm);
@@ -1873,6 +1896,30 @@ jslet.data.Dataset.prototype = {
 		return true;
 	},
 
+	/*
+	 * @private
+	 */
+	_confirmSubDataset: function() {
+		var Z = this,
+			fldObj, 
+			subDatasets = [];
+		for (var i = 0, len = Z._normalFields.length; i < len; i++) {
+			fldObj = Z._normalFields[i];
+			if(fldObj.getType() === jslet.data.DataType.DATASET) {
+				subDatasets.push(fldObj.subDataset());
+			}
+		}
+		var subDs;
+		for(var i = 0, len = subDatasets.length; i < len; i++) {
+			subDs = subDatasets[i];
+			if(!subDs.confirm()) {
+				console.error('Error in [' + subDs.name() + '], can\'t confirm!');
+				return false;
+			}
+		}
+		return true;
+	},
+	
 	/**
 	 * Cancel insert or update
 	 */
@@ -2125,6 +2172,7 @@ jslet.data.Dataset.prototype = {
 				}
 				evaluator.context.dataRec = dataRec;
 				fldValue = evaluator.eval();
+				dataRec[fldName] = fldValue;
 			}
 		}
 
@@ -2280,12 +2328,15 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 	
+	/**
+	 * @private
+	 */
 	setFieldValueLength: function(fldObj, valueLength) {
 		if(fldObj.valueStyle() == jslet.data.FieldValueStyle.NORMAL) {
 			return;
 		}
 		var value = this.getFieldValue(fldObj.name());
-		if(jslet.isArray(value)) {
+		if(value && jslet.isArray(value)) {
 			value.length = valueLength;
 		}
 	},
@@ -3173,8 +3224,8 @@ jslet.data.Dataset.prototype = {
 						}
 						break;
 					}
-					jslet.data.FieldValueCache.removeCache(oldRec);
 				} //end for k
+				jslet.data.FieldValueCache.removeCache(oldRec);
 			}
 		} //end for i
 		
@@ -3287,8 +3338,8 @@ jslet.data.Dataset.prototype = {
 						delete oldRec[selFld];
 						break;
 					}
-					jslet.data.FieldValueCache.removeCache(oldRec);
 				} //end for k
+				jslet.data.FieldValueCache.removeCache(oldRec);
 			}//end for i
 		}
 		Z.refreshControl();

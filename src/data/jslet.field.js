@@ -25,7 +25,15 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._length = 0;
 	Z._scale = 0;
 	Z._unique = false;
-	Z._alignment = 'left';
+	
+	if(dataType == jslet.data.DataType.NUMBER) {
+		Z._alignment = 'right';
+	} else if(dataType == jslet.data.DataType.BOOLEAN) {
+		Z._alignment = 'center';
+	} else {
+		Z._alignment = 'left';
+	}
+	
 	Z._defaultExpr = null;
 	Z._defaultValue = null;
 	Z._label = null;
@@ -63,6 +71,9 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._children = null; //child field object, only group field has child field object.
 	Z._trueValue = true;
 	Z._falseValue = false;
+	
+	Z._mergeSame = false;
+	Z._aggrType = "sum"; //optional value: sum, count, avg
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -124,6 +135,10 @@ jslet.data.Field.prototype = {
 			}
 			result.children(childFlds);
 		}
+		
+		result.mergeSame(Z._mergeSame);
+		result.aggrType(Z._aggrType);
+		
 		return result;
 	},
 	
@@ -407,9 +422,6 @@ jslet.data.Field.prototype = {
 	alignment: function (alignment) {
 		var Z = this;
 		if (alignment === undefined){
-			if (Z._dataType == jslet.data.DataType.NUMBER){
-				return 'right';
-			}
 			return Z._alignment;
 		}
 		
@@ -732,7 +744,7 @@ jslet.data.Field.prototype = {
 				return true;
 			}
 
-			return Z._readOnly;
+			return Z._readOnly || Z._dataset.readOnly();
 		}
 		
 		Z._readOnly = readOnly? true: false;
@@ -869,14 +881,21 @@ jslet.data.Field.prototype = {
 
 			if (Z._dataType == jslet.data.DataType.BOOLEAN) {
 				return {type: 'dbcheckbox'};
-			} else if (Z._dataType == jslet.data.DataType.DATE) {
+			}
+			if (Z._dataType == jslet.data.DataType.DATE) {
 				return {type: 'dbdatepicker'};
+			}
+			
+			return (Z._lookup !== null)? {type: 'dbselect'}:{type: 'dbtext'};
+		}
+		if(typeof (editCtrl) === 'string') {
+			if(editCtrl.indexOf(':') > 0) {
+				editCtrl = jslet.JSON.parse(editCtrl);
 			} else {
-				return (Z._lookup !== null)? {type: 'dbselect'}:{type: 'dbtext'};
+				editCtrl =  {type: editCtrl};
 			}
 		}
-		 
-		Z._editControl = (typeof (editCtrl) === 'string') ? { type: editCtrl } : editCtrl;
+		Z._editControl = editCtrl;
 	},
 
 	/**
@@ -1139,6 +1158,40 @@ jslet.data.Field.prototype = {
 		return this;		
 	},
 	
+	/**
+	 * Get or set if the same field value will be merged.
+	 * 
+	 * @param {Boolean or undefined} mergeSame.
+	 * @return {Boolean or this}
+	 */
+	mergeSame: function(mergeSame){
+		var Z = this;
+		if (mergeSame === undefined) {
+			return Z._mergeSame;
+		}
+		Z._mergeSame = mergeSame ? true: false;
+	},
+
+	/**
+	 * Get or set field alignment.
+	 * 
+	 * @param {String or undefined} alignment Field alignment.
+	 * @return {String or this}
+	 */
+	aggrType: function (aggrType) {
+		var Z = this;
+		if (aggrType === undefined){
+			return Z._aggrType;
+		}
+		
+		var checker = jslet.Checker.test('Field.aggrType', aggrType).isString();
+		if(aggrType) {
+			Z._aggrType = jQuery.trim(aggrType);
+			checker.inArray(['count', 'sum', 'avg']);
+		}
+		return this;
+	},
+
 	getValue: function(valueIndex) {
 		return this._dataset.getFieldValue(this._fieldName, valueIndex);
 	},
@@ -1275,17 +1328,20 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.unitConverted(cfg.unitConverted);
 	}
 	var lkfCfg = cfg.lookup;
-	if (lkfCfg !== undefined) {
+	if (lkfCfg !== undefined && lkfCfg) {
 		if (jslet.isString(lkfCfg)) {
-			if(lkfCfg.trim().startsWith('{')) {
-				lkfCfg = jslet.JSON.parse(lkfCfg);
-			} else {
-				lkfCfg = {dataset: lkfCfg};
+			lkfCfg = lkfCfg.trim();
+			if(lkfCfg) {
+				if(lkfCfg.trim().startsWith('{')) {
+					lkfCfg = jslet.JSON.parse(lkfCfg);
+				} else {
+					lkfCfg = {dataset: lkfCfg};
+				}
 			}
 		}
 		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg));
 	}
-	if (cfg.editControl !== undefined) {
+	if (cfg.editControl !== undefined && cfg.editControl) {
 		fldObj.editControl(cfg.editControl);
 	}
 	if (cfg.urlExpr !== undefined) {
@@ -1312,10 +1368,19 @@ jslet.data.createField = function (fieldConfig, parent) {
 	if (cfg.trueValue !== undefined) {
 		fldObj.trueValue(cfg.trueValue);
 	}
+
 	if (cfg.falseValue !== undefined) {
 		fldObj.falseValue(cfg.falseValue);
 	}
 	
+	if (cfg.mergeSame !== undefined) {
+		fldObj.mergeSame(cfg.mergeSame);
+	}
+	
+	if (cfg.aggrType !== undefined) {
+		fldObj.aggrType(cfg.aggrType);
+	}
+		
 	return fldObj;
 };
 
@@ -1432,6 +1497,7 @@ jslet.data.FieldLookup = function() {
 	Z._parentField = null;
 	Z._onlyLeafLevel = true;
 	Z._returnFieldMap = null;
+//	Z._noConvertion = false;
 };
 jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 
@@ -1562,7 +1628,7 @@ jslet.data.FieldLookup.prototype = {
 	/**
 	 * An expression for display field value. Example:
 	 * <pre><code>
-	 * lookupFldObj.displayFields('[code]+"-"+[name]'); 
+	 * lookupFldObj.displayFields('[code]-[name]'); 
 	 * </code></pre>
 	 */
 	displayFields: function(fieldExpr) {
@@ -1646,7 +1712,23 @@ jslet.data.FieldLookup.prototype = {
 		}
 		Z._onlyLeafLevel = flag ? true: false;
 		return this;
-	}
+	},
+
+//	/**
+//	 * Identify whether convert field value. If true, it won't validate that the field value must come from the lookup dataset.
+//	 * 
+//	 * @param {Boolean or undefined} noConvertion True - field value must come from the lookup dataset, false - otherwise.
+//	 * @return {Boolean or this}
+//	 */
+//	noConvertion: function(noConvertion) {
+//		var Z = this;
+//		if (noConvertion === undefined) {
+//			return Z._noConvertion;
+//		}
+//		Z._noConvertion = noConvertion ? true: false;
+//		return this;
+//	}
+	
 };
 
 /**

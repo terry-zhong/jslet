@@ -683,6 +683,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (!found){
 				cobj = new jslet.ui.TableColumn();
 				cobj.field = fldName;
+				cobj.mergeSame = fldObj.mergeSame();
+				cobj.aggrType = fldObj.aggrType();				
 			}
 			if (!cobj.label){
 				cobj.label = fldObj.label();

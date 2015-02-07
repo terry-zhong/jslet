@@ -82,11 +82,12 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var disabled = fldObj.disabled(),
 				readOnly = fldObj.readOnly();
 		
+			Z.disabled = disabled || readOnly;
+			disabled = Z.disabled;
 			var radios = jQuery(Z.el).find('input[type="radio"]');
 			for(var i = 0, cnt = radios.length; i < cnt; i++){
 				jslet.ui.setEditableStyle(radios[i], disabled, readOnly);
 			}
-			Z.disabled = disabled || readOnly;
 		}
 		if(metaName == 'message') {
 			Z.renderInvalid();

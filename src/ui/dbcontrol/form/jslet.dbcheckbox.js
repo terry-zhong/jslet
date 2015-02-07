@@ -90,7 +90,8 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
-			jslet.ui.setEditableStyle(Z.el, fldObj.disabled(), fldObj.readOnly());
+			var disabled = fldObj.disabled() || fldObj.readOnly();
+			jslet.ui.setEditableStyle(Z.el, disabled, disabled);
 		}
 	},
 	

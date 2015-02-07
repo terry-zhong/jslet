@@ -81,7 +81,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
 			var disabled = fldObj.disabled(),
 				readOnly = fldObj.readOnly();
-		
+			disabled = disabled || readOnly;
 			var chkBoxes = jQuery(Z.el).find('input[type="checkbox"]');
 			for(var i = 0, cnt = chkBoxes.length; i < cnt; i++){
 				jslet.ui.setEditableStyle(chkBoxes[i], disabled, readOnly);

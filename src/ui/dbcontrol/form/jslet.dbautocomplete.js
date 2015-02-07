@@ -32,48 +32,45 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		if (!Z.allProperties) {
-			Z.allProperties = 'dataset,field,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField';
+			Z.allProperties = 'dataset,field,lookupField,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField';
 		}
 		
-		/**
-		 * {Integer} Minimum character count before searching.
-		 */
+		Z._lookupField = null;
+		
 		Z._minChars = 0;
-		/**
-		 * {Integer} Delay 'minDelay' ms to fire auto searching.
-		 */
+
 		Z._minDelay = 0;
 		
-//		Z.displayTemplate; 
-		
-		/**
-		 * {Function} Before pop up event handler, you can use this to customize the display result.
-		 * Pattern: 
-		 *   function(dataset, inputValue){}
-		 *   //dataset: jslet.data.Dataset; 
-		 *   //inputValue: String
-		 */
 		Z._beforePopup = null;
 		
-		/**
-		 * {Function} Get filter field event handler, you can use this to customize the display result.
-		 * Pattern: 
-		 *   function(dataset, inputValue){}
-		 *   //dataset: jslet.data.Dataset; 
-		 *   //inputValue: String
-		 *   //return: String Field name
-		 */
 		Z._onGetFilterField = null;
 		
-		/**
-		 * {String} Optional values: start, end, any
-		 */
 		Z._matchMode = 'start';
 		
 		Z._timeoutHandler = null; 
 		$super(el, params);
 	},
 
+	/**
+	 * Get or set lookup field name.
+	 * 
+	 * @Param {String} lookup field name.
+	 * @return {this or String}
+	 */
+	lookupField: function(lookupField) {
+		if(lookupField === undefined) {
+			return this._lookupField;
+		}
+		jslet.Checker.test('DBAutoComplete.lookupField', lookupField).isString();
+		this._lookupField = lookupField;
+	},
+   
+	/**
+	 * Get or set minimum characters before searching.
+	 * 
+	 * @Param {Integer} Minimum character before searching.
+	 * @return {this or Integer}
+	 */
 	minChars: function(minChars) {
 		if(minChars === undefined) {
 			return this._minChars;
@@ -82,6 +79,12 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		this._minChars = parseInt(minChars);
 	},
    
+	/**
+	 * Get or set delay time(ms) before auto searching.
+	 * 
+	 * @param {Integer} minDelay Delay time.
+	 * @return {this or Integer}
+	 */
 	minDelay: function(minDelay) {
 		if(minDelay === undefined) {
 			return this._minDelay;
@@ -90,6 +93,12 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		this._minDelay = parseInt(minDelay);
 	},
    
+	/**
+	 * Get or set delay time(ms) before auto searching.
+	 * 
+	 * @param {String} matchMode match mode,optional values: 'start', 'end', 'any', default: 'start'
+	 * @return {this or String}
+	 */
 	matchMode: function(matchMode) {
 		if(matchMode === undefined) {
 			return this._matchMode;
@@ -101,6 +110,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		this._matchMode = matchMode;
 	},
    
+	/**
+	 * {Function} Before pop up event handler, you can use this to customize the display result.
+	 * Pattern: 
+	 *   function(dataset, inputValue){}
+	 *   //dataset: jslet.data.Dataset; 
+	 *   //inputValue: String
+	 */
 	beforePopup: function(beforePopup) {
 		if(beforePopup === undefined) {
 			return this._beforePopup;
@@ -109,6 +125,14 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		this._beforePopup = beforePopup;
 	},
 	
+	/**
+	 * {Function} Get filter field event handler, you can use this to customize the display result.
+	 * Pattern: 
+	 *   function(dataset, inputValue){}
+	 *   //dataset: jslet.data.Dataset; 
+	 *   //inputValue: String
+	 *   //return: String Field name
+	 */
 	onGetFilterField: function(onGetFilterField) {
 		if(onGetFilterField === undefined) {
 			return this._onGetFilterField;
@@ -125,6 +149,9 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			el.type.toLowerCase() == 'text';
 	},
 
+	/**
+	 * @override
+	 */
 	doBlur: function (event) {
 		if (this.disabled || this.readOnly) {
 			return;
@@ -151,8 +178,14 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 	},
 
+	/**
+	 * @override
+	 */
 	doChange: null,
 
+	/**
+	 * @override
+	 */
 	doKeydown: function (event) {
 		if (this.disabled || this.readOnly) {
 			return;
@@ -161,7 +194,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 
 		var keyCode = event.which, Z = this.jslet;
 		if ((keyCode == 38 || keyCode == 40) && Z.contentPanel && Z.contentPanel.isPop) {
-			var fldObj = Z._dataset.getField(Z._field),
+			var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
 			lkf = fldObj.lookup(),
 			lkds = lkf.dataset();
 			if (keyCode == 38) { //up arrow
@@ -173,11 +206,28 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 
 		if (keyCode == 8 || keyCode == 46 || keyCode == 229) {//delete/backspace/ime
-			this.jslet.invokePopup();
+			this.jslet._invokePopup();
 		}
 	},
 
-	invokePopup: function () {
+	/**
+	 * @override
+	 */
+	doKeypress: function (event) {
+		if (this.disabled || this.readOnly) {
+			return;
+		}
+		var keyCode = event.keyCode ? event.keyCode : 
+			event.which	? event.which: event.charCode;
+
+		if (keyCode != 13 && keyCode != 9) {
+			this.jslet._invokePopup();
+		} else if (this.jslet.contentPanel) {
+			this.jslet.contentPanel.confirmSelect();
+		}
+	},
+
+	_invokePopup: function () {
 		var Z = this;
 		if (Z._timeoutHandler) {
 			clearTimeout(Z._timeoutHandler);
@@ -188,30 +238,16 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		
 		Z._timeoutHandler = setTimeout(function () {
-			Z.populate(Z.el.value); 
+			Z._populate(Z.el.value); 
 			}, delayTime);
 	},
 
-	doKeypress: function (event) {
-		if (this.disabled || this.readOnly) {
-			return;
-		}
-		var keyCode = event.keyCode ? event.keyCode : 
-			event.which	? event.which: event.charCode;
-
-		if (keyCode != 13 && keyCode != 9) {
-			this.jslet.invokePopup();
-		} else if (this.jslet.contentPanel) {
-			this.jslet.contentPanel.confirmSelect();
-		}
-	},
-
-	populate: function (inputValue) {
+	_populate: function (inputValue) {
 		var Z = this;
 		if (Z._minChars > 0 && inputValue && inputValue.length < Z._minChars) {
 			return;
 		}
-		var fldObj = Z._dataset.getField(Z._field),
+		var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
 			lkf = fldObj.lookup();
 		if (!lkf) {
 			jslet.showException(Z._field + ' is NOT a lookup field!');
@@ -287,13 +323,14 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
  */
 jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	var Z = this;
-	Z.dlgWidth = 400;
+	Z.dlgWidth = 500;
 	Z.dlgHeight = 200;
 
 	var lkf, lkds;
 	Z.comboCfg = autoCompleteObj;
 	Z.dataset = autoCompleteObj.dataset();
-	Z.field = autoCompleteObj.field();
+	Z.field = autoCompleteObj.lookupField() || autoCompleteObj.field();
+	
 	Z.panel = null;
 	Z.lkDataset = null;
 	Z.popup = new jslet.ui.PopupPanel();
@@ -361,7 +398,7 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 		Z.comboCfg._isSelecting = false;
 		Z.isPop = true;
 		var p = Z.popup.getPopupPanel();
-		p.style.padding = '0px';
+		p.style.padding = '0';
 		Z.popup.setContent(Z.panel);
 		Z.popup.onHidePopup = Z.doClosePopup;
 		Z.popup.show(left, top, Z.dlgWidth, Z.dlgHeight, ajustX, ajustY);

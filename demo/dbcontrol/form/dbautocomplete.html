@@ -9,10 +9,28 @@
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
         jslet.define("employee", "../../js/employee.js");
-        jslet.require("jslet,employee", function() {
+		
+       jslet.require("jslet,employee", function () {
 			var dsDept = jslet.data.getDataset("department");
 			dsDept.setVisibleFields(['deptid','name']);
-		});
+
+            dsEmployee.disableContextRule();
+            var fldObj = dsEmployee.getField("province");
+            fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+
+            fldObj = dsEmployee.getField("department");
+            var lkFldObj = fldObj.lookup();
+            lkFldObj.returnFieldMap({"deptname": "name", "deptaddr": "address"});
+
+            fldObj = jslet.data.createStringField("deptname", 20);
+            fldObj.label("Dept. Name");
+            dsEmployee.addField(fldObj);
+
+            fldObj = jslet.data.createStringField("deptaddr", 20);
+            fldObj.label("Dept. Address");
+            dsEmployee.addField(fldObj);
+        });
+		
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -65,7 +83,16 @@
 			</div>
 			</div>
 		</div>
-        <h4>4. Search field can be specified dynamically according to the first character, if it is number, use "code" field to search data, otherwise use "name" field; </h4>
+        <h4>4. Input with department name :</h4>
+		<div class="form-horizontal">
+			<div class="form-group">
+			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"deptname"'></label>
+			<div class="col-sm-5">
+			<input id="cboAuto" type="text" data-jslet='type:"DBAutoComplete",field:"deptname",lookupField:"department",onGetFilterField:doGetFilterField' />
+			</div>
+			</div>
+		</div>
+        <h4>5. Search field can be specified dynamically according to the first character, if it is number, use "code" field to search data, otherwise use "name" field; </h4>
 		<div class="form-horizontal">
 			<div class="form-group">
 			<label class="col-sm-1" data-jslet='type:"DBLabel",field:"department"'></label>
