@@ -1653,7 +1653,10 @@ a.jl-pb-button-disabled:hover {
     width: 16px;
 }
 
-
+.jl-table .has-error .form-control {
+	background-color: #a94442!important;
+	color: white!important;
+}
 /* ========================================================================
  * Jslet framework: jslet-treeview.css
  *

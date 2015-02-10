@@ -43,7 +43,8 @@
 		
 		betweenLabel: ' - ',
 		value: 'Value',
-		nullText: '(Empty)'
+		nullText: '(Empty)',
+		noDataSubmit: 'No data to submit!'
 	};
 	
 	locale.DBControl = {

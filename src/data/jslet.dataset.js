@@ -22,7 +22,7 @@ jslet.data.Dataset = function (name) {
 	
 	var Z = this;
 	Z._name = null; //Dataset name
-	Z._recordClass = null; //Record class, used for serialized/deserialize
+	Z._recordClass = jslet.global.defaultRecordClass; //Record class, used for serialized/deserialize
 	Z._dataList = null; //Array of data records
 	
 	Z._datasetListener = null; //Dataset event listener object, like: function(eventType/*jslet.data.DatasetEvent*/) {}
@@ -34,7 +34,6 @@ jslet.data.Dataset = function (name) {
 
 	Z._unitConvertFactor = 1;
 	Z._unitName = null;
-
 	Z._aborted = false;
 	Z._insertedDelta = []; //Array of record
 	Z._updatedDelta = []; //Array of record
@@ -59,8 +58,11 @@ jslet.data.Dataset = function (name) {
 	Z._modiObject = null;
 	Z._lockCount = 0;
 
+	Z._fixedIndexFields = null;
+	Z._innerFixedIndexFields = [];
 	Z._indexFields = '';
-	Z._innerIndexFields = null;
+	Z._innerIndexFields = [];
+	Z._sortingFields = null;
 
 	Z._convertDestFields = null;
 	Z._innerConvertDestFields = null;
@@ -180,6 +182,7 @@ jslet.data.Dataset.prototype = {
 		result._filter = Z._filter;
 		result._filtered = Z._filtered;
 		result._logChanged = Z._logChanged;
+		result._fixedIndexFields = Z._fixedIndexFields;
 		result._indexFields = Z._indexFields;
 		var keyFldName = Z._keyField,
 			codeFldName = Z._codeField,
@@ -652,7 +655,7 @@ jslet.data.Dataset.prototype = {
 	sortFunc: function (rec1, rec2) {
 		var dsObj = jslet.temp.sortDataset;
 		
-		var indexFlds = dsObj._innerIndexFields, v1, v2, fname, flag = 1;
+		var indexFlds = dsObj._sortingFields, v1, v2, fname, flag = 1;
 		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
 			fname = indexFlds[i].fieldName;
 			v1 = dsObj.fieldValueByRec(rec1, fname);
@@ -677,12 +680,43 @@ jslet.data.Dataset.prototype = {
 		} //end for
 		return 0;
 	},
-
+	
+	/**
+	 * Set fixed index fields, field names separated by comma(',')
+	 * 
+	 * @param {String} indFlds: fixed index field name.
+	 * @return {String or this}
+	 */
+	fixedIndexFields: function (fixedIndexFields) {
+		var Z = this;
+		if (fixedIndexFields === undefined) {
+			return Z._fixedIndexFields;
+		}
+		
+		jslet.Checker.test('Dataset.fixedIndexFields', fixedIndexFields).isString();
+		indFlds = jQuery.trim(fixedIndexFields);
+		Z._fixedIndexFields = fixedIndexFields;
+		Z._innerFixedIndexFields = fixedIndexFields? Z._parseIndexFields(fixedIndexFields): [];
+		var idxFld, fixedIdxFld;
+		for(var i = Z._innerIndexFields.length - 1; i>=0; i--) {
+			idxFld = Z._innerIndexFields[i];
+			for(var j = 0, len = Z._innerFixedIndexFields.length; j < len; j++) {
+				fixedIdxFld = Z._innerFixedIndexFields[j];
+				if(idxFld.fieldName === fixedIdxFld.fieldName) {
+					Z._innerIndexFields.splice(i, 1);
+				}
+			}
+		}
+		
+		Z._sortByFields();
+		return this;
+	},
+	
 	/**
 	 * Set index fields, field names separated by comma(',')
 	 * 
 	 * @param {String} indFlds: index field name.
-	 * @return jslet.data.Field
+	 * @return {String or this}
 	 */
 	indexFields: function (indFlds) {
 		var Z = this;
@@ -690,18 +724,87 @@ jslet.data.Dataset.prototype = {
 			return Z._indexFields;
 		}
 		
-		jslet.Checker.test('Dataset.indexFields#indFlds', indFlds).isString();
+		jslet.Checker.test('Dataset.indexFields', indFlds).isString();
 		indFlds = jQuery.trim(indFlds);
 		Z._indexFields = indFlds;
-		if (!Z._dataList || Z._dataList.length === 0 || !indFlds) {
+		Z._innerIndexFields = indFlds? Z._parseIndexFields(indFlds): [];
+		var idxFld, fixedIdxFld;
+		for(var i = Z._innerIndexFields.length - 1; i>=0; i--) {
+			idxFld = Z._innerIndexFields[i];
+			for(var j = 0, len = Z._innerFixedIndexFields.length; j < len; j++) {
+				fixedIdxFld = Z._innerFixedIndexFields[j];
+				if(idxFld.fieldName === fixedIdxFld.fieldName) {
+					fixedIdxFld.order = idxFld.order;
+					Z._innerIndexFields.splice(i, 1);
+				}
+			}
+		}
+		Z._sortByFields();
+		return this;
+	},
+
+	mergedIndexFields: function() {
+		var Z = this,
+			result = [];
+		for(var i = 0, len = Z._innerFixedIndexFields.length; i < len; i++) {
+			result.push(Z._innerFixedIndexFields[i]);
+		}
+		for(var i = 0, len = Z._innerIndexFields.length; i < len; i++) {
+			result.push(Z._innerIndexFields[i]);
+		}
+		return result;
+	},
+	
+	toggleIndexField: function(fldName, emptyIndexFields) {
+		var Z = this,
+			idxFld, 
+			found = false;
+		for(var i = Z._innerFixedIndexFields.length - 1; i>=0; i--) {
+			idxFld = Z._innerFixedIndexFields[i];
+			if(idxFld.fieldName === fldName) {
+				idxFld.order = (idxFld.order === 1 ? -1: 1);
+				found = true;
+				break;
+			}
+		}
+		if(found) {
+			if(emptyIndexFields) {
+				Z._innerIndexFields = [];
+			}
+			Z._sortByFields();
 			return;
 		}
-		var arrFlds = Z._indexFields.split(','), 
-		fname, fldObj, arrFName, indexNameObj, i, 
+		found = false;
+		for(var i = Z._innerIndexFields.length - 1; i>=0; i--) {
+			idxFld = Z._innerIndexFields[i];
+			if(idxFld.fieldName === fldName) {
+				idxFld.order = (idxFld.order === 1 ? -1: 1);
+				found = true;
+				break;
+			}
+		}
+		if(found) {
+			if(emptyIndexFields) {
+				Z._innerIndexFields = [];
+				Z._innerIndexFields.push(idxFld);
+			}
+		} else {
+			if(emptyIndexFields) {
+				Z._innerIndexFields = [];
+			}
+			idxFld = {fieldName: fldName, order: 1};
+			Z._innerIndexFields.push(idxFld);
+		}
+		Z._sortByFields();
+	},
+	
+	_parseIndexFields: function(indexFields) {
+		var arrFields = indexFields.split(','), 
+			fname, fldObj, arrFName, indexNameObj, 
 			order = 1;//asce
-		Z._innerIndexFields = [];
-		for (i = 0, cnt = arrFlds.length; i < cnt; i++) {
-			fname = jQuery.trim(arrFlds[i]);
+		var result = [];
+		for (i = 0, cnt = arrFields.length; i < cnt; i++) {
+			fname = jQuery.trim(arrFields[i]);
 			arrFName = fname.split(' ');
 			if (arrFName.length == 1) {
 				order = 1;
@@ -710,8 +813,26 @@ jslet.data.Dataset.prototype = {
 			} else {
 				order = -1; //desc
 			}
-			fname = arrFName[0];
-			Z._createIndexCfg(fname, order);
+			result.push({fieldName: arrFName[0], order: order});
+		} //end for
+		return result;
+	},
+	
+	_sortByFields: function() {
+		var Z = this;
+		if (!Z._dataList || Z._dataList.length === 0) {
+			return;
+		}
+
+		Z._sortingFields = [];
+		var idxFld;
+		for (var i = 0, cnt = Z._innerFixedIndexFields.length; i < cnt; i++) {
+			idxFld = Z._innerFixedIndexFields[i];
+			Z._createIndexCfg(idxFld.fieldName, idxFld.order);
+		} //end for
+		for (var i = 0, cnt = Z._innerIndexFields.length; i < cnt; i++) {
+			idxFld = Z._innerIndexFields[i];
+			Z._createIndexCfg(idxFld.fieldName, idxFld.order);
 		} //end for
 
 		var currRec = Z.getRecord(), 
@@ -731,10 +852,9 @@ jslet.data.Dataset.prototype = {
 				Z.enableContextRule();
 			}
 			Z.enableControls();
-		}
-		return this;
+		}		
 	},
-
+	
 	/**
 	 * @private
 	 */
@@ -767,16 +887,16 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	_combineIndexCfg: function(fldName, order) {
-		for(var i = 0, len = this._innerIndexFields.length; i < len; i++) {
-			if (this._innerIndexFields[i].fieldName == fldName) {
-				this._innerIndexFields.splice(i,1);//remove duplicated field
+		for(var i = 0, len = this._sortingFields.length; i < len; i++) {
+			if (this._sortingFields[i].fieldName == fldName) {
+				this._sortingFields.splice(i,1);//remove duplicated field
 			}
 		}
 		var indexNameObj = {
 				fieldName: fldName,
 				order: order
 			};
-		this._innerIndexFields.push(indexNameObj);
+		this._sortingFields.push(indexNameObj);
 	},
 	
 	/**
@@ -1627,12 +1747,28 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	isSameAsPrevious: function (fldName) {
-		var preRec = this.getRelativeRecord(-1);
+		var Z = this,
+			preRec = Z.getRelativeRecord(-1);
 		if (!preRec) {
 			return false;
 		}
-		var currRec = this.getRecord();
-		return preRec[fldName] == currRec[fldName];
+		var currRec = Z.getRecord(),
+			isSame = (preRec[fldName] == currRec[fldName]);
+		if(!isSame) {
+			return isSame;
+		}
+		var	fldObj = Z.getField(fldName),
+			mergeSameBy = fldObj.mergeSameBy();
+		if(mergeSameBy) {
+			var arrFlds = mergeSameBy.split(','), groupFldName;
+			for(var i = 0, len = arrFlds.length; i < len; i++) {
+				groupFldName = jQuery.trim(arrFlds[i]);
+				if(preRec[groupFldName] != currRec[groupFldName]) {
+					return false;
+				}
+			}
+		}
+		return isSame;
 	},
 
 	/**
@@ -3133,7 +3269,7 @@ jslet.data.Dataset.prototype = {
 		}
 		Z.errorMessage(errCode + " : " + errMsg);
 		if(Z._autoShowError) {
-			jslet.showException(errCode + " : " + errMsg);
+			jslet.showError(errCode + " : " + errMsg);
 		}
 	},
 	
@@ -3171,21 +3307,32 @@ jslet.data.Dataset.prototype = {
 	},
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
-		if (chgRecs && chgRecs.length > 0) {
-			var recClazz = this._recordClass;
-			for (var i = 0, cnt = chgRecs.length; i < cnt; i++) {
-				rec = chgRecs[i];
-				var pRec = {};
-				if(recClazz) {
-					pRec["@type"] = recClazz;
-				}
-				rec[jslet.global.changeStateField] = flag + i;
-				for(var prop in rec) {
-					pRec[prop] = rec[prop];
-				}
-				pendingRecs.push(pRec);
-			}
+		var result = this._addRecordClassFlag(chgRecs, flag, this._recordClass);
+		for(var i = 0, len = result.length; i < len; i++) {
+			pendingRecs.push(result[i]);
 		}
+	},
+	
+	_addRecordClassFlag: function(records, changeFlag, recClazz) {
+		var result = [], rec, pRec;
+		for (var i = 0, cnt = records.length; i < cnt; i++) {
+			rec = records[i];
+			pRec = {};
+			if(recClazz) {
+				pRec["@type"] = recClazz;
+			}
+			rec[jslet.global.changeStateField] = changeFlag + i;
+			var fldValue;
+			for(var prop in rec) {
+				fldValue = rec[prop];
+				if(fldValue && jslet.isArray(fldValue)) {
+					fldValue = this._addRecordClassFlag(fldValue, changeFlag, recClazz);
+				}
+				pRec[prop] = fldValue;
+			}
+			result.push(pRec);
+		}
+		return result;
 	},
 	
 	_clearChangeState: function(chgedRecs) {
@@ -3287,6 +3434,7 @@ jslet.data.Dataset.prototype = {
 		Z._setChangedState('d', Z.deletedRecords(), changedRecs);
 
 		if (!changedRecs || changedRecs.length === 0) {
+			jslet.showInfo(jslet.locale.Dataset.noDataSubmit);
 			return;
 		}
 		var reqData = {main: changedRecs};
@@ -3561,6 +3709,9 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
+		if(Z._datasetField) {
+			var masterFld = Z._datasetField.setValue(datalst);
+		}
 		Z._dataList = datalst;
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
@@ -3612,8 +3763,9 @@ jslet.data.Dataset.prototype = {
 		Z._linkedControls = null;
 		Z._innerFilter = null;
 		Z._innerFindCondition = null;
-		Z._innerIndexFields = null;
+		Z._sortingFields = null;
 		Z._innerFormularFields = null;
+		Z._datasetField = null;
 		
 		jslet.data.dataModule.unset(Z._name);
 	}

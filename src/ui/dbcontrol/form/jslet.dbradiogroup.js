@@ -115,7 +115,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				radio.checked = (value == jQuery(radio.parentNode).attr('value'));
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		}
 	},
 	
@@ -126,7 +126,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		var fldObj = Z._dataset.getField(Z._field), lkf = fldObj.lookup();
 		if (!lkf) {
-			jslet.showException(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			jslet.showError(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}
@@ -182,7 +182,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z._dataset.setFieldValue(Z._field, jQuery(currCheckBox.parentNode).attr('value'));
 			currCheckBox.checked = true;
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

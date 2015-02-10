@@ -115,7 +115,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					count = values.length;
 				}
 				if (count >= limitCount) {
-					jslet.showException(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+					jslet.showError(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 							[''	+ limitCount]));
 					
 					window.setTimeout(function(){
@@ -298,7 +298,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 				}
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		}
 	},
  
@@ -364,7 +364,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

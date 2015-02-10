@@ -192,7 +192,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		//@private
 		Z.contentHeight = 0;
-		Z._sortFields = null; //object:{field:'xx',isAsce:true}
 		Z.subgroup = null;//jslet.ui.TableSubgroup
 		
 		Z._sysColumns = null;//all system column like sequence column, select column, sub-group column
@@ -418,6 +417,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				
 		Z._initializeVm();
 		Z.renderAll();
+		Z._updateSortFlag(true);
 		var jqEl = jQuery(Z.el);
 		var ti = jqEl.attr('tabindex');
 		if (!ti) {
@@ -683,12 +683,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (!found){
 				cobj = new jslet.ui.TableColumn();
 				cobj.field = fldName;
-				cobj.mergeSame = fldObj.mergeSame();
-				cobj.aggrType = fldObj.aggrType();				
 			}
 			if (!cobj.label){
 				cobj.label = fldObj.label();
 			}
+			cobj.mergeSame = fldObj.mergeSame();
+			cobj.aggrType = fldObj.aggrType();				
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
 				maxWidth = fldObj ? fldObj.displayWidth() : 0;
@@ -873,7 +873,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var y = jqRightHead.on('mouseup', Z._doSplitHookUp);
 		
 		jQuery(Z.leftHeadTbl).on('mousedown', '.jl-tbl-header-cell', function(event){
-			event = jQuery.event.fix( event || window.event );
+			event = jQuery.event.fix(event || window.event);
 			var el = event.target;
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
@@ -886,7 +886,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 		
 		jqRightHead.on('mousedown', '.jl-tbl-header-cell', function(event){
-			event = jQuery.event.fix( event || window.event );
+			event = jQuery.event.fix(event || window.event);
 			var el = event.target;
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
@@ -899,7 +899,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 
 		jQuery(Z.leftHeadTbl).on('mousedown', '.jl-focusable-item', function(event){
-			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg);
+			event = jQuery.event.fix(event || window.event);
+			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
 			event.stopImmediatePropagation();
 			event.preventDefault();
@@ -907,7 +908,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 		
 		jqRightHead.on('mousedown', '.jl-focusable-item', function(event){
-			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg);
+			event = jQuery.event.fix(event || window.event);
+			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
 			event.stopImmediatePropagation();
 			event.preventDefault();
@@ -1394,57 +1396,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_doSort: function (sortField, isMultiSort) {
 		var Z = this;
-		if (!Z._sortFields) {
-			Z._sortFields = [];
-		}
-		var sortObj;
-		if (!isMultiSort && Z._sortFields.length > 0) {
-			if (Z._sortFields.length > 1) {
-				Z._sortFields = [];
-			} else {
-				sortObj = Z._sortFields[0];
-				if (sortObj.field != sortField) {
-					Z._sortFields = [];
-				}
-			}
-		}
-
-		var found = 0;
-		for (var i = 0, len = Z._sortFields.length; i < len; i++) {
-			sortObj = Z._sortFields[i];
-			if (sortField == sortObj.field) {
-				sortObj.isAsce = !sortObj.isAsce;
-				found = 1;
-				break;
-			}
-		}
-		if (!found) {
-			Z._sortFields[len] = { field: sortField, isAsce: true };
-		}
-		var indexFlds = '', fldObj, lkf, fldName;
-		for (var i = 0, len = Z._sortFields.length; i < len; i++) {
-			if (i > 0) {
-				indexFlds += ',';
-			}
-			sortObj = Z._sortFields[i];
-
-			var arrFlds = sortObj.field.split(','), fldCnt = arrFlds.length;
-			for (var j = 0; j < fldCnt; j++) {
-				fldName = arrFlds[j];
-				fldObj = Z._dataset.getField(fldName);
-				lkf = fldObj.lookup();
-				if (lkf !== null && 
-					fldObj.valueStyle() != jslet.data.FieldValueStyle.MULTIPLE && //if field can hold multiple values, it can't use code field to sort
-					lkf.keyField() != lkf.codeField()) {
-					fldName += '.' + lkf.codeField();
-				}
-				indexFlds += (j > 0 ? ',' : '') + fldName + (sortObj.isAsce ? '' : ' desc');
-			}
-		}
 		Z._dataset.disableControls();
 		try {
 			if (!Z._onCustomSort) {
-				Z._dataset.indexFields(indexFlds);
+				Z._dataset.toggleIndexField(sortField, !isMultiSort);
 			} else {
 				Z._onCustomSort.call(Z, indexFlds);
 			}
@@ -1454,40 +1409,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 
-	_datasetIndex2TableIndex: function() {
-		var Z = this,
-			indexFlds = jQuery.trim(Z._dataset.indexFields());
-		
-		Z._sortFields = [];
-		
-		if(indexFlds) {
-			var arrFlds = indexFlds.split(','), arrSortFld, sortFldObj;
-			for(var i = 0, len = arrFlds.length; i < len; i++) {
-				arrSortFld = arrFlds[i].split(' ');
-				sortFldObj = {field: arrSortFld[0], isAsce: true};
-				if(arrSortFld.length > 1) {
-					var dir = jQuery.trim(arrSortFld[1].toLowerCase());
-					sortFldObj.isAsce = (dir != 'desc'); 
-				}
-				Z._sortFields.push(sortFldObj);
-			}
-		}
-	},
-	
-	_updateSortFlag: function (useDatasetIndex) {
+	_updateSortFlag: function () {
 		var Z = this;
 		if (Z._hideHead) {
 			return;
 		}
-		if(useDatasetIndex) {
-			var indexFlds = Z._dataset.indexFields();
-			if(Z._oldIndexFields == indexFlds) {
-				return;
-			}
-			Z._oldIndexFields = indexFlds;
-			Z._datasetIndex2TableIndex();
-		}
 
+		var sortFields = Z._dataset.mergedIndexFields();
+		
 		var leftHeadObj = Z.leftHeadTbl.createTHead(),
 			rightHeadObj = Z.rightHeadTbl.createTHead(),
 			leftHeadCells = jQuery(leftHeadObj).find('th'),
@@ -1508,8 +1437,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 
-		var len = Z._sortFields.length, sortDiv, fldName, sortFlag,
-			sortObj, k = 1, cellCnt = allHeadCells.length;
+		var len = sortFields.length, sortDiv, 
+			cellCnt = allHeadCells.length;
 		for (var i = 0; i < cellCnt; i++) {
 			oth = allHeadCells[i];
 			sortDiv = jQuery(oth).find('.jl-tbl-sorter')[0];
@@ -1517,9 +1446,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				sortDiv.innerHTML = '&nbsp;';
 			}
 		}
-
+		var fldName, sortFlag, sortObj, 
+			k = 1;
 		for (var i = 0; i < len; i++) {
-			sortObj = Z._sortFields[i];
+			sortObj = sortFields[i];
 			for (var j = 0; j < cellCnt; j++) {
 				oth = allHeadCells[j];
 				fldName = oth.jsletcolcfg.field;
@@ -1528,8 +1458,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 				sortDiv = jQuery(oth).find('.jl-tbl-sorter')[0];
 				sortFlag = '&nbsp;';
-				if (fldName == sortObj.field) {
-					sortFlag = sortObj.isAsce ? jslet.ui.htmlclass.TABLECLASS.sortAscChar : jslet.ui.htmlclass.TABLECLASS.sortDescChar;
+				if (fldName == sortObj.fieldName) {
+					sortFlag = sortObj.order === 1 ? jslet.ui.htmlclass.TABLECLASS.sortAscChar : jslet.ui.htmlclass.TABLECLASS.sortDescChar;
 					if (len > 1) {
 						sortFlag += k++;
 					}

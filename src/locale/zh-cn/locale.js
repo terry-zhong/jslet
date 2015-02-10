@@ -43,7 +43,8 @@
 			
 			betweenLabel: ' - ',
 			value: '值',
-			nullText: '(空)'
+			nullText: '(空)',
+			noDataSubmit: '无数据可提交!'
 	};
 
 	locale.DBControl = {

@@ -162,7 +162,7 @@
 
     fldObj = jslet.data.createNumberField('salary', 16, 2);
     fldObj.label('Salary');
-    fldObj.displayFormat('￥#,##0.00');
+    fldObj.displayFormat('￥#,##0.##');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('university', 20);
@@ -220,7 +220,6 @@
     dsEmployee.keyField('workerid');
     dsEmployee.codeField('workerid');
     dsEmployee.nameField('name');
-    
     //Add data into dsEmployee
     var dataList = [{
         workerid: 1,

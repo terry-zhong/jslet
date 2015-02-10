@@ -126,7 +126,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				}
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		}		
 	},
 	
@@ -138,7 +138,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			fldObj = Z._dataset.getField(Z._field), 
 			lkf = fldObj.lookup();
 		if (!lkf) {
-			jslet.showException(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			jslet.showError(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}

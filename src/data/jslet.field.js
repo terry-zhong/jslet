@@ -73,6 +73,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._falseValue = false;
 	
 	Z._mergeSame = false;
+	Z._mergeSameBy = null;
+	
 	Z._aggrType = "sum"; //optional value: sum, count, avg
 };
 
@@ -137,6 +139,7 @@ jslet.data.Field.prototype = {
 		}
 		
 		result.mergeSame(Z._mergeSame);
+		result._mergeSameBy(Z._mergeSameBy);
 		result.aggrType(Z._aggrType);
 		
 		return result;
@@ -1173,6 +1176,21 @@ jslet.data.Field.prototype = {
 	},
 
 	/**
+	 * Get or set if the same field value will be merged.
+	 * 
+	 * @param {Boolean or undefined} mergeSame.
+	 * @return {Boolean or this}
+	 */
+	mergeSameBy: function(mergeSameBy){
+		var Z = this;
+		if (mergeSameBy === undefined) {
+			return Z._mergeSameBy;
+		}
+		jslet.Checker.test('Field.mergeSameBy', mergeSameBy).isString();
+		Z._mergeSameBy = jQuery.trim(mergeSameBy);
+	},
+
+	/**
 	 * Get or set field alignment.
 	 * 
 	 * @param {String or undefined} alignment Field alignment.
@@ -1375,6 +1393,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	if (cfg.mergeSame !== undefined) {
 		fldObj.mergeSame(cfg.mergeSame);
+	}
+	
+	if (cfg.mergeSameBy !== undefined) {
+		fldObj.mergeSameBy(cfg.mergeSameBy);
 	}
 	
 	if (cfg.aggrType !== undefined) {

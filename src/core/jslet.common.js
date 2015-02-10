@@ -991,4 +991,43 @@ jslet.JSON = {
 		return JSON.stringify(value, replacer, space);
 	}
 
-}
+};
+
+/**
+* Show error message.
+*  
+* @param e - error object or error message
+*/
+jslet.showError = function (e) {
+	var msg;
+	if (typeof (e) == 'string') {
+		msg = e;
+	} else {
+		msg = e.message;
+	}
+	if (jslet.ui.MessageBox) {
+		jslet.ui.MessageBox.error(msg);
+	} else {
+		alert(msg);
+	}
+};
+
+/**
+* Show Info message.
+* 
+* @param e - error object or error message
+*/
+jslet.showInfo = function (e) {
+	var msg;
+	if (typeof (e) == 'string') {
+		msg = e;
+	} else {
+		msg = e.message;
+	}
+	if (jslet.ui.MessageBox) {
+		jslet.ui.MessageBox.alert(msg);
+	} else {
+		alert(msg);
+	}
+};
+

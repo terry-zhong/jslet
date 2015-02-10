@@ -455,44 +455,6 @@ jslet.ui.TextMeasurer = function () {
 jslet.ui.textMeasurer = new jslet.ui.TextMeasurer();
 
 /**
-* Show error message.
-*  
-* @param e - error object or error message
-*/
-jslet.showException = function (e) {
-	var msg;
-	if (typeof (e) == 'string') {
-		msg = e;
-	} else {
-		msg = e.message;
-	}
-	if (jslet.ui.MessageBox) {
-		jslet.ui.MessageBox.error(msg);
-	} else {
-		alert(msg);
-	}
-};
-
-/**
-* Show Info message.
-* 
-* @param e - error object or error message
-*/
-jslet.showInfo = function (e) {
-	var msg;
-	if (typeof (e) == 'string') {
-		msg = e;
-	} else {
-		msg = e.message;
-	}
-	if (jslet.ui.MessageBox) {
-		jslet.ui.MessageBox.alert(msg);
-	} else {
-		alert(msg);
-	}
-};
-
-/**
  * Get css property value. Example:
  * <pre><code>
  * var width = jslet.ui.getCssValue('fooClass', 'width'); //Return value like '100px' or '200em'

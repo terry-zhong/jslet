@@ -25,6 +25,8 @@ jslet.global = {
 	//Value separator
 	valueSeparator: ',',
 	
+	defaultRecordClass: null,
+	
 	debugMode: true
 };
 

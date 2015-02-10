@@ -759,7 +759,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	setContent: function (html) {
 		if (!html){
-			jslet.showException('Window content cannot be null!');
+			jslet.showError('Window content cannot be null!');
 			return;
 		}
 		var bodyDiv = jQuery(this.el).find('.jl-win-body');

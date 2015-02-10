@@ -109,7 +109,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z.el.checked = false;
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		} // end try
 	},
 	
@@ -140,7 +140,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		try {
 			Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

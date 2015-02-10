@@ -118,7 +118,7 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z.el.src = srcURL;
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		}
 	},
 

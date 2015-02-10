@@ -126,7 +126,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			x = x + jqEl.outerWidth();
 		}
 		Z.popup.setContent(Z.contentPanel.el, '100%', '100%');
-
+		Z.contentPanel.el.style.display = 'block';
 		Z.contentPanel.setValue(dateValue);
 		Z.popup.show(x, y, width + 3, height + 3, 0, h);
 	},

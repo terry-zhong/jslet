@@ -223,7 +223,7 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z._setBackgroundPos(oitem, Z._getPosX(i % Z._splitCount, i < valueNo ? 0: 2));
 			}
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		}	
 	},
 	

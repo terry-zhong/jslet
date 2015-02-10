@@ -170,7 +170,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		try {
 			Z._dataset.setFieldValue(Z._field, val, Z._valueIndex);
 		} catch (e) {
-			jslet.showException(e);
+			jslet.showError(e);
 		} finally {
 			Z.silence = false;
 		}
