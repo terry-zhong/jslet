@@ -261,8 +261,18 @@ jslet.data.FieldValidator.prototype = {
 	 * @return {String} If input text is valid, return null, otherwise return error message.
 	 */
 	checkRequired: function(fldObj, value) {
-		if (!value || (jslet.isArray(value) && value.length === 0)) {
-			if (fldObj.required()) {
+		if (fldObj.required()) {
+			var valid = true;
+			if (value === null || value === undefined) {
+				valid = false;
+			}
+			if(valid && jslet.isString(value) && jQuery.trim(value).length === 0) {
+				valid = false;
+			}
+			if(valid && jslet.isArray(value) && value.length === 0) {
+				valid = false;
+			}
+			if(!valid) {
 				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
 			} else {
 				return null;

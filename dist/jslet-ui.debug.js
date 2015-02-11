@@ -963,6 +963,7 @@ jslet.ui.createControl = function (jsletparam, parent, width, height) {
 	if (parent) {
 		parent.appendChild(el);
 	} else {
+//		el.style.display = 'none';
 		document.body.appendChild(el);
 	}
 	if (width) {
@@ -8428,12 +8429,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (!found){
 				cobj = new jslet.ui.TableColumn();
 				cobj.field = fldName;
-				cobj.mergeSame = fldObj.mergeSame();
-				cobj.aggrType = fldObj.aggrType();				
 			}
 			if (!cobj.label){
 				cobj.label = fldObj.label();
 			}
+			cobj.mergeSame = fldObj.mergeSame();
+			cobj.aggrType = fldObj.aggrType();				
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
 				maxWidth = fldObj ? fldObj.displayWidth() : 0;
@@ -13353,7 +13354,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			x = x + jqEl.outerWidth();
 		}
 		Z.popup.setContent(Z.contentPanel.el, '100%', '100%');
-
+		Z.contentPanel.el.style.display = 'block';
 		Z.contentPanel.setValue(dateValue);
 		Z.popup.show(x, y, width + 3, height + 3, 0, h);
 	},
@@ -14085,7 +14086,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			var preGroupValue, groupValue, groupDisplayValue, content = [];
 
-			if (!Z.el.multiple && !fldObj.required() && fldObj.nullText()){
+			if (!Z.el.multiple && !fldObj.required()){
 				content.push('<option value="_null_">');
 				content.push(fldObj.nullText());
 				content.push('</option>');
@@ -14176,7 +14177,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			if (!Z.el.multiple) {
 				var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
 				if (value === null){
-					if (!fldObj.required() && fldObj.nullText()) {
+					if (!fldObj.required()) {
 						value = '_null_';
 					}
 				}
@@ -14249,7 +14250,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		try {
 			if (!isMulti) {
 				var fldObj = Z._dataset.getField(Z._field);
-				if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
+				if (value == '_null_' && !fldObj.required()) {
 					value = null;
 				}
 				Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
@@ -14655,7 +14656,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			arrhtm = [];
 		
 		var fldObj = Z._dataset.getField(Z._field);
-		if (!fldObj.required() && fldObj.nullText()){
+		if (!fldObj.required()){
 			arrhtm.push('<option value="_null_">');
 			arrhtm.push(fldObj.nullText());
 			arrhtm.push('</option>');
@@ -14761,7 +14762,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (!isMulti) {
 			value = Z.el.value;
 			var fldObj = Z._dataset.getField(Z._field);
-			if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
+			if (value == '_null_' && !fldObj.required()) {
 				value = null;
 			}
 		} else {

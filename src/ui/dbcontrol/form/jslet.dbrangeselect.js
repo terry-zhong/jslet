@@ -144,7 +144,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			arrhtm = [];
 		
 		var fldObj = Z._dataset.getField(Z._field);
-		if (!fldObj.required() && fldObj.nullText()){
+		if (!fldObj.required()){
 			arrhtm.push('<option value="_null_">');
 			arrhtm.push(fldObj.nullText());
 			arrhtm.push('</option>');
@@ -250,7 +250,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (!isMulti) {
 			value = Z.el.value;
 			var fldObj = Z._dataset.getField(Z._field);
-			if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
+			if (value == '_null_' && !fldObj.required()) {
 				value = null;
 			}
 		} else {

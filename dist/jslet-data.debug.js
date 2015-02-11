@@ -1652,8 +1652,18 @@ jslet.data.FieldValidator.prototype = {
 	 * @return {String} If input text is valid, return null, otherwise return error message.
 	 */
 	checkRequired: function(fldObj, value) {
-		if (!value || (jslet.isArray(value) && value.length === 0)) {
-			if (fldObj.required()) {
+		if (fldObj.required()) {
+			var valid = true;
+			if (value === null || value === undefined) {
+				valid = false;
+			}
+			if(valid && jslet.isString(value) && jQuery.trim(value).length === 0) {
+				valid = false;
+			}
+			if(valid && jslet.isArray(value) && value.length === 0) {
+				valid = false;
+			}
+			if(!valid) {
 				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
 			} else {
 				return null;
@@ -4656,6 +4666,10 @@ jslet.data.Dataset.prototype = {
 		}
 		value = Z.getFieldValue(fldName, valueIndex);
 		if (value === null || value === undefined) {
+			var fixedValue = fldObj.fixedValue();
+			if(fixedValue) {
+				return fixedValue;
+			}
 			return '';
 		}
 
@@ -5537,9 +5551,22 @@ jslet.data.Dataset.prototype = {
 			pendingRecs.push(result[i]);
 		}
 	},
-	
+
 	_addRecordClassFlag: function(records, changeFlag, recClazz) {
-		var result = [], rec, pRec;
+		var fields = this.getFields(),
+			fldObj,
+			subRecordClass = null;
+		
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			if(fldObj.getType() === jslet.data.DataType.DATASET) {
+				if(!subRecordClass) {
+					subRecordClass = {};
+				}
+				subRecordClass[fldObj.name()] = fldObj.subDataset().recordClass();
+			}
+		}
+		var result = [], rec, pRec, subRecClazz;
 		for (var i = 0, cnt = records.length; i < cnt; i++) {
 			rec = records[i];
 			pRec = {};
@@ -5550,8 +5577,11 @@ jslet.data.Dataset.prototype = {
 			var fldValue;
 			for(var prop in rec) {
 				fldValue = rec[prop];
-				if(fldValue && jslet.isArray(fldValue)) {
-					fldValue = this._addRecordClassFlag(fldValue, changeFlag, recClazz);
+				if(fldValue && subRecordClass) {
+					subRecClazz = subRecordClass[prop];
+					if(subRecClazz) {
+						fldValue = this._addRecordClassFlag(fldValue, changeFlag, subRecClazz);
+					}
 				}
 				pRec[prop] = fldValue;
 			}
@@ -5884,7 +5914,7 @@ jslet.data.Dataset.prototype = {
 				arrRec = [];
 				for(i = 0; i < fldCnt; i++) {
 					fldObj = Z._normalFields[i];
-					fldName = fldObj.name();
+					fldName = fldObj.label() || fldObj.name();
 					fldName = surround + fldName + surround;
 					arrRec.push(fldName);
 				}
@@ -5934,9 +5964,9 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
-		if(Z._datasetField) {
-			var masterFld = Z._datasetField.setValue(datalst);
-		}
+//		if(Z._datasetField) {
+//			var masterFld = Z._datasetField.setValue(datalst);
+//		}
 		Z._dataList = datalst;
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
@@ -6273,6 +6303,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	
 	Z._mergeSame = false;
 	Z._mergeSameBy = null;
+	Z._fixedValue = null;
 	
 	Z._aggrType = "sum"; //optional value: sum, count, avg
 };
@@ -6338,7 +6369,9 @@ jslet.data.Field.prototype = {
 		}
 		
 		result.mergeSame(Z._mergeSame);
-		result._mergeSameBy(Z._mergeSameBy);
+		result.mergeSameBy(Z._mergeSameBy);
+		result.fixedValue(Z._fixedValue);
+		
 		result.aggrType(Z._aggrType);
 		
 		return result;
@@ -7377,8 +7410,8 @@ jslet.data.Field.prototype = {
 	/**
 	 * Get or set if the same field value will be merged.
 	 * 
-	 * @param {Boolean or undefined} mergeSame.
-	 * @return {Boolean or this}
+	 * @param {String or undefined} mergeSame.
+	 * @return {String or this}
 	 */
 	mergeSameBy: function(mergeSameBy){
 		var Z = this;
@@ -7409,6 +7442,21 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
+	/**
+	 * Get or set fixed field value, if field value not specified, fixed field value used.
+	 * 
+	 * @param {String or undefined} fixedValue.
+	 * @return {String or this}
+	 */
+	fixedValue: function(fixedValue){
+		var Z = this;
+		if (fixedValue === undefined) {
+			return Z._fixedValue;
+		}
+		jslet.Checker.test('Field.fixedValue', fixedValue).isString();
+		Z._fixedValue = jQuery.trim(fixedValue);
+	},
+	
 	getValue: function(valueIndex) {
 		return this._dataset.getFieldValue(this._fieldName, valueIndex);
 	},
@@ -7602,6 +7650,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.aggrType(cfg.aggrType);
 	}
 		
+	if (cfg.fixedValue !== undefined) {
+		fldObj.fixedValue(cfg.fixedValue);
+	}
+	
 	return fldObj;
 };
 

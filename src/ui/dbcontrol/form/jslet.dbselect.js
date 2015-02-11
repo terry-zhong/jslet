@@ -178,7 +178,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			var preGroupValue, groupValue, groupDisplayValue, content = [];
 
-			if (!Z.el.multiple && !fldObj.required() && fldObj.nullText()){
+			if (!Z.el.multiple && !fldObj.required()){
 				content.push('<option value="_null_">');
 				content.push(fldObj.nullText());
 				content.push('</option>');
@@ -269,7 +269,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			if (!Z.el.multiple) {
 				var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
 				if (value === null){
-					if (!fldObj.required() && fldObj.nullText()) {
+					if (!fldObj.required()) {
 						value = '_null_';
 					}
 				}
@@ -342,7 +342,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		try {
 			if (!isMulti) {
 				var fldObj = Z._dataset.getField(Z._field);
-				if (value == '_null_' && !fldObj.required() && fldObj.nullText()) {
+				if (value == '_null_' && !fldObj.required()) {
 					value = null;
 				}
 				Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);

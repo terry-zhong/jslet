@@ -453,7 +453,7 @@ jslet.ui.createControl = function (jsletparam, parent, width, height) {
 	if (parent) {
 		parent.appendChild(el);
 	} else {
-		el.style.display = 'none';
+//		el.style.display = 'none';
 		document.body.appendChild(el);
 	}
 	if (width) {

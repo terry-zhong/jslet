@@ -74,6 +74,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	
 	Z._mergeSame = false;
 	Z._mergeSameBy = null;
+	Z._fixedValue = null;
 	
 	Z._aggrType = "sum"; //optional value: sum, count, avg
 };
@@ -139,7 +140,9 @@ jslet.data.Field.prototype = {
 		}
 		
 		result.mergeSame(Z._mergeSame);
-		result._mergeSameBy(Z._mergeSameBy);
+		result.mergeSameBy(Z._mergeSameBy);
+		result.fixedValue(Z._fixedValue);
+		
 		result.aggrType(Z._aggrType);
 		
 		return result;
@@ -1178,8 +1181,8 @@ jslet.data.Field.prototype = {
 	/**
 	 * Get or set if the same field value will be merged.
 	 * 
-	 * @param {Boolean or undefined} mergeSame.
-	 * @return {Boolean or this}
+	 * @param {String or undefined} mergeSame.
+	 * @return {String or this}
 	 */
 	mergeSameBy: function(mergeSameBy){
 		var Z = this;
@@ -1210,6 +1213,21 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
+	/**
+	 * Get or set fixed field value, if field value not specified, fixed field value used.
+	 * 
+	 * @param {String or undefined} fixedValue.
+	 * @return {String or this}
+	 */
+	fixedValue: function(fixedValue){
+		var Z = this;
+		if (fixedValue === undefined) {
+			return Z._fixedValue;
+		}
+		jslet.Checker.test('Field.fixedValue', fixedValue).isString();
+		Z._fixedValue = jQuery.trim(fixedValue);
+	},
+	
 	getValue: function(valueIndex) {
 		return this._dataset.getFieldValue(this._fieldName, valueIndex);
 	},
@@ -1403,6 +1421,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.aggrType(cfg.aggrType);
 	}
 		
+	if (cfg.fixedValue !== undefined) {
+		fldObj.fixedValue(cfg.fixedValue);
+	}
+	
 	return fldObj;
 };
 

@@ -2431,6 +2431,10 @@ jslet.data.Dataset.prototype = {
 		}
 		value = Z.getFieldValue(fldName, valueIndex);
 		if (value === null || value === undefined) {
+			var fixedValue = fldObj.fixedValue();
+			if(fixedValue) {
+				return fixedValue;
+			}
 			return '';
 		}
 
@@ -3312,9 +3316,22 @@ jslet.data.Dataset.prototype = {
 			pendingRecs.push(result[i]);
 		}
 	},
-	
+
 	_addRecordClassFlag: function(records, changeFlag, recClazz) {
-		var result = [], rec, pRec;
+		var fields = this.getFields(),
+			fldObj,
+			subRecordClass = null;
+		
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			if(fldObj.getType() === jslet.data.DataType.DATASET) {
+				if(!subRecordClass) {
+					subRecordClass = {};
+				}
+				subRecordClass[fldObj.name()] = fldObj.subDataset().recordClass();
+			}
+		}
+		var result = [], rec, pRec, subRecClazz;
 		for (var i = 0, cnt = records.length; i < cnt; i++) {
 			rec = records[i];
 			pRec = {};
@@ -3325,8 +3342,11 @@ jslet.data.Dataset.prototype = {
 			var fldValue;
 			for(var prop in rec) {
 				fldValue = rec[prop];
-				if(fldValue && jslet.isArray(fldValue)) {
-					fldValue = this._addRecordClassFlag(fldValue, changeFlag, recClazz);
+				if(fldValue && subRecordClass) {
+					subRecClazz = subRecordClass[prop];
+					if(subRecClazz) {
+						fldValue = this._addRecordClassFlag(fldValue, changeFlag, subRecClazz);
+					}
 				}
 				pRec[prop] = fldValue;
 			}
@@ -3659,7 +3679,7 @@ jslet.data.Dataset.prototype = {
 				arrRec = [];
 				for(i = 0; i < fldCnt; i++) {
 					fldObj = Z._normalFields[i];
-					fldName = fldObj.name();
+					fldName = fldObj.label() || fldObj.name();
 					fldName = surround + fldName + surround;
 					arrRec.push(fldName);
 				}
@@ -3709,9 +3729,9 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
-		if(Z._datasetField) {
-			var masterFld = Z._datasetField.setValue(datalst);
-		}
+//		if(Z._datasetField) {
+//			var masterFld = Z._datasetField.setValue(datalst);
+//		}
 		Z._dataList = datalst;
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
