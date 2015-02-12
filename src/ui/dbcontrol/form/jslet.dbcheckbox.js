@@ -93,6 +93,11 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			jslet.ui.setEditableStyle(Z.el, disabled, disabled);
 		}
+		if(metaName == 'message') {
+			if(Z._enableInvalidTip) {
+				Z.renderInvalid();
+			}
+		}
 	},
 	
 	/**

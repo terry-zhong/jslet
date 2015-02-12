@@ -283,6 +283,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 
 	_field: undefined,
 	_valueIndex: undefined,
+	_enableInvalidTip: true,
 	
 	field: function(fldName) {
 		if(fldName === undefined) {
@@ -356,7 +357,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderInvalid: function () {
 		var Z = this;
-		if (!Z._field || !Z.enableInvalidTip) {
+		if (!Z._field) {
 			return;
 		}
 		var fldObj = Z.dataset().getField(Z._field);

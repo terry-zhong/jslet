@@ -37,8 +37,6 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		 * {Integer} Step value.
 		 */
 		Z._step = 1;
-		
-		Z.enableInvalidTip = false;
 
 		$super(el, params);
 	},
@@ -145,13 +143,13 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		}
 		if (val) {
 			val = parseFloat(val);
-			if (val) {
-				if (val > maxValue)
-					val = maxValue;
-				else if (val < minValue)
-					val = minValue;
-				val = String(val);
-			}
+//			if (val) {
+//				if (val > maxValue)
+//					val = maxValue;
+//				else if (val < minValue)
+//					val = minValue;
+//				val = String(val);
+//			}
 		}
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.el.value = val;

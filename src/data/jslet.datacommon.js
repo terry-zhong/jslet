@@ -272,6 +272,9 @@ jslet.data.FieldValidator.prototype = {
 			if(valid && jslet.isArray(value) && value.length === 0) {
 				valid = false;
 			}
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN && !value) {
+				valid = false;
+			}
 			if(!valid) {
 				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
 			} else {

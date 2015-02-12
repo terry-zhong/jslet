@@ -793,6 +793,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 
 	_field: undefined,
 	_valueIndex: undefined,
+	_enableInvalidTip: true,
 	
 	field: function(fldName) {
 		if(fldName === undefined) {
@@ -866,7 +867,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderInvalid: function () {
 		var Z = this;
-		if (!Z._field || !Z.enableInvalidTip) {
+		if (!Z._field) {
 			return;
 		}
 		var fldObj = Z.dataset().getField(Z._field);
@@ -8434,7 +8435,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				cobj.label = fldObj.label();
 			}
 			cobj.mergeSame = fldObj.mergeSame();
-			cobj.aggrType = fldObj.aggrType();				
+			cobj.aggrateType = fldObj.aggrateType();
+			cobj.aggrateBy = fldObj.aggrateBy();
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
 				maxWidth = fldObj ? fldObj.displayWidth() : 0;
@@ -9366,7 +9368,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	_sumTotal: function () {
-		var Z = this, cobj, fldName, len = Z.innerColumns.length;
+		var Z = this, cobj, fldName, 
+			len = Z.innerColumns.length;
 		for (var i = 0; i < len; i++) {
 			cobj = Z.innerColumns[i];
 			if (Z.innerTotalFields.indexOf(cobj.field) < 0) {
@@ -9431,8 +9434,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				continue;
 			}
 			fldObj = Z._dataset.getField(cobj.field);
-			otd.innerHTML =jslet.formatNumber(cobj.totalValue, fldObj
-						.displayFormat());
+			otd.innerHTML =jslet.formatNumber(cobj.totalValue, fldObj.displayFormat());
 			otd.style.textAlign = fldObj.alignment();
 		}
 	},
@@ -9732,6 +9734,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.DELETE) {
 			Z.listvm.refreshModel();
 			Z._fillData();
+			var recno = Z._dataset.recno(),
+			preRecno = evt.preRecno;
+			Z.refreshControl(jslet.data.RefreshEvent.scrollEvent(recno, preRecno));			
 		} else if (evtType == jslet.data.RefreshEvent.SELECTRECORD) {
 			if (!Z._hasSelectCol) {
 				return;
@@ -11333,7 +11338,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		
 		if(metaName == 'message') {
-			Z.renderInvalid();
+			if(Z._enableInvalidTip) {
+				Z.renderInvalid();
+			}
 		}
 		Z.el.maxLength = fldObj.getEditLength();
 	},
@@ -12255,6 +12262,11 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			jslet.ui.setEditableStyle(Z.el, disabled, disabled);
+		}
+		if(metaName == 'message') {
+			if(Z._enableInvalidTip) {
+				Z.renderInvalid();
+			}
 		}
 	},
 	
@@ -13952,6 +13964,8 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		 */
 		Z._lookupDataset = null;
 		
+		Z._enableInvalidTip = true;
+		
 		$super(el, params);
 	},
 
@@ -14840,8 +14854,6 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		 * {Integer} Step value.
 		 */
 		Z._step = 1;
-		
-		Z.enableInvalidTip = false;
 
 		$super(el, params);
 	},
@@ -14948,13 +14960,13 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 		}
 		if (val) {
 			val = parseFloat(val);
-			if (val) {
-				if (val > maxValue)
-					val = maxValue;
-				else if (val < minValue)
-					val = minValue;
-				val = String(val);
-			}
+//			if (val) {
+//				if (val > maxValue)
+//					val = maxValue;
+//				else if (val < minValue)
+//					val = minValue;
+//				val = String(val);
+//			}
 		}
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.el.value = val;

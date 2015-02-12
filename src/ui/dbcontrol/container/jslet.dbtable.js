@@ -688,7 +688,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				cobj.label = fldObj.label();
 			}
 			cobj.mergeSame = fldObj.mergeSame();
-			cobj.aggrType = fldObj.aggrType();				
+			cobj.aggrateType = fldObj.aggrateType();
+			cobj.aggrateBy = fldObj.aggrateBy();
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
 				maxWidth = fldObj ? fldObj.displayWidth() : 0;
@@ -1620,7 +1621,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	_sumTotal: function () {
-		var Z = this, cobj, fldName, len = Z.innerColumns.length;
+		var Z = this, cobj, fldName, 
+			len = Z.innerColumns.length;
 		for (var i = 0; i < len; i++) {
 			cobj = Z.innerColumns[i];
 			if (Z.innerTotalFields.indexOf(cobj.field) < 0) {
@@ -1685,8 +1687,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				continue;
 			}
 			fldObj = Z._dataset.getField(cobj.field);
-			otd.innerHTML =jslet.formatNumber(cobj.totalValue, fldObj
-						.displayFormat());
+			otd.innerHTML =jslet.formatNumber(cobj.totalValue, fldObj.displayFormat());
 			otd.style.textAlign = fldObj.alignment();
 		}
 	},
@@ -1986,6 +1987,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.DELETE) {
 			Z.listvm.refreshModel();
 			Z._fillData();
+			var recno = Z._dataset.recno(),
+			preRecno = evt.preRecno;
+			Z.refreshControl(jslet.data.RefreshEvent.scrollEvent(recno, preRecno));			
 		} else if (evtType == jslet.data.RefreshEvent.SELECTRECORD) {
 			if (!Z._hasSelectCol) {
 				return;

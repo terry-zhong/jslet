@@ -1663,6 +1663,9 @@ jslet.data.FieldValidator.prototype = {
 			if(valid && jslet.isArray(value) && value.length === 0) {
 				valid = false;
 			}
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN && !value) {
+				valid = false;
+			}
 			if(!valid) {
 				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
 			} else {
@@ -3776,20 +3779,20 @@ jslet.data.Dataset.prototype = {
 		if (this.recordCount() > 0) {
 			k = Z._dataList.indexOf(this.getRecord()) + 1;
 		} else {
-			k = Z._dataList.length;
+			k = 0;
 		}
 
 		Z._modiObject = {};
 		Z._dataList.splice(k, 0, Z._modiObject);
 
-		if (Z._filteredRecnoArray) {
-			for (var i = Z._filteredRecnoArray.length; i >= 0; i--) {
-				Z._filteredRecnoArray[i] += 1;
-				if (Z._filteredRecnoArray[i] == k) {
-					Z._filteredRecnoArray.splice(i, 0, k);
-					Z._recno = i;
+		if (Z._filteredRecnoArray && Z._filteredRecnoArray.length > 0) {
+			for (var i = Z._filteredRecnoArray.length - 1; i >= 0; i--) {
+				if (Z._filteredRecnoArray[i] < k) {
+					Z._filteredRecnoArray.splice(i + 1, 0, k);
+					Z._recno = k;
 					break;
 				}
+				Z._filteredRecnoArray[i] += 1;
 			}
 		} else {
 			Z._recno = k;
@@ -4122,12 +4125,10 @@ jslet.data.Dataset.prototype = {
 		var preRecno = Z.recno(), 
 			isLast = preRecno == (recCnt - 1), 
 			k = Z._recno;
-		if (Z._filteredRecnoArray) {
-			k = Z._filteredRecnoArray[Z._recno];
-			Z._filteredRecnoArray.splice(Z._recno, 1);
-		}
+		
 		Z.changedStatus(jslet.data.DataSetStatus.DELETE);
 		Z._dataList.splice(k, 1);
+		Z._refreshInnerRecno();
 		var mfld = Z._datasetField;
 		if (mfld && mfld.dataset()) {
 			mfld.dataset().editRecord();
@@ -4312,11 +4313,8 @@ jslet.data.Dataset.prototype = {
 		var evt, k = Z._recno;
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			var no = Z.recno();
-			if (Z._filteredRecnoArray) {
-				k = Z._filteredRecnoArray[Z._recno];
-				Z._filteredRecnoArray.splice(Z._recno, 1);
-			}
 			Z._dataList.splice(k, 1);
+			Z._refreshInnerRecno();
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
 			}
@@ -6305,7 +6303,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
 	
-	Z._aggrType = "sum"; //optional value: sum, count, avg
+	Z._aggrateType = "sum"; //optional value: sum, count, avg
+	Z._aggrateBy = null;
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -6372,7 +6371,8 @@ jslet.data.Field.prototype = {
 		result.mergeSameBy(Z._mergeSameBy);
 		result.fixedValue(Z._fixedValue);
 		
-		result.aggrType(Z._aggrType);
+		result.aggrateType(Z._aggrateType);
+		result.aggrateBy(Z._aggrateBy);
 		
 		return result;
 	},
@@ -7408,9 +7408,10 @@ jslet.data.Field.prototype = {
 	},
 
 	/**
-	 * Get or set if the same field value will be merged.
+	 * Get or set the field names to "mergeSame".
+	 * Multiple field names are separated by ','.
 	 * 
-	 * @param {String or undefined} mergeSame.
+	 * @param {String or undefined} mergeSameBy.
 	 * @return {String or this}
 	 */
 	mergeSameBy: function(mergeSameBy){
@@ -7423,23 +7424,40 @@ jslet.data.Field.prototype = {
 	},
 
 	/**
-	 * Get or set field alignment.
+	 * Get or set the type of aggrated value.
 	 * 
-	 * @param {String or undefined} alignment Field alignment.
+	 * @param {String or undefined} aggrateType optional value is: count,sum,avg.
 	 * @return {String or this}
 	 */
-	aggrType: function (aggrType) {
+	aggrateType: function (aggrateType) {
 		var Z = this;
-		if (aggrType === undefined){
-			return Z._aggrType;
+		if (aggrateType === undefined){
+			return Z._aggrateType;
 		}
 		
-		var checker = jslet.Checker.test('Field.aggrType', aggrType).isString();
-		if(aggrType) {
-			Z._aggrType = jQuery.trim(aggrType);
+		var checker = jslet.Checker.test('Field.aggrateType', aggrateType).isString();
+		if(aggrateType) {
+			Z._aggrateType = jQuery.trim(aggrateType);
 			checker.inArray(['count', 'sum', 'avg']);
 		}
 		return this;
+	},
+
+	/**
+	 * Get or set the field names to aggrate field value. 
+	 * Multiple field names are separated by ','.
+	 * 
+	 * 
+	 * @param {String or undefined} aggrBy.
+	 * @return {String or this}
+	 */
+	aggrateBy: function(aggrateBy){
+		var Z = this;
+		if (aggrateBy === undefined) {
+			return Z._aggrateBy;
+		}
+		jslet.Checker.test('Field.aggrateBy', aggrateBy).isString();
+		Z._aggrateBy = jQuery.trim(aggrateBy);
 	},
 
 	/**
@@ -7646,8 +7664,12 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.mergeSameBy(cfg.mergeSameBy);
 	}
 	
-	if (cfg.aggrType !== undefined) {
-		fldObj.aggrType(cfg.aggrType);
+	if (cfg.aggrateType !== undefined) {
+		fldObj.aggrateType(cfg.aggrateType);
+	}
+		
+	if (cfg.aggrateBy !== undefined) {
+		fldObj.aggrateBy(cfg.aggrateBy);
 	}
 		
 	if (cfg.fixedValue !== undefined) {

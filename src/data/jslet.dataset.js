@@ -1541,20 +1541,20 @@ jslet.data.Dataset.prototype = {
 		if (this.recordCount() > 0) {
 			k = Z._dataList.indexOf(this.getRecord()) + 1;
 		} else {
-			k = Z._dataList.length;
+			k = 0;
 		}
 
 		Z._modiObject = {};
 		Z._dataList.splice(k, 0, Z._modiObject);
 
-		if (Z._filteredRecnoArray) {
-			for (var i = Z._filteredRecnoArray.length; i >= 0; i--) {
-				Z._filteredRecnoArray[i] += 1;
-				if (Z._filteredRecnoArray[i] == k) {
-					Z._filteredRecnoArray.splice(i, 0, k);
-					Z._recno = i;
+		if (Z._filteredRecnoArray && Z._filteredRecnoArray.length > 0) {
+			for (var i = Z._filteredRecnoArray.length - 1; i >= 0; i--) {
+				if (Z._filteredRecnoArray[i] < k) {
+					Z._filteredRecnoArray.splice(i + 1, 0, k);
+					Z._recno = k;
 					break;
 				}
+				Z._filteredRecnoArray[i] += 1;
 			}
 		} else {
 			Z._recno = k;
@@ -1887,12 +1887,10 @@ jslet.data.Dataset.prototype = {
 		var preRecno = Z.recno(), 
 			isLast = preRecno == (recCnt - 1), 
 			k = Z._recno;
-		if (Z._filteredRecnoArray) {
-			k = Z._filteredRecnoArray[Z._recno];
-			Z._filteredRecnoArray.splice(Z._recno, 1);
-		}
+		
 		Z.changedStatus(jslet.data.DataSetStatus.DELETE);
 		Z._dataList.splice(k, 1);
+		Z._refreshInnerRecno();
 		var mfld = Z._datasetField;
 		if (mfld && mfld.dataset()) {
 			mfld.dataset().editRecord();
@@ -2077,11 +2075,8 @@ jslet.data.Dataset.prototype = {
 		var evt, k = Z._recno;
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			var no = Z.recno();
-			if (Z._filteredRecnoArray) {
-				k = Z._filteredRecnoArray[Z._recno];
-				Z._filteredRecnoArray.splice(Z._recno, 1);
-			}
 			Z._dataList.splice(k, 1);
+			Z._refreshInnerRecno();
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
 			}

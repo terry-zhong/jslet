@@ -211,7 +211,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		
 		if(metaName == 'message') {
-			Z.renderInvalid();
+			if(Z._enableInvalidTip) {
+				Z.renderInvalid();
+			}
 		}
 		Z.el.maxLength = fldObj.getEditLength();
 	},

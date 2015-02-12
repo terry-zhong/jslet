@@ -44,6 +44,8 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		 */
 		Z._lookupDataset = null;
 		
+		Z._enableInvalidTip = true;
+		
 		$super(el, params);
 	},
 
