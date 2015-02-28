@@ -5,11 +5,6 @@
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
 
-jslet.data.dataModule = new jslet.SimpleMap();
-jslet.data.getDataset = function (dsName) {
-    return jslet.data.dataModule.get(dsName);
-};
-
 /**
  * @class Dataset
  * 
@@ -146,9 +141,10 @@ jslet.data.Dataset.prototype = {
 	},
 		
 	/**
-	* Set dataset's name.
+	* Set dataset's record class, recordClass is the server entity class quantified name.
+	* It's used for automated serialization.
 	* 
-	* @param {String} name Dataset's name that must be unique in jslet.data.dataModule variable.
+	* @param {String} clazz Server entity class name.
 	* @return {String or this}
 	*/
 	recordClass: function(clazz) {
@@ -820,7 +816,7 @@ jslet.data.Dataset.prototype = {
 	
 	_sortByFields: function() {
 		var Z = this;
-		if (!Z._dataList || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			return;
 		}
 
@@ -843,7 +839,7 @@ jslet.data.Dataset.prototype = {
 		Z.disableControls();
 		jslet.temp.sortDataset = Z;
 		try {
-			Z._dataList.sort(Z.sortFunc);
+			Z.dataList().sort(Z.sortFunc);
 			Z._refreshInnerRecno();
 		} finally {
 			jslet.temp.sortDataset = null;
@@ -1001,13 +997,13 @@ jslet.data.Dataset.prototype = {
 	 */
 	_refreshInnerRecno: function () {
 		var Z = this;
-		if (!Z._dataList || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			Z._filteredRecnoArray = null;
 			return;
 		}
 		Z._filteredRecnoArray = null;
 		var tempRecno = [];
-		for (var i = 0, cnt = Z._dataList.length; i < cnt; i++) {
+		for (var i = 0, cnt = Z.dataList().length; i < cnt; i++) {
 			Z._recno = i;
 			if (Z._filterData()) {
 				tempRecno.push(i);
@@ -1033,9 +1029,10 @@ jslet.data.Dataset.prototype = {
 	 * @return {Integer}
 	 */
 	recordCount: function () {
-		if (this._dataList) {
+		var records = this.dataList();
+		if (records) {
 			if (!this._filteredRecnoArray) {
-				return this._dataList.length;
+				return records.length;
 			} else {
 				return this._filteredRecnoArray.length;
 			}
@@ -1045,6 +1042,11 @@ jslet.data.Dataset.prototype = {
 
 	hasRecord: function () {
 		return this.recordCount() > 0;
+	},
+	
+	hasData: function() {
+		var records = this.dataList();
+		return records && records.length > 0;
 	},
 	
 	/**
@@ -1132,8 +1134,8 @@ jslet.data.Dataset.prototype = {
 				fldObj = Z._subDatasetFields[i];
 				subds = fldObj.subDataset();
 				if (subds) {
-					subds.confirm();
-					subds.dataList(Z.getFieldValue(fldObj.name()));
+//					subds.confirm();
+//					subds.dataList(Z.getFieldValue(fldObj.name()));
 					var indexflds = subds.indexFields();
 					if (indexflds) {
 						subds.indexFields(indexflds);
@@ -1206,11 +1208,11 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
-		if (!Z._dataList || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			return false;
 		}
 		jslet.Checker.test('dataset.moveToRecord#recordObj', recordObj).required().isObject();
-		var k = Z._dataList.indexOf(recordObj);
+		var k = Z.dataList().indexOf(recordObj);
 		if (k < 0) {
 			return false;
 		}
@@ -1364,7 +1366,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('parentField and keyField not set,use insertRecord() instead!');
 		}
 
-		if (!Z._dataList || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			Z.innerInsert();
 			return;
 		}
@@ -1409,7 +1411,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('parentField and keyField not set,use insertRecord() instead!');
 		}
 
-		if (!Z._dataList || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			Z.innerInsert();
 			return;
 		}
@@ -1518,34 +1520,37 @@ jslet.data.Dataset.prototype = {
 		var mfld = Z._datasetField, mds = null;
 		if (mfld) {
 			mds = mfld.dataset();
-			if (mds.recordCount() === 0) {
+			if (!mds.hasRecord()) {
 				throw new Error(jslet.locale.Dataset.insertMasterFirst);
 			}
+			mds.editRecord();
 		}
 
-		if (Z._dataList === null) {
-			Z._dataList = [];
-		}
 		Z._aborted = false;
 		Z._checkStatusAndConfirm();
 		if (Z._aborted) {
 			return;
 		}
 
+		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREINSERT);
 		if (Z._aborted) {
 			return;
 		}
 
+		var records = Z.dataList();
+		if (records === null) {
+			Z.dataList([]);
+		}
 		var preRecno = Z.recno(), k;
-		if (this.recordCount() > 0) {
-			k = Z._dataList.indexOf(this.getRecord()) + 1;
+		if (Z.hasData()) {
+			k = records.indexOf(this.getRecord()) + 1;
 		} else {
 			k = 0;
 		}
 
 		Z._modiObject = {};
-		Z._dataList.splice(k, 0, Z._modiObject);
+		records.splice(k, 0, Z._modiObject);
 
 		if (Z._filteredRecnoArray && Z._filteredRecnoArray.length > 0) {
 			for (var i = Z._filteredRecnoArray.length - 1; i >= 0; i--) {
@@ -1567,14 +1572,6 @@ jslet.data.Dataset.prototype = {
 			beforeInsertFn(Z._modiObject);
 		}
 
-		if (mfld && mds) {
-			mds.editRecord();
-			var subFields = mfld.name();
-			if (!mds.getFieldValue(subFields)) {
-				mds.setFieldValue(subFields, Z._dataList);
-			}
-		}
-
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
@@ -1591,11 +1588,11 @@ jslet.data.Dataset.prototype = {
 	insertDataset: function (srcDataset) {
 		var Z = this;
 		Z.filtered(false);
-		var k;
+		var k, records = Z.dataList();
 		if (this.recordCount() > 0) {
-			k = Z._dataList.indexOf(this.getRecord()) + 1;
+			k = records.indexOf(this.getRecord()) + 1;
 		} else {
-			k = Z._dataList.length;
+			k = records.length;
 		}
 
 		var context = srcDataset.startSilenceMove(true), rec;
@@ -1603,7 +1600,7 @@ jslet.data.Dataset.prototype = {
 			srcDataset.first();
 			while (!srcDataset.isEof()) {
 				rec = srcDataset.getRecord();
-				Z._dataList.splice(k++, 0, rec);
+				records.splice(k++, 0, rec);
 				srcDataset.next();
 			}
 		} finally {
@@ -1678,8 +1675,6 @@ jslet.data.Dataset.prototype = {
 			fldObj = Z._normalFields[i];
 			fname = fldObj.name();
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {
-				var subds = fldObj.subDataset();
-				Z.setFieldValue(fname, null);
 				continue;
 			}
 			value = fldObj.defaultValue();
@@ -1708,12 +1703,13 @@ jslet.data.Dataset.prototype = {
 	 */
 	getRecord: function (recno) {
 		var Z = this, k;
-		if(!Z._dataList || Z._dataList.length === 0) {
+		if(!Z.hasData()) {
 			return null;
 		}
+		var records = Z.dataList();
 		//Used to convert field value for performance purpose. 
 		if(Z._ignoreFilter) {
-			return Z._dataList[Z._ignoreFilterRecno || 0];
+			return records[Z._ignoreFilterRecno || 0];
 		}
 		
 		if (Z.recordCount() === 0) {
@@ -1733,7 +1729,7 @@ jslet.data.Dataset.prototype = {
 			k = recno;
 		}
 
-		return Z._dataList[k];
+		return records[k];
 	},
 
 	/**
@@ -1808,7 +1804,7 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		if (Z._dataList === null || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			Z.insertRecord();
 		} else {
 			Z._aborted = false;
@@ -1889,7 +1885,7 @@ jslet.data.Dataset.prototype = {
 			k = Z._recno;
 		
 		Z.changedStatus(jslet.data.DataSetStatus.DELETE);
-		Z._dataList.splice(k, 1);
+		Z.dataList().splice(k, 1);
 		Z._refreshInnerRecno();
 		var mfld = Z._datasetField;
 		if (mfld && mfld.dataset()) {
@@ -2072,10 +2068,12 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		var evt, k = Z._recno;
+		var evt, 
+			k = Z._recno,
+			records = Z.dataList();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			var no = Z.recno();
-			Z._dataList.splice(k, 1);
+			records.splice(k, 1);
 			Z._refreshInnerRecno();
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
@@ -2091,7 +2089,7 @@ jslet.data.Dataset.prototype = {
 				k = Z._filteredRecnoArray[Z._recno];
 			}
 			jslet.data.FieldValueCache.removeCache(Z._modiObject);
-			Z._dataList[k] = Z._modiObject;
+			records[k] = Z._modiObject;
 			Z._modiObject = null;
 			
 		}
@@ -2204,8 +2202,6 @@ jslet.data.Dataset.prototype = {
 		if(fldObj.valueStyle() == jslet.data.FieldValueStyle.NORMAL || valueIndex === undefined) {
 			currRec[fldName] = value;
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
-				var subds = fldObj.subDataset();
-				subds.dataList(value);
 				return this;
 			}
 		} else {
@@ -2613,12 +2609,13 @@ jslet.data.Dataset.prototype = {
 		
 		var value, i;
 		if(Z._ignoreFilter) {
-			if(!Z._dataList || Z._dataList.length === 0) {
+			if(!Z.hasData()) {
 				return false;
 			}
-			var len = Z._dataList.length;
+			var records = Z.dataList(),
+				len = records.length;
 			for(i = 0; i < len; i++) {
-				value = Z.fieldValueByRec(Z._dataList[i], fldName);
+				value = Z.fieldValueByRec(records[i], fldName);
 				if (value == findingValue) {
 					Z._ignoreFilterRecno = i;
 					return true;
@@ -2712,10 +2709,12 @@ jslet.data.Dataset.prototype = {
 		var result = [];
 
 		if ((!underCurrentFilter || !Z._filtered)) {
-			return Z._dataList.slice(0);
+			return Z.dataList().slice(0);
 		}
 
-		var foundRecno = -1, oldRecno = Z._recno, oldFiltered = Z._filtered;
+		var foundRecno = -1, 
+			oldRecno = Z._recno, 
+			oldFiltered = Z._filtered;
 		if (!underCurrentFilter) {
 			Z._filtered = false;
 		}
@@ -3159,7 +3158,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	selectedRecords: function () {
 		var Z = this;
-		if (Z._dataList === null || Z._dataList.length === 0) {
+		if (!Z.hasData()) {
 			return null;
 		}
 
@@ -3228,7 +3227,7 @@ jslet.data.Dataset.prototype = {
 	_doQuerySuccess: function(result, dataset) {
 		var Z = dataset;
 		if (!result) {
-			Z.dataList(null);
+			Z.dataList([]);
 			return;
 		}
 		var mainData = result.main;
@@ -3239,9 +3238,11 @@ jslet.data.Dataset.prototype = {
 		if(extraData) {
 			var dsName, ds;
 			for (var dsName in extraData) {
-				ds = jslet.data.dataModule.get(dsName);
+				ds = jslet.data.getDataset(dsName);
 				if (ds) {
 					ds.dataList(extraData[dsName]);
+				} else {
+					console.warn(dsName + ' is returned from server, but this datase does not exist!');
 				}
 			}
 		}
@@ -3431,9 +3432,10 @@ jslet.data.Dataset.prototype = {
 	 * dsFoo.submit();
 	 * </code></pre>
 	 * 
-	 * @param {Object} extraInfo extraInfo
+	 * @param {Object} extraInfo extraInfo to send to server
+	 * @param {Array of String} excludeFields Array of field names which need not be sent to server;
 	 */
-	submit: function(extraInfo) {
+	submit: function(extraInfo, excludeFields) {
 		var Z = this;
 		Z._checkDataProvider();
 
@@ -3459,7 +3461,7 @@ jslet.data.Dataset.prototype = {
 		if(Z.csrfToken) {
 			reqData.csrfToken = Z.csrfToken;
 		}
-		reqData = jslet.data.record2Json(reqData);
+		reqData = jslet.data.record2Json(reqData, excludeFields);
 		return Z._dataProvider.sendRequest(Z, Z._submitUrl, reqData)
 		.done(Z._doSaveSuccess)
 		.fail(Z._doApplyError);
@@ -3470,16 +3472,16 @@ jslet.data.Dataset.prototype = {
 		if (!result || result.length === 0) {
 			return;
 		}
-		var Z = dataset;
-		var deleteOnSuccess = Z._deleteOnSuccess_;
-		
-		var arrRecs = Z.selectedRecords(),
-			i, k;
+		var Z = dataset,
+			deleteOnSuccess = Z._deleteOnSuccess_,
+			arrRecs = Z.selectedRecords(),
+			i, k,
+			records = Z.dataList();
 		if(deleteOnSuccess) {
 			for(i = arrRecs.length; i >= 0; i--) {
 				rec = arrRecs[i];
-				k = Z._dataList.indexOf(rec);
-				Z._dataList.splice(k, 1);
+				k = records.indexOf(rec);
+				records.splice(k, 1);
 			}
 		} else {
 			var newRec, oldRec, len;
@@ -3522,8 +3524,9 @@ jslet.data.Dataset.prototype = {
 	 * @param {String} url Url
 	 * @param {Boolean} deleteOnSuccess If processing successfully at server side, delete the selected record or not.
 	 * @param {Object} extraInfo extraInfo
+	 * @param {Array of String} excludeFields Array of field names which need not be sent to server;
 	 */
-	submitSelected: function (url, deleteOnSuccess, extraInfo) {
+	submitSelected: function (url, deleteOnSuccess, extraInfo, excludeFields) {
 		var Z = this;
 		Z._checkDataProvider();
 		if(!url) {
@@ -3540,7 +3543,7 @@ jslet.data.Dataset.prototype = {
 		if(extraInfo) {
 			reqData.extraInfo = extraInfo;
 		}
-		reqData = jslet.data.record2Json(reqData);
+		reqData = jslet.data.record2Json(reqData, excludeFields);
 		return Z._dataProvider.sendRequest(Z, url, reqData)
 		.done(Z._doSubmitSelectedSuccess)
 		.fail(Z._doApplyError);
@@ -3720,14 +3723,21 @@ jslet.data.Dataset.prototype = {
 	dataList: function (datalst) {
 		var Z = this;
 		if (datalst === undefined) {
+			if(Z._datasetField) {
+				return Z._datasetField.getValue();
+			}
 			return Z._dataList;
 		}
-		
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
-//		if(Z._datasetField) {
-//			var masterFld = Z._datasetField.setValue(datalst);
-//		}
-		Z._dataList = datalst;
+		console.log('set dataList: ' + this.name())
+		if(Z._datasetField) {
+			if(datalst === null) {
+				datalst = [];
+			}
+			Z._datasetField.setValue(datalst);
+		} else {
+			Z._dataList = datalst;
+		}
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
 		Z._insertedDelta.length = 0;

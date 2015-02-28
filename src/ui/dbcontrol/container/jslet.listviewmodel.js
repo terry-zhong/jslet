@@ -9,12 +9,12 @@
  * Inner Class for DBTable and DBTreeView control
  */
 jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it's tree model
-	var visibleCount = 0;
-	var visibleStartRow = 0;
-	var visibleEndRow = 0;
-	var needShowRows = null;//Array of all rows that need show, all of these rows's status will be 'expanded'
-	var allRows = null;//Array of all rows, include 'expanded' and 'collapsed' rows
-	var currentRowno = 0;
+	var visibleCount = 0,
+		visibleStartRow = 0,
+		visibleEndRow = 0,
+		needShowRows = null,//Array of all rows that need show, all of these rows's status will be 'expanded'
+		allRows = null,//Array of all rows, include 'expanded' and 'collapsed' rows
+		currentRowno = 0;
 	this.onTopRownoChanged = null; //Event handler: function(rowno){}
 	this.onVisibleCountChanged = null; //Event handler: function(visibleRowCount){}
 	this.onCurrentRownoChanged = null; //Event handler: function(rowno){}
@@ -41,11 +41,19 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if(expandLevel === undefined) {
 			expandLevel = -1;
 		}
-		var ds = dataset, hiddenCnt = 0, recno, allCnt = ds.recordCount(), childCnt, result = [], pId;
-		var context = ds.startSilenceMove();
+		var ds = dataset, 
+			hiddenCnt = 0, 
+			recno, 
+			allCnt = ds.recordCount(), 
+			childCnt, 
+			result = [], 
+			pId,
+			context = ds.startSilenceMove();
 		try {
 			ds.recno(this.fixedRows);
-			var level = 0, pnodes = [], node, pnode, tmpNode, currRec, state;
+			var level = 0, 
+				pnodes = [], 
+				node, pnode, tmpNode, currRec, state;
 			while (!ds.isEof()) {
 				recno = ds.recno();
 				keyValue = ds.keyValue();

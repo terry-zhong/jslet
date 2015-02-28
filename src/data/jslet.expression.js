@@ -22,8 +22,8 @@ jslet.Expression = function(dataset, expr) {
 	this._otherDatasetFields = [];
 	this._expr = expr;
 	this._parsedExpr = '';
-	if (typeof dataset == "string") {
-		this._dataset = jslet.data.dataModule.get(dataset);
+	if (typeof dataset == 'string') {
+		this._dataset = jslet.data.getDataset(dataset);
 		if (!this._dataset) {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
 		}

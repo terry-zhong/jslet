@@ -76,7 +76,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
 	
-	Z._aggrateType = "sum"; //optional value: sum, count, avg
+	Z._aggrated = false; //optional value: sum, count, avg
 	Z._aggrateBy = null;
 };
 
@@ -144,7 +144,7 @@ jslet.data.Field.prototype = {
 		result.mergeSameBy(Z._mergeSameBy);
 		result.fixedValue(Z._fixedValue);
 		
-		result.aggrateType(Z._aggrateType);
+		result.aggrated(Z._aggrated);
 		result.aggrateBy(Z._aggrateBy);
 		
 		return result;
@@ -946,7 +946,9 @@ jslet.data.Field.prototype = {
 		Z._fireColumnUpdatedEvent();
 		return this;
 	},
-
+	
+	_subDsParsed: false,
+	
 	/**
 	 * Set or get sub dataset.
 	 * 
@@ -956,14 +958,33 @@ jslet.data.Field.prototype = {
 	subDataset: function (subdataset) {
 		var Z = this;
 		if (subdataset === undefined) {
+			if(!Z._subDsParsed) {
+				Z.subDataset(Z._subDataset);
+				if(!Z._subDsParsed) {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
+				}
+			}
 			return Z._subDataset;
 		}
-		jslet.Checker.test('Field.subDataset', subdataset).isClass(jslet.data.Dataset.className);		
-		if (Z._subDataset) {
-			Z._subDataset.datasetField(null);
+		var subDsObj = subdataset;
+		if (typeof (subDsObj) == 'string') {
+			subDsObj = jslet.data.getDataset(subDsObj);
+			if(!subDsObj && jslet.data.onDatasetRequired) {
+				jslet.data.onDatasetRequired(subdataset);
+			}
 		}
-		Z._subDataset = subdataset;
-		subdataset.datasetField(this);
+		if(subDsObj) {
+			jslet.Checker.test('Field.subDataset', subDsObj).isClass(jslet.data.Dataset.className);		
+			if (Z._subDataset && Z._subDataset.datasetField) {
+				Z._subDataset.datasetField(null);
+			}
+			Z._subDataset = subDsObj;
+			subDsObj.datasetField(this);
+			Z._subDsParsed = true;
+		} else {
+			Z._subDataset = subdataset;
+			Z._subDsParsed = false;
+		}
 		return this;
 	},
 
@@ -1199,20 +1220,16 @@ jslet.data.Field.prototype = {
 	/**
 	 * Get or set the type of aggrated value.
 	 * 
-	 * @param {String or undefined} aggrateType optional value is: count,sum,avg.
+	 * @param {String or undefined} aggrated optional value is: count,sum,avg.
 	 * @return {String or this}
 	 */
-	aggrateType: function (aggrateType) {
+	aggrated: function (aggrated) {
 		var Z = this;
-		if (aggrateType === undefined){
-			return Z._aggrateType;
+		if (aggrated === undefined){
+			return Z._aggrated;
 		}
 		
-		var checker = jslet.Checker.test('Field.aggrateType', aggrateType).isString();
-		if(aggrateType) {
-			Z._aggrateType = jQuery.trim(aggrateType);
-			checker.inArray(['count', 'sum', 'avg']);
-		}
+		Z._aggrated = aggrated? true: false;
 		return this;
 	},
 
@@ -1315,10 +1332,9 @@ jslet.data.createField = function (fieldConfig, parent) {
 	if (dtype == jslet.data.DataType.DATASET){
 		var subds = cfg.subDataset;
 		if (subds) {
-			if (typeof (subds) == 'string') {
-				subds = jslet.data.dataModule.get(subds);
-			}
 			fldObj.subDataset(subds);
+		} else {
+			console.warn('Warning: subDataset NOT set when field data type is Dataset');
 		}
 		fldObj.visible(false);
 		return fldObj;
@@ -1437,8 +1453,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.mergeSameBy(cfg.mergeSameBy);
 	}
 	
-	if (cfg.aggrateType !== undefined) {
-		fldObj.aggrateType(cfg.aggrateType);
+	if (cfg.aggrated !== undefined) {
+		fldObj.aggrated(cfg.aggrated);
 	}
 		
 	if (cfg.aggrateBy !== undefined) {
@@ -1517,9 +1533,6 @@ jslet.data.createDatasetField = function(fldName, subDataset, parent) {
 	if (!subDataset) {
 		throw new Error('expected property:dataset in DatasetField!');
 	}
-	if (typeof (subDataset) == 'string') {
-		subDataset = jslet.data.dataModule.get(subDataset);
-	}
 	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.DATASET, parent);
 	fldObj.subDataset(subDataset);
 	fldObj.visible(false);
@@ -1556,6 +1569,7 @@ jslet.data.FieldLookup = function() {
 	var Z = this;
 	Z._hostField = null;//The field which contains this lookup field object.
 	Z._dataset = null;
+	Z._dsParsed = false;
 	Z._keyField = null;
 	Z._codeField = null;
 	Z._nameField = null;
@@ -1565,7 +1579,6 @@ jslet.data.FieldLookup = function() {
 	Z._parentField = null;
 	Z._onlyLeafLevel = true;
 	Z._returnFieldMap = null;
-//	Z._noConvertion = false;
 };
 jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 
@@ -1582,6 +1595,7 @@ jslet.data.FieldLookup.prototype = {
 		result.displayFields(Z._displayFields);
 		result.parentField(Z._parentField);
 		result.onlyLeafLevel(Z._onlyLeafLevel);
+		result.returnFieldMap(Z._returnFieldMap);
 		return result;
 	},
 	
@@ -1604,9 +1618,29 @@ jslet.data.FieldLookup.prototype = {
 	dataset: function(lkdataset) {
 		var Z = this;
 		if (lkdataset === undefined) {
+			if(!Z._dsParsed) {
+				Z.dataset(Z._dataset);
+				if(!Z._dsParsed) {
+					throw new Error('Not found lookup dataset: ' + Z._dataset);
+				}
+			}
+			
 			return Z._dataset;
 		}
-		Z._dataset = lkdataset;
+		var lkDsObj = lkdataset;
+		if (typeof(lkDsObj) == 'string') {
+			lkDsObj = jslet.data.getDataset(lkDsObj);
+			if(!lkDsObj && jslet.data.onDatasetRequired) {
+				jslet.data.onDatasetRequired(lkdataset);
+			}
+		}
+		if(lkDsObj) {
+			Z._dataset = lkDsObj;
+			Z._dsParsed = true;
+		} else {
+			Z._dataset = lkdataset;
+			Z._dsParsed = false;
+		}
 		return this;
 	},
 
@@ -1813,9 +1847,6 @@ jslet.data.createFieldLookup = function(param) {
 	}
 	var lkFldObj = new jslet.data.FieldLookup();
 
-	if (typeof(lkds) == 'string') {
-		lkds = jslet.data.dataModule.get(lkds);
-	}
 	lkFldObj.dataset(lkds);
 	if (param.keyField !== undefined) {
 		lkFldObj.keyField(param.keyField);

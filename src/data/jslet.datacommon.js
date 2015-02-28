@@ -11,8 +11,24 @@
  */
 
 jslet.data.dataModule = new jslet.SimpleMap();
+/**
+ * Get dataset object with dataset name.
+ * 
+ * @param {String} dsName dataset name;
+ * @return {jslet.data.Dataset} Dataset object.
+ */
 jslet.data.getDataset = function (dsName) {
 	return jslet.data.dataModule.get(dsName);
+};
+
+/**
+ * If the relative dataset does not exist, fire this event.
+ * In this event, you can create them.
+ * 
+ * @param {String} dsName Relative dataset name need to be created.
+ */
+jslet.data.onDatasetRequired = function(dsName) {
+	
 };
 
 jslet.data.DataType = {
@@ -26,13 +42,13 @@ jslet.data.DataType = {
 };
 
 jslet.data.FieldValueStyle = {
-	NORMAL: 0,
-	BETWEEN: 1,
-	MULTIPLE: 2
+	NORMAL: 0,	//Single value
+	BETWEEN: 1, //Between style value
+	MULTIPLE: 2 //Multile value
 };
 
 /**
- * @class 
+ * @class Edit Mask 
  */
 jslet.data.EditMask = function(mask, keepChar, transform){
 	/**
@@ -514,20 +530,40 @@ jslet.data.getValueConverter = function(fldObj) {
 };
 /* End of field value converter */
 
-jslet.data._record2JsonFilter = function(key, value) {
-	if(key == jslet.data.FieldValueCache.CACHENAME) {
-		return undefined;
-	} else {
-		return value;
-	}
-};
-
-jslet.data.record2Json = function(records) {
+/**
+ * Convert dataset record to json.
+ * 
+ * @param {Array of Object} records Dataset records, required.
+ * @param {Array of String} excludeFields Excluded field names,optional.
+ * 
+ * @return {String} Json String. 
+ */
+jslet.data.record2Json = function(records, excludeFields) {
 	if(!window.JSON || !JSON) {
 		alert('Your browser does not support JSON!');
 		return;
 	}
-	return JSON.stringify(records, jslet.data._record2JsonFilter);
+	if(excludeFields) {
+		jslet.Checker.test('record2Json#excludeFields', excludeFields).isArray();		
+	}
+	
+	function record2JsonFilter(key, value) {
+		if(key == jslet.data.FieldValueCache.CACHENAME) {
+			return undefined;
+		}
+		if(excludeFields) {
+			var fldName;
+			for(var i = 0, len = excludeFields.length; i < len; i++) {
+				fldName = excludeFields[i];
+				if(key == fldName) {
+					return undefined;
+				}
+			}
+		}
+		return value;		
+	}
+	
+	return JSON.stringify(records, record2JsonFilter);
 };
 
 /*Field value cache manager*/

@@ -688,7 +688,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				cobj.label = fldObj.label();
 			}
 			cobj.mergeSame = fldObj.mergeSame();
-			cobj.aggrateType = fldObj.aggrateType();
+			cobj.aggrated = fldObj.aggrated();
 			cobj.aggrateBy = fldObj.aggrateBy();
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
