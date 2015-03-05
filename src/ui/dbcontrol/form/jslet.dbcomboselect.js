@@ -48,6 +48,8 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		
 		Z._pickupField = null;
 		
+		Z._onGetSearchField = null;
+		
 		$super(el, params);
 	},
 
@@ -120,7 +122,6 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		if(onGetSearchField === undefined) {
 			return this._onGetSearchField;
 		}
-		jslet.Checker.test('DBComboSelect.onGetSearchField', onGetSearchField).isFunction();
 		this._onGetSearchField = onGetSearchField;
 	},
 		
@@ -376,9 +377,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if (!findValue) {
 			return;
 		}
-		if(Z.comboSelectObj.onGetSearchField) {
-			findFldName = Z.comboSelectObj.onGetSearchField(findValue);
+		var eventFunc = jslet.getFunction(Z.comboSelectObj.onGetSearchField);
+		if (eventFunc) {
+			findFldName = eventFunc.call(findValue);
 		}
+		
 		if(!findFldName) {
 			var lkFldObj = Z.fieldObject.lookup();
 			findFldName = lkFldObj.nameField();
@@ -390,7 +393,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var lkds = Z.lookupDs(), 
 			fldObj = lkds.getField(findFldName);
 		if(!fldObj) {
-			console.warn('Field Name: ' + findFldName + ' NOT exist!')
+			console.warn('Field Name: ' + findFldName + ' NOT exist!');
 			return;
 		}
 		lkds.find('like([' + findFldName + '],"%' + findValue + '%")');

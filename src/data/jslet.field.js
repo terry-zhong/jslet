@@ -71,7 +71,6 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._children = null; //child field object, only group field has child field object.
 	Z._trueValue = true;
 	Z._falseValue = false;
-	
 	Z._mergeSame = false;
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
@@ -917,9 +916,14 @@ jslet.data.Field.prototype = {
 
 	addLookupRelation: function() {
 		var Z = this;
-		if(Z._dataset && Z._lookup && Z._lookup.dataset()) {
-			jslet.data.datasetRelationManager.addRelation(Z._dataset.name(), 
-					Z._fieldName, Z._lookup.dataset().name());
+		if(Z._dataset && Z._lookup) {
+			var lkDs = Z._lookup._dataset, lkDsName;
+			if(jslet.isString(lkDs)) {
+				lkDsName = lkDs;
+			} else {
+				lkDsName = lkDs.name();
+			}
+			jslet.data.datasetRelationManager.addRelation(Z._dataset.name(), Z._fieldName, lkDsName);
 		}
 	},
 	
@@ -962,8 +966,7 @@ jslet.data.Field.prototype = {
 				Z.subDataset(Z._subDataset);
 				if(!Z._subDsParsed) {
 					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
-				}
-			}
+				}			}
 			return Z._subDataset;
 		}
 		var subDsObj = subdataset;
@@ -1622,8 +1625,7 @@ jslet.data.FieldLookup.prototype = {
 				Z.dataset(Z._dataset);
 				if(!Z._dsParsed) {
 					throw new Error('Not found lookup dataset: ' + Z._dataset);
-				}
-			}
+				}			}
 			
 			return Z._dataset;
 		}

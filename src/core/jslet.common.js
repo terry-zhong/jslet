@@ -603,7 +603,11 @@ jslet.like = like = window.like = function(testValue, pattern, escapeChar) {
 		escapeChar = '\\';
 	}
 	var jsPattern = jslet._convertToJsPattern(pattern, escapeChar);
-	return testValue && testValue.match(jsPattern) !== null;
+	if(testValue.match) {
+		return testValue.match(jsPattern) !== null;
+	} else {
+		throw new Error('testValue for like function must be a String!');
+	}
 };
 
 /**
@@ -992,6 +996,31 @@ jslet.JSON = {
 	}
 
 };
+
+/**
+ * Get specified function with function object or function name.
+ * 
+ * @param {String or function} funcOrFuncName If its value is function name, find this function in window context.
+ * @param {Object} context the context which looking for function in.
+ * @return {function}
+ */
+jslet.getFunction = function(funcOrFuncName, context) {
+	if(!funcOrFuncName) {
+		return null;
+	}
+	if(jQuery.isFunction(funcOrFuncName)) {
+		return funcOrFuncName;
+	}
+	if(!context) {
+		context = window;
+	}
+	
+	var result = context[funcOrFuncName];
+	if(!result) {
+		console.warn('NOT found function:' + funcOrFuncName);
+	}
+	return result;
+}
 
 /**
 * Show error message.

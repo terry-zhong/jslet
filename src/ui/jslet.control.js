@@ -180,11 +180,24 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 	 * @return {Boolean} if refresh successfully, return true, otherwise false.
 	 */
 	refreshControl: function (evt, isForce) {
-		var Z = this;
+		var Z = this,
+			evtType = evt.eventType;
+		// Meta changed 
+		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
+				Z._field == evt.fieldName) {
+			Z.doMetaChanged(evt.metaName);
+			return true;
+		}
+
+		//Lookup data changed
+		if(evtType == jslet.data.RefreshEvent.UPDATELOOKUP && evt.fieldName == Z._field) {
+			Z.doLookupChanged();
+			return true;
+		}
+
 		if (!isForce && !Z.isActiveRecord()) {
 			return false;
 		}
-		var evtType = evt.eventType;
 		//Value changed
 		if (evtType == jslet.data.RefreshEvent.SCROLL || 
 				evtType == jslet.data.RefreshEvent.INSERT ||
@@ -196,18 +209,6 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 			evtType == jslet.data.RefreshEvent.UPDATECOLUMN) && 
 			evt.fieldName == Z._field){
 			Z.doValueChanged();
-			return true;
-		}
-		// Meta changed 
-		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
-				Z._field == evt.fieldName) {
-			Z.doMetaChanged(evt.metaName);
-			return true;
-		}
-
-		//Lookup data changed
-		if(evtType == jslet.data.RefreshEvent.UPDATELOOKUP && evt.fieldName == Z._field) {
-			Z.doLookupChanged();
 			return true;
 		}
 		if(evtType == jslet.data.RefreshEvent.UPDATEALL) {

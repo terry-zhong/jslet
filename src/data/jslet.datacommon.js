@@ -96,7 +96,10 @@ jslet.data.DatasetEvent = {
 	AFTERCONFIRM: 'afterConfirm',
 	
 	BEFORECANCEL: 'beforeCancel',
-	AFTERCANCEL: 'afterCancel'
+	AFTERCANCEL: 'afterCancel',
+	
+	BEFORESELECT: 'beforeSelect',
+	AFTERSELECT: 'afterSelect'
 };
 
 jslet.data.DataSetStatus = {BROWSE:0, INSERT: 1, UPDATE: 2, DELETE: 3};
@@ -639,6 +642,18 @@ jslet.data.FieldValueCache = {
 	removeCache: function(record) {
 		if(record) {
 			record[this.CACHENAME] = {};
+		}
+	},
+	
+	removeAllCache: function(dataset) {
+		var dataList = dataset.dataList();
+		if(!dataList) {
+			return;
+		}
+		var rec, cacheObj;
+		for(var i = 0, len = dataList.length; i < len; i++) {
+			rec = dataList[i];
+			delete rec[this.CACHENAME];
 		}
 	}
 };

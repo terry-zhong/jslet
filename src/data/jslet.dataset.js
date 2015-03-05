@@ -20,8 +20,6 @@ jslet.data.Dataset = function (name) {
 	Z._recordClass = jslet.global.defaultRecordClass; //Record class, used for serialized/deserialize
 	Z._dataList = null; //Array of data records
 	
-	Z._datasetListener = null; //Dataset event listener object, like: function(eventType/*jslet.data.DatasetEvent*/) {}
-
 	Z._fields = []; //Array of jslet.data.Field
 	Z._normalFields = []; //Array of jslet.data.Field except group field
 	Z._recno = -1;
@@ -94,22 +92,12 @@ jslet.data.Dataset = function (name) {
 	
 	Z.fieldValidator = new jslet.data.FieldValidator();
 	
-	/**
-	 * Fired after field value changed.
-	 * Pattern:
-	 *   function(fieldName, fldValue) {}
-	 *   //fieldName: String, field name;
-	 *   //fldValue: Object, field value.
-	 */
-	Z.onFieldChange = null;  
+	Z._onFieldChange = null;  
 	
-	/**
-	 * Fired when check a record if it's selectable or not.
-	 * Pattern:
-	 *   function() {}
-	 *   //return: Boolean, true - record can be selected, false - otherwise.
-	 */
 	Z._onCheckSelectable = null;
+	
+	Z._datasetListener = null; //
+	
 	Z._autoShowError = false;
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
@@ -418,21 +406,51 @@ jslet.data.Dataset.prototype = {
 			return this._datasetListener;
 		}
 		
-		jslet.Checker.test('Dataset.datasetListener#listener', listener).isFunction();
 		this._datasetListener = listener;
 		return this;
 	},
 	
+	/**
+	 * Fired when check a record if it's selectable or not.
+	 * Pattern:
+	 *   function() {}
+	 *   //return: Boolean, true - record can be selected, false - otherwise.
+	 */
 	onCheckSelectable: function(onCheckSelectable) {
 		if (onCheckSelectable === undefined) {
 			return this._onCheckSelectable;
 		}
 		
-		jslet.Checker.test('Dataset.onCheckSelectable', onCheckSelectable).isFunction();
 		this._onCheckSelectable = onCheckSelectable;
 		return this;
 	},
 	
+	/**
+	 * Set or get dataset onFieldChange event handler.
+	 * Pattern:
+	 * function(fldName, value, valueIndex) {}
+	 * //fldName: {String} field name
+	 * //value: {Object} field value
+	 * //valueIndex: {Integer} value index, has value when field value style is BETWEEN or MULTIPLE.
+	 * 
+	 * Example:
+	 * <pre><code>
+	 *   dsFoo.onFieldChange(function(fldName, value, valueIndex) {
+	 *		
+	 *   });
+	 * </code></pre>
+	 * 
+	 * @param {Function} onFieldChange Dataset on field change event handler
+	 * @return {Function or this}
+	 */
+	onFieldChange: function(onFieldChange) {
+		if (onFieldChange === undefined) {
+			return this._onFieldChange;
+		}
+		
+		this._onFieldChange = onFieldChange;
+		return this;
+	},
 	
 	/**
 	 * Get dataset fields.
@@ -1020,7 +1038,10 @@ jslet.data.Dataset.prototype = {
 		if (Z._silence || Z._igoreEvent || !Z._datasetListener) {
 			return;
 		}
-		Z._datasetListener.call(Z, evtType);
+		var eventFunc = jslet.getFunction(Z._datasetListener);
+		if(eventFunc) {
+			eventFunc.call(Z, evtType);
+		}
 	},
 
 	/**
@@ -1540,7 +1561,8 @@ jslet.data.Dataset.prototype = {
 
 		var records = Z.dataList();
 		if (records === null) {
-			Z.dataList([]);
+			records = [];
+			Z.dataList(records);
 		}
 		var preRecno = Z.recno(), k;
 		if (Z.hasData()) {
@@ -2221,8 +2243,11 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		fldObj.message(null, valueIndex);
-		if (Z.onFieldChange) {
-			Z.onFieldChange.call(Z, fldName, value, valueIndex);
+		if (Z._onFieldChange) {
+			var eventFunc = jslet.getFunction(Z._onFieldChange);
+			if(eventFunc) {
+				eventFunc.call(Z, fldName, value, valueIndex);
+			}
 		}
 		//calc other fields' range to use context rule
 		if (!Z._silence && Z._contextRuleEnabled && value) {
@@ -2949,7 +2974,10 @@ jslet.data.Dataset.prototype = {
 			return false;
 		}
 		if(this._onCheckSelectable) {
-			return this._onCheckSelectable.call(this);
+			var eventFunc = jslet.getFunction(this._onCheckSelectable);
+			if(eventFunc) {
+				return eventFunc.call(this);
+			}
 		}
 		return true;
 	},
@@ -2958,19 +2986,26 @@ jslet.data.Dataset.prototype = {
 	 * Get or set selected state of current record.
 	 */
 	selected: function (selected) {
-		var selFld = this._selectField || jslet.global.selectStateField,
-			rec = this.getRecord();
+		var Z = this;
+		var selFld = Z._selectField || jslet.global.selectStateField,
+			rec = Z.getRecord();
 		
 		if(selected === undefined) {
 			return rec && rec[selFld];
 		}
 		
 		if(rec) {
-			if(this.checkSelectable()) {
+			if(Z.checkSelectable()) {
+				Z._aborted = false;
+				Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESELECT);
+				if (Z._aborted) {
+					return Z;
+				}
 				rec[selFld] = selected;
+				Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECT);
 			}
 		}
-		return this;
+		return Z;
 	},
 	
 	/**
@@ -3307,6 +3342,9 @@ jslet.data.Dataset.prototype = {
 	},
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
+		if(!chgRecs || chgRecs.length === 0) {
+			return;
+		}
 		var result = this._addRecordClassFlag(chgRecs, flag, this._recordClass);
 		for(var i = 0, len = result.length; i < len; i++) {
 			pendingRecs.push(result[i]);
@@ -3474,7 +3512,7 @@ jslet.data.Dataset.prototype = {
 		}
 		var Z = dataset,
 			deleteOnSuccess = Z._deleteOnSuccess_,
-			arrRecs = Z.selectedRecords(),
+			arrRecs = Z.selectedRecords() || [],
 			i, k,
 			records = Z.dataList();
 		if(deleteOnSuccess) {
@@ -3729,7 +3767,6 @@ jslet.data.Dataset.prototype = {
 			return Z._dataList;
 		}
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
-		console.log('set dataList: ' + this.name())
 		if(Z._datasetField) {
 			if(datalst === null) {
 				datalst = [];
@@ -3738,6 +3775,8 @@ jslet.data.Dataset.prototype = {
 		} else {
 			Z._dataList = datalst;
 		}
+		jslet.data.FieldValueCache.removeAllCache(Z);
+		
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);
 		Z._insertedDelta.length = 0;
@@ -3867,10 +3906,7 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
  * 
  * @param {String} dsName - dataset name
  * @param {jslet.data.Field[]} field configuration
- * @param {String} keyField - key field name
- * @param {String} codeField - code field name
- * @param {String} nameField - name field name
- * @param {String} parentField - parent field name
+ * @param {Object} dsCfg - dataset configuration
  * @return {jslet.data.Dataset}
  */
 jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
@@ -3879,7 +3915,6 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		fldObj = jslet.data.createField(fieldConfig[i]);
 		dsObj.addField(fldObj);
 	}
-	
 	if(dsCfg) {
 		if (dsCfg.keyField) {
 			dsObj.keyField(dsCfg.keyField);
@@ -3893,17 +3928,30 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		if (dsCfg.parentField) {
 			dsObj.parentField(dsCfg.parentField);
 		}
+		if (dsCfg.selectField) {
+			dsObj.selectField(dsCfg.selectField);
+		}
+		
+		if (dsCfg.recordClass) {
+			dsObj.recordClass(dsCfg.recordClass);
+		}
+		
 		if (dsCfg.queryUrl) {
 			dsObj.queryUrl(dsCfg.queryUrl);
 		}
 		if (dsCfg.submitUrl) {
 			dsObj.submitUrl(dsCfg.submitUrl);
 		}
-		if (dsCfg.autoShowError) {
-			dsObj.autoShowError(dsCfg.autoShowError);
+		
+		if (dsCfg.pageNo) {
+			dsObj.pageNo(parseInt(dsCfg.pageNo));
 		}
 		if (dsCfg.pageSize) {
-			dsObj.pageSize(dsCfg.pageSize);
+			dsObj.pageSize(parseInt(dsCfg.pageSize));
+		}
+		
+		if (dsCfg.fixedIndexFields) {
+			dsObj.fixedIndexFields(dsCfg.fixedIndexFields);
 		}
 		if (dsCfg.indexFields) {
 			dsObj.indexFields(dsCfg.indexFields);
@@ -3914,10 +3962,30 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		if (dsCfg.filtered) {
 			dsObj.filtered(dsCfg.filtered);
 		}
+		if (dsCfg.autoShowError) {
+			dsObj.autoShowError(dsCfg.autoShowError);
+		}
 		if (dsCfg.autoRefreshHostDataset) {
 			dsObj.autoRefreshHostDataset(dsCfg.autoRefreshHostDataset);
 		}
-		
+		if (dsCfg.readOnly) {
+			dsObj.readOnly(dsCfg.readOnly);
+		}
+		if (dsCfg.logChanged) {
+			dsObj.logChanged(dsCfg.logChanged);
+		}
+		if (dsCfg.datasetListener) {
+			dsObj.datasetListener(dsCfg.datasetListener);
+		}
+		if (dsCfg.onFieldChange) {
+			dsObj.onFieldChange(dsCfg.onFieldChange);
+		}
+		if (dsCfg.onCheckSelectable) {
+			dsObj.onCheckSelectable(dsCfg.onCheckSelectable);
+		}
+		if (dsCfg.contextRules) {
+			dsObj.contextRules(dsCfg.contextRules);
+		}
 	}
 	return dsObj;
 };

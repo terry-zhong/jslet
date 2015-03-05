@@ -121,7 +121,6 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		if(beforePopup === undefined) {
 			return this._beforePopup;
 		}
-		jslet.Checker.test('DBAutoComplete.beforePopup', beforePopup).isFunction();
 		this._beforePopup = beforePopup;
 	},
 	
@@ -137,7 +136,6 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		if(onGetFilterField === undefined) {
 			return this._onGetFilterField;
 		}
-		jslet.Checker.test('DBAutoComplete.onGetFilterField', onGetFilterField).isFunction();
 		this._onGetFilterField = onGetFilterField;
 	},
 	
@@ -255,13 +253,16 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 
 		var lkds = lkf.dataset();
-		if (Z._beforePopup) {
-			Z._beforePopup.call(Z, lkds, inputValue);
+		var eventFunc = jslet.getFunction(Z._beforePopup);
+		if (eventFunc) {
+			eventFunc.call(Z, lkds, inputValue);
 		} else if (inputValue) {
 			var fldName;
-			if (Z._onGetFilterField) {
-				fldName = Z._onGetFilterField.call(Z, lkds, inputValue);
-			}
+			
+			var eventFunc = jslet.getFunction(Z._onGetFilterField);
+			if (eventFunc) {
+				fldName = eventFunc.call(Z, lkds, inputValue);
+			}			
 			if (!fldName) {
 				fldName = lkf.codeField();
 			}
