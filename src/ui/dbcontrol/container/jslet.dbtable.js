@@ -109,11 +109,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * {Integer} Row height.
 		 */
-		Z._rowHeight = 35;
+		Z._rowHeight = 25;
 		/**
 		 * {Integer} Row height of table header.
 		 */
-		Z._headRowHeight = 35;
+		Z._headRowHeight = 25;
 		/**
 		 * {String} Display table as tree style, only one field name allowed. If this property is set, the dataset must be a tree style dataset, 
 		 *  means dataset.parentField() and dataset.levelField() can not be empty.
@@ -268,10 +268,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	readOnly: function(readOnly) {
+		var Z = this;
 		if(readOnly === undefined) {
-			return this._readOnly;
+			return Z._readOnly;
 		}
-		this._readOnly = readOnly ? true: false;
+		Z._readOnly = readOnly ? true: false;
+		if(!Z._readOnly) {
+			Z._rowHeight = 35;
+			Z._headRowHeight = 35;
+		}
 	},
 	
 	hideHead: function(hideHead) {
@@ -1796,6 +1801,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._onFillCell.call(Z, otd, Z._dataset, fldName);
 		}
 		if (fldName && colCfg.mergeSame) {
+			if(!sameValueNodes) {
+				sameValueNodes = {};
+			}
 			if (isFirst || !Z._dataset.isSameAsPrevious(fldName)) {
 				sameValueNodes[fldName] = { cell: otd, count: 1 };
 				jQuery(otd).attr('rowspan', 1);

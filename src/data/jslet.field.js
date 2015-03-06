@@ -49,7 +49,9 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._disabled = false;
 	Z._customValueConverter = null;
 	Z._unitConverted = false;
+
 	Z._lookup = null;
+	
 	Z._displayControl = null;
 	Z._editControl = null;
 	Z._subDataset = null;
@@ -950,7 +952,7 @@ jslet.data.Field.prototype = {
 		Z._fireColumnUpdatedEvent();
 		return this;
 	},
-	
+		
 	_subDsParsed: false,
 	
 	/**
@@ -973,7 +975,7 @@ jslet.data.Field.prototype = {
 		if (typeof (subDsObj) == 'string') {
 			subDsObj = jslet.data.getDataset(subDsObj);
 			if(!subDsObj && jslet.data.onDatasetRequired) {
-				jslet.data.onDatasetRequired(subdataset);
+				jslet.data.onDatasetRequired(subdataset, 1); //1 - sub dataset
 			}
 		}
 		if(subDsObj) {
@@ -1317,23 +1319,27 @@ jslet.data.createField = function (fieldConfig, parent) {
 				dtype != jslet.data.DataType.GROUP)
 		dtype = jslet.data.DataType.STRING;
 	}
+
 	var fldObj = new jslet.data.Field(cfg.name, dtype);
-	if (cfg.displayOrder !== undefined) {
-		fldObj.displayOrder(cfg.displayOrder);
+
+	function setPropValue(propName) {
+		var propValue = cfg[propName] || cfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			fldObj[propName](propValue);
+		}
 	}
+	
 	fldObj.parent(parent);
 	if(parent) {
 		fldObj.dataset(parent.dataset());
 	}
 	
-	if (cfg.label !== undefined) {
-		fldObj.label(cfg.label);
-	}
-	if (cfg.tip !== undefined) {
-		fldObj.tip(cfg.tip);
-	}
+	setPropValue('displayOrder');
+	setPropValue('label');
+	setPropValue('tip');
+
 	if (dtype == jslet.data.DataType.DATASET){
-		var subds = cfg.subDataset;
+		var subds = cfg.subDataset || cfg.subdataset;
 		if (subds) {
 			fldObj.subDataset(subds);
 		} else {
@@ -1343,21 +1349,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 		return fldObj;
 	}
 	
-	if (cfg.unique !== undefined) {
-		fldObj.unique(cfg.unique);
-	}
-	if (cfg.required !== undefined) {
-		fldObj.required(cfg.required);
-	}
-	if (cfg.readOnly !== undefined) {
-		fldObj.readOnly(cfg.readOnly);
-	}
-	if (cfg.visible !== undefined) {
-		fldObj.visible(cfg.visible);
-	}
-	if (cfg.disabled !== undefined) {
-		fldObj.disabled(cfg.disabled);
-	}
+	setPropValue('visible');
+
 	if (dtype == jslet.data.DataType.GROUP){
 		if (cfg.children){
 			var fldChildren = [], childFldObj;
@@ -1369,40 +1362,55 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldObj.alignment('center');
 		return fldObj;
 	}
-	if (cfg.length !== undefined) {
-		fldObj.length(cfg.length);
-	}
-	if (cfg.scale !== undefined) {
-		fldObj.scale(cfg.scale);
-	}
-	if (cfg.alignment !== undefined) {//left,right,center
-		fldObj.alignment(cfg.alignment);
-	}
-	if (cfg.defaultExpr !== undefined) {
-		fldObj.defaultExpr(cfg.defaultExpr);
-	}
-	if (cfg.defaultValue !== undefined) {
-		fldObj.defaultValue(cfg.defaultValue);
-	}
-	if (cfg.displayWidth !== undefined) {
-		fldObj.displayWidth(cfg.displayWidth);
-	}
-	if (cfg.editMask !== undefined) {
-		fldObj.editMask(cfg.editMask);
-	}
-	if (cfg.displayFormat !== undefined) {
-		fldObj.displayFormat(cfg.displayFormat);
-	}
-	if (cfg.formula !== undefined) {
-		fldObj.formula(cfg.formula);
-	}
-	if (cfg.nullText !== undefined) {
-		fldObj.nullText(cfg.nullText);
-	}
-	if (cfg.unitConverted !== undefined) {
-		fldObj.unitConverted(cfg.unitConverted);
-	}
+	setPropValue('unique');
+	setPropValue('required');
+	setPropValue('readOnly');
+	setPropValue('disabled');
+	setPropValue('length');
+	setPropValue('scale');
+	setPropValue('alignment');
+	setPropValue('formula');
+	setPropValue('defaultExpr');
+	setPropValue('defaultValue');
+	setPropValue('displayWidth');
+	setPropValue('editMask');
+	setPropValue('displayFormat');
+	setPropValue('nullText');
+	setPropValue('unitConverted');
+	setPropValue('editControl');
+	setPropValue('urlExpr');
+	setPropValue('urlTarget');
+	setPropValue('valueStyle');
+	
+	setPropValue('valueCountLimit');
+	setPropValue('dataRange');
+	setPropValue('customValidator');
+	setPropValue('trueValue');
+	setPropValue('falseValue');
+	setPropValue('mergeSame');
+	setPropValue('mergeSameBy');
+	setPropValue('aggrated');
+
+	setPropValue('aggrateBy');
+	setPropValue('mergeSameBy');
+	setPropValue('fixedValue');
+	
 	var lkfCfg = cfg.lookup;
+	if(lkfCfg === undefined) {
+		var lkSource = cfg.lookupSource || cfg.lookupsource;
+		var lkParam = cfg.lookupParam || cfg.lookupparam;
+		if(lkSource) {
+			if(lkParam) {
+				if (jslet.isString(lkParam)) {
+					lkfCfg = jslet.JSON.parse(lkParam);
+				} else {
+					lkfCfg = lkParam;
+				}
+			} else {
+				lkfCfg = {};
+			}
+		}
+	}
 	if (lkfCfg !== undefined && lkfCfg) {
 		if (jslet.isString(lkfCfg)) {
 			lkfCfg = lkfCfg.trim();
@@ -1416,58 +1424,6 @@ jslet.data.createField = function (fieldConfig, parent) {
 		}
 		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg));
 	}
-	if (cfg.editControl !== undefined && cfg.editControl) {
-		fldObj.editControl(cfg.editControl);
-	}
-	if (cfg.urlExpr !== undefined) {
-		fldObj.urlExpr(cfg.urlExpr);
-	}
-	if (cfg.urlTarget !== undefined) {
-		fldObj.urlTarget(cfg.urlTarget);
-	}
-	if (cfg.valueStyle !== undefined) {
-		fldObj.valueStyle(cfg.valueStyle);
-	}
-
-	if (cfg.valueCountLimit !== undefined) {
-		fldObj.valueCountLimit(cfg.valueCountLimit);
-	}
-	
-	if (cfg.dataRange) {
-		fldObj.dataRange(cfg.dataRange);
-	}
-	if (cfg.customValidator) {
-		fldObj.customValidator(cfg.customValidator);
-	}
-	
-	if (cfg.trueValue !== undefined) {
-		fldObj.trueValue(cfg.trueValue);
-	}
-
-	if (cfg.falseValue !== undefined) {
-		fldObj.falseValue(cfg.falseValue);
-	}
-	
-	if (cfg.mergeSame !== undefined) {
-		fldObj.mergeSame(cfg.mergeSame);
-	}
-	
-	if (cfg.mergeSameBy !== undefined) {
-		fldObj.mergeSameBy(cfg.mergeSameBy);
-	}
-	
-	if (cfg.aggrated !== undefined) {
-		fldObj.aggrated(cfg.aggrated);
-	}
-		
-	if (cfg.aggrateBy !== undefined) {
-		fldObj.aggrateBy(cfg.aggrateBy);
-	}
-		
-	if (cfg.fixedValue !== undefined) {
-		fldObj.fixedValue(cfg.fixedValue);
-	}
-	
 	return fldObj;
 };
 

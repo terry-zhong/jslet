@@ -198,7 +198,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			if (layout.row != r) {
 				opanel = document.createElement('div');
-				opanel.className = 'form-group';
+				opanel.className = 'form-group form-group-sm';
 				Z.el.appendChild(opanel);
 				r = layout.row;
 

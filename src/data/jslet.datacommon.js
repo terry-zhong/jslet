@@ -26,8 +26,12 @@ jslet.data.getDataset = function (dsName) {
  * In this event, you can create them.
  * 
  * @param {String} dsName Relative dataset name need to be created.
+ * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
+ * 		0 or undefined - Lookup dataset;
+ * 		1 - Sub dataset
+ * 
  */
-jslet.data.onDatasetRequired = function(dsName) {
+jslet.data.onDatasetRequired = function(dsName, dsCatalog) {
 	
 };
 

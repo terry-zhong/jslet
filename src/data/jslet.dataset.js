@@ -3910,82 +3910,65 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
  * @return {jslet.data.Dataset}
  */
 jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
+	jslet.Checker.test('createDataset#fieldConfig', fieldConfig).required().isArray();
 	var dsObj = new jslet.data.Dataset(dsName),fldObj;
 	for (var i = 0, cnt = fieldConfig.length; i < cnt; i++) {
 		fldObj = jslet.data.createField(fieldConfig[i]);
 		dsObj.addField(fldObj);
 	}
+	
+	function setPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			dsObj[propName](propValue);
+		}
+	}
+	
+	function setIntPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			dsObj[propName](parseInt(propValue));
+		}
+	}
+	
+	function setBooleanPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			if(jslet.isString(propValue)) {
+				if(propValue) {
+					propValue = propValue != '0' && propValue != 'false';
+				}
+			}
+			dsObj[propName](propValue? true: false);
+		}
+	}
+	
+	
 	if(dsCfg) {
-		if (dsCfg.keyField) {
-			dsObj.keyField(dsCfg.keyField);
-		}
-		if (dsCfg.codeField) {
-			dsObj.codeField(dsCfg.codeField);
-		}
-		if (dsCfg.nameField) {
-			dsObj.nameField(dsCfg.nameField);
-		}
-		if (dsCfg.parentField) {
-			dsObj.parentField(dsCfg.parentField);
-		}
-		if (dsCfg.selectField) {
-			dsObj.selectField(dsCfg.selectField);
-		}
+		setPropValue('keyField');
+		setPropValue('codeField');
+		setPropValue('nameField');
+		setPropValue('parentField');
+		setPropValue('selectField');
+		setPropValue('recordClass');
+
+		setPropValue('queryUrl');
+		setPropValue('submitUrl');
+		setIntPropValue('pageNo');
+		setIntPropValue('pageSize');
+		setPropValue('fixedIndexFields');
+		setPropValue('indexFields');
+		setPropValue('filter');
+		setBooleanPropValue('filtered');
+		setBooleanPropValue('autoShowError');
+		setBooleanPropValue('autoRefreshHostDataset');
+		setBooleanPropValue('readOnly');
+		setBooleanPropValue('logChanged');
+		setPropValue('datasetListener');
+		setPropValue('onFieldChange');
+		setPropValue('onCheckSelectable');
+		setPropValue('contextRules');
 		
-		if (dsCfg.recordClass) {
-			dsObj.recordClass(dsCfg.recordClass);
-		}
-		
-		if (dsCfg.queryUrl) {
-			dsObj.queryUrl(dsCfg.queryUrl);
-		}
-		if (dsCfg.submitUrl) {
-			dsObj.submitUrl(dsCfg.submitUrl);
-		}
-		
-		if (dsCfg.pageNo) {
-			dsObj.pageNo(parseInt(dsCfg.pageNo));
-		}
-		if (dsCfg.pageSize) {
-			dsObj.pageSize(parseInt(dsCfg.pageSize));
-		}
-		
-		if (dsCfg.fixedIndexFields) {
-			dsObj.fixedIndexFields(dsCfg.fixedIndexFields);
-		}
-		if (dsCfg.indexFields) {
-			dsObj.indexFields(dsCfg.indexFields);
-		}
-		if (dsCfg.filter) {
-			dsObj.filter(dsCfg.filter);
-		}
-		if (dsCfg.filtered) {
-			dsObj.filtered(dsCfg.filtered);
-		}
-		if (dsCfg.autoShowError) {
-			dsObj.autoShowError(dsCfg.autoShowError);
-		}
-		if (dsCfg.autoRefreshHostDataset) {
-			dsObj.autoRefreshHostDataset(dsCfg.autoRefreshHostDataset);
-		}
-		if (dsCfg.readOnly) {
-			dsObj.readOnly(dsCfg.readOnly);
-		}
-		if (dsCfg.logChanged) {
-			dsObj.logChanged(dsCfg.logChanged);
-		}
-		if (dsCfg.datasetListener) {
-			dsObj.datasetListener(dsCfg.datasetListener);
-		}
-		if (dsCfg.onFieldChange) {
-			dsObj.onFieldChange(dsCfg.onFieldChange);
-		}
-		if (dsCfg.onCheckSelectable) {
-			dsObj.onCheckSelectable(dsCfg.onCheckSelectable);
-		}
-		if (dsCfg.contextRules) {
-			dsObj.contextRules(dsCfg.contextRules);
-		}
 	}
 	return dsObj;
 };
