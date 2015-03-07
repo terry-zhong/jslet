@@ -207,7 +207,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		if((evtType == jslet.data.RefreshEvent.UPDATERECORD ||
 			evtType == jslet.data.RefreshEvent.UPDATECOLUMN) && 
-			evt.fieldName == Z._field){
+			evt.fieldName === undefined || evt.fieldName == Z._field){
 			Z.doValueChanged();
 			return true;
 		}

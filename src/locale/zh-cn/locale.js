@@ -125,7 +125,8 @@
 
 	locale.DBTable = { 
 		norecord: '没有数据',
-		sorttitle: '按Ctrl可多列排序'
+		sorttitle: '按Ctrl可多列排序',
+		totalLabel: '合计'
 	};	
 	
 	if (window.jslet === undefined || jslet === undefined){

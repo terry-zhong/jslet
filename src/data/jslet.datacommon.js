@@ -159,6 +159,10 @@ jslet.data.RefreshEvent = {
 	
 	lookupEvent: function(fieldName) {
 		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName};
+	},
+	
+	aggratedEvent: function() {
+		return {eventType: jslet.data.RefreshEvent.AGGRATED};		
 	}
 };
 
@@ -175,6 +179,7 @@ jslet.data.RefreshEvent.INSERT = 'insert';
 jslet.data.RefreshEvent.DELETE = 'delete';// recno
 jslet.data.RefreshEvent.CHANGEPAGE = 'changePage';
 jslet.data.RefreshEvent.UPDATELOOKUP = 'updateLookup';
+jslet.data.RefreshEvent.AGGRATED = 'aggrated';
 
 jslet.data.RefreshEvent.ERROR = 'error';
 

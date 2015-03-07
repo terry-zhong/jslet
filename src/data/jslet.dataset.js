@@ -101,6 +101,7 @@ jslet.data.Dataset = function (name) {
 	Z._autoShowError = false;
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
+	Z._aggratedValues = null;
 	
 	var dsName = this._name;
 	if (dsName) {
@@ -987,6 +988,7 @@ jslet.data.Dataset.prototype = {
 				Z._refreshInnerRecno();
 			}
 			Z.first();
+			Z.calcAggratedValue();		
 		}
 		finally {
 			Z.enableControls();
@@ -1718,6 +1720,153 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
+	 * @rivate
+	 * Calculate default value.
+	 */
+	checkAggrated: function() {
+		var Z = this,
+		fields = Z.getNormalFields(), 
+		fldObj;
+		for(var i = 0, len = fields.length; i< len; i++) {
+			fldObj = fields[i];
+			if(fldObj.aggrated()) {
+				return true;
+			}
+		}
+		return false;
+	},
+	
+	/**
+	 * 
+	 * Calculate aggrated value.
+	 */
+	calcAggratedValue: function() {
+		var Z = this;
+		if(!Z.checkAggrated()) {
+			return;
+		}
+		var fields = Z.getNormalFields(), 
+			fldObj, aggrateBy,
+			aggratedFields = [],
+			arrAggrateBy = [],
+			aggratedValues = null;
+		for(var i = 0, len = fields.length; i< len; i++) {
+			fldObj = fields[i];
+			if(fldObj.aggrated()) {
+				aggrateBy = fldObj.aggrateBy();
+				if(fldObj.getType() !== jslet.data.DataType.NUMBER && !aggrateBy) {
+					if(!aggratedValues) {
+						aggratedValues = {};
+					}
+					aggratedValues[fldObj.name()] = {count: Z.recordCount(), sum: 0};
+				} else {
+					aggratedFields.push(fldObj);
+				}
+				if(aggrateBy && arrAggrateBy.indexOf(aggrateBy) === -1) {
+					arrAggrateBy.push({aggrateBy: aggrateBy, values: [], exists: false});
+				}
+			}
+		}
+		if(aggratedFields.length === 0) {
+			Z.aggratedValues(aggratedValues);			
+			return;
+		}
+		if(!aggratedValues) {
+			aggratedValues = {};
+		}
+		
+		function getAggrateByValue(aggrateBy) {
+			if(aggrateBy.indexOf(',') === 0) {
+				return Z.getFieldValue(aggrateBy);
+			}
+			var fieldNames = aggrateBy.split(',');
+			var values = [];
+			for(var i = 0, len = fieldNames; i < len; i++) {
+				values.push(Z.getFieldValue(fieldNames[i]));
+			}
+			return values.join(',')
+		}
+		
+		function updateAggrByValues(arrAggrateBy) {
+			var aggrByObj, 
+				aggrByValue,
+				arrAggrByValues;			
+			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
+				aggrByObj = arrAggrateBy[i];
+				arrAggrByValues = aggrByObj.values;
+				aggrByValue = getAggrateByValue(aggrByObj.aggrateBy);
+				if(arrAggrByValues.indexOf(aggrByValue) < 0) {
+					arrAggrByValues.push(aggrByValue);
+					aggrByObj.exists = false;
+				} else {
+					aggrByObj.exists = true;
+				}
+			}
+		}
+		
+		function existAggrBy(arrAggrateBy, aggrateBy) {
+			var aggrByObj;			
+			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
+				aggrByObj = arrAggrateBy[i];
+				if(aggrByObj.aggrateBy == aggrateBy) {
+					return aggrByObj.exists;
+				}
+			}
+			console.warn('Not found aggrateBy value!');
+			return false;
+		}
+		
+		var context = Z.startSilenceMove();
+		try{
+			Z.first();
+			var fldCnt = aggratedFields.length, 
+				fldName, value, totalValue,
+				aggratedValueObj;
+			while(!Z.isEof()) {
+				updateAggrByValues(arrAggrateBy);
+				
+				for(var i = 0; i < fldCnt; i++) {
+					fldObj = aggratedFields[i];
+					fldName = fldObj.name();
+					aggrateBy = fldObj.aggrateBy();
+					if(aggrateBy && existAggrBy(arrAggrateBy, aggrateBy)) {
+						continue;
+					}
+					aggratedValueObj = aggratedValues[fldName];
+					if(!aggratedValueObj) {
+						aggratedValueObj = {count: 0, sum: 0};
+						aggratedValues[fldName] = aggratedValueObj; 
+					}
+					aggratedValueObj.count = aggratedValueObj.count + 1;
+					if(fldObj.getType() === jslet.data.DataType.NUMBER) {
+						value = Z.getFieldValue(fldName);
+						aggratedValueObj.sum = aggratedValueObj.sum + value || 0;
+					}
+				} //end for i
+				Z.next();
+			} //end while
+			Z.aggratedValues(aggratedValues);			
+		}finally{
+			Z.endSilenceMove(context);
+		}
+	},
+	
+	aggratedValues: function(aggratedValues) {
+		var Z = this;
+		if(aggratedValues === undefined) {
+			return Z._aggratedValues;
+		}
+		var Z = this;
+		Z._aggratedValues = aggratedValues;
+		if(!Z._aggratedValues && !aggratedValues) {
+			return;
+		}
+		console.log(aggratedValues);
+		evt = jslet.data.RefreshEvent.aggratedEvent();
+		Z.refreshControl(evt);
+	},
+	
+	/**
 	 * Get record object by record number.
 	 * 
 	 * @param {Integer} recno Record Number.
@@ -1927,6 +2076,7 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
+		Z.calcAggratedValue();		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		if (Z.isBof() && Z.isEof()) {
 			return;
@@ -2105,6 +2255,7 @@ jslet.data.Dataset.prototype = {
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
+			Z.calcAggratedValue();		
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -2122,6 +2273,7 @@ jslet.data.Dataset.prototype = {
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
+		Z.calcAggratedValue();		
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
 	},
@@ -2253,6 +2405,8 @@ jslet.data.Dataset.prototype = {
 		if (!Z._silence && Z._contextRuleEnabled && value) {
 			Z.calcContextRule(fldName);
 		}
+		Z.calcAggratedValue();		
+
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
@@ -3429,7 +3583,7 @@ jslet.data.Dataset.prototype = {
 				jslet.data.FieldValueCache.removeCache(oldRec);
 			}
 		} //end for i
-		
+		Z.calcAggratedValue();
 		Z._clearChangeState(Z.insertedRecords());
 		Z._clearChangeState(Z.updatedRecords());
 		Z._insertedDelta = [];
@@ -3545,6 +3699,7 @@ jslet.data.Dataset.prototype = {
 				jslet.data.FieldValueCache.removeCache(oldRec);
 			}//end for i
 		}
+		Z.calcAggratedValue();
 		Z.refreshControl();
 		Z.refreshHostDataset();
 	},
@@ -3786,6 +3941,7 @@ jslet.data.Dataset.prototype = {
 		Z.filter(null);
 		Z.indexFields(Z.indexFields());
 		Z.first();
+		Z.calcAggratedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
 		Z.refreshHostDataset();
 		return this;
