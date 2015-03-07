@@ -78,7 +78,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._fixedValue = null;
 	
 	Z._aggrated = false; //optional value: sum, count, avg
-	Z._aggrateBy = null;
+	Z._aggratedBy = null;
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -110,7 +110,7 @@ jslet.data.Field.prototype = {
 		result.readOnly(Z._readOnly);
 		result.visible(Z._visible);
 		result.disabled(Z._disabled);
-		result.unitConverted(Z._unitConverted);
+		result.unitConverted(Z._underted);
 		if (Z._lookup) {
 			result.lookup(Z._lookup.clone());
 		}
@@ -146,7 +146,7 @@ jslet.data.Field.prototype = {
 		result.fixedValue(Z._fixedValue);
 		
 		result.aggrated(Z._aggrated);
-		result.aggrateBy(Z._aggrateBy);
+		result.aggratedBy(Z._aggratedBy);
 		
 		return result;
 	},
@@ -1246,13 +1246,13 @@ jslet.data.Field.prototype = {
 	 * @param {String or undefined} aggrBy.
 	 * @return {String or this}
 	 */
-	aggrateBy: function(aggrateBy){
+	aggratedBy: function(aggratedBy){
 		var Z = this;
-		if (aggrateBy === undefined) {
-			return Z._aggrateBy;
+		if (aggratedBy === undefined) {
+			return Z._aggratedBy;
 		}
-		jslet.Checker.test('Field.aggrateBy', aggrateBy).isString();
-		Z._aggrateBy = jQuery.trim(aggrateBy);
+		jslet.Checker.test('Field.aggratedBy', aggratedBy).isString();
+		Z._aggratedBy = jQuery.trim(aggratedBy);
 	},
 
 	/**
@@ -1391,7 +1391,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('mergeSameBy');
 	setPropValue('aggrated');
 
-	setPropValue('aggrateBy');
+	setPropValue('aggratedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
 	

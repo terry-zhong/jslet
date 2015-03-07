@@ -1746,15 +1746,15 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		var fields = Z.getNormalFields(), 
-			fldObj, aggrateBy,
+			fldObj, aggratedBy,
 			aggratedFields = [],
 			arrAggrateBy = [],
 			aggratedValues = null;
 		for(var i = 0, len = fields.length; i< len; i++) {
 			fldObj = fields[i];
 			if(fldObj.aggrated()) {
-				aggrateBy = fldObj.aggrateBy();
-				if(fldObj.getType() !== jslet.data.DataType.NUMBER && !aggrateBy) {
+				aggratedBy = fldObj.aggratedBy();
+				if(fldObj.getType() !== jslet.data.DataType.NUMBER && !aggratedBy) {
 					if(!aggratedValues) {
 						aggratedValues = {};
 					}
@@ -1762,8 +1762,8 @@ jslet.data.Dataset.prototype = {
 				} else {
 					aggratedFields.push(fldObj);
 				}
-				if(aggrateBy && arrAggrateBy.indexOf(aggrateBy) === -1) {
-					arrAggrateBy.push({aggrateBy: aggrateBy, values: [], exists: false});
+				if(aggratedBy && arrAggrateBy.indexOf(aggratedBy) === -1) {
+					arrAggrateBy.push({aggratedBy: aggratedBy, values: [], exists: false});
 				}
 			}
 		}
@@ -1775,13 +1775,13 @@ jslet.data.Dataset.prototype = {
 			aggratedValues = {};
 		}
 		
-		function getAggrateByValue(aggrateBy) {
-			if(aggrateBy.indexOf(',') === 0) {
-				return Z.getFieldValue(aggrateBy);
+		function getAggrateByValue(aggratedBy) {
+			if(aggratedBy.indexOf(',') < 0) {
+				return Z.getFieldValue(aggratedBy);
 			}
-			var fieldNames = aggrateBy.split(',');
+			var fieldNames = aggratedBy.split(',');
 			var values = [];
-			for(var i = 0, len = fieldNames; i < len; i++) {
+			for(var i = 0, len = fieldNames.length; i < len; i++) {
 				values.push(Z.getFieldValue(fieldNames[i]));
 			}
 			return values.join(',')
@@ -1794,7 +1794,7 @@ jslet.data.Dataset.prototype = {
 			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
 				aggrByObj = arrAggrateBy[i];
 				arrAggrByValues = aggrByObj.values;
-				aggrByValue = getAggrateByValue(aggrByObj.aggrateBy);
+				aggrByValue = getAggrateByValue(aggrByObj.aggratedBy);
 				if(arrAggrByValues.indexOf(aggrByValue) < 0) {
 					arrAggrByValues.push(aggrByValue);
 					aggrByObj.exists = false;
@@ -1804,15 +1804,15 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		
-		function existAggrBy(arrAggrateBy, aggrateBy) {
+		function existAggrBy(arrAggrateBy, aggratedBy) {
 			var aggrByObj;			
 			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
 				aggrByObj = arrAggrateBy[i];
-				if(aggrByObj.aggrateBy == aggrateBy) {
+				if(aggrByObj.aggratedBy == aggratedBy) {
 					return aggrByObj.exists;
 				}
 			}
-			console.warn('Not found aggrateBy value!');
+			console.warn('Not found aggratedBy value!');
 			return false;
 		}
 		
@@ -1828,8 +1828,8 @@ jslet.data.Dataset.prototype = {
 				for(var i = 0; i < fldCnt; i++) {
 					fldObj = aggratedFields[i];
 					fldName = fldObj.name();
-					aggrateBy = fldObj.aggrateBy();
-					if(aggrateBy && existAggrBy(arrAggrateBy, aggrateBy)) {
+					aggratedBy = fldObj.aggratedBy();
+					if(aggratedBy && existAggrBy(arrAggrateBy, aggratedBy)) {
 						continue;
 					}
 					aggratedValueObj = aggratedValues[fldName];

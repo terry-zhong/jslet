@@ -112,6 +112,7 @@
     fldObj.label('Name');
     fldObj.required(true);
     fldObj.unique(true);
+    fldObj.aggrated(true);
     fldObj.tip('Name is required and unique');
     dsEmployee.addField(fldObj);
 
@@ -158,7 +159,6 @@
     lkf = new jslet.data.FieldLookup();
     lkf.dataset(dsPosition);
     fldObj.lookup(lkf);
-    fldObj.aggrated(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createNumberField('salary', 16, 2);
