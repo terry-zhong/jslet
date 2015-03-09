@@ -125,7 +125,8 @@
 	
 	locale.DBTable = { 
 		norecord: 'No Records',
-		sorttitle: 'Press Ctrl to sort by multiple column'
+		sorttitle: 'Press Ctrl to sort by multiple column',
+		totalLabel: 'Total'
 	};
 	
 	if (window.jslet === undefined || jslet === undefined){

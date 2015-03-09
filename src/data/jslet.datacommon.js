@@ -26,8 +26,12 @@ jslet.data.getDataset = function (dsName) {
  * In this event, you can create them.
  * 
  * @param {String} dsName Relative dataset name need to be created.
+ * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
+ * 		0 or undefined - Lookup dataset;
+ * 		1 - Sub dataset
+ * 
  */
-jslet.data.onDatasetRequired = function(dsName) {
+jslet.data.onDatasetRequired = function(dsName, dsCatalog) {
 	
 };
 
@@ -155,6 +159,10 @@ jslet.data.RefreshEvent = {
 	
 	lookupEvent: function(fieldName) {
 		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName};
+	},
+	
+	aggratedEvent: function() {
+		return {eventType: jslet.data.RefreshEvent.AGGRATED};		
 	}
 };
 
@@ -171,6 +179,7 @@ jslet.data.RefreshEvent.INSERT = 'insert';
 jslet.data.RefreshEvent.DELETE = 'delete';// recno
 jslet.data.RefreshEvent.CHANGEPAGE = 'changePage';
 jslet.data.RefreshEvent.UPDATELOOKUP = 'updateLookup';
+jslet.data.RefreshEvent.AGGRATED = 'aggrated';
 
 jslet.data.RefreshEvent.ERROR = 'error';
 

@@ -112,6 +112,7 @@
     fldObj.label('Name');
     fldObj.required(true);
     fldObj.unique(true);
+    fldObj.aggrated(true);
     fldObj.tip('Name is required and unique');
     dsEmployee.addField(fldObj);
 
@@ -163,6 +164,7 @@
     fldObj = jslet.data.createNumberField('salary', 16, 2);
     fldObj.label('Salary');
     fldObj.displayFormat('￥#,##0.##');
+    fldObj.aggrated(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('university', 20);

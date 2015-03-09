@@ -101,6 +101,7 @@ jslet.data.Dataset = function (name) {
 	Z._autoShowError = false;
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
+	Z._aggratedValues = null;
 	
 	var dsName = this._name;
 	if (dsName) {
@@ -987,6 +988,7 @@ jslet.data.Dataset.prototype = {
 				Z._refreshInnerRecno();
 			}
 			Z.first();
+			Z.calcAggratedValue();		
 		}
 		finally {
 			Z.enableControls();
@@ -1718,6 +1720,153 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
+	 * @rivate
+	 * Calculate default value.
+	 */
+	checkAggrated: function() {
+		var Z = this,
+		fields = Z.getNormalFields(), 
+		fldObj;
+		for(var i = 0, len = fields.length; i< len; i++) {
+			fldObj = fields[i];
+			if(fldObj.aggrated()) {
+				return true;
+			}
+		}
+		return false;
+	},
+	
+	/**
+	 * 
+	 * Calculate aggrated value.
+	 */
+	calcAggratedValue: function() {
+		var Z = this;
+		if(!Z.checkAggrated()) {
+			return;
+		}
+		var fields = Z.getNormalFields(), 
+			fldObj, aggratedBy,
+			aggratedFields = [],
+			arrAggrateBy = [],
+			aggratedValues = null;
+		for(var i = 0, len = fields.length; i< len; i++) {
+			fldObj = fields[i];
+			if(fldObj.aggrated()) {
+				aggratedBy = fldObj.aggratedBy();
+				if(fldObj.getType() !== jslet.data.DataType.NUMBER && !aggratedBy) {
+					if(!aggratedValues) {
+						aggratedValues = {};
+					}
+					aggratedValues[fldObj.name()] = {count: Z.recordCount(), sum: 0};
+				} else {
+					aggratedFields.push(fldObj);
+				}
+				if(aggratedBy && arrAggrateBy.indexOf(aggratedBy) === -1) {
+					arrAggrateBy.push({aggratedBy: aggratedBy, values: [], exists: false});
+				}
+			}
+		}
+		if(aggratedFields.length === 0) {
+			Z.aggratedValues(aggratedValues);			
+			return;
+		}
+		if(!aggratedValues) {
+			aggratedValues = {};
+		}
+		
+		function getAggrateByValue(aggratedBy) {
+			if(aggratedBy.indexOf(',') < 0) {
+				return Z.getFieldValue(aggratedBy);
+			}
+			var fieldNames = aggratedBy.split(',');
+			var values = [];
+			for(var i = 0, len = fieldNames.length; i < len; i++) {
+				values.push(Z.getFieldValue(fieldNames[i]));
+			}
+			return values.join(',')
+		}
+		
+		function updateAggrByValues(arrAggrateBy) {
+			var aggrByObj, 
+				aggrByValue,
+				arrAggrByValues;			
+			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
+				aggrByObj = arrAggrateBy[i];
+				arrAggrByValues = aggrByObj.values;
+				aggrByValue = getAggrateByValue(aggrByObj.aggratedBy);
+				if(arrAggrByValues.indexOf(aggrByValue) < 0) {
+					arrAggrByValues.push(aggrByValue);
+					aggrByObj.exists = false;
+				} else {
+					aggrByObj.exists = true;
+				}
+			}
+		}
+		
+		function existAggrBy(arrAggrateBy, aggratedBy) {
+			var aggrByObj;			
+			for(var i = 0, len = arrAggrateBy.length; i < len; i++) {
+				aggrByObj = arrAggrateBy[i];
+				if(aggrByObj.aggratedBy == aggratedBy) {
+					return aggrByObj.exists;
+				}
+			}
+			console.warn('Not found aggratedBy value!');
+			return false;
+		}
+		
+		var context = Z.startSilenceMove();
+		try{
+			Z.first();
+			var fldCnt = aggratedFields.length, 
+				fldName, value, totalValue,
+				aggratedValueObj;
+			while(!Z.isEof()) {
+				updateAggrByValues(arrAggrateBy);
+				
+				for(var i = 0; i < fldCnt; i++) {
+					fldObj = aggratedFields[i];
+					fldName = fldObj.name();
+					aggratedBy = fldObj.aggratedBy();
+					if(aggratedBy && existAggrBy(arrAggrateBy, aggratedBy)) {
+						continue;
+					}
+					aggratedValueObj = aggratedValues[fldName];
+					if(!aggratedValueObj) {
+						aggratedValueObj = {count: 0, sum: 0};
+						aggratedValues[fldName] = aggratedValueObj; 
+					}
+					aggratedValueObj.count = aggratedValueObj.count + 1;
+					if(fldObj.getType() === jslet.data.DataType.NUMBER) {
+						value = Z.getFieldValue(fldName);
+						aggratedValueObj.sum = aggratedValueObj.sum + value || 0;
+					}
+				} //end for i
+				Z.next();
+			} //end while
+			Z.aggratedValues(aggratedValues);			
+		}finally{
+			Z.endSilenceMove(context);
+		}
+	},
+	
+	aggratedValues: function(aggratedValues) {
+		var Z = this;
+		if(aggratedValues === undefined) {
+			return Z._aggratedValues;
+		}
+		var Z = this;
+		Z._aggratedValues = aggratedValues;
+		if(!Z._aggratedValues && !aggratedValues) {
+			return;
+		}
+		console.log(aggratedValues);
+		evt = jslet.data.RefreshEvent.aggratedEvent();
+		Z.refreshControl(evt);
+	},
+	
+	/**
 	 * Get record object by record number.
 	 * 
 	 * @param {Integer} recno Record Number.
@@ -1927,6 +2076,7 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
+		Z.calcAggratedValue();		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		if (Z.isBof() && Z.isEof()) {
 			return;
@@ -2105,6 +2255,7 @@ jslet.data.Dataset.prototype = {
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
+			Z.calcAggratedValue();		
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -2122,6 +2273,7 @@ jslet.data.Dataset.prototype = {
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
+		Z.calcAggratedValue();		
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
 	},
@@ -2253,6 +2405,8 @@ jslet.data.Dataset.prototype = {
 		if (!Z._silence && Z._contextRuleEnabled && value) {
 			Z.calcContextRule(fldName);
 		}
+		Z.calcAggratedValue();		
+
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
@@ -3429,7 +3583,7 @@ jslet.data.Dataset.prototype = {
 				jslet.data.FieldValueCache.removeCache(oldRec);
 			}
 		} //end for i
-		
+		Z.calcAggratedValue();
 		Z._clearChangeState(Z.insertedRecords());
 		Z._clearChangeState(Z.updatedRecords());
 		Z._insertedDelta = [];
@@ -3545,6 +3699,7 @@ jslet.data.Dataset.prototype = {
 				jslet.data.FieldValueCache.removeCache(oldRec);
 			}//end for i
 		}
+		Z.calcAggratedValue();
 		Z.refreshControl();
 		Z.refreshHostDataset();
 	},
@@ -3786,6 +3941,7 @@ jslet.data.Dataset.prototype = {
 		Z.filter(null);
 		Z.indexFields(Z.indexFields());
 		Z.first();
+		Z.calcAggratedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
 		Z.refreshHostDataset();
 		return this;
@@ -3910,82 +4066,65 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
  * @return {jslet.data.Dataset}
  */
 jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
+	jslet.Checker.test('createDataset#fieldConfig', fieldConfig).required().isArray();
 	var dsObj = new jslet.data.Dataset(dsName),fldObj;
 	for (var i = 0, cnt = fieldConfig.length; i < cnt; i++) {
 		fldObj = jslet.data.createField(fieldConfig[i]);
 		dsObj.addField(fldObj);
 	}
+	
+	function setPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			dsObj[propName](propValue);
+		}
+	}
+	
+	function setIntPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			dsObj[propName](parseInt(propValue));
+		}
+	}
+	
+	function setBooleanPropValue(propName) {
+		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		if (propValue !== undefined) {
+			if(jslet.isString(propValue)) {
+				if(propValue) {
+					propValue = propValue != '0' && propValue != 'false';
+				}
+			}
+			dsObj[propName](propValue? true: false);
+		}
+	}
+	
+	
 	if(dsCfg) {
-		if (dsCfg.keyField) {
-			dsObj.keyField(dsCfg.keyField);
-		}
-		if (dsCfg.codeField) {
-			dsObj.codeField(dsCfg.codeField);
-		}
-		if (dsCfg.nameField) {
-			dsObj.nameField(dsCfg.nameField);
-		}
-		if (dsCfg.parentField) {
-			dsObj.parentField(dsCfg.parentField);
-		}
-		if (dsCfg.selectField) {
-			dsObj.selectField(dsCfg.selectField);
-		}
+		setPropValue('keyField');
+		setPropValue('codeField');
+		setPropValue('nameField');
+		setPropValue('parentField');
+		setPropValue('selectField');
+		setPropValue('recordClass');
+
+		setPropValue('queryUrl');
+		setPropValue('submitUrl');
+		setIntPropValue('pageNo');
+		setIntPropValue('pageSize');
+		setPropValue('fixedIndexFields');
+		setPropValue('indexFields');
+		setPropValue('filter');
+		setBooleanPropValue('filtered');
+		setBooleanPropValue('autoShowError');
+		setBooleanPropValue('autoRefreshHostDataset');
+		setBooleanPropValue('readOnly');
+		setBooleanPropValue('logChanged');
+		setPropValue('datasetListener');
+		setPropValue('onFieldChange');
+		setPropValue('onCheckSelectable');
+		setPropValue('contextRules');
 		
-		if (dsCfg.recordClass) {
-			dsObj.recordClass(dsCfg.recordClass);
-		}
-		
-		if (dsCfg.queryUrl) {
-			dsObj.queryUrl(dsCfg.queryUrl);
-		}
-		if (dsCfg.submitUrl) {
-			dsObj.submitUrl(dsCfg.submitUrl);
-		}
-		
-		if (dsCfg.pageNo) {
-			dsObj.pageNo(parseInt(dsCfg.pageNo));
-		}
-		if (dsCfg.pageSize) {
-			dsObj.pageSize(parseInt(dsCfg.pageSize));
-		}
-		
-		if (dsCfg.fixedIndexFields) {
-			dsObj.fixedIndexFields(dsCfg.fixedIndexFields);
-		}
-		if (dsCfg.indexFields) {
-			dsObj.indexFields(dsCfg.indexFields);
-		}
-		if (dsCfg.filter) {
-			dsObj.filter(dsCfg.filter);
-		}
-		if (dsCfg.filtered) {
-			dsObj.filtered(dsCfg.filtered);
-		}
-		if (dsCfg.autoShowError) {
-			dsObj.autoShowError(dsCfg.autoShowError);
-		}
-		if (dsCfg.autoRefreshHostDataset) {
-			dsObj.autoRefreshHostDataset(dsCfg.autoRefreshHostDataset);
-		}
-		if (dsCfg.readOnly) {
-			dsObj.readOnly(dsCfg.readOnly);
-		}
-		if (dsCfg.logChanged) {
-			dsObj.logChanged(dsCfg.logChanged);
-		}
-		if (dsCfg.datasetListener) {
-			dsObj.datasetListener(dsCfg.datasetListener);
-		}
-		if (dsCfg.onFieldChange) {
-			dsObj.onFieldChange(dsCfg.onFieldChange);
-		}
-		if (dsCfg.onCheckSelectable) {
-			dsObj.onCheckSelectable(dsCfg.onCheckSelectable);
-		}
-		if (dsCfg.contextRules) {
-			dsObj.contextRules(dsCfg.contextRules);
-		}
 	}
 	return dsObj;
 };
