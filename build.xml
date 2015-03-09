@@ -72,6 +72,7 @@
 			    <file name="jslet.dbtreeview.js" />
 			</filelist>
 			<filelist dir="${src.dir}/ui/dbcontrol/form">
+			    <file name="jslet.dbplace.js" />
 			    <file name="jslet.dbtext.js" />
 			    <file name="jslet.dbcustomcombobox.js" />
 			    <file name="jslet.dbautocomplete.js" />

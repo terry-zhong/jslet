@@ -903,6 +903,7 @@ jslet.data.Field.prototype = {
 			}
 		}
 		Z._editControl = editCtrl;
+		Z._fireMetaChangedEvent('editControl');
 	},
 
 	/**
