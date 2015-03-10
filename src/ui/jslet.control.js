@@ -432,9 +432,11 @@ jslet.ui.register = function (ctrlName, ctrlType) {
 * @param {Html Element} parent Parent html element which created control will be added to.
 * @param {Integer} width Control width, unit: px;
 * @param {Integer} height Control height, Unit: px; 
+* @param {Boolean} hidden Hide control or not;
+*  
 * @return {jslet control}
 */
-jslet.ui.createControl = function (jsletparam, parent, width, height) {
+jslet.ui.createControl = function (jsletparam, parent, width, height, hidden) {
 	var isAuto = false, 
 		pnode = parent,
 		container = document.createElement('div'),
@@ -451,7 +453,9 @@ jslet.ui.createControl = function (jsletparam, parent, width, height) {
 
 	var el = container.firstChild;
 	container.removeChild(el);
-	
+	if(hidden) {
+		el.style.display = 'none';
+	}	
 	if (parent) {
 		parent.appendChild(el);
 	} else {

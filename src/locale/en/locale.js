@@ -12,6 +12,10 @@
 	var locale = {};
 	locale.isRtl = false;//false: direction = 'ltr', true: direction = 'rtl'
 
+	locale.Common = {
+		jsonParseError: 'Can\'t parse JSON string: {0}'		
+	};
+	
 	locale.Date = {
 		format: 'MM/dd/yyyy'	
 	};

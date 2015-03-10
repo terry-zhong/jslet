@@ -116,7 +116,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 					}
 					Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
 				}
-			}, null, width + 'px', height + 'px');
+			}, null, width + 'px', height + 'px', true); //Hide panel first
 
 		jslet.ui.PopupPanel.excludedElement = el;//event.element();
 		var r = jqEl.offset(), 

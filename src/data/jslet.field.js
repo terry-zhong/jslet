@@ -1410,6 +1410,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 			} else {
 				lkfCfg = {};
 			}
+			lkfCfg.dataset = lkSource;
 		}
 	}
 	if (lkfCfg !== undefined && lkfCfg) {

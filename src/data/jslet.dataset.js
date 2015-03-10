@@ -151,6 +151,7 @@ jslet.data.Dataset.prototype = {
 	* 
 	* @param {String} newDsName New dataset's name.
 	* @param {Array of String} fieldNames a list of field names which will be cloned to new dataset.
+	* 
 	* @return {jslet.data.Dataset} Cloned dataset object
 	*/
 	clone: function (newDsName, fieldNames) {
@@ -1861,7 +1862,7 @@ jslet.data.Dataset.prototype = {
 		if(!Z._aggratedValues && !aggratedValues) {
 			return;
 		}
-		console.log(aggratedValues);
+
 		evt = jslet.data.RefreshEvent.aggratedEvent();
 		Z.refreshControl(evt);
 	},
@@ -2086,6 +2087,20 @@ jslet.data.Dataset.prototype = {
 		Z.refreshControl(evt);
 	},
 
+	/**
+	 * Delete all selected records;
+	 */
+	deleteSelected: function() {
+		var Z = this, 
+			records = Z.selectedRecords(),
+			recObj;
+		for(var i = records.length - 1; i >= 0; i--) {
+			recObj = records[i];
+			Z.moveToRecord(recObj);
+			Z.deleteRecord();
+		}
+	},
+	
 	/**
 	 * @private
 	 */
@@ -2402,7 +2417,7 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		//calc other fields' range to use context rule
-		if (!Z._silence && Z._contextRuleEnabled && value) {
+		if (!Z._silence && Z._contextRuleEnabled) {
 			Z.calcContextRule(fldName);
 		}
 		Z.calcAggratedValue();		
@@ -3940,6 +3955,7 @@ jslet.data.Dataset.prototype = {
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z.filter(null);
 		Z.indexFields(Z.indexFields());
+		Z._recno = -1;
 		Z.first();
 		Z.calcAggratedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);

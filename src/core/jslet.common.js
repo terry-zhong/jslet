@@ -988,7 +988,11 @@ jslet.JSON = {
 	},
 	
 	parse: function(json) {
-		return JSON.parse(this.normalize(json));
+		try {
+			return JSON.parse(this.normalize(json));
+		} catch(e) {
+			throw new Error(jslet.formatString(jslet.locale.Common.jsonParseError, [json]));
+		}
 	},
 	
 	stringify: function(value, replacer, space) {

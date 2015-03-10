@@ -15,20 +15,9 @@
 }
 
 .jl-table table {
-    border-collapse: collapse;
-    table-layout: fixed;
+	border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
-}
-
-.jl-table .jl-tbl-container {
-    border: none;
- 	border-spacing:0px;
-	border-collapse:collapse;
-}
-
-.jl-tbl-container {
-	width: 100%;
-	height: 100%;
 }
 
 .jl-table td {
@@ -37,9 +26,27 @@
 	vertical-align: top;
 }
 
+.jl-tbl-footer td {
+   border-right: 1px solid transparent;
+}
+
+.jl-tbl-noborder .jl-tbl-footer td {
+   border-right: 0;
+}
+
+.jl-table .jl-tbl-container {
+    border: none;
+ 	border-spacing: 0;
+	border-collapse: separate;
+    table-layout: fixed;
+	width: 100%;
+	height: 100%;
+}
+
 .jl-scrollbar-width {
 	width: 17px;
 	border: 0;
+	border-left: 1px solid #a4bed4;	
 }
 
 .jl-tbl-fixedcol {
@@ -50,11 +57,12 @@
 .jl-tbl-contentcol {
 	overflow-x: auto;
 	overflow-y: hidden;
-	height: 100%;
+	height: auto;
 	width: 100%;
 }
 
-.jl-tbl-content-div {
+.jl-tbl-contentcol div{
+	height: auto;
 }
 
 .jl-table .jl-tbl-content-table {
@@ -71,17 +79,9 @@
 	width: 17px;
 }
 
-.jl-tbl-row4width {
-    border: 0;
-    height: 0px;
-    padding:0;
-    margin:0;
-    font-size:0;
-    line-height:1px;
-}
-
-.jl-tbl-data, .jl-tbl-data td, .jl-tbl-data th {
-    border: 1px solid #a4bed4;
+.jl-tbl-data td, .jl-tbl-data th {
+    border-right: 1px solid #a4bed4;
+    border-bottom: 1px solid #a4bed4;
 }
 
 .jl-tbl-noborder .jl-tbl-data td, .jl-tbl-noborder .jl-tbl-data th {
@@ -102,48 +102,22 @@
 	border: 0;
 }
 
-.jl-tbl-row4width th {
-    border: 0;
-    height: 1px;
-    padding: 0;
-    font-size:0;
-    overflow:hidden;
-    line-height:1px;
- 	border:none;
-    white-space:nowrap;
-    border-collapse:collapse;
-    margin:0;   
-}
-
 .jl-tbl-border-bottom {
-	border-top: 0;
-	border-left: 0;
-	border-right: 0;
+	border: 0;
     border-bottom: 1px solid #a4bed4;
 }
 
 .jl-tbl-border-top {
+	border: 0;
 	border-top: 1px solid #a4bed4;
-	border-left: 0;
-	border-right: 0;
-    border-bottom: 0;
 }
 
-.jl-table .jl-first-col {
-	border-left: 0;
-}
-
-.jl-table .jl-first-row {
-	border-top: 0;
-}
-	
 .jl-table .jl-tbl-select-check {
-	margin-top: 5px;
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
 }
 
-.jl-tbl-extra-head, .jl-tbl-header-cell, .jl-scrollbar-width, .jl-tbl-vscroll-head {
+.jl-tbl-header-cell, .jl-scrollbar-width, .jl-tbl-vscroll-head {
     background-color: #F1F5FB;
 	box-shadow: 0 1px 1px #fff inset;
 	background-color: #e5f1ff;
@@ -153,21 +127,16 @@
 	background-image: -ms-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
 	background-image: -o-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
 	background-position: 0 1px;
-	background-repeat: repeat-x;
+	background-repeat: repeat-x; 
 }
 
 .jl-tbl-header-cell {
 	text-align: center;
 }
 
-.jl-tbl-extra-head {
-	border-bottom: 1px solid #a4bed4!important;
-	border-right: 0px!important;
-}
-
 .jl-tbl-vscroll-head {
-	border-bottom: 1px solid #a4bed4;
-	border-left: 1px solid #a4bed4;
+	border-bottom: 0;
+	border-left: 0;
 }
 
 .jl-tbl-current {
@@ -184,7 +153,7 @@
     white-space: nowrap;
     position: relative;
     overflow: hidden;
-    padding: 4px 4px;
+    padding: 0 4px;
 }
 
 .jl-tbl-sorter {

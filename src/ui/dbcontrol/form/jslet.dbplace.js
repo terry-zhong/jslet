@@ -1,5 +1,5 @@
 ﻿/* ========================================================================
- * Jslet framework: jslet.dbbetweenedit.js
+ * Jslet framework: jslet.dbplace.js
  *
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
@@ -64,6 +64,7 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 			evt.metaName == 'editControl') {
 			if(Z.editControl) {
 				Z.editControl.destroy();
+				Z.el.innerHTML = '';
 			}
 			Z.renderAll();
 			return true;
@@ -77,7 +78,6 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field),
 			param = fldObj.editControl();
-		Z.el.innerHTML = '';
 		param.dataset = Z._dataset;
 		param.field = Z._field;
 		var tag = jslet.ui.createControl(param, Z.el);
