@@ -975,8 +975,8 @@ jslet.data.Field.prototype = {
 		var subDsObj = subdataset;
 		if (typeof (subDsObj) == 'string') {
 			subDsObj = jslet.data.getDataset(subDsObj);
-			if(!subDsObj && jslet.data.onDatasetRequired) {
-				jslet.data.onDatasetRequired(subdataset, 1); //1 - sub dataset
+			if(!subDsObj) {
+				jslet.data.datasetCreation.fireDatasetRequiredEvent(subdataset, 1); //1 - sub dataset
 			}
 		}
 		if(subDsObj) {
@@ -1590,8 +1590,8 @@ jslet.data.FieldLookup.prototype = {
 		var lkDsObj = lkdataset;
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);
-			if(!lkDsObj && jslet.data.onDatasetRequired) {
-				jslet.data.onDatasetRequired(lkdataset);
+			if(!lkDsObj) {
+				jslet.data.datasetCreation.fireDatasetRequiredEvent(lkdataset, 0); //0 - lookup dataset, 1 - subdataset
 			}
 		}
 		if(lkDsObj) {

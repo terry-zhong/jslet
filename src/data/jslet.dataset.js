@@ -2318,7 +2318,11 @@ jslet.data.Dataset.prototype = {
 			fldObj = this._normalFields[i];
 			lkf = fldObj.lookup();
 			if (lkf !== null) {
-				lkds = lkf.dataset();
+				try {
+					lkds = lkf.dataset();
+				} catch(e) {
+					lkds = null;
+				}
 				if (lkds !== null) {
 					lkds.disableControls();
 				}
@@ -2344,7 +2348,11 @@ jslet.data.Dataset.prototype = {
 			fldObj = this._normalFields[i];
 			lkf = fldObj.lookup();
 			if (lkf !== null) {
-				lkds = lkf.dataset();
+				try {
+					lkds = lkf.dataset();
+				} catch(e) {
+					lkds = null;
+				}
 				if (lkds !== null) {
 					lkds.enableControls(needRefreshCtrl);
 				}
@@ -4142,6 +4150,7 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setPropValue('contextRules');
 		
 	}
+	jslet.data.datasetCreation.fireDatasetCreated(dsName);
 	return dsObj;
 };
 

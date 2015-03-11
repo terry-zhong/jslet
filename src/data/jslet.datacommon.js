@@ -21,19 +21,87 @@ jslet.data.getDataset = function (dsName) {
 	return jslet.data.dataModule.get(dsName);
 };
 
-/**
- * If the relative dataset does not exist, fire this event.
- * In this event, you can create them.
- * 
- * @param {String} dsName Relative dataset name need to be created.
- * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
- * 		0 or undefined - Lookup dataset;
- * 		1 - Sub dataset
- * 
- */
-jslet.data.onDatasetRequired = function(dsName, dsCatalog) {
+jslet.data.DatasetCreation = function() {
+	var _creatingDatasets = [];
+	var _needCheck = false;
 	
-};
+	var _enabled = false;
+	
+	this.enabled = function(enabled) {
+		if(enabled === undefined) {
+			return _enabled;
+		}
+		_enabled = enabled;
+	}
+	/**
+	 * If the relative dataset does not exist, fire this event.
+	 * In this event, you can create them. Pattern:
+	 * this.onDatasetRequired = function(dsName, dsCatalog){ }
+	 * 
+	 * @param {String} dsName Relative dataset name need to be created.
+	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
+	 * 		0 or undefined - Lookup dataset;
+	 * 		1 - Sub dataset
+	 */
+	this.onDatasetRequired = null;
+	
+	/**
+	 * If the relative dataset does not exist, fire this event.
+	 * In this event, you can create them. Pattern:
+	 * this.onDatasetReady = function(){ }
+	 * 
+	 * @param {String} dsName Relative dataset name need to be created.
+	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
+	 * 		0 or undefined - Lookup dataset;
+	 * 		1 - Sub dataset
+	 */
+	this.onDatasetReady = null;
+	
+	/**
+	 * If the relative dataset does not exist, fire this event.
+	 * 
+	 * @param {String} dsName Relative dataset name need to be created.
+	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
+	 * 		0 or undefined - Lookup dataset;
+	 * 		1 - Sub dataset
+	 */
+	this.fireDatasetRequiredEvent = function(dsName, dsCatalog){
+		if(!_enabled) {
+			return;
+		}
+		var k = _creatingDatasets.indexOf(dsName);
+		if(k < 0) {
+			_creatingDatasets.push(dsName);
+			_needCheck = true;
+		}
+		if(this.onDatasetRequired) {
+			this.onDatasetRequired(dsName, dsCatalog);
+		}
+	}
+	
+	/**
+	 * Fire onDatasetReady event when all datasets created.
+	 * 
+	 */
+	this.fireDatasetCreated = function(dsName){
+		if(!_enabled) {
+			return;
+		}
+		var k = _creatingDatasets.indexOf(dsName);
+		if(k >= 0) {
+			_creatingDatasets.splice(k, 1);
+		}
+		
+		if(_needCheck && _creatingDatasets.length === 0) {
+			if(this.onDatasetReady) {
+				this.onDatasetReady();
+			}
+			_needCheck = false;
+		}
+	}
+}
+
+jslet.data.datasetCreation = new jslet.data.DatasetCreation();
 
 jslet.data.DataType = {
 	NUMBER: 'N', //Number

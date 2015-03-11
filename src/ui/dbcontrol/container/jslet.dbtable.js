@@ -2159,8 +2159,6 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		if (!colCfg || colCfg.noRefresh) {
 			return;
 		}
-		var jqDiv = jQuery(cellPanel);
-		jqDiv.html('');
 		var Z = this,
 			fldName = colCfg.field;
 		if (!fldName) {
@@ -2183,7 +2181,7 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			url += '>' + text + '</a>';
 			text = url;
 		}
-		jqDiv.html(text);
+		jQuery(cellPanel).html(text);
 	} 
 });
 
