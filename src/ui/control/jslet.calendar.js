@@ -265,6 +265,13 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		}
 	},
 
+	focus: function() {
+		var Z = this,
+			jqEl = jQuery(Z.el);
+		jqEl.find('.jl-cal-current')[0].focus();
+
+	},
+	
 	_checkNaviState: function () {
 		var Z = this,
 			jqEl = jQuery(Z.el), flag, btnToday;

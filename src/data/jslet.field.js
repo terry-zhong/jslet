@@ -175,9 +175,10 @@ jslet.data.Field.prototype = {
 		} else {
 			jslet.Checker.test('Field.dataset', dataset).isClass(jslet.data.Dataset.className);
 		}
+		Z._removeRelation();
 		Z._dataset = dataset;
 		Z._clearFieldCache();
-		Z.addLookupRelation();
+		Z._addRelation();
 	},
 	
 	/**
@@ -761,6 +762,14 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
+	fieldReadOnly: function() {
+		return this._readOnly;
+	},
+	
+	fieldDisabled: function() {
+		return this._disabled;
+	},
+	
 	_fireMetaChangedEvent: function(metaName) {
 		var ds = this.dataset();
 		if (ds) {
@@ -917,19 +926,47 @@ jslet.data.Field.prototype = {
 	 */
 	onCustomFormatFieldText: null, // (fieldName, value)
 
-	addLookupRelation: function() {
-		var Z = this;
-		if(Z._dataset && Z._lookup) {
-			var lkDs = Z._lookup._dataset, lkDsName;
-			if(jslet.isString(lkDs)) {
-				lkDsName = lkDs;
-			} else {
-				lkDsName = lkDs.name();
+	_addRelation: function() {
+		var Z = this,
+			lkDsName;
+		if(!Z._dataset || (Z.getType() != jslet.data.DataType.DATASET && !Z._lookup)) {
+			return;
+		}
+		
+		var hostDs = Z._dataset.name(),
+			hostField = Z._fieldName,
+			relationType;
+		if(Z.getType() == jslet.data.DataType.DATASET) {
+			if(Z._subDataset) {
+				lkDsName = Z._getDatasetName(Z._subDataset);
+				relationType = jslet.data.DatasetType.DETAIL;
+				jslet.data.datasetRelationManager.addRelation(hostDs, hostField, lkDsName, relationType);
 			}
-			jslet.data.datasetRelationManager.addRelation(Z._dataset.name(), Z._fieldName, lkDsName);
+		} else {
+			lkDsName = Z._getDatasetName(Z._lookup._dataset);
+			relationType = jslet.data.DatasetType.LOOKUP;
+			jslet.data.datasetRelationManager.addRelation(hostDs, hostField, lkDsName, relationType);
 		}
 	},
 	
+	_removeRelation: function() {
+		var Z = this;
+		if(!Z._dataset || (!Z._subDataset && !Z._lookup)) {
+			return;
+		}
+		var hostDs = Z._dataset.name(),
+			hostField = Z._fieldName,
+			relationType;
+
+		if(Z._subDataset) {
+			lkDsName = Z._getDatasetName(Z._subDataset);
+		} else {
+			lkDsName = Z._getDatasetName(Z._lookup._dataset);
+		}
+		jslet.data.datasetRelationManager.removeRelation(hostDs, hostField, lkDsName);
+		
+	},
+		
 	/**
 	 * Get or set lookup field object
 	 * 
@@ -942,18 +979,23 @@ jslet.data.Field.prototype = {
 			return Z._lookup;
 		}
 		jslet.Checker.test('Field.lookup', lkFldObj).isClass(jslet.data.FieldLookup.className);		
+		Z._removeRelation();
 		
 		Z._lookup = lkFldObj;
 		lkFldObj.hostField(Z);
 		if (Z._alignment != 'left') {
 			Z._alignment = 'left';
 		}
-		this.addLookupRelation();
+		Z._addRelation();
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
 		return this;
 	},
-		
+	
+	_getDatasetName: function(dsObjOrName) {
+		return jslet.isString(dsObjOrName)? dsObjOrName: dsObjOrName.name();
+	},
+	
 	_subDsParsed: false,
 	
 	/**
@@ -969,15 +1011,23 @@ jslet.data.Field.prototype = {
 				Z.subDataset(Z._subDataset);
 				if(!Z._subDsParsed) {
 					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
-				}			}
+				}			
+			}
 			return Z._subDataset;
 		}
+		
+		var oldSubDsName = Z._getDatasetName(Z._subDataset),
+		 	newSubDsName = Z._getDatasetName(subdataset),
+		 	needProcessRelation = (oldSubDsName != newSubDsName);
 		var subDsObj = subdataset;
-		if (typeof (subDsObj) == 'string') {
+		if (jslet.isString(subDsObj)) {
 			subDsObj = jslet.data.getDataset(subDsObj);
 			if(!subDsObj) {
-				jslet.data.datasetCreation.fireDatasetRequiredEvent(subdataset, 1); //1 - sub dataset
+				jslet.data.datasetCreation.fireDatasetRequiredEvent(subdataset, jslet.data.DatasetType.DETAIL); //1 - sub dataset
 			}
+		}
+		if(needProcessRelation) {
+			Z._removeRelation();
 		}
 		if(subDsObj) {
 			jslet.Checker.test('Field.subDataset', subDsObj).isClass(jslet.data.Dataset.className);		
@@ -985,11 +1035,13 @@ jslet.data.Field.prototype = {
 				Z._subDataset.datasetField(null);
 			}
 			Z._subDataset = subDsObj;
-			subDsObj.datasetField(this);
 			Z._subDsParsed = true;
 		} else {
 			Z._subDataset = subdataset;
 			Z._subDsParsed = false;
+		}
+		if(needProcessRelation) {
+			Z._addRelation();
 		}
 		return this;
 	},
@@ -1398,9 +1450,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	var lkfCfg = cfg.lookup;
 	if(lkfCfg === undefined) {
-		var lkSource = cfg.lookupSource || cfg.lookupsource;
-		var lkParam = cfg.lookupParam || cfg.lookupparam;
-		if(lkSource) {
+		var lkDataset = cfg.lookupSource || cfg.lookupsource || cfg.lookupDataset || cfg.lookupdataset;
+			lkParam = cfg.lookupParam || cfg.lookupparam,
+			realDataset = cfg.realSource || cfg.realsource || cfg.realDataset || cfg.realdataset;
+		if(lkDataset) {
 			if(lkParam) {
 				if (jslet.isString(lkParam)) {
 					lkfCfg = jslet.JSON.parse(lkParam);
@@ -1410,7 +1463,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 			} else {
 				lkfCfg = {};
 			}
-			lkfCfg.dataset = lkSource;
+			lkfCfg.dataset = lkDataset;
+			if(realDataset) {
+				lkfCfg.realDataset = realDataset;
+			}
 		}
 	}
 	if (lkfCfg !== undefined && lkfCfg) {
@@ -1530,6 +1586,7 @@ jslet.data.FieldLookup = function() {
 	var Z = this;
 	Z._hostField = null;//The field which contains this lookup field object.
 	Z._dataset = null;
+	Z._realDataset = null;
 	Z._dsParsed = false;
 	Z._keyField = null;
 	Z._codeField = null;
@@ -1591,7 +1648,7 @@ jslet.data.FieldLookup.prototype = {
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);
 			if(!lkDsObj) {
-				jslet.data.datasetCreation.fireDatasetRequiredEvent(lkdataset, 0); //0 - lookup dataset, 1 - subdataset
+				jslet.data.datasetCreation.fireDatasetRequiredEvent(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset); //0 - lookup dataset, 1 - subdataset
 			}
 		}
 		if(lkDsObj) {
@@ -1611,10 +1668,28 @@ jslet.data.FieldLookup.prototype = {
 	 * @param {String or undefined} keyFldName Key field name.
 	 * @return {String or this}
 	 */
+	realDataset: function(realDataset) {
+		var Z = this;
+		if (realDataset === undefined){
+			return Z._realDataset;
+		}
+
+		jslet.Checker.test('FieldLookup.realDataset', realDataset).isString();
+		Z._realDataset = realDataset;
+		return this;
+	},
+	
+	/**
+	 * Get or set key field.
+	 * Key field is optional, if it is null, it will use LookupDataset.keyField instead. 
+	 * 
+	 * @param {String or undefined} keyFldName Key field name.
+	 * @return {String or this}
+	 */
 	keyField: function(keyFldName) {
 		var Z = this;
 		if (keyFldName === undefined){
-			return Z._keyField || Z._dataset.keyField();
+			return Z._keyField || Z.dataset().keyField();
 		}
 
 		jslet.Checker.test('FieldLookup.keyField', keyFldName).isString();
@@ -1632,7 +1707,7 @@ jslet.data.FieldLookup.prototype = {
 	codeField: function(codeFldName) {
 		var Z = this;
 		if (codeFldName === undefined){
-			return Z._codeField || Z._dataset.codeField();
+			return Z._codeField || Z.dataset().codeField();
 		}
 
 		jslet.Checker.test('FieldLookup.codeField', codeFldName).isString();
@@ -1661,7 +1736,7 @@ jslet.data.FieldLookup.prototype = {
 	nameField: function(nameFldName) {
 		var Z = this;
 		if (nameFldName === undefined){
-			return Z._nameField || Z._dataset.nameField();
+			return Z._nameField || Z.dataset().nameField();
 		}
 
 		jslet.Checker.test('FieldLookup.nameField', nameFldName).isString();
@@ -1679,7 +1754,7 @@ jslet.data.FieldLookup.prototype = {
 	parentField: function(parentFldName) {
 		var Z = this;
 		if (parentFldName === undefined){
-			return Z._parentField || Z._dataset.parentField();
+			return Z._parentField || Z.dataset().parentField();
 		}
 
 		jslet.Checker.test('FieldLookup.parentField', parentFldName).isString();
@@ -1755,7 +1830,7 @@ jslet.data.FieldLookup.prototype = {
 			this.displayFields(this.getDefaultDisplayFields());
 		}
 		if(!Z._innerdisplayFields) {
-			Z._innerdisplayFields = new jslet.Expression(Z._dataset, Z.displayFields());
+			Z._innerdisplayFields = new jslet.Expression(Z.dataset(), Z.displayFields());
 		}
 		
 		return Z._innerdisplayFields.eval();
@@ -1807,6 +1882,9 @@ jslet.data.createFieldLookup = function(param) {
 	}
 	var lkFldObj = new jslet.data.FieldLookup();
 
+	if (param.realDataset !== undefined) {
+		lkFldObj.realDataset(param.realDataset);
+	}
 	lkFldObj.dataset(lkds);
 	if (param.keyField !== undefined) {
 		lkFldObj.keyField(param.keyField);

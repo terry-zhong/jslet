@@ -11,9 +11,6 @@
  * @param {String} name dataset's name that must be unique in jslet.data.dataModule variable.
  */
 jslet.data.Dataset = function (name) {
-	jslet.Checker.test('Dataset.name', name).isString();
-	name = jQuery.trim(name);
-	jslet.Checker.test('Dataset.name', name).required();
 	
 	var Z = this;
 	Z._name = null; //Dataset name
@@ -103,13 +100,7 @@ jslet.data.Dataset = function (name) {
 	Z._readOnly = false;
 	Z._aggratedValues = null;
 	
-	var dsName = this._name;
-	if (dsName) {
-		jslet.data.dataModule.unset(dsName);
-	}
-	jslet.data.dataModule.unset(name);
-	jslet.data.dataModule.set(name, this);
-	this._name = name;
+	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
 
@@ -122,11 +113,24 @@ jslet.data.Dataset.prototype = {
 	* @param {String} name Dataset's name that must be unique in jslet.data.dataModule variable.
 	* @return {String or this}
 	*/
-	name: function() {
-		if(arguments.length >0) {
-			throw new Error("Can't change dataset name! Use new jslet.data.Dataset('dsName') instead!");
+	name: function(name) {
+		var Z = this;
+		if(name === undefined) {
+			return Z._name;
 		}
-		return this._name;
+		jslet.Checker.test('Dataset.name', name).required().isString();
+		name = jQuery.trim(name);
+		
+		var dsName = this._name;
+		if (dsName) {
+			jslet.data.dataModule.unset(dsName);
+			jslet.data.datasetRelationManager.changeDatasetName(dsName, name);
+		}
+		jslet.data.dataModule.unset(name);
+		jslet.data.dataModule.set(name, this);
+		this._name = name;
+		Z._datasetField = jslet.data.datasetRelationManager.getHostFieldObject(name); //jslet.data.Field 
+		return this;
 	},
 		
 	/**
@@ -565,10 +569,12 @@ jslet.data.Dataset.prototype = {
 			Z._fields.sort(fldObj.sortByIndex);
 		}
 		if (fldObj.getType() == jslet.data.DataType.DATASET) {
-			if (!Z._subDatasetFields)
+			if (!Z._subDatasetFields) {
 				Z._subDatasetFields = [];
+			}
 			Z._subDatasetFields.push(fldObj);
 		}
+		
 		Z._cacheNormalFields();
 		return Z;
 	},
@@ -994,7 +1000,7 @@ jslet.data.Dataset.prototype = {
 		finally {
 			Z.enableControls();
 		}
-		Z.refreshHostDataset();
+		Z.refreshLookupHostDataset();
 
 		return this;
 	},
@@ -1686,7 +1692,7 @@ jslet.data.Dataset.prototype = {
 		} finally {
 			Z.enableControls();
 			Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
-			Z.refreshHostDataset();
+			Z.refreshLookupHostDataset();
 		}
 	},
 	
@@ -3083,7 +3089,10 @@ jslet.data.Dataset.prototype = {
 		if (rules === undefined) {
 			return this._contextRules;
 		}
-		jslet.Checker.test('Dataset.contextRule', rules).isArray();
+		if(jslet.isString(rules)) {
+			rules = jslet.JSON.parse(rules);
+		}
+		jslet.Checker.test('Dataset.contextRules', rules).isArray();
 		if(!rules || rules.length === 0) {
 			this._contextRules = null;
 			this._contextRuleEngine = null;
@@ -3099,6 +3108,7 @@ jslet.data.Dataset.prototype = {
 			this._contextRules = rules;
 			this._contextRuleEngine = new jslet.data.ContextRuleEngine(this);
 			this._contextRuleEngine.compile();
+			this.enableContextRule();
 		}
 		return this;
 	},
@@ -3614,7 +3624,7 @@ jslet.data.Dataset.prototype = {
 		Z._deletedDelta = [];
 		
 		Z.refreshControl();
-		Z.refreshHostDataset();
+		Z.refreshLookupHostDataset();
 	},
 	
 	submitUrl: function(url) {
@@ -3698,6 +3708,7 @@ jslet.data.Dataset.prototype = {
 				k = records.indexOf(rec);
 				records.splice(k, 1);
 			}
+			Z._refreshInnerRecno();
 		} else {
 			var newRec, oldRec, len;
 			jslet.data.convertDateFieldValue(Z, result);
@@ -3724,7 +3735,7 @@ jslet.data.Dataset.prototype = {
 		}
 		Z.calcAggratedValue();
 		Z.refreshControl();
-		Z.refreshHostDataset();
+		Z.refreshLookupHostDataset();
 	},
 	
 	/**
@@ -3862,9 +3873,9 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
-	refreshHostDataset: function() {
+	refreshLookupHostDataset: function() {
 		if(this._autoRefreshHostDataset) {
-			jslet.data.datasetRelationManager.refreshHostDataset(this._name);
+			jslet.data.datasetRelationManager.refreshLookupHostDataset(this._name);
 		}
 	},
 	
@@ -3967,7 +3978,7 @@ jslet.data.Dataset.prototype = {
 		Z.first();
 		Z.calcAggratedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
-		Z.refreshHostDataset();
+		Z.refreshLookupHostDataset();
 		return this;
 	},
 	
@@ -4012,6 +4023,7 @@ jslet.data.Dataset.prototype = {
 		Z._datasetField = null;
 		
 		jslet.data.dataModule.unset(Z._name);
+		jslet.data.datasetRelationManager.removeDataset(Z._name);		
 	}
 	
 };
@@ -4154,3 +4166,15 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	return dsObj;
 };
 
+jslet.data.createCrossDataset = function(sourceDataset, labelField, valueField, crossDsName) {
+	if(!crossDsName) {
+		crossDsName = sourceDataset.name()+'_cross';
+	}
+	var lblFldObj = sourceDataset.getField(labelField);
+	var lblLkFld = lblFldObj.lookup();
+	if(!lblLkFld) {
+		throw new Error(sourceDataset.name() + '.' + labelField + ' must have lookup dataset!');
+	}
+	var valueFldObj = sourceDataset.getField(valueField);
+	
+}

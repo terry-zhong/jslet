@@ -54,6 +54,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			var level = 0, 
 				pnodes = [], 
 				node, pnode, tmpNode, currRec, state;
+			ds.first();
 			while (!ds.isEof()) {
 				recno = ds.recno();
 				keyValue = ds.keyValue();

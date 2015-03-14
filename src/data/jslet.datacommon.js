@@ -21,6 +21,12 @@ jslet.data.getDataset = function (dsName) {
 	return jslet.data.dataModule.get(dsName);
 };
 
+jslet.data.DatasetType = {
+	NORMAL: 0, //Normal dataset
+	LOOKUP: 1, //Lookup dataset
+	DETAIL: 2  //Detail dataset	 
+};
+
 jslet.data.DatasetCreation = function() {
 	var _creatingDatasets = [];
 	var _needCheck = false;
@@ -64,8 +70,10 @@ jslet.data.DatasetCreation = function() {
 	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
 	 * 		0 or undefined - Lookup dataset;
 	 * 		1 - Sub dataset
+	 * @param {String} realDsName real dataset name is used for external system to create dataset. 
+	 * 		The creating dataset's is dsName, but its data is queried by realDsName.
 	 */
-	this.fireDatasetRequiredEvent = function(dsName, dsCatalog){
+	this.fireDatasetRequiredEvent = function(dsName, dsCatalog, realDsName){
 		if(!_enabled) {
 			return;
 		}
@@ -75,7 +83,7 @@ jslet.data.DatasetCreation = function() {
 			_needCheck = true;
 		}
 		if(this.onDatasetRequired) {
-			this.onDatasetRequired(dsName, dsCatalog);
+			this.onDatasetRequired(dsName, dsCatalog, realDsName);
 		}
 	}
 	
@@ -739,42 +747,102 @@ jslet.data.FieldValueCache = {
 jslet.data.DatasetRelationManager = function() {
 	var relations= [];
 	
-	this.addRelation = function(datasetName, fieldName, lookupDatasetName) {
+	/**
+	 * Add dataset relation.
+	 * 
+	 * @param {String} hostDsName host dataset name;
+	 * @param {String} hostFldName field name of host dataset;
+	 * @param {String} lookupOrDetailDsName lookup or detail dataset name;
+	 * @param {jslet.data.DatasetType} relationType, optional value: jslet.data.DatasetType.LOOKUP, jslet.data.DatasetType.DETAIL
+	 */
+	this.addRelation = function(hostDsName, hostFldName, lookupOrDetailDsName, relationType) {
 		for(var i = 0, len = relations.length; i < len; i++) {
 			var relation = relations[i];
-			if(relation.hostDataset == datasetName && 
-				relation.hostField == fieldName && 
-				relation.lookupDataset == lookupDatasetName) {
+			if(relation.hostDataset == hostDsName && 
+				relation.hostField == hostFldName && 
+				relation.lookupDataset == lookupOrDetailDsName) {
 				return;
 			}
 		}
-		relations.push({hostDataset: datasetName, hostField: fieldName, lookupDataset: lookupDatasetName});
-//		console.log(datasetName + ":" + fieldName + ":" + lookupDatasetName)
+		relations.push({hostDataset: hostDsName, hostField: hostFldName, lookupOrDetailDataset: lookupOrDetailDsName, relationType: relationType});
+		//If reation type is DETAIL, set 'datasetField' property of detail dataset.
+		if(relationType == jslet.data.DatasetType.DETAIL) {
+			var detailDs = jslet.data.getDataset(lookupOrDetailDsName);
+			if(detailDs) {
+				var fldObj = this.getHostFieldObject(lookupOrDetailDsName);
+				if(fldObj) {
+					detailDs.datasetField(fldObj);
+				}
+			}
+		}
 	};
 	
-	this.removeRelation = function(datasetName, fieldName, lookupDatasetName) {
-		for(var i = 0, len = relations.length; i < len; i++) {
+	this.removeRelation = function(hostDsName, hostFldName, lookupOrDetailDsName) {
+		for(var i = relations.length - 1; i >= 0; i--) {
 			var relation = relations[i];
-			if(relation.hostDataset == datasetName && 
-					relation.hostField == fieldName && 
-					relation.lookupDataset == lookupDatasetName) {
+			if(relation.hostDataset == hostDsName && 
+				relation.hostField == hostFldName && 
+				relation.lookupOrDetailDataset == lookupOrDetailDsName) {
 				relations.splice(i,1);
 			}
 		}
 	};
 	
-	this.refreshHostDataset = function(lookupDatasetName) {
+	this.removeDataset = function(datasetName) {
+		for(var i = relations.length - 1; i >= 0; i--) {
+			var relation = relations[i];
+			if(relation.hostDataset == datasetName || relation.lookupOrDetailDataset == datasetName) {
+				relations.splice(i,1);
+			}
+		}
+	};
+	
+	this.changeDatasetName = function(oldName, newName) {
+		if(!oldName || !newName) {
+			return;
+		}
+		for(var i = 0, len = relations.length; i < len; i++) {
+			var relation = relations[i];
+			if(relation.hostDataset == oldName) {
+				relation.hostDataset = newName;
+			}
+			if(relation.lookupOrDetailDataset == oldName) {
+				relation.lookupOrDetailDataset = newName;
+			}
+		}
+	};
+	
+	this.refreshLookupHostDataset = function(lookupDsName) {
 		var relation, hostDataset;
 		for(var i = 0, len = relations.length; i < len; i++) {
 			relation = relations[i];
-			if(relation.lookupDataset == lookupDatasetName) {
+			if(relation.lookupOrDetailDataset == lookupDsName &&
+				relation.relationType == jslet.data.DatasetType.LOOKUP) {
 				hostDataset = jslet.data.getDataset(relation.hostDataset);
 				if(hostDataset) {
 					hostDataset.handleLookupDatasetChanged(relation.hostField);
+				} else {
+					throw new Error('NOT found Host dataset: ' + relation.hostDataset);
 				}
 			}
 		}
 	};
+	
+	this.getHostFieldObject = function(lookupOrDetailDsName) {
+		var relation, hostDataset;
+		for(var i = 0, len = relations.length; i < len; i++) {
+			relation = relations[i];
+			if(relation.lookupOrDetailDataset == lookupOrDetailDsName &&
+				relation.relationType == jslet.data.DatasetType.DETAIL) {
+				hostDataset = jslet.data.getDataset(relation.hostDataset);
+				if(hostDataset) {
+					return hostDataset.getField(relation.hostField);
+				} else {
+					throw new Error('NOT found Host dataset: ' + relation.hostDataset);
+				}
+			}
+		} //end for i	
+	}
 };
 jslet.data.datasetRelationManager = new jslet.data.DatasetRelationManager();
 

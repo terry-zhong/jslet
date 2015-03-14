@@ -921,7 +921,7 @@ jslet.Checker = {
 
 jslet.JSON = {
 	normalize: function (json) {
-		json = jQuery.trim(json);
+		//json = jQuery.trim(json);
 		var result = [], c, next, isKey = false, isArray = false, isObj = true, last = '', quoteChar = null;
 		var c = json.charAt(0), append = false;
 		if(c != '{' && c != '[') {
@@ -989,7 +989,8 @@ jslet.JSON = {
 	
 	parse: function(json) {
 		try {
-			return JSON.parse(this.normalize(json));
+//			return JSON.parse(this.normalize(json));//has bug
+			return JSON.parse(json);
 		} catch(e) {
 			throw new Error(jslet.formatString(jslet.locale.Common.jsonParseError, [json]));
 		}

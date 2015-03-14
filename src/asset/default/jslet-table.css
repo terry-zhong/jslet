@@ -23,7 +23,6 @@
 .jl-table td {
     margin: 0;
     padding: 0;
-	vertical-align: top;
 }
 
 .jl-tbl-footer td {
@@ -82,6 +81,7 @@
 .jl-tbl-data td, .jl-tbl-data th {
     border-right: 1px solid #a4bed4;
     border-bottom: 1px solid #a4bed4;
+    vertial-align: middle;
 }
 
 .jl-tbl-noborder .jl-tbl-data td, .jl-tbl-noborder .jl-tbl-data th {
