@@ -603,11 +603,10 @@ jslet.like = like = window.like = function(testValue, pattern, escapeChar) {
 		escapeChar = '\\';
 	}
 	var jsPattern = jslet._convertToJsPattern(pattern, escapeChar);
-	if(testValue.match) {
-		return testValue.match(jsPattern) !== null;
-	} else {
-		throw new Error('testValue for like function must be a String!');
+	if(!jslet.isString(testValue)) {
+		testValue += '';
 	}
+	return testValue.match(jsPattern) !== null;
 };
 
 /**
