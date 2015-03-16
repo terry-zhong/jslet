@@ -95,11 +95,12 @@ jslet.data.Dataset = function (name) {
 	
 	Z._datasetListener = null; //
 	
-	Z._autoShowError = false;
+	Z._autoShowError = true;
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
 	Z._aggratedValues = null;
-	
+	Z._beforeScrollDebounce = jslet.debounce(Z._innerBeforeScrollDebounce, 30);	
+	Z._afterScrollDebounce = jslet.debounce(Z._innerAfterScrollDebounce, 30);	
 	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
@@ -1039,6 +1040,20 @@ jslet.data.Dataset.prototype = {
 		Z._filteredRecnoArray = tempRecno;
 	},
 
+	_innerAfterScrollDebounce: function() {
+		var eventFunc = jslet.getFunction(Z._datasetListener);
+		if(eventFunc) {
+			eventFunc.call(Z, jslet.data.DatasetEvent.AFTERSCROLL);
+		}
+	},
+	
+	_innerBeforeScrollDebounce: function() {
+		var eventFunc = jslet.getFunction(Z._datasetListener);
+		if(eventFunc) {
+			eventFunc.call(Z, jslet.data.DatasetEvent.BEFORESCROLL);
+		}
+	},
+	
 	/**
 	 * @private
 	 */
@@ -1047,9 +1062,15 @@ jslet.data.Dataset.prototype = {
 		if (Z._silence || Z._igoreEvent || !Z._datasetListener) {
 			return;
 		}
-		var eventFunc = jslet.getFunction(Z._datasetListener);
-		if(eventFunc) {
-			eventFunc.call(Z, evtType);
+		if(evtType == jslet.data.DatasetEvent.AFTERSCROLL) {
+			Z._afterScrollDebounce.call(Z);
+		} else if(evtType == jslet.data.DatasetEvent.BEFORESCROLL) {
+			Z._beforeScrollDebounce.call(Z);
+		} else {
+			var eventFunc = jslet.getFunction(Z._datasetListener);
+			if(eventFunc) {
+				eventFunc.call(Z, evtType);
+			}
 		}
 	},
 
@@ -1128,8 +1149,8 @@ jslet.data.Dataset.prototype = {
 	 * @param {Integer}recno - record number
 	 */
 	_gotoRecno: function (recno) {
-		var Z = this;
-		var recCnt = Z.recordCount();
+		var Z = this,
+			recCnt = Z.recordCount();
 		if(recCnt == 0) {
 			return false;
 		}
@@ -1151,7 +1172,7 @@ jslet.data.Dataset.prototype = {
 			}
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.beforeScrollEvent(Z._recno);
-				jslet.debounce(Z.refreshControl, 100).call(Z, evt);
+				Z.refreshControl(evt);
 			}
 		}
 
@@ -1183,7 +1204,7 @@ jslet.data.Dataset.prototype = {
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.scrollEvent(Z._recno, preno);
-				jslet.debounce(Z.refreshControl, 100).call(Z, evt);
+				Z.refreshControl(evt);
 			}
 		}
 		return true;
@@ -1215,6 +1236,7 @@ jslet.data.Dataset.prototype = {
 	_moveCursor: function (recno) {
 		var Z = this;
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
+			Z._aborted = false;
 			Z.confirm();
 			if (Z._aborted) {
 				return;
@@ -2173,9 +2195,11 @@ jslet.data.Dataset.prototype = {
 		Z._innerValidateData();
 		var evt;
 		if (Z.hasFieldErrorMessage() || !Z._confirmSubDataset()) {
-			console.error(jslet.locale.Dataset.cannotConfirm);
+			
 			if (Z._autoShowError) {
-				jslet.showInfo(jslet.locale.Dataset.cannotConfirm);
+				jslet.showInfo(jslet.locale.Dataset.cannotConfirm, 2000);
+			} else {
+				console.info(jslet.locale.Dataset.cannotConfirm);
 			}
 			Z._aborted = true;
 			evt = jslet.data.RefreshEvent.updateRecordEvent();
@@ -2213,7 +2237,7 @@ jslet.data.Dataset.prototype = {
 		
 		Z.clearFieldErrorMessage();
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCONFIRM);
-
+		Z.calcAggratedValue();
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
 		return true;
@@ -2236,7 +2260,7 @@ jslet.data.Dataset.prototype = {
 		for(var i = 0, len = subDatasets.length; i < len; i++) {
 			subDs = subDatasets[i];
 			if(!subDs.confirm()) {
-				console.error('Error in [' + subDs.name() + '], can\'t confirm!');
+				console.warn('Error in [' + subDs.name() + '], can\'t confirm!');
 				return false;
 			}
 		}
@@ -2276,7 +2300,6 @@ jslet.data.Dataset.prototype = {
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
-			Z.calcAggratedValue();		
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -2284,8 +2307,7 @@ jslet.data.Dataset.prototype = {
 			}
 			jslet.data.FieldValueCache.removeCache(Z._modiObject);
 			records[k] = Z._modiObject;
-			Z._modiObject = null;
-			
+			Z._modiObject = null;	
 		}
 
 		Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -2294,7 +2316,6 @@ jslet.data.Dataset.prototype = {
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
-		Z.calcAggratedValue();		
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
 	},
@@ -2434,7 +2455,7 @@ jslet.data.Dataset.prototype = {
 		if (!Z._silence && Z._contextRuleEnabled) {
 			Z.calcContextRule(fldName);
 		}
-		Z.calcAggratedValue();		
+//		Z.calcAggratedValue();		
 
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
@@ -2518,14 +2539,18 @@ jslet.data.Dataset.prototype = {
 	},
 
 	hasFieldErrorMessage: function() {
+		var errors = null, errMsg;
 		var fields = this.getNormalFields();
 		for(var i = 0, len = fields.length; i < len; i++) {
-			if(fields[i].message()) {
-				console.error(fields[i].message());
-				return true;
+			errMsg = fields[i].message();
+			if(errMsg) {
+				if(!errors) {
+					errors = [];
+				}
+				errors.push(errMsg);
 			}
 		}
-		return false;
+		return errors;
 	},
 	
 	clearFieldErrorMessage: function() {
@@ -2715,8 +2740,8 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		var invalidMsg = Z.fieldValidator.checkInputText(fldObj, inputText);
+		fldObj.message(invalidMsg, valueIndex);
 		if (invalidMsg) {
-			fldObj.message(invalidMsg, valueIndex);
 			return;
 		}
 		
@@ -3833,21 +3858,7 @@ jslet.data.Dataset.prototype = {
 		if (!updateEvt) {
 			updateEvt = jslet.data.RefreshEvent.updateAllEvent();
 		}
-//		if (updateEvt.eventType == jslet.data.RefreshEvent.UPDATEALL) {
-//			var flag = this.isContextRuleEnabled();
-//			if (flag) {
-//				this.disableContextRule();
-//			}
-//			try {
-//				this._refreshInnerControl(updateEvt);
-//			} finally {
-//				if (flag) {
-//					this.enableContextRule();
-//				}
-//			}
-//		} else {
-			this._refreshInnerControl(updateEvt);
-//		}
+		this._refreshInnerControl(updateEvt);
 	},
 
 	/**

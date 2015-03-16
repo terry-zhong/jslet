@@ -193,6 +193,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._hoverRowIndex = -1;
 		Z._oldHoverRowClassName;
 		Z._oldHeight = null;
+		Z._fillDataDebounce = jslet.debounce(this._innerFillData, 30);
 		$super(el, params);
 	},
 	
@@ -1284,6 +1285,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_doSort: function (sortField, isMultiSort) {
 		var Z = this;
+		if(!Z._dataset.confirm()) {
+			return;
+		} 
 		Z._dataset.disableControls();
 		try {
 			if (!Z._onCustomSort) {
@@ -1598,8 +1602,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otd.firstChild.innerHTML =jslet.formatNumber(totalValue, fldObj.displayFormat());
 		}
 	},
-
-	_fillData: function () {
+	
+	_innerFillData: function () {
 		var Z = this;
 		var preRecno = Z._dataset.recno(),
 			allCnt = Z.listvm.getNeedShowRowCount(),
@@ -1616,6 +1620,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} finally {
 			Z._dataset.endSilenceMove(context);
 		}
+	},
+	
+	_fillDataDebounce: jslet.debounce(this._innerFillData, 100),
+	
+	_fillData: function () {
+		this._fillDataDebounce.apply(this);
 	},
 	
 	_fillRow: function (isFixed) {
@@ -1801,8 +1811,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	}, // end _getLeftRowByRecno
 
 	_showCurrentRow: function (checkVisible) {//Check if current row is in visible area
-		var Z = this;
-		rowno = Z.listvm.recnoToRowno(Z._dataset.recno());
+		var Z = this,
+			rowno = Z.listvm.recnoToRowno(Z._dataset.recno());
 		Z.listvm.setCurrentRowno(rowno, false, checkVisible);
 	},
 
@@ -2099,6 +2109,7 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		if (!fldName) {
 			return;
 		}
+		
 		var fldObj = Z._dataset.getField(fldName), text;
 		try {
 			text = Z._dataset.getFieldText(fldName);
@@ -2139,6 +2150,7 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			return;
 		}
 		var editCtrl = cellPanel.firstChild.jslet;
+		
 		editCtrl.currRecno(recNo);
 		editCtrl.forceRefreshControl();
 	} 
@@ -2151,11 +2163,6 @@ jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 	},
 	
 	createCell: function (cellPanel, colCfg) {
-		var Z = this;
-//		cellPanel.innerHTML = '';
-//		var odiv = document.createElement('div');
-//		otd.appendChild(odiv);
-//		odiv.className = jslet.ui.htmlclass.TABLECLASS.celldiv;
 	},
 	
 	refreshCell: function (cellPanel, colCfg) {
@@ -2163,7 +2170,6 @@ jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 			return;
 		}
 		var jqDiv = jQuery(cellPanel);
-		//jqDiv.html('');
 		var text = this._dataset.recno() + 1;
 		cellPanel.title = text;
 		jqDiv.html(text);

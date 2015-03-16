@@ -258,49 +258,45 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		try {
-			var optCnt = Z.el.options.length, 
-				opt, i;
-			for (i = 0; i < optCnt; i++) {
-				opt = Z.el.options[i];
-				if (opt) {
-					opt.selected = false;
+		var optCnt = Z.el.options.length, 
+			opt, i;
+		for (i = 0; i < optCnt; i++) {
+			opt = Z.el.options[i];
+			if (opt) {
+				opt.selected = false;
+			}
+		}
+		
+		if (!Z.el.multiple) {
+			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			if (value === null){
+				if (!fldObj.required()) {
+					value = '_null_';
 				}
 			}
-			
-			if (!Z.el.multiple) {
-				var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
-				if (value === null){
-					if (!fldObj.required()) {
-						value = '_null_';
-					}
-				}
-				Z.el.value = value;
-			} else {
-				var arrValue = Z._dataset.getFieldValue(Z._field);
-				if(arrValue === null || arrValue.length === 0) {
-					return;
-				}
-					
-				var vcnt = arrValue.length - 1, selected;
-				Z._keep_silence_ = true;
-				try {
-					for (i = 0; i < optCnt; i++) {
-						opt = Z.el.options[i];
+			Z.el.value = value;
+		} else {
+			var arrValue = Z._dataset.getFieldValue(Z._field);
+			if(arrValue === null || arrValue.length === 0) {
+				return;
+			}
+				
+			var vcnt = arrValue.length - 1, selected;
+			Z._keep_silence_ = true;
+			try {
+				for (i = 0; i < optCnt; i++) {
+					opt = Z.el.options[i];
 
-						for (j = vcnt; j >= 0; j--) {
-							selected = (arrValue[j] == opt.value);
-							if (selected) {
-								opt.selected = selected;
-							}
-						} // end for j
-					} // end for i
-				} finally {
-					Z._keep_silence_ = false;
-				}
+					for (j = vcnt; j >= 0; j--) {
+						selected = (arrValue[j] == opt.value);
+						if (selected) {
+							opt.selected = selected;
+						}
+					} // end for j
+				} // end for i
+			} finally {
+				Z._keep_silence_ = false;
 			}
-		} catch (e) {
-			jslet.showError(e);
 		}
 	},
  
@@ -313,7 +309,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	renderAll: function () {
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
-	}, // end renderAll
+	},
 
 	updateToDataset: function () {
 		var Z = this;

@@ -1051,7 +1051,7 @@ jslet.showError = function (e) {
 * 
 * @param e - error object or error message
 */
-jslet.showInfo = function (e) {
+jslet.showInfo = function (e, timeout) {
 	var msg;
 	if (typeof (e) == 'string') {
 		msg = e;
@@ -1059,7 +1059,7 @@ jslet.showInfo = function (e) {
 		msg = e.message;
 	}
 	if (jslet.ui.MessageBox) {
-		jslet.ui.MessageBox.alert(msg);
+		jslet.ui.MessageBox.alert(msg, jslet.locale.MessageBox.Info, null, timeout);
 	} else {
 		alert(msg);
 	}

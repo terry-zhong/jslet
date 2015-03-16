@@ -21,6 +21,7 @@
 }
 
 .jl-table td {
+	vertical-align: top;
     margin: 0;
     padding: 0;
 }
@@ -81,7 +82,7 @@
 .jl-tbl-data td, .jl-tbl-data th {
     border-right: 1px solid #a4bed4;
     border-bottom: 1px solid #a4bed4;
-    vertial-align: middle;
+    vertical-align: middle;
 }
 
 .jl-tbl-noborder .jl-tbl-data td, .jl-tbl-noborder .jl-tbl-data th {

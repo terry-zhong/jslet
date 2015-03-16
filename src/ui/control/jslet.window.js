@@ -575,6 +575,9 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	close: function () {
 		var Z = this;
+		if(!Z.el) {
+			return;
+		}
 		if (Z._onClosed) {
 			var action = Z._onClosed.call(Z);
 			if (action && action.toLowerCase() == 'hidden') {
@@ -1202,6 +1205,7 @@ jslet.ui.MessageBox = function () {
 			k = btnCount - 1;
 		}
 		toolBar.childNodes[k].focus();
+		return owin;
 	};
 };
 
@@ -1211,12 +1215,20 @@ jslet.ui.MessageBox = function () {
  * jslet.ui.MessageBox.alert('Finished!', 'Tips');
  * </code></pre>
  */
-jslet.ui.MessageBox.alert = function (message, caption, callbackFn) {
+jslet.ui.MessageBox.alert = function (message, caption, callbackFn, timeout) {
 	var omsgBox = new jslet.ui.MessageBox();
 	if (!caption) {
 		caption = jslet.locale.MessageBox.info;
 	}
-	omsgBox.show(message, caption, 'info', ['ok'], callbackFn);
+	var owin = omsgBox.show(message, caption, 'info', ['ok'], callbackFn);
+	if(timeout) {
+		timeout = parseInt(timeout);
+		if(timeout !== NaN) {
+			window.setTimeout(function() {
+				owin.close()
+			}, timeout);
+		}
+	}
 };
 
 /**
