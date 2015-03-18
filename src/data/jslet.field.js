@@ -750,7 +750,7 @@ jslet.data.Field.prototype = {
 	readOnly: function (readOnly) {
 		var Z = this;
 		if (readOnly === undefined){
-			if (Z._formula || Z._dataType == jslet.data.DataType.DATASET || Z._dataType == jslet.data.DataType.GROUP) {
+			if (Z._dataType == jslet.data.DataType.DATASET || Z._dataType == jslet.data.DataType.GROUP) {
 				return true;
 			}
 
@@ -763,7 +763,12 @@ jslet.data.Field.prototype = {
 	},
 	
 	fieldReadOnly: function() {
-		return this._readOnly;
+		var Z = this;
+		if (Z._dataType == jslet.data.DataType.DATASET || Z._dataType == jslet.data.DataType.GROUP) {
+			return true;
+		}
+
+		return Z._readOnly;
 	},
 	
 	fieldDisabled: function() {
@@ -1447,6 +1452,12 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('aggratedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
+	
+	var regularExpr = cfg.regularExpr;
+	var regularMessage = cfg.regularMessage;
+	if(regularExpr) {
+		fldObj.regularExpr(regularExpr, regularMessage);
+	}
 	
 	var lkfCfg = cfg.lookup;
 	if(lkfCfg === undefined) {

@@ -2000,7 +2000,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return null;
 		}
 		var fldObj = Z._dataset.getField(fldName),
-		isEditable = !fldObj.disabled() && !fldObj.readOnly() ? 1 : 0;
+			isEditable = !fldObj.fieldDisabled() && !fldObj.fieldReadOnly() ? 1 : 0;
 		if (!isEditable) {
 			return null;
 		}

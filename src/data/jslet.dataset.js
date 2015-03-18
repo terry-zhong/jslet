@@ -1041,14 +1041,16 @@ jslet.data.Dataset.prototype = {
 	},
 
 	_innerAfterScrollDebounce: function() {
-		var eventFunc = jslet.getFunction(Z._datasetListener);
+		var Z = this,
+			eventFunc = jslet.getFunction(Z._datasetListener);
 		if(eventFunc) {
 			eventFunc.call(Z, jslet.data.DatasetEvent.AFTERSCROLL);
 		}
 	},
 	
 	_innerBeforeScrollDebounce: function() {
-		var eventFunc = jslet.getFunction(Z._datasetListener);
+		var Z = this,
+			eventFunc = jslet.getFunction(Z._datasetListener);
 		if(eventFunc) {
 			eventFunc.call(Z, jslet.data.DatasetEvent.BEFORESCROLL);
 		}
@@ -2454,13 +2456,12 @@ jslet.data.Dataset.prototype = {
 		//calc other fields' range to use context rule
 		if (!Z._silence && Z._contextRuleEnabled) {
 			Z.calcContextRule(fldName);
-		}
-//		Z.calcAggratedValue();		
+		}	
 
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
-		Z.updateFormula();
+		Z.updateFormula(fldName);
 		return this;
 	},
 
@@ -2518,17 +2519,12 @@ jslet.data.Dataset.prototype = {
 				value = dataRec[fldName];
 				fldValue = value !== undefined ? value :null;
 			} else {
-				if (Z._innerFormularFields === null) {
-					Z._innerFormularFields = new jslet.SimpleMap();
+				if(dataRec[fldName] === undefined) {
+					fldValue = Z._calcFormula(dataRec, fldObj);
+				} else {
+					value = dataRec[fldName];
+					fldValue = value !== undefined ? value :null;
 				}
-				var evaluator = Z._innerFormularFields.get(fldName);
-				if (evaluator === null) {
-					evaluator = new jslet.Expression(this, formula);
-					Z._innerFormularFields.set(fldName, evaluator);
-				}
-				evaluator.context.dataRec = dataRec;
-				fldValue = evaluator.eval();
-				dataRec[fldName] = fldValue;
 			}
 		}
 
@@ -2539,18 +2535,14 @@ jslet.data.Dataset.prototype = {
 	},
 
 	hasFieldErrorMessage: function() {
-		var errors = null, errMsg;
 		var fields = this.getNormalFields();
 		for(var i = 0, len = fields.length; i < len; i++) {
-			errMsg = fields[i].message();
-			if(errMsg) {
-				if(!errors) {
-					errors = [];
-				}
-				errors.push(errMsg);
+			if(fields[i].message()) {
+				console.error(fields[i].message());
+				return true;
 			}
 		}
-		return errors;
+		return false;
 	},
 	
 	clearFieldErrorMessage: function() {
@@ -2648,7 +2640,7 @@ jslet.data.Dataset.prototype = {
 		}
 		//Get cached display value if exists.
 		if(!isEditing) {
-			var cacheValue = jslet.data.FieldValueCache.get(Z.getRecord(), fldName, valueIndex);
+			var cacheValue = jslet.data.FieldValueCache.get(currRec, fldName, valueIndex);
 			if(cacheValue !== undefined) {
 				return cacheValue;
 			}
@@ -2669,23 +2661,45 @@ jslet.data.Dataset.prototype = {
 		var text = convert.valueToText.call(Z, fldObj, value, isEditing);
 		//Put display value into cache
 		if(!isEditing) {
-			jslet.data.FieldValueCache.put(Z.getRecord(), fldName, text, valueIndex);
+			jslet.data.FieldValueCache.put(currRec, fldName, text, valueIndex);
 		}
 		return text;
+	},
+	
+	_calcFormula: function(currRec, fldObj) {
+		var Z = this;
+		if (Z._innerFormularFields === null) {
+			Z._innerFormularFields = new jslet.SimpleMap();
+		}
+		var fldName = fldObj.name(),
+			formula = fldObj.formula();
+		var evaluator = Z._innerFormularFields.get(fldName);
+		if (evaluator === null) {
+			evaluator = new jslet.Expression(this, formula);
+			Z._innerFormularFields.set(fldName, evaluator);
+		}
+		evaluator.context.dataRec = currRec;
+		return evaluator.eval();	
 	},
 	
 	/**
 	 * @private
 	 */
-	updateFormula: function () {
+	updateFormula: function (changedFldName) {
 		var cnt = this._normalFields.length, 
-			fldObj,
+			fldName, fldObj, formula,
 			currRec = this.getRecord();
 		for (var i = 0; i < cnt; i++) {
 			fldObj = this._normalFields[i];
-			var fldName = fldObj.name();
-			if (fldObj.formula()) {//update all formular field
-				jslet.data.FieldValueCache.clear(currRec, fldName);
+			fldName = fldObj.name();
+			formula = fldObj.formula();
+			if (formula) {//update all formular field
+				if(fldName == changedFldName) {
+					continue;
+				}
+
+				fldObj.setValue(this._calcFormula(currRec, fldObj));
+				
 				var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 				this.refreshControl(evt);
 			}

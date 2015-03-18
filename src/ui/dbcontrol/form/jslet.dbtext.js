@@ -41,6 +41,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._beforeUpdateToDataset = null;
 		Z._enableInvalidTip = true;
 		
+		Z._enterProcessed = false;
 		/**
 		 * @private
 		 */
@@ -125,12 +126,23 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.updateToDataset();
 		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 	},
+	
+	doKeydown: function(event) {
+		event = jQuery.event.fix( event || window.event );
+		var keyCode = event.which;
+		//When press 'enter', write data to dataset.
+		if(keyCode == 13) {
+			var Z = this.jslet;
+			Z._enterProcessed = true;
+			Z.updateToDataset();
 
-	doKeydown: null,
+			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+		}
+	},
 
 	doKeypress: function (event) {
 		var Z = this.jslet,
-		fldObj = Z._dataset.getField(Z._field);
+			fldObj = Z._dataset.getField(Z._field);
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
 		}
@@ -141,8 +153,12 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		//When press 'enter', write data to dataset.
 		if(keyCode == 13) {
-			Z.updateToDataset();
-			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+			if(!Z._enterProcessed) {
+				Z.updateToDataset();
+				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+			} else {
+				Z._enterProcessed = false;
+			}
 		}
 	},
 

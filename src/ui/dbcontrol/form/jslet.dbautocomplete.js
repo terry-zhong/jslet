@@ -201,11 +201,18 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			if (keyCode == 40) {//down arrow
 				lkds.next();
 			}
+			return;
 		}
 
 		if (keyCode == 8 || keyCode == 46 || keyCode == 229) {//delete/backspace/ime
 			this.jslet._invokePopup();
+			return;
 		}
+		if ((keyCode === 13 || keyCode === 9) && this.jslet.contentPanel) {
+			this.jslet.contentPanel.confirmSelect();
+			return;
+		}
+
 	},
 
 	/**
