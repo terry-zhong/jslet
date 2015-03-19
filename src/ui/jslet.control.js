@@ -501,7 +501,10 @@ jslet.ui.getControlClass = function (name) {
 jslet.ui.bindControl = function (el, jsletparam) {
 	if (!jsletparam)
 		jsletparam = jQuery(el).attr('data-jslet');
-
+	if(el.jslet) {
+		console.warn('Control has installed! Don\'t install it again!');
+		return;
+	}
 	var ctrlParam = jslet.ui._evalParams(jsletparam);
 	var controlType = ctrlParam.type;
 	if (!controlType) {

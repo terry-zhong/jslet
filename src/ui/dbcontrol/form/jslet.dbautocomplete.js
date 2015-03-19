@@ -286,7 +286,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			lkds.filter('like([' + fldName + '],"' + s + '")');
 			lkds.filtered(true);
 		} else {
-			lkds.filtered(false);
+			lkds.filter(null);
 		}
 		
 		if (!Z.contentPanel) {

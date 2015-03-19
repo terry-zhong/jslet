@@ -31,7 +31,8 @@ jslet.data.Dataset = function (name) {
 
 	Z._status = 0; // dataset status, optional values: 0:browse;1:created;2:updated;3:deleted;
 	Z._subDatasetFields = null; //Array of dataset field object
-
+	
+	Z._fixedFilter = null;	
 	Z._filter = null;
 	Z._filtered = false;
 	Z._innerFilter = null; //inner variable
@@ -170,6 +171,7 @@ jslet.data.Dataset.prototype = {
 		result._unitConvertFactor = Z._unitConvertFactor;
 		result._unitName = Z._unitName;
 
+		result._fixedFilter = Z._fixedFilter;
 		result._filter = Z._filter;
 		result._filtered = Z._filtered;
 		result._logChanged = Z._logChanged;
@@ -922,6 +924,58 @@ jslet.data.Dataset.prototype = {
 		this._sortingFields.push(indexNameObj);
 	},
 	
+	_getWholeFilter: function() {
+		var Z = this, 
+			result = Z._fixedFilter;
+		if(result) {
+			if(Z._filter) {
+				return '(' + result + ') && (' + Z._filter + ')';
+			}
+		} else {
+			result = Z._filter;
+		}
+		return result;
+	},
+	
+	/**
+	 * Set or get dataset fixed filter expression
+	 * Fixed filter is the global filter expression for dataset.
+	 * <pre><code>
+	 *   dsFoo.fixedFilter('[age] > 20');
+	 * </code></pre>
+	 * 
+	 * @param {String} fixedFilter: fixed filter expression.
+	 * @return {String or this}
+	 */
+	fixedFilter: function (fixedFilter) {
+		var Z = this;
+		if (fixedFilter === undefined) {
+			return Z._fixedFilter;
+		}
+		
+		jslet.Checker.test('dataset.fixedFilter', fixedFilter).isString();
+		if(fixedFilter) {
+			fixedFilter = jQuery.trim(fixedFilter);
+		}
+		var oldFilter = Z._getWholeFilter();
+		Z._fixedFilter = fixedFilter;
+		var newFilter = Z._getWholeFilter();
+		
+		if (!newFilter) {
+			Z._innerFilter = null;
+			Z._filtered = false;
+			Z._filteredRecnoArray = null;
+		} else {
+			if(oldFilter == newFilter) {
+				return this;
+			} else {
+				Z._innerFilter = new jslet.Expression(Z, newFilter);
+			}
+		}
+		Z._doFilterChanged();
+		return this;
+	},
+	
 	/**
 	 * Set or get dataset filter expression
 	 * Filter can work depending on property: filtered, filtered must be true.
@@ -940,19 +994,23 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		jslet.Checker.test('dataset.filter#filterExpr', filterExpr).isString();
-		filterExpr = jQuery.trim(filterExpr);
-		var oldFilter = Z._filter;
-		if (!filterExpr) {
+		if(filterExpr) {
+			filterExpr = jQuery.trim(filterExpr);
+		}
+
+		var oldFilter = Z._getWholeFilter();
+		Z._filter = filterExpr;
+		var newFilter = Z._getWholeFilter();
+		
+		if (!newFilter) {
 			Z._innerFilter = null;
 			Z._filtered = false;
-			Z._filter = null;
 			Z._filteredRecnoArray = null;
 		} else {
-			Z._filter = filterExpr;
-			if(oldFilter == Z._filter) {
+			if(oldFilter == newFilter) {
 				return this;
 			} else {
-				Z._innerFilter = new jslet.Expression(Z, filterExpr);
+				Z._innerFilter = new jslet.Expression(Z, newFilter);
 			}
 		}
 		Z._doFilterChanged();
@@ -972,14 +1030,15 @@ jslet.data.Dataset.prototype = {
 			return Z._filtered;
 		}
 		
-		var oldFilter = Z._filter, oldFiltered = Z._filtered;
-		if (afiltered && !Z._filter) {
+		var oldFilter = Z._getWholeFilter(), 
+			oldFiltered = Z._filtered;
+		if (afiltered && !oldFilter) {
 			Z._filtered = false;
 		} else {
 			Z._filtered = afiltered ? true: false;
 		}
 
-		if(oldFilter == Z._filter && oldFiltered == Z._filtered) {
+		if(oldFiltered == Z._filtered) {
 			return this;
 		}
 		this._doFilterChanged();
@@ -1010,8 +1069,9 @@ jslet.data.Dataset.prototype = {
 	 * @private, filter data
 	 */
 	_filterData: function () {
-		var Z = this;
-		if (!Z._filtered || !Z._filter || 
+		var Z = this,
+		 	filter = Z._getWholeFilter();
+		if (!Z._filtered || !filter || 
 				Z._status == jslet.data.DataSetStatus.INSERT || 
 				Z._status == jslet.data.DataSetStatus.UPDATE) {
 			return true;
@@ -4175,6 +4235,7 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setIntPropValue('pageSize');
 		setPropValue('fixedIndexFields');
 		setPropValue('indexFields');
+		setPropValue('fixedFilter');
 		setPropValue('filter');
 		setBooleanPropValue('filtered');
 		setBooleanPropValue('autoShowError');
@@ -4191,15 +4252,42 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	return dsObj;
 };
 
-jslet.data.createCrossDataset = function(sourceDataset, labelField, valueField, crossDsName) {
-	if(!crossDsName) {
-		crossDsName = sourceDataset.name()+'_cross';
-	}
-	var lblFldObj = sourceDataset.getField(labelField);
-	var lblLkFld = lblFldObj.lookup();
-	if(!lblLkFld) {
-		throw new Error(sourceDataset.name() + '.' + labelField + ' must have lookup dataset!');
-	}
-	var valueFldObj = sourceDataset.getField(valueField);
-	
-}
+//
+//jslet.data.createCrossDataset = function(sourceDataset, labelField, valueField, crossDsName) {
+//	if(!crossDsName) { 
+//		crossDsName = sourceDataset.name()+'_cross'; 
+//	} 
+//	jslet.Checker.test('createCrossDataset#labelField', labelField).required().isString();
+//	jslet.Checker.test('createCrossDataset#valueField', valueField).required().isString();
+//
+//	if(jslet.isString(sourceDataset)) {
+//		sourceDataset = jslet.data.getDataset(sourceDataset);
+//	}
+//	jslet.Checker.test('createCrossDataset#sourceDataset', sourceDataset).required().isClass(jslet.data.Dataset.className);
+//	
+//	var lblFldObj = sourceDataset.getField(labelField);
+//	if(!lblFldObj) {
+//		throw new Error('Not found field: ' + labelField);
+//	}
+//	var lblLkFld = lblFldObj.lookup(); 
+//	if(!lblLkFld) { 
+//		throw new Error(sourceDataset.name() + '.' + labelField + ' must have lookup dataset!'); 
+//	} 
+//	var valueFldObj = sourceDataset.getField(valueField); 
+//	if(!valeFldObj) {
+//		throw new Error('Not found field: ' + valeFldObj);
+//	}
+//	if(valeFldObj.getType() != jslet.data.DataType.NUMBER) {
+//		hasTotalField = false;
+//	}
+//	
+//	var labelFldNames = labelField.split(',');
+//		
+//	{name: '', horiFields:[{field:'', subTotal: false, showAll:false}, 
+//	           vertFields:[{field:'', subTotal: false, showAll:false}], 
+//	           cellFields:'',
+//	           totalPosition: 'before/after',
+//	           indent: true}
+//	
+//	
+//}

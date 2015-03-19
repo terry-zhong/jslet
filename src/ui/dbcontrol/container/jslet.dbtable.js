@@ -377,7 +377,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				colObj = columns[i];
 				jslet.Checker.test('DBTable.Column.field', colObj.field).isString();
 				jslet.Checker.test('DBTable.Column.label', colObj.label).isString();
-				jslet.Checker.test('DBTable.Column.colNum', colObj.colNum).isGTZero();
+				jslet.Checker.test('DBTable.Column.colNum', colObj.colNum).isGTEZero();
 				jslet.Checker.test('DBTable.Column.width', colObj.width).isGTZero();
 				jslet.Checker.test('DBTable.Column.colSpan', colObj.colSpan).isGTZero();
 				colObj.disableHeadSort = colObj.disableHeadSort ? true: false;
