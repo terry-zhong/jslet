@@ -137,6 +137,26 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = event.delegateTarget.jslet;
 		Z._currOption = this;
 	},
+
+	_setDefaultValue: function(fldObj, firstItemValue) {
+		if(!firstItemValue || !fldObj.required()) {
+			return;
+		}
+		var dftValue = fldObj.defaultValue();
+		if(dftValue) {
+			var lkds = fldObj.lookup().dataset();
+			var found = lkds.findByKey(dftValue);
+			if(found) {
+				return
+			} else {
+				dftValue = null
+			}
+		}
+		
+		if(!dftValue) {
+			fldObj.defaultValue(firstItemValue);
+		}
+	},
 	
 	/**
 	 * @override
@@ -154,43 +174,46 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		var lkds = lkf.dataset(),
-			oldRecno = lkds.recno(),
 			groupIsLookup = false,
-			groupLookup, groupFldObj, extraIndex;
+			groupLookup, 
+			groupFldObj, 
+			extraIndex;
 
+		if (Z._groupField) {
+			groupFldObj = lkds.getField(Z._groupField);
+			if (groupFldObj === null) {
+				throw 'NOT found field: ' + Z._groupField + ' in ' + lkds.name();
+			}
+			groupLookup = groupFldObj.lookup();
+			groupIsLookup = (groupLookup !== null);
+			if (groupIsLookup) {
+				extraIndex = Z._groupField + '.' + groupLookup.codeField();
+			} else {
+				extraIndex = Z._groupField;
+			}
+			var indfld = lkds.indexFields();
+			if (indfld) {
+				lkds.indexFields(extraIndex + ';' + indfld);
+			} else {
+				lkds.indexFields(extraIndex);
+			}
+		}
+		var preGroupValue, groupValue, groupDisplayValue, content = [];
+
+		if (!Z.el.multiple && !fldObj.required()){
+			content.push('<option value="_null_">');
+			content.push(fldObj.nullText());
+			content.push('</option>');
+		}
+		var oldRecno = lkds.recno(),
+			optValue, optDispValue, 
+			firstItemValue = null;
 		try {
-			if (Z._groupField) {
-				groupFldObj = lkds.getField(Z._groupField);
-				if (groupFldObj === null) {
-					throw 'NOT found field: ' + Z._groupField + ' in ' + lkds.name();
-				}
-				groupLookup = groupFldObj.lookup();
-				groupIsLookup = (groupLookup !== null);
-				if (groupIsLookup) {
-					extraIndex = Z._groupField + '.' + groupLookup.codeField();
-				} else {
-					extraIndex = Z._groupField;
-				}
-				var indfld = lkds.indexFields();
-				if (indfld) {
-					lkds.indexFields(extraIndex + ';' + indfld);
-				} else {
-					lkds.indexFields(extraIndex);
-				}
-			}
-			var preGroupValue, groupValue, groupDisplayValue, content = [];
-
-			if (!Z.el.multiple && !fldObj.required()){
-				content.push('<option value="_null_">');
-				content.push(fldObj.nullText());
-				content.push('</option>');
-			}
 			for (var i = 0, cnt = lkds.recordCount(); i < cnt; i++) {
 				lkds.recnoSilence(i);
 				if (Z._groupField) {
 					groupValue = lkds.getFieldValue(Z._groupField);
 					if (groupValue != preGroupValue) {
-
 						if (preGroupValue !== null) {
 							content.push('</optgroup>');
 						}
@@ -215,15 +238,20 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					}
 				}
 				content.push('<option value="');
-				content.push(lkds.getFieldValue(lkf.keyField()));
+				optValue = lkds.getFieldValue(lkf.keyField());
+				if(i === 0) {
+					firstItemValue = optValue;
+				}
+				content.push(optValue);
 				content.push('">');
 				content.push(lkf.getCurrentDisplayValue());
 				content.push('</option>');
-			} // end while
+			} // end for
 			if (preGroupValue !== null) {
 				content.push('</optgroup>');
 			}
 			jQuery(Z.el).html(content.join(''));
+			Z._setDefaultValue(fldObj, firstItemValue);
 		} finally {
 			lkds.recnoSilence(oldRecno);
 		}

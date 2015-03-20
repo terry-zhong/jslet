@@ -281,14 +281,31 @@ jslet.data.FieldValidator.prototype = {
 	 * @param {String} inputChar Single character
 	 * @param {Boolean} True for passed, otherwise failed.
 	 */
-	checkInputChar: function (fldObj, inputChar) {
+	checkInputChar: function (fldObj, inputChar, existText) {
 		var validChars = fldObj.validChars();
-		
+		var valid = true;
 		if (validChars && inputChar) {
 			var c = inputChar.charAt(0);
-			return validChars.indexOf(c) >= 0;
+			valid = validChars.indexOf(c) >= 0;
 		}
-		return true;
+		if(existText && valid && fldObj.getType() == jslet.data.DataType.NUMBER){
+			var scale = fldObj.scale();
+			var k = existText.lastIndexOf('.');
+			if(inputChar == '.') {
+				if(k >= 0) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			if(scale > 0 && k >= 0) {
+				if(existText.length - k - 1 === scale) {
+					return false;
+				}
+			}
+			
+		}
+		return valid;
 	},
 	
 	/**

@@ -67,11 +67,11 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 			throw new Error('Field: ' + this._field + ' NOT exist!');
 		}
 		if((!subType || subType == 'label') && (!metaName || metaName == 'label' || metaName == 'required')) {
-			content = fldObj.label();
 			if (fldObj.required()) {
 				content += '<span class="jl-lbl-required">' + 
-					jslet.ui.DBLabel.REQUIREDCHAR + '<span>';
+					jslet.ui.DBLabel.REQUIREDCHAR + '</span>';
 			}
+			content += fldObj.label();
 			Z.el.innerHTML = content || '';
 			return;
 		}

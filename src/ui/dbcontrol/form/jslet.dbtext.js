@@ -147,8 +147,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return;
 		}
 		event = jQuery.event.fix( event || window.event );
-		var keyCode = event.which;
-		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode))) {
+		var keyCode = event.which,
+			existStr = jslet.getRemainingString(Z.el.value, jslet.ui.textutil.getSelectedText(Z.el));
+		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode), existStr)) {
 			event.preventDefault();
 		}
 		//When press 'enter', write data to dataset.
@@ -258,14 +259,15 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.el.style.textAlign = align;
 
 		var value;
-		if (document.activeElement != Z.el || Z.el.readOnly) {
-			value = Z._dataset.getFieldText(Z._field, false, Z._valueIndex);
-		} else {
-			value = Z._dataset.getFieldText(Z._field, true, Z._valueIndex);
-		}
 		if (Z.editMask){
+			value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
 			Z.editMask.setValue(value);
-		}else {
+		} else {
+			if (document.activeElement != Z.el || Z.el.readOnly) {
+				value = Z._dataset.getFieldText(Z._field, false, Z._valueIndex);
+			} else {
+				value = Z._dataset.getFieldText(Z._field, true, Z._valueIndex);
+			}
 			Z.el.value = value;
 		}
 		Z.oldValue = Z.el.value;

@@ -413,9 +413,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			fldValue = lookupDs.keyValue();
 		}
 
-		if (fldValue) {
-			Z.dataset.setFieldValue(Z.field, fldValue, Z._valueIndex);
-		}
+		Z.dataset.setFieldValue(Z.field, fldValue, Z._valueIndex);
 		if (!isMulti && Z.comboSelectObj._afterSelect) {
 			Z.comboSelectObj._afterSelect(Z.dataset, lookupDs);
 		}

@@ -1249,6 +1249,7 @@ jslet.data.Dataset.prototype = {
 				if (subds) {
 //					subds.confirm();
 //					subds.dataList(Z.getFieldValue(fldObj.name()));
+					subds.calcAggratedValue();
 					var indexflds = subds.indexFields();
 					if (indexflds) {
 						subds.indexFields(indexflds);

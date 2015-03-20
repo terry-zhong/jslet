@@ -1026,6 +1026,13 @@ jslet.getFunction = function(funcOrFuncName, context) {
 	return result;
 }
 
+jslet.getRemainingString = function(wholeStr, cuttingStr) {
+	if(!wholeStr || !cuttingStr) {
+		return wholeStr;
+	}
+	return wholeStr.replace(cuttingStr, '');
+}
+
 /**
 * Show error message.
 *  
