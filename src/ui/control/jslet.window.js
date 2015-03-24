@@ -1078,13 +1078,19 @@ jslet.ui.MessageBox = function () {
 	 */
 	this.show = function (message, caption, iconClass, buttons, callbackFn, hasInput, defaultValue, validateFn) {
 		jslet.ui.textMeasurer.setElement(document.body);
-		var mw = jslet.ui.textMeasurer.getWidth(message);
-		var mh = jslet.ui.textMeasurer.getHeight(message) + 100;
+		var arrMsg = message.split('\n'),
+			msgLen = arrMsg.length;
+		var mh = jslet.ui.textMeasurer.getHeight(message),
+			mw = 0;
+		for(var i = 0; i < msgLen; i++) {
+			mw = Math.max(mw, jslet.ui.textMeasurer.getWidth(message[i]));
+		}
+		mh = mh * arrMsg.length + 100;
 		jslet.ui.textMeasurer.setElement();
 		if (mw < 200) {
 			mw = 200;
 		}
-
+		message = message.replace('\n', '<br />');
 		var btnWidth = parseInt(jslet.ui.getCssValue('jl-msg-button', 'width'));
 		var btnCount = buttons.length;
 		var toolWidth = (btnWidth + 10) * btnCount - 10;

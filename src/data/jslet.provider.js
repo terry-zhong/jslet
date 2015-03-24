@@ -60,8 +60,14 @@ jslet.data.DataProvider = function() {
 			defer.resolve(data, this);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {
-			var data = {errorCode: textStatus, errorMessage: errorThrown};
-			defer.reject(data, this);
+			var data = jqXHR.responseJSON,
+				result = {};
+			if(data && data.errorCode) {
+				result = {errorCode: data.errorCode, errorMessage: data.errorMessage};
+			} else {
+				result = {errorCode: textStatus, errorMessage: errorThrown};
+			}
+			defer.reject(result, this);
 		})
 		.always(function(dataOrJqXHR, textStatus, jqXHRorErrorThrown) {
 			if(jQuery.isFunction(dataOrJqXHR.done)) { //fail

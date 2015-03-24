@@ -2582,6 +2582,7 @@ jslet.data.Dataset.prototype = {
 			} else {
 				if(dataRec[fldName] === undefined) {
 					fldValue = Z._calcFormula(dataRec, fldObj);
+					dataRec[fldName] = fldValue;
 				} else {
 					value = dataRec[fldName];
 					fldValue = value !== undefined ? value :null;
@@ -3768,7 +3769,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
 		}
 		if(!Z.confirm()) {
-			return;
+			return jslet.emptyPromise;
 		}
 		var changedRecs = [];
 		Z._setChangedState('i', Z.insertedRecords(), changedRecs);
@@ -3777,7 +3778,7 @@ jslet.data.Dataset.prototype = {
 
 		if (!changedRecs || changedRecs.length === 0) {
 			jslet.showInfo(jslet.locale.Dataset.noDataSubmit);
-			return;
+			return jslet.emptyPromise;
 		}
 		var reqData = {main: changedRecs};
 		if(extraInfo) {
@@ -3906,16 +3907,24 @@ jslet.data.Dataset.prototype = {
 	 * @param {String} fldName Field name
 	 */
 	focusEditControl: function (fldName) {
-		var ctrl, el;
-		for (var i = this._linkedControls.length - 1; i >= 0; i--) {
-			ctrl = this._linkedControls[i];
-			if (ctrl.field && ctrl.field == fldName) {
+		var Z = this,
+			ctrl, el, fldObj;
+		for (var i = Z._linkedControls.length - 1; i >= 0; i--) {
+			ctrl = Z._linkedControls[i];
+			if(!ctrl.field) {
+				continue;
+			}
+			if (ctrl.field() == fldName) {
+				fldObj = Z.getField(fldName);
+				if(!fldObj || !fldObj.visible() || fldObj.disabled()) {
+					continue;
+				}
 				el = ctrl.el;
 				if (el.focus) {
 					try {
 						el.focus();
 					} catch (e) {
-						//hide exeception
+						console.warn('Can\' focus into a disabled control!');
 					}
 				}
 			} //end if

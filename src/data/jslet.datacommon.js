@@ -903,3 +903,14 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 		} //end for j
 	} //end for i
 }
+
+jslet.emptyPromise = {
+	done: function(func) {
+	},
+	
+	fail: function(func) {
+	},
+	
+	always: function(func) {
+	}
+}
