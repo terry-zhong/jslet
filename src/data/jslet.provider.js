@@ -61,7 +61,7 @@ jslet.data.DataProvider = function() {
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {
 			var data = jqXHR.responseJSON,
-				result = {};
+				result;
 			if(data && data.errorCode) {
 				result = {errorCode: data.errorCode, errorMessage: data.errorMessage};
 			} else {
@@ -71,7 +71,14 @@ jslet.data.DataProvider = function() {
 		})
 		.always(function(dataOrJqXHR, textStatus, jqXHRorErrorThrown) {
 			if(jQuery.isFunction(dataOrJqXHR.done)) { //fail
-				defer.always({errorCode: textStatus, errorMessage: jqXHRorErrorThrown}, this);
+				var data = dataOrJqXHR.responseJSON,
+					result;
+				if(data && data.errorCode) {
+					result = {errorCode: data.errorCode, errorMessage: data.errorMessage};
+				} else {
+					result = {errorCode: textStatus, errorMessage: jqXHRorErrorThrown};
+				}
+				defer.always(result, this);
 			} else {
 				defer.always(dataOrJqXHR, this);
 			}

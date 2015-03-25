@@ -205,6 +205,9 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			fldName = layout.field;
 			fldObj = Z._dataset.getField(fldName);
+			if (!fldObj) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			}
 			editorCfg = fldObj.editControl();
 			var isCheckBox = editorCfg.type.toLowerCase() == 'dbcheckbox';
 			if(isCheckBox) {

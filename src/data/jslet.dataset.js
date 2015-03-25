@@ -1937,6 +1937,19 @@ jslet.data.Dataset.prototype = {
 				} //end for i
 				Z.next();
 			} //end while
+			var scale;
+			for(var i = 0; i < fldCnt; i++) {
+				fldObj = aggratedFields[i];
+				fldName = fldObj.name();
+				scale = fldObj.scale() || 0;
+				aggratedValueObj = aggratedValues[fldName];
+				var sumValue = aggratedValueObj.sum;
+				if(sumValue) {
+					sumValue = new Number(sumValue);
+					sumValue = sumValue.toFixed(scale);
+					aggratedValueObj.sum = sumValue;
+				}
+			} //end for i
 			Z.aggratedValues(aggratedValues);			
 		}finally{
 			Z.endSilenceMove(context);
@@ -3551,6 +3564,9 @@ jslet.data.Dataset.prototype = {
 		var Z = dataset;
 		if (!result) {
 			Z.dataList([]);
+			if(result.info) {
+				jslet.showInfo(info);
+			}
 			return;
 		}
 		var mainData = result.main;
@@ -3578,6 +3594,9 @@ jslet.data.Dataset.prototype = {
 
 		var evt = jslet.data.RefreshEvent.changePageEvent();
 		Z.refreshControl(evt);
+		if(result.info) {
+			jslet.showInfo(info);
+		}
 	},
 	
 	_doApplyError: function(result, dataset) {
@@ -3690,6 +3709,9 @@ jslet.data.Dataset.prototype = {
 	
 	_doSaveSuccess: function(result, dataset) {
 		if (!result) {
+			if(result.info) {
+				jslet.showInfo(info);
+			}
 			return;
 		}
 		result = result.main;
@@ -3726,6 +3748,9 @@ jslet.data.Dataset.prototype = {
 		
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
+		if(result.info) {
+			jslet.showInfo(info);
+		}
 	},
 	
 	submitUrl: function(url) {
@@ -3796,6 +3821,9 @@ jslet.data.Dataset.prototype = {
 	_doSubmitSelectedSuccess: function(result, dataset) {
 		result = result.main;
 		if (!result || result.length === 0) {
+			if(result.info) {
+				jslet.showInfo(info);
+			}
 			return;
 		}
 		var Z = dataset,
@@ -3837,6 +3865,9 @@ jslet.data.Dataset.prototype = {
 		Z.calcAggratedValue();
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
+		if(result.info) {
+			jslet.showInfo(info);
+		}
 	},
 	
 	/**

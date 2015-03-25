@@ -63,6 +63,7 @@ jslet.ui.Control = jslet.Class.create({
 		if (!ctrlParams) {
 			return;
 		}
+		var ctrlType = ctrlParams.type;
 		
 		for(var name in ctrlParams) {
 			var prop = this[name];
@@ -72,7 +73,7 @@ jslet.ui.Control = jslet.Class.create({
 			if(prop && prop.call) {
 				prop.call(this, ctrlParams[name]);
 			} else {
-				throw new Error("Not support control property: " + name);
+				throw new Error(ctrlType +  " NOT support control property: " + name);
 			}
 		}
 	},

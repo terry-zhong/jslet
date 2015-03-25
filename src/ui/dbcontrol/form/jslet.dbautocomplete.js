@@ -414,7 +414,7 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 
 	Z.doClosePopup = function () {
 		Z.isPop = false;
-		Z.lkDataset.filtered(false);
+		Z.lkDataset.filter(null);
 	};
 
 	Z.closePopup = function () {
