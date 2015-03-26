@@ -1144,6 +1144,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			cobj.cellRender.createHeader.call(Z, ochild, cobj);
 		} else {
 			var sh = cobj.label || '&nbsp;';
+			if(cobj.field && Z._isCellEditable(cobj)) {
+				var fldObj = Z._dataset.getField(cobj.field);
+				if(fldObj && fldObj.required()) {
+					sh = '<span class="jl-lbl-required">*</span>' + sh;
+				}
+			} 
 			ochild.innerHTML = ['<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',

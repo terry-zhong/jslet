@@ -1943,6 +1943,9 @@ jslet.data.Dataset.prototype = {
 				fldName = fldObj.name();
 				scale = fldObj.scale() || 0;
 				aggratedValueObj = aggratedValues[fldName];
+				if(!aggratedValueObj) {
+					continue;
+				}
 				var sumValue = aggratedValueObj.sum;
 				if(sumValue) {
 					sumValue = new Number(sumValue);
@@ -2025,7 +2028,18 @@ jslet.data.Dataset.prototype = {
 			return false;
 		}
 		var currRec = Z.getRecord(),
-			isSame = (preRec[fldName] == currRec[fldName]);
+			preValue = preRec[fldName],
+			currValue = currRec[fldName],
+			isSame = false;
+		if(!preValue && preValue !== 0 && !currValue && currValue !== 0) {
+			isSame = true;
+		} else if(preValue && currValue) {
+			if(jslet.isDate(preValue)) { //Date time comparing
+				isSame = (preValue.getTime() == currValue.getTime());
+			} else {
+				isSame = (preValue == currValue);
+			}
+		}
 		if(!isSame) {
 			return isSame;
 		}
@@ -2213,7 +2227,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._status == jslet.data.DataSetStatus.BROWSE || Z.recordCount() === 0) {
 			return;
 		}
-		var fldObj, v, fldName, maxFld, fmax, vmax, fldValue, invalidMsg;
+		var fldObj, v, fldName, maxFld, fmax, vmax, fldValue, invalidMsg, firstInvalidField = null;
 
 		for (var i = 0, cnt = Z._normalFields.length; i < cnt; i++) {
 			fldObj = Z._normalFields[i];
@@ -2228,13 +2242,43 @@ jslet.data.Dataset.prototype = {
 					invalidMsg = invalidMsg || Z.fieldValidator.checkValue(fldObj, fldValue);
 					if (invalidMsg) {
 						fldObj.message(invalidMsg);
+						if(!firstInvalidField) {
+							firstInvalidField = fldName;
+						}
+					}
+				} else {
+					if(!firstInvalidField) {
+						firstInvalidField = fldName;
 					}
 				}
 			} else {
 				invalidMsg = Z.fieldValidator.checkRequired(fldObj, fldValue);
 				if (invalidMsg) {
 					fldObj.message(invalidMsg);
+					if(!firstInvalidField) {
+						firstInvalidField = fldName;
+					}
 					return;
+				}
+				if(fldObj.valueStyle() == jslet.data.FieldValueStyle.BETWEEN) {
+					var v1 = null, v2 = null;
+					if(fldValue.length === 2) {
+						v1 = fldValue[0];
+						v2 = fldValue[1];
+					}
+					if(v1 && v2) {
+						invalidMsg = null;
+						if(jslet.isDate(v1) && v1.getTime() > v2.getTime() || v1 > v2) {
+							invalidMsg = jslet.locale.Dataset.betwwenInvalid;
+						}
+						if (invalidMsg) {
+							fldObj.message(invalidMsg);
+							if(!firstInvalidField) {
+								firstInvalidField = fldName;
+							}
+							return;
+						}
+					}
 				}
 				if(fldValue) {
 					for(var k = 0, len = fldValue.length; k < len; k++) {
@@ -2242,6 +2286,9 @@ jslet.data.Dataset.prototype = {
 							invalidMsg = invalidMsg || Z.fieldValidator.checkValue(fldObj, fldValue);
 							if (invalidMsg) {
 								fldObj.message(invalidMsg, k);
+								if(!firstInvalidField) {
+									firstInvalidField = fldName;
+								}
 							}
 						}
 					} //end for k
@@ -2249,6 +2296,9 @@ jslet.data.Dataset.prototype = {
 			}
 			
 		} //end for i
+		if(firstInvalidField) {
+			Z.focusEditControl(firstInvalidField);
+		}
 	},
 
 	/**
@@ -3954,6 +4004,7 @@ jslet.data.Dataset.prototype = {
 				if (el.focus) {
 					try {
 						el.focus();
+						return;
 					} catch (e) {
 						console.warn('Can\' focus into a disabled control!');
 					}

@@ -46,6 +46,7 @@
 			notUnique: '数据不能重复!',
 			
 			betweenLabel: ' - ',
+			betwwenInvalid: '最小值不得大于最大值',
 			value: '值',
 			nullText: '(空)',
 			noDataSubmit: '无数据可提交!'

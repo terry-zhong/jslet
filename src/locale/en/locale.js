@@ -46,6 +46,7 @@
 		notUnique: 'Input value is not unique!',
 		
 		betweenLabel: ' - ',
+		betwwenInvalid: 'Min value should not be great than max value',
 		value: 'Value',
 		nullText: '(Empty)',
 		noDataSubmit: 'No data to submit!'
