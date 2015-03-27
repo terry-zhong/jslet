@@ -208,11 +208,6 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			this.jslet._invokePopup();
 			return;
 		}
-		if ((keyCode === 13 || keyCode === 9) && this.jslet.contentPanel) {
-			this.jslet.contentPanel.confirmSelect();
-			return;
-		}
-
 	},
 
 	/**
