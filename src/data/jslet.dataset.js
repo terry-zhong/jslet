@@ -579,6 +579,19 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		Z._cacheNormalFields();
+		
+		function addFormulaField(fldObj) {
+			var children = fldObj.children();
+			if(!children || children.length === 0) {
+				Z.addInnerFormulaField(fldObj.name(), fldObj.formula());
+				return;
+			}
+			for(var i = 0, len = children.length; i < len; i++) {
+				addFormulaField(children[i]);
+			}
+		}
+		
+		addFormulaField(fldObj);
 		return Z;
 	},
 
@@ -602,8 +615,23 @@ jslet.data.Dataset.prototype = {
 			var i = Z._fields.indexOf(fldObj);
 			Z._fields.splice(i, 1);
 			fldObj.dataset(null);
+			Z.removeInnerFormulaField(fldName);
 			Z._cacheNormalFields();
 			jslet.data.FieldValueCache.clearAll(Z, fldName);
+
+			function removeFormulaField(fldObj) {
+				var children = fldObj.children();
+				if(!children || children.length === 0) {
+					Z.removeInnerFormulaField(fldObj.name());
+					return;
+				}
+				for(var i = 0, len = children.length; i < len; i++) {
+					removeFormulaField(children[i]);
+				}
+			}
+			
+			removeFormulaField(fldObj);
+			
 		}
 		return Z;
 	},
@@ -2589,15 +2617,93 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 
+	_calcFormulaRelation: function() {
+		var Z = this;
+		if(!Z._innerFormularFields) {
+			return;
+		}
+		var fields = Z._innerFormularFields.keys(),
+			fldName, formulaFields, formulaFldName, fldObj;
+		var relation = new jslet.SimpleMap();
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldName = fields[i];
+			var evaluator = Z._innerFormularFields.get(fldName);
+			formulaFields = evaluator.mainFields();
+			relation.set(fldName, formulaFields);
+		} //end for i
+		Z._innerFormulaRelation = relation.count() > 0? relation: null;
+	},
+	
 	/**
 	 * @rivate
 	 */
-	removeInnerFormularFields: function (fldName) {
+	addInnerFormulaField: function(fldName, formula) {
+		var Z = this;
+		if(!formula) {
+			return;
+		}
+		if (!Z._innerFormularFields) {
+			Z._innerFormularFields = new jslet.SimpleMap();
+		}
+		evaluator = new jslet.Expression(Z, formula);
+		Z._innerFormularFields.set(fldName, evaluator);
+		Z._calcFormulaRelation();
+	},
+	
+	/**
+	 * @rivate
+	 */
+	removeInnerFormulaField: function (fldName) {
 		if (this._innerFormularFields) {
-			this._innerFormularFields.remove(fldName);
+			this._innerFormularFields.unset(fldName);
+			this._calcFormulaRelation();
 		}
 	},
 
+	_calcFormula: function(currRec, fldName) {
+		var Z = this,
+			evaluator = Z._innerFormularFields.get(fldName),
+			result = null;
+		if(evaluator) {
+			evaluator.context.dataRec = currRec;
+			result = evaluator.eval();
+		}
+		return result;
+	},
+	
+	/**
+	 * @private
+	 */
+	updateFormula: function (changedFldName) {
+		var Z = this;
+		if(!Z._innerFormulaRelation) {
+			return;
+		}
+		var fmlFields = Z._innerFormulaRelation.keys(),
+			fmlFldName, fields, fldObj,
+			currRec = this.getRecord();
+		for(var i = 0, len = fmlFields.length; i < len; i++) {
+			fmlFldName = fmlFields[i];
+			fields = Z._innerFormulaRelation.get(fmlFldName);
+			fldObj = Z.getField(fmlFldName);
+			if(!fields || fields.length === 0) {
+				fldObj.setValue(Z._calcFormula(currRec, fmlFldName));
+				continue;
+			}
+			var found = false;
+			for(var j = 0, cnt = fields.length; j < cnt; j++) {
+				if(fields[j] == changedFldName) {
+					found = true;
+					break;
+				}
+			}
+			if(found) {
+				fldObj.setValue(Z._calcFormula(currRec, fmlFldName));
+			}
+		}
+		
+	},
+	
 	/**
 	 * Get field value of specified record
 	 * 
@@ -2644,7 +2750,7 @@ jslet.data.Dataset.prototype = {
 				fldValue = value !== undefined ? value :null;
 			} else {
 				if(dataRec[fldName] === undefined) {
-					fldValue = Z._calcFormula(dataRec, fldObj);
+					fldValue = Z._calcFormula(dataRec, fldName);
 					dataRec[fldName] = fldValue;
 				} else {
 					value = dataRec[fldName];
@@ -2789,46 +2895,6 @@ jslet.data.Dataset.prototype = {
 			jslet.data.FieldValueCache.put(currRec, fldName, text, valueIndex);
 		}
 		return text;
-	},
-	
-	_calcFormula: function(currRec, fldObj) {
-		var Z = this;
-		if (Z._innerFormularFields === null) {
-			Z._innerFormularFields = new jslet.SimpleMap();
-		}
-		var fldName = fldObj.name(),
-			formula = fldObj.formula();
-		var evaluator = Z._innerFormularFields.get(fldName);
-		if (evaluator === null) {
-			evaluator = new jslet.Expression(this, formula);
-			Z._innerFormularFields.set(fldName, evaluator);
-		}
-		evaluator.context.dataRec = currRec;
-		return evaluator.eval();	
-	},
-	
-	/**
-	 * @private
-	 */
-	updateFormula: function (changedFldName) {
-		var cnt = this._normalFields.length, 
-			fldName, fldObj, formula,
-			currRec = this.getRecord();
-		for (var i = 0; i < cnt; i++) {
-			fldObj = this._normalFields[i];
-			fldName = fldObj.name();
-			formula = fldObj.formula();
-			if (formula) {//update all formular field
-				if(fldName == changedFldName) {
-					continue;
-				}
-
-				fldObj.setValue(this._calcFormula(currRec, fldObj));
-				
-				var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
-				this.refreshControl(evt);
-			}
-		}
 	},
 	
 	/**

@@ -692,9 +692,11 @@ jslet.data.Field.prototype = {
 		
 		jslet.Checker.test('Field.formula', formula).isString();
 		Z._formula = jQuery.trim(formula);
-		Z._clearFieldCache();		
-		if (this.dataset()) {
-			this.dataset().removeInnerFormularFields(Z._fieldName);
+		Z._clearFieldCache();
+		var dataset = Z.dataset(); 
+		if (dataset) {
+			dataset.removeInnerFormulaField(Z._fieldName);
+			dataset.addInnerFormulaField(Z._fieldName, Z._formula);		
 			Z._fireColumnUpdatedEvent();
 		}
 		return this;

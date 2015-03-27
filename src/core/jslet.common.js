@@ -212,6 +212,10 @@ jslet.SimpleMap = function () {
     this.keys = function () {
         return _keys;
     };
+    
+    this.values = function() {
+    	return _values;
+    }
 };
 
 /**
