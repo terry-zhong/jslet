@@ -118,7 +118,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
 		}
-		var jqEl = jQuery(this.el);
+		var jqEl = jQuery(this);
 		if(jqEl.attr('readOnly') || jqEl.attr('disabled')) {
 			return;
 		}
@@ -286,6 +286,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return true;
 		}
 		var value = Z.el.value;
+		if(Z.oldValue == value) {
+			return true;
+		}
 		Z._dataset.editRecord();
 		if (this.editMask && !this.editMask.validateValue()) {
 			return false;

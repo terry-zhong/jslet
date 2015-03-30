@@ -86,78 +86,6 @@ jslet.data.Field.className = 'jslet.data.Field';
 jslet.data.Field.prototype = {
 	className: jslet.data.Field.className,
 	
-	clone: function(fldName, newDataset){
-		var Z = this;
-		jslet.Checker.test('Field.clone#fldName', fldName).required().isString();
-		var result = new jslet.data.Field(fldName, Z._dataType);
-		result.dataset(newDataset ? newDataset : this.dataset());
-		result.length(Z._length);
-		result.scale(Z._scale);
-		result.alignment(Z._alignment);
-		result.defaultExpr(Z._defaultExpr);
-		result.defaultValue(Z._defaultValue);
-		result.label(Z._label);
-		result.tip(Z._tip);
-		result.displayWidth(Z._displayWidth);
-		if (Z._editMask) {
-			result.editMask(Z._editMask.clone());
-		}
-		result.displayFormat(Z._displayFormat);
-		result.dateFormat(Z._dateFormat);
-		result.formula(Z._formula);
-		result.unique(Z._unique);
-		result.required(Z._required);
-		result.readOnly(Z._readOnly);
-		result.visible(Z._visible);
-		result.disabled(Z._disabled);
-		result.unitConverted(Z._underted);
-		if (Z._lookup) {
-			result.lookup(Z._lookup.clone());
-		}
-		
-		result.displayControl(Z._displayControl);
-		result.editControl(Z._editControl);
-		result.urlExpr(Z._urlExpr);
-		result.urlTarget(Z._urlTarget);
-		result.valueStyle(Z._valueStyle);
-		result.valueCountLimit(Z._valueCountLimit);
-		result.nullText(Z._nullText);
-		result.dataRange(Z._dataRange);
-		if (Z._regularExpr) {
-			result.regularExpr(Z._regularExpr);
-		}
-		result.antiXss(Z._antiXss);
-		result.customValidator(Z._customValidator);
-		result.customValueConverter(Z._customValueConverter);
-		result.validChars(Z._validChars);
-		if (Z._parent) {
-			result.parent(Z._parent.clone(newDataset));
-		}
-		if (Z._children && Z._children.length > 0){
-			var childFlds = [];
-			for(var i = 0, cnt = Z._children.length; i < cnt; i++){
-				childFlds.push(Z._children[i].clone(newDataset));
-			}
-			result.children(childFlds);
-		}
-		
-		result.mergeSame(Z._mergeSame);
-		result.mergeSameBy(Z._mergeSameBy);
-		result.fixedValue(Z._fixedValue);
-		
-		result.aggrated(Z._aggrated);
-		result.aggratedBy(Z._aggratedBy);
-		
-		return result;
-	},
-	
-	_clearFieldCache: function() {
-		var Z = this;
-		if(Z._dataset && Z._fieldName) {
-			jslet.data.FieldValueCache.clearAll(Z._dataset, Z._fieldName);
-		}
-	},
-	
 	/**
 	 * {jslet.data.Dataset}
 	 */
@@ -1344,6 +1272,78 @@ jslet.data.Field.prototype = {
 	
 	setTextValue: function(value, valueIndex) {
 		this._dataset.setFieldText(this._fieldName, inputText, valueIndex);
+	},
+	
+	clone: function(fldName, newDataset){
+		var Z = this;
+		jslet.Checker.test('Field.clone#fldName', fldName).required().isString();
+		var result = new jslet.data.Field(fldName, Z._dataType);
+		result.dataset(newDataset ? newDataset : this.dataset());
+		result.length(Z._length);
+		result.scale(Z._scale);
+		result.alignment(Z._alignment);
+		result.defaultExpr(Z._defaultExpr);
+		result.defaultValue(Z._defaultValue);
+		result.label(Z._label);
+		result.tip(Z._tip);
+		result.displayWidth(Z._displayWidth);
+		if (Z._editMask) {
+			result.editMask(Z._editMask.clone());
+		}
+		result.displayFormat(Z._displayFormat);
+		result.dateFormat(Z._dateFormat);
+		result.formula(Z._formula);
+		result.unique(Z._unique);
+		result.required(Z._required);
+		result.readOnly(Z._readOnly);
+		result.visible(Z._visible);
+		result.disabled(Z._disabled);
+		result.unitConverted(Z._underted);
+		if (Z._lookup) {
+			result.lookup(Z._lookup.clone());
+		}
+		
+		result.displayControl(Z._displayControl);
+		result.editControl(Z._editControl);
+		result.urlExpr(Z._urlExpr);
+		result.urlTarget(Z._urlTarget);
+		result.valueStyle(Z._valueStyle);
+		result.valueCountLimit(Z._valueCountLimit);
+		result.nullText(Z._nullText);
+		result.dataRange(Z._dataRange);
+		if (Z._regularExpr) {
+			result.regularExpr(Z._regularExpr);
+		}
+		result.antiXss(Z._antiXss);
+		result.customValidator(Z._customValidator);
+		result.customValueConverter(Z._customValueConverter);
+		result.validChars(Z._validChars);
+		if (Z._parent) {
+			result.parent(Z._parent.clone(newDataset));
+		}
+		if (Z._children && Z._children.length > 0){
+			var childFlds = [];
+			for(var i = 0, cnt = Z._children.length; i < cnt; i++){
+				childFlds.push(Z._children[i].clone(newDataset));
+			}
+			result.children(childFlds);
+		}
+		
+		result.mergeSame(Z._mergeSame);
+		result.mergeSameBy(Z._mergeSameBy);
+		result.fixedValue(Z._fixedValue);
+		
+		result.aggrated(Z._aggrated);
+		result.aggratedBy(Z._aggratedBy);
+		
+		return result;
+	},
+	
+	_clearFieldCache: function() {
+		var Z = this;
+		if(Z._dataset && Z._fieldName) {
+			jslet.data.FieldValueCache.clearAll(Z._dataset, Z._fieldName);
+		}
 	}
 	
 };
@@ -1413,9 +1413,12 @@ jslet.data.createField = function (fieldConfig, parent) {
 
 	if (dtype == jslet.data.DataType.GROUP){
 		if (cfg.children){
-			var fldChildren = [], childFldObj;
+			var fldChildren = [], 
+				childFldObj;
 			for(var i = 0, cnt = cfg.children.length; i < cnt; i++){
-				fldChildren.push(jslet.data.createField(cfg.children[i], fldObj));
+				childFldObj = jslet.data.createField(cfg.children[i], fldObj);
+				childFldObj.displayOrder(i);
+				fldChildren.push(childFldObj);
 			}
 			fldObj.children(fldChildren);
 		}
@@ -1581,13 +1584,6 @@ jslet.data.createGroupField = function(fldName, label, parent) {
 	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.GROUP, parent);
 	fldObj.label(label);
 	return fldObj;
-};
-
-/**
- * @private
- */
-jslet.data.Field.prototype.sortByIndex = function(fldObj1, fldObj2) {
-	return fldObj1.displayOrder() - fldObj2.displayOrder();
 };
 
 /**

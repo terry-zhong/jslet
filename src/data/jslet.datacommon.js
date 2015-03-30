@@ -914,3 +914,7 @@ jslet.emptyPromise = {
 	always: function(func) {
 	}
 }
+
+jslet.data.displayOrderComparator = function(fldObj1, fldObj2) {
+	return fldObj1.displayOrder() - fldObj2.displayOrder();
+}

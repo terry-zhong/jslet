@@ -108,6 +108,15 @@
     border-bottom: 1px solid #a4bed4;
 }
 
+.jl-tbl-col-over {
+	background-color: blue;
+	color: white;
+}
+
+.jl-tbl-col-over a {
+	color: white!important;
+}
+
 .jl-tbl-border-top {
 	border: 0;
 	border-top: 1px solid #a4bed4;
@@ -176,7 +185,7 @@
 }
 
 .jl-tbl-splitter-hook {
-    cursor: e-resize;
+    cursor: e-resize!important;
     width: 4px;
     height: 1000px;
     font-size: 1px;

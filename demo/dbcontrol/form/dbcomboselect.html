@@ -27,6 +27,7 @@
             fldObj = jslet.data.createStringField("deptaddr", 20);
             fldObj.label("Dept. Address");
             dsEmployee.addField(fldObj);
+            
         });
 
         function setLeafLevel() {
@@ -119,7 +120,7 @@
         <div class="form-group">
             <label class="col-xs-2" data-jslet='type:"DBLabel",field:"province"'></label>
             <div class="col-xs-3">
-                <div id="dlgProvince" data-jslet='type:"DBComboSelect",field:"province",textReadOnly:true'></div>
+                <div id="dlgProvince" data-jslet='type:"DBComboSelect",field:"province"'></div>
             </div>
         </div>
     </div>

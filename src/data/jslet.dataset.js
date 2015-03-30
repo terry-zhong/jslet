@@ -568,8 +568,11 @@ jslet.data.Dataset.prototype = {
 		var Z = this;
 		Z._fields.push(fldObj);
 		fldObj.dataset(Z);
-		if (fldObj.displayOrder() !== 0) {
-			Z._fields.sort(fldObj.sortByIndex);
+		var dispOrder = fldObj.displayOrder(); 
+		if (dispOrder) {
+			Z._fields.sort(jslet.data.displayOrderComparator);
+		} else {
+			fldObj.displayOrder(Z._fields.length - 1);
 		}
 		if (fldObj.getType() == jslet.data.DataType.DATASET) {
 			if (!Z._subDatasetFields) {
@@ -697,6 +700,43 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		return null;
+	},
+	
+	moveField: function(srcFieldName, destFieldName) {
+		var Z = this,
+			srcFldObj = Z.getField(srcFieldName),
+			destFldObj = Z.getField(destFieldName),
+			srcDispOrder = srcFldObj.displayOrder(),
+			destDispOrder = destFldObj.displayOrder(),
+			fields,
+			srcPFldObj = srcFldObj.parent(),
+			destPFldObj = destFldObj.parent();
+		
+		if(srcPFldObj != destPFldObj) {
+			return;
+		}
+		if(srcPFldObj) {
+			fields = srcPFldObj.children();
+		} else {
+			fields = Z._fields;
+		}
+		console.log(srcDispOrder + '->' + destDispOrder);
+		var start, end, fldObj, step;
+		if(srcDispOrder > destDispOrder) {
+			start = destDispOrder; 
+			end = srcDispOrder;
+			step = 1;
+		} else {
+			start = srcDispOrder + 1; 
+			end = destDispOrder + 1;
+			step = -1;
+		}
+		srcFldObj.displayOrder(destFldObj.displayOrder());
+		for(i = start; i < end; i++) {
+			fldObj = fields[i];
+			fldObj.displayOrder(fldObj.displayOrder() + step);
+		}
+		fields.sort(jslet.data.displayOrderComparator);
 	},
 	
 	/**
@@ -2923,7 +2963,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	setFieldText: function (fldName, inputText, valueIndex) {
 		var Z = this,
-			fldObj = Z.getField(fldName);
+		fldObj = Z.getField(fldName);
 		if (fldObj === null) {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
@@ -2931,37 +2971,98 @@ jslet.data.Dataset.prototype = {
 		if (fType == jslet.data.DataType.DATASET) {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
 		}
+		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
+		if(!convert) {
+			throw new Error('Can\'t find any field value converter!');
+		}
+		
+		var value = Z._textToValue(fldObj, inputText, valueIndex);
+		if(value !== undefined) {
+			Z.setFieldValue(fldName, value, valueIndex);
+		}
+		
+		
+//		var Z = this,
+//			fldObj = Z.getField(fldName);
+//		if (fldObj === null) {
+//			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+//		}
+//		var fType = fldObj.getType();
+//		if (fType == jslet.data.DataType.DATASET) {
+//			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
+//		}
+//		
+//		if(fldObj.valueStyle() !== jslet.data.FieldValueStyle.NORMAL && valueIndex === undefined) {
+//			//Set an array value
+//			if(!jslet.isArray(inputText)) {
+//				inputText = inputText.split(jslet.global.valueSeparator);
+//			}
+//			var len = inputText.length;
+//			for(var k = 0; k < len; k++ ) {
+//				Z.setFieldText(fldName, inputText[k], k);
+//			}
+//			Z.setFieldValueLength(fldObj, len);
+//			return;
+//		}
+//		var invalidMsg = Z.fieldValidator.checkInputText(fldObj, inputText);
+//		fldObj.message(invalidMsg, valueIndex);
+//		if (invalidMsg) {
+//			return;
+//		}
+//		
+//		if(!inputText){
+//			Z.setFieldValue(fldName, null, valueIndex);
+//			return;
+//		}
+//		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
+//		if(!convert) {
+//			throw new Error('Can\'t find any field value converter!');
+//		}
+//		var value = convert.textToValue.call(Z, fldObj, inputText, valueIndex);
+//		Z.setFieldValue(fldName, value, valueIndex);
+	},
+
+	_textToValue: function(fldObj, inputText, valueIndex) {
+		var Z = this,
+			fType = fldObj.getType();
 		
 		if(fldObj.valueStyle() !== jslet.data.FieldValueStyle.NORMAL && valueIndex === undefined) {
 			//Set an array value
 			if(!jslet.isArray(inputText)) {
 				inputText = inputText.split(jslet.global.valueSeparator);
 			}
-			var len = inputText.length;
+			var len = inputText.length, 
+				values = [], value,
+				invalid = false;
 			for(var k = 0; k < len; k++ ) {
-				Z.setFieldText(fldName, inputText[k], k);
+				value = Z._textToValue(fldObj, inputText[k], k);
+				if(value === undefined) {
+					invalid = true;
+				} else {
+					if(!invalid) {
+						values.push(value);
+					}
+				}
 			}
-			Z.setFieldValueLength(fldObj, len);
-			return;
+			if(!invalid) {
+				return values;
+			}
+			return undefined;
 		}
 		var invalidMsg = Z.fieldValidator.checkInputText(fldObj, inputText);
 		fldObj.message(invalidMsg, valueIndex);
 		if (invalidMsg) {
-			return;
+			return undefined;
 		}
 		
 		if(!inputText){
-			Z.setFieldValue(fldName, null, valueIndex);
-			return;
+			return null;
 		}
 		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
-		if(!convert) {
-			throw new Error('Can\'t find any field value converter!');
-		}
 		var value = convert.textToValue.call(Z, fldObj, inputText, valueIndex);
-		Z.setFieldValue(fldName, value, valueIndex);
+		return value;
 	},
-
+	
 	/**
 	 * Get key value of current record
 	 * 

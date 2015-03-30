@@ -83,6 +83,8 @@
 
 .jl-focusable-item {
 	text-decoration: none;
+	cursor: hand;
+	cursor: pointer;
 }
 
 .jl-hidden {

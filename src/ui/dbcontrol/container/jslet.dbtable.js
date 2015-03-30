@@ -54,7 +54,7 @@ jslet.ui.TableHead = function(){
 	Z.id = null;//String, Head id
 	Z.rowSpan = 0;  //@private
 	Z.colSpan = 0;  //@private
-	
+	Z.disableHeadSort = false; //Boolean, true - user sort this column by click column header
 	Z.subHeads = null; //array of jslet.ui.TableHead
 };
 
@@ -381,6 +381,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				jslet.Checker.test('DBTable.Column.width', colObj.width).isGTZero();
 				jslet.Checker.test('DBTable.Column.colSpan', colObj.colSpan).isGTZero();
 				colObj.disableHeadSort = colObj.disableHeadSort ? true: false;
+				if(!colObj.field) {
+					colObj.disableHeadSort = true;
+				}
 				colObj.mergeSame = colObj.mergeSame ? true: false;
 				colObj.noRefresh = colObj.noRefresh ? true: false;
 				jslet.Checker.test('DBTable.Column.cellRender', colObj.cellRender).isObject();
@@ -410,13 +413,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				
 		Z._initializeVm();
 		Z.renderAll();
-		Z._updateSortFlag(true);
 		var jqEl = jQuery(Z.el);
 		var ti = jqEl.attr('tabindex');
 		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
-		
+
+        var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
+        var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
+        jqEl.on(wheelEvent, function (event) {
+            var originalEvent = event.originalEvent;
+            var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
+            Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
+       		event.preventDefault();
+        });
+        
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			if (keyCode == 38) {//KEY_UP
@@ -497,6 +508,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderAll: function () {
 		var Z = this;
+		Z.el.innerHTML = '';
 		Z.listvm.fixedRows = Z._fixedRows;
 		Z._calcParams();
 		Z.listvm.refreshModel();
@@ -504,6 +516,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._fillData();
 		Z._showCurrentRow();
 		Z._oldHeight = jQuery(Z.el).height();
+		Z._updateSortFlag(true);
 	}, // end renderAll
 
 	_prepareColumn: function(){
@@ -534,6 +547,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					cobj = Z._columns[i];
 					if (!cobj.field){
 						tmpColumns.push(cobj);
+						cobj.disableHeadSort = true;
 					}
 				}
 			}
@@ -595,7 +609,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			} //end if Z.columns
 		} else{
 			for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
-				tmpColumns.push(Z._columns[i]);
+				cobj = Z._columns[i];
+				if (!cobj.field){
+					cobj.disableHeadSort = true;
+				}
+				tmpColumns.push(cobj);
 			}
 		}
 		Z.innerHeads = [];
@@ -615,6 +633,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				ohead.id = jslet.nextId();
 				ohead.widthCssName = Z._widthStyleId + '-' + ohead.colNum;
 				cobj.widthCssName = ohead.widthCssName;
+				ohead.disableHeadSort = cobj.disableHeadSort;
+
 				Z.innerHeads.push(ohead);
 				Z.innerColumns.push(cobj);
 				
@@ -805,6 +825,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		colObj.width += deltaW;
+		if(colObj.field) {
+			Z._dataset.getField(colObj.field).displayWidth(Math.round(colObj.width/Z.charWidth))
+		}
 		
 		 function getRule(cssName){
 			var styleEle = document.getElementById(Z._widthStyleId),
@@ -873,11 +896,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			'<div class="jl-tbl-norecord">',
 			jslet.locale.DBTable.norecord,
 			'</div>',
-			'<table class="jl-tbl-container" style="width:100%"><tr>',
+			'<table class="jl-tbl-container"><tr>',
 			'<td><div class="jl-tbl-fixedcol"><table class="jl-tbl-data"><tbody /></table><table class="jl-tbl-data"><tbody /></table><div class="jl-tbl-content-div"><table class="jl-tbl-data"><tbody /></table></div><table><tbody /></table></div></td>',
 			'<td><div class="jl-tbl-contentcol"><div><table class="jl-tbl-data jl-tbl-content-table" border="0" cellpadding="0" cellspacing="0"><tbody /></table></div><div><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><div class="jl-tbl-content-div"><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><table class="jl-tbl-content-table jl-tbl-footer"><tbody /></table></div></td>',
 			'<td class="jl-scrollbar-width"><div class="jl-tbl-vscroll-head"></div><div class="jl-tbl-vscroll"><div /></div></td></tr></table>'];
-
 		
 		jqEl.html(dbtableframe.join(''));
 
@@ -920,11 +942,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
 			}
-			if (Z._head_label_cliecked){
-				Z._head_label_cliecked = false;
-				return;
-			}
-			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
+//			if (Z._head_label_cliecked){
+//				Z._head_label_cliecked = false;
+//				return;
+//			}
+//			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
 		});
 		
 		jqRightHead.on('mousedown', '.jl-tbl-header-cell', function(event){
@@ -933,14 +955,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
 			}
-			if (Z._head_label_cliecked){
-				Z._head_label_cliecked = false;
-				return;
-			}
-			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
+//			if (Z._head_label_cliecked){
+//				Z._head_label_cliecked = false;
+//				return;
+//			}
+//			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
 		});
 
-		jQuery(Z.leftHeadTbl).on('mousedown', '.jl-focusable-item', function(event){
+		jQuery(Z.leftHeadTbl).on('click', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
@@ -949,13 +971,93 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return false;
 		});
 		
-		jqRightHead.on('mousedown', '.jl-focusable-item', function(event){
+		jqRightHead.on('click', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			return false;
+		});
+
+		jqRightHead.on('dragstart', '.jl-focusable-item', function(event){
+			var otd = this.parentNode.parentNode.parentNode,
+				colCfg = otd.jsletcolcfg,
+				e = event.originalEvent,
+				transfer = e.dataTransfer;
+			transfer.dropEffect = 'link';
+			transfer.effectAllowed = 'link';
+			transfer.setData('fieldName', colCfg.field);
+			transfer.setData('rowIndex', otd.parentNode.rowIndex);
+			transfer.setData('cellIndex', otd.cellIndex);
+			return true;
+		});
+
+		function checkDropable(transfer, currCell) {
+			var colCfg = currCell.jsletcolcfg,
+				srcRowIndex = parseInt(transfer.getData('rowIndex')),
+				srcCellIndex = parseInt(transfer.getData('cellIndex')),
+				currRowIndex = currCell.parentNode.rowIndex,
+				currCellIndex = currCell.cellIndex;
+			var result = (srcRowIndex == currRowIndex && currCellIndex != srcCellIndex);
+			if(!result) {
+				return result;
+			}
+			var	srcFldName = transfer.getData('fieldName'),
+				currFldName = colCfg.field,
+				srcPFldObj = Z._dataset.getField(srcFldName).parent(),
+				currPFldObj = Z._dataset.getField(currFldName).parent();
+			result = (srcPFldObj === currPFldObj || (currPFldObj && srcPFldObj.name() == currPFldObj.name()));
+			return result;
+		}
+		
+		jqRightHead.on('dragover', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+	    	event.preventDefault(); // allows us to drop
+			var otd = this.parentNode,
+				e = event.originalEvent,
+				transfer = e.dataTransfer;
+			if(checkDropable(transfer, otd)) { 
+				jQuery(event.currentTarget).addClass('jl-tbl-col-over');
+				transfer.dropEffect = 'link';
+			} else {
+				transfer.dropEffect = 'move';
+			}
+		    return false;
+		});
+
+		jqRightHead.on('dragenter', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+	    	event.preventDefault(); // allows us to drop
+			var otd = this.parentNode,
+				e = event.originalEvent,
+				transfer = e.dataTransfer;
+			if(checkDropable(transfer, otd)) { 
+				jQuery(event.currentTarget).addClass('jl-tbl-col-over');
+				transfer.dropEffect = 'link';
+			} else {
+				transfer.dropEffect = 'move';
+			}
+		    return false;		
+		});
+		
+		jqRightHead.on('dragleave', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+	    	event.preventDefault(); // allows us to drop
+			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
+		});
+		
+		jqRightHead.on('drop', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
+
+			var e = event.originalEvent;
+			var tranfer = e.dataTransfer;
+			var destField = this.parentNode.jsletcolcfg.field;
+			if(!destField) {
+				return;
+			}
+			var srcField = tranfer.getData('fieldName'); // required otherwise doesn't work//			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
+			console.log(srcField + ' -> ' + destField);
+			Z._moveColumn(srcField, destField);
+	    	event.preventDefault(); // allows us to drop
+	    	return false;
 		});
 		
 		var jqLeftFixedTbl = jQuery(Z.leftFixedTbl),
@@ -1088,6 +1190,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._renderBody();
 	},
 
+	_moveColumn: function(srcFldName, destFldName) {
+		var Z = this;
+		var scrLeft = Z.rightContentTbl.parentNode.parentNode.scrollLeft;
+		Z._dataset.moveField(srcFldName, destFldName);
+		Z.renderAll();
+		Z.rightContentTbl.parentNode.parentNode.scrollLeft = scrLeft;
+	},
+	
 	_calcAndSetContentHeight: function(){
 		var Z = this,
 			jqEl = jQuery(Z.el);
@@ -1153,7 +1263,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			ochild.innerHTML = ['<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',
-				((!Z._disableHeadSort && !cobj.disableHeadSort) ? '<a class="jl-focusable-item" href="javascript:void(0)" >' + sh +'</a>': sh),
+				((!Z._disableHeadSort && !cobj.disableHeadSort) ? '<label class="jl-focusable-item" draggable="true">' + sh +'</label>': sh),
 				'</span><span unselectable="on" class="jl-tbl-sorter" title="',
 				jslet.locale.DBTable.sorttitle,
 				'">&nbsp;</span><div  unselectable="on" class="jl-tbl-splitter-hook" colid="',
