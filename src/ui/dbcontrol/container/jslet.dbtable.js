@@ -969,7 +969,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			event.preventDefault();
 			return false;
 		});
-
+		
+		dragTransfer = null;
 		jqRightHead.on('dragstart', '.jl-focusable-item', function(event){
 			var otd = this.parentNode.parentNode.parentNode,
 				colCfg = otd.jsletcolcfg,
@@ -977,23 +978,22 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				transfer = e.dataTransfer;
 			transfer.dropEffect = 'link';
 			transfer.effectAllowed = 'link';
-			transfer.setData('fieldName', colCfg.field);
-			transfer.setData('rowIndex', otd.parentNode.rowIndex);
-			transfer.setData('cellIndex', otd.cellIndex);
+			dragTransfer = {fieldName: colCfg.field, rowIndex: otd.parentNode.rowIndex, cellIndex: otd.cellIndex};
+			transfer.setData('fieldName', colCfg.field); //must has this row otherwise FF does not work.
 			return true;
 		});
 
-		function checkDropable(transfer, currCell) {
+		function checkDropable(currCell) {
 			var colCfg = currCell.jsletcolcfg,
-				srcRowIndex = parseInt(transfer.getData('rowIndex')),
-				srcCellIndex = parseInt(transfer.getData('cellIndex')),
+				srcRowIndex = dragTransfer.rowIndex,
+				srcCellIndex = dragTransfer.cellIndex,
 				currRowIndex = currCell.parentNode.rowIndex,
 				currCellIndex = currCell.cellIndex;
 			var result = (srcRowIndex == currRowIndex && currCellIndex != srcCellIndex);
 			if(!result) {
 				return result;
 			}
-			var	srcFldName = transfer.getData('fieldName'),
+			var	srcFldName = dragTransfer.fieldName,
 				currFldName = colCfg.field,
 				srcPFldObj = Z._dataset.getField(srcFldName).parent(),
 				currPFldObj = Z._dataset.getField(currFldName).parent();
@@ -1002,11 +1002,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		
 		jqRightHead.on('dragover', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
-	    	event.preventDefault(); // allows us to drop
 			var otd = this.parentNode,
 				e = event.originalEvent,
 				transfer = e.dataTransfer;
-			if(checkDropable(transfer, otd)) { 
+			if(checkDropable(otd)) { 
 				jQuery(event.currentTarget).addClass('jl-tbl-col-over');
 				transfer.dropEffect = 'link';
 			} else {
@@ -1016,44 +1015,44 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 
 		jqRightHead.on('dragenter', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
-	    	event.preventDefault(); // allows us to drop
 			var otd = this.parentNode,
 				e = event.originalEvent,
 				transfer = e.dataTransfer;
-			if(checkDropable(transfer, otd)) { 
+			if(checkDropable(otd)) { 
 				jQuery(event.currentTarget).addClass('jl-tbl-col-over');
 				transfer.dropEffect = 'link';
 			} else {
 				transfer.dropEffect = 'move';
 			}
-		    return false;		
+		    return false;
 		});
 		
 		jqRightHead.on('dragleave', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
-	    	event.preventDefault(); // allows us to drop
 			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
+			return  false;
 		});
 		
 		jqRightHead.on('drop', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
 			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
-
 			var currCell = this.parentNode,
 				e = event.originalEvent,
 				transfer = e.dataTransfer,
 				colCfg = currCell.jsletcolcfg,
-				srcRowIndex = parseInt(transfer.getData('rowIndex')),
-				srcCellIndex = parseInt(transfer.getData('cellIndex')),
+				srcRowIndex = dragTransfer.rowIndex,
+				srcCellIndex = dragTransfer.cellIndex,
 				currRowIndex = currCell.parentNode.rowIndex,
 				currCellIndex = currCell.cellIndex;
 			
+			if(!checkDropable(currCell)) { 
+				return
+			}
 			var destField = this.parentNode.jsletcolcfg.field;
 			if(!destField) {
 				return;
 			}
-			var srcField = transfer.getData('fieldName');
+			var	srcField = dragTransfer.fieldName;
 			console.log(srcField + ' -> ' + destField);
 			Z._moveColumn(srcRowIndex, srcCellIndex, currCellIndex);
-	    	event.preventDefault(); // allows us to drop
 	    	return false;
 		});
 		
@@ -1063,31 +1062,31 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jqRightContentTbl = jQuery(Z.rightContentTbl);
 		
 		jqLeftFixedTbl.off();
-		jqLeftFixedTbl.on('mouseenter', 'tr', function(){
+		jqLeftFixedTbl.on('mouseenter', 'tr', function() {
 			Z._oldHoverRowClassName = this.className;
 			Z._hoverRowIndex = this.rowIndex;
 			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
 			jqRightFixedTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
 		});
-		jqLeftFixedTbl.on('mouseleave', 'tr', function(){
+		jqLeftFixedTbl.on('mouseleave', 'tr', function() {
 			this.className = Z._oldHoverRowClassName;
 			jqRightFixedTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
 		});
 
 		jqRightFixedTbl.off();
-		jqRightFixedTbl.on('mouseenter', 'tr', function(){
+		jqRightFixedTbl.on('mouseenter', 'tr', function() {
 			Z._oldHoverRowClassName = this.className;
 			Z._hoverRowIndex = this.rowIndex;
 			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
 			jqLeftFixedTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
 		});
-		jqRightFixedTbl.on('mouseleave', 'tr', function(){
+		jqRightFixedTbl.on('mouseleave', 'tr', function() {
 			this.className = Z._oldHoverRowClassName;
 			jqLeftFixedTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
 		});
 		
 		jqLeftContentTbl.off();
-		jqLeftContentTbl.on('mouseenter', 'tr', function(){
+		jqLeftContentTbl.on('mouseenter', 'tr', function() {
 			Z._oldHoverRowClassName = this.className;
 			Z._hoverRowIndex = this.rowIndex;
 			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
@@ -1337,7 +1336,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			ochild.innerHTML = ['<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',
-				((!Z._disableHeadSort && !cobj.disableHeadSort) ? '<label class="jl-focusable-item" draggable="true">' + sh +'</label>': sh),
+				((!Z._disableHeadSort && !cobj.disableHeadSort) ? '<span class="jl-focusable-item" draggable="true">' + sh +'</span>': sh),
 				'</span><span unselectable="on" class="jl-tbl-sorter" title="',
 				jslet.locale.DBTable.sorttitle,
 				'">&nbsp;</span><div  unselectable="on" class="jl-tbl-splitter-hook" colid="',
