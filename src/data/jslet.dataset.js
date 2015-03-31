@@ -1870,8 +1870,15 @@ jslet.data.Dataset.prototype = {
 				value = window.eval(expr);
 			}
 			var valueStyle = fldObj.valueStyle();
+			if(value && jslet.isDate(value)) {
+				value = new Date(value.getTime());
+			}
 			if(valueStyle == jslet.data.FieldValueStyle.BETWEEN) {
-				value = [value, value];
+				if(value) {
+					value = [value, value];
+				} else {
+					value = [null, null];
+				}
 			} else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE) {
 				value = [value];
 			}
@@ -2980,46 +2987,6 @@ jslet.data.Dataset.prototype = {
 		if(value !== undefined) {
 			Z.setFieldValue(fldName, value, valueIndex);
 		}
-		
-		
-//		var Z = this,
-//			fldObj = Z.getField(fldName);
-//		if (fldObj === null) {
-//			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-//		}
-//		var fType = fldObj.getType();
-//		if (fType == jslet.data.DataType.DATASET) {
-//			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
-//		}
-//		
-//		if(fldObj.valueStyle() !== jslet.data.FieldValueStyle.NORMAL && valueIndex === undefined) {
-//			//Set an array value
-//			if(!jslet.isArray(inputText)) {
-//				inputText = inputText.split(jslet.global.valueSeparator);
-//			}
-//			var len = inputText.length;
-//			for(var k = 0; k < len; k++ ) {
-//				Z.setFieldText(fldName, inputText[k], k);
-//			}
-//			Z.setFieldValueLength(fldObj, len);
-//			return;
-//		}
-//		var invalidMsg = Z.fieldValidator.checkInputText(fldObj, inputText);
-//		fldObj.message(invalidMsg, valueIndex);
-//		if (invalidMsg) {
-//			return;
-//		}
-//		
-//		if(!inputText){
-//			Z.setFieldValue(fldName, null, valueIndex);
-//			return;
-//		}
-//		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
-//		if(!convert) {
-//			throw new Error('Can\'t find any field value converter!');
-//		}
-//		var value = convert.textToValue.call(Z, fldObj, inputText, valueIndex);
-//		Z.setFieldValue(fldName, value, valueIndex);
 	},
 
 	_textToValue: function(fldObj, inputText, valueIndex) {

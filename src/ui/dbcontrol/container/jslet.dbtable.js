@@ -942,11 +942,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
 			}
-//			if (Z._head_label_cliecked){
-//				Z._head_label_cliecked = false;
-//				return;
-//			}
-//			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
 		});
 		
 		jqRightHead.on('mousedown', '.jl-tbl-header-cell', function(event){
@@ -955,11 +950,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (el.className == 'jl-tbl-splitter-hook') {
 				return;
 			}
-//			if (Z._head_label_cliecked){
-//				Z._head_label_cliecked = false;
-//				return;
-//			}
-//			Z._doHeadClick(this.jsletcolcfg, event.ctrlKey);
 		});
 
 		jQuery(Z.leftHeadTbl).on('click', '.jl-focusable-item', function(event){
@@ -1047,15 +1037,22 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jqRightHead.on('drop', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
 			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
 
-			var e = event.originalEvent;
-			var tranfer = e.dataTransfer;
+			var currCell = this.parentNode,
+				e = event.originalEvent,
+				transfer = e.dataTransfer,
+				colCfg = currCell.jsletcolcfg,
+				srcRowIndex = parseInt(transfer.getData('rowIndex')),
+				srcCellIndex = parseInt(transfer.getData('cellIndex')),
+				currRowIndex = currCell.parentNode.rowIndex,
+				currCellIndex = currCell.cellIndex;
+			
 			var destField = this.parentNode.jsletcolcfg.field;
 			if(!destField) {
 				return;
 			}
-			var srcField = tranfer.getData('fieldName'); // required otherwise doesn't work//			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
+			var srcField = transfer.getData('fieldName');
 			console.log(srcField + ' -> ' + destField);
-			Z._moveColumn(srcField, destField);
+			Z._moveColumn(srcRowIndex, srcCellIndex, currCellIndex);
 	    	event.preventDefault(); // allows us to drop
 	    	return false;
 		});
@@ -1190,12 +1187,89 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._renderBody();
 	},
 
-	_moveColumn: function(srcFldName, destFldName) {
+	_moveColumn: function(rowIndex, srcCellIndex, destCellIndex) {
 		var Z = this;
-		var scrLeft = Z.rightContentTbl.parentNode.parentNode.scrollLeft;
-		Z._dataset.moveField(srcFldName, destFldName);
-		Z.renderAll();
-		Z.rightContentTbl.parentNode.parentNode.scrollLeft = scrLeft;
+		
+		function moveOneRow(cells, srcStart, srcEnd, destStart, destEnd) {
+			var cobj, 
+				colNo = 0, 
+				srcCells = [],
+				destCells = [];
+			
+			for(var i = 0, len = cells.length; i < len; i++) {
+				cobj = cells[i];
+				if(colNo >= srcStart && colNo <= srcEnd) {
+					srcCells.push(cobj);
+				} else if(colNo >= destStart && colNo <= destEnd) {
+					destCells.push(cobj);
+				} else {
+					if(colNo > srcEnd && colNo > destEnd) {
+						break;
+					}
+				}
+				
+				colNo += cobj.colSpan || 1;
+			}
+			if(srcStart > destStart) {
+				var destCell = destCells[0];
+				for(var i = 0, len = srcCells.length; i < len; i++) {
+					jQuery(srcCells[i]).insertBefore(destCell);
+				}
+			} else {
+				var destCell = destCells[destCells.length - 1];
+				for(var i = srcCells.length; i >= 0; i--) {
+					jQuery(srcCells[i]).insertAfter(destCell);
+				}
+			}
+		}
+		
+		function moveOneTableColumn(rows, rowIndex, srcStart, srcEnd, destStart, destEnd) {
+			var rowCnt = rows.length;
+			if(rowCnt === 0 || rowCnt === rowIndex) {
+				return;
+			}
+			var rowObj, cellCnt;
+			for(var i = rowIndex, len = rows.length; i < len; i++) {
+				rowObj = rows[i];
+				moveOneRow(rowObj.cells, srcStart, srcEnd, destStart, destEnd);
+			}
+		}
+		
+		var rows = Z.rightHeadTbl.createTHead().rows, cobj,
+			rowObj = rows[rowIndex],
+			srcStart = 0,
+			srcEnd = 0,
+			destStart = 0,
+			destEnd = 0, 
+			preColNo = 0,
+			colNo = 0;
+		
+		for(var i = 0, len = rowObj.cells.length; i < len; i++) {
+			cobj = rowObj.cells[i];
+			preColNo = colNo; 
+			colNo += (cobj.colSpan || 1);
+			if(i === srcCellIndex) {
+				srcStart = preColNo;
+				srcEnd = colNo - 1;
+			}
+			if(i === destCellIndex) {
+				destStart = preColNo;
+				destEnd = colNo - 1;
+			}
+		}
+		console.log('src: ' + srcStart + ':' + srcEnd + ', dest: ' + destStart + ':' + destEnd);
+		var srcCell = rowObj.cells[srcCellIndex],
+			destCell = rowObj.cells[destCellIndex];
+		if(srcCellIndex < destCellIndex) {
+			jQuery(srcCell).insertAfter(destCell);
+		} else {
+			jQuery(srcCell).insertBefore(destCell);
+		}
+		
+		moveOneTableColumn(Z.rightHeadTbl.createTHead().rows, rowIndex + 1, srcStart, srcEnd, destStart, destEnd);
+		moveOneTableColumn(Z.rightFixedTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
+		moveOneTableColumn(Z.rightContentTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
+		moveOneTableColumn(Z.rightFootTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 	},
 	
 	_calcAndSetContentHeight: function(){

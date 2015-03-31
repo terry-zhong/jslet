@@ -101,7 +101,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 				maxDate = range.max;
 			}
 		}
-		if (!Z.contentPanel)
+		if (!Z.contentPanel) {
 			Z.contentPanel = jslet.ui.createControl({ type: 'Calendar', value: dateValue, minDate: minDate, maxDate: maxDate,
 				onDateSelected: function (date) {
 					Z.popup.hide();
@@ -114,10 +114,11 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 						value.setMonth(date.getMonth());
 						value.setDate(date.getDate());
 					}
-					Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+					Z._dataset.setFieldValue(Z._field, new Date(value.getTime()), Z._valueIndex);
 				}
 			}, null, width + 'px', height + 'px', true); //Hide panel first
-
+		}
+		
 		jslet.ui.PopupPanel.excludedElement = el;//event.element();
 		var r = jqEl.offset(), 
 			h = jqEl.outerHeight(), 
