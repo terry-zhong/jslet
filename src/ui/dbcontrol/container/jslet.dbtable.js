@@ -1051,7 +1051,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return;
 			}
 			var	srcField = dragTransfer.fieldName;
-			console.log(srcField + ' -> ' + destField);
 			Z._moveColumn(srcRowIndex, srcCellIndex, currCellIndex);
 	    	return false;
 		});
@@ -1256,7 +1255,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				destEnd = colNo - 1;
 			}
 		}
-		console.log('src: ' + srcStart + ':' + srcEnd + ', dest: ' + destStart + ':' + destEnd);
 		var srcCell = rowObj.cells[srcCellIndex],
 			destCell = rowObj.cells[destCellIndex];
 		if(srcCellIndex < destCellIndex) {
