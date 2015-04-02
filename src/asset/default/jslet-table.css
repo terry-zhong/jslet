@@ -43,10 +43,14 @@
 	height: 100%;
 }
 
-.jl-scrollbar-width {
+.jl-scrollbar-col {
 	width: 17px;
 	border: 0;
 	border-left: 1px solid #a4bed4;	
+}
+
+.jl-scrollbar-hidden {
+	width: 0;
 }
 
 .jl-tbl-fixedcol {

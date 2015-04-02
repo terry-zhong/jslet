@@ -185,6 +185,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._onFillCell = null;		
 		
 		//@private
+		Z._repairHeight = 0;
 		Z.contentHeight = 0;
 		Z.subgroup = null;//jslet.ui.TableSubgroup
 		
@@ -816,6 +817,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this,
 			v = maxValue + Z._repairHeight;
 		Z.jqVScrollBar.find('div').height(v);
+		if(Z.contentSectionHt + Z.footSectionHt >= v) {
+			Z.jqVScrollBar.parent().addClass('jl-scrollbar-hidden');	
+		} else {
+			Z.jqVScrollBar.parent().removeClass('jl-scrollbar-hidden');	
+		}
 	},
 
 	_changeColWidth: function (index, deltaW) {
@@ -899,7 +905,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			'<table class="jl-tbl-container"><tr>',
 			'<td><div class="jl-tbl-fixedcol"><table class="jl-tbl-data"><tbody /></table><table class="jl-tbl-data"><tbody /></table><div class="jl-tbl-content-div"><table class="jl-tbl-data"><tbody /></table></div><table><tbody /></table></div></td>',
 			'<td><div class="jl-tbl-contentcol"><div><table class="jl-tbl-data jl-tbl-content-table" border="0" cellpadding="0" cellspacing="0"><tbody /></table></div><div><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><div class="jl-tbl-content-div"><table class="jl-tbl-data jl-tbl-content-table"><tbody /></table></div><table class="jl-tbl-content-table jl-tbl-footer"><tbody /></table></div></td>',
-			'<td class="jl-scrollbar-width"><div class="jl-tbl-vscroll-head"></div><div class="jl-tbl-vscroll"><div /></div></td></tr></table>'];
+			'<td class="jl-scrollbar-col"><div class="jl-tbl-vscroll-head"></div><div class="jl-tbl-vscroll"><div /></div></td></tr></table>'];
 		
 		jqEl.html(dbtableframe.join(''));
 
@@ -1164,7 +1170,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			splitter.parentNode.jslet.isDraggingColumn = false;
 		};
 
-		Z._setScrollBarMaxValue(Z.listvm.getNeedShowRowCount() * Z._rowHeight);
 		if (Z.footSectionHt){
 			Z.leftFootTbl.style.display = '';
 			Z.rightFootTbl.style.display = '';
@@ -1285,6 +1290,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.find('.jl-tbl-content-div').height(Z.contentSectionHt);
 
 		Z.jqVScrollBar.height(Z.contentSectionHt + Z.footSectionHt);
+		Z._setScrollBarMaxValue(Z.listvm.getNeedShowRowCount() * Z._rowHeight);
 	},
 	
 	_checkHoriOverflow: function(){
@@ -1808,16 +1814,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._dataset.endSilenceMove(context);
 		}
 	},
-	
-	_fillDataDebounce: jslet.debounce(this._innerFillData, 100),
-	
+
 	_fillData: function () {
 		this._fillDataDebounce.apply(this);
 	},
 	
 	_fillRow: function (isFixed) {
 		var Z = this,
-		rowCnt = 0, start = 0, leftBody = null, rightBody,
+			rowCnt = 0, start = 0, leftBody = null, rightBody,
 			hasLeft = Z._fixedCols > 0 || Z._sysColumns.length > 0;
 			
 		if (isFixed) {
