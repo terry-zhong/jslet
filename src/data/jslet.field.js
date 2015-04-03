@@ -1383,7 +1383,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 	var fldObj = new jslet.data.Field(cfg.name, dtype);
 
 	function setPropValue(propName) {
-		var propValue = cfg[propName] || cfg[propName.toLowerCase()];
+		var propValue = cfg[propName];
+		if(propValue === undefined) {
+			propValue = cfg[propName.toLowerCase()];
+		}
 		if (propValue !== undefined) {
 			fldObj[propName](propValue);
 		}
@@ -1457,6 +1460,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('aggratedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
+	setPropValue('antiXss');
 	
 	var regularExpr = cfg.regularExpr;
 	var regularMessage = cfg.regularMessage;

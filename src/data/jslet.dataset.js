@@ -1756,6 +1756,10 @@ jslet.data.Dataset.prototype = {
 			beforeInsertFn(Z._modiObject);
 		}
 
+		//calc other fields' range to use context rule
+		if (!Z._silence && Z._contextRuleEnabled) {
+			Z.calcContextRule();
+		}
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);

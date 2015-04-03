@@ -79,9 +79,6 @@ jslet.Expression.prototype = {
 				this.context[dsName] = otherDs;
 				dsObj = otherDs;
 			}
-			if (dsObj.getField(fldName) === null) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-			}
 
 			if (!dsName) {
 				tmpExpr.push(this._expr.substring(start, end));
