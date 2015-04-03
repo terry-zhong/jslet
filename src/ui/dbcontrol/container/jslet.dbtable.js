@@ -191,8 +191,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._sysColumns = null;//all system column like sequence column, select column, sub-group column
 		Z._isHoriOverflow = false;
-		Z._hoverRowIndex = -1;
-		Z._oldHoverRowClassName;
 		Z._oldHeight = null;
 		Z._fillDataDebounce = jslet.debounce(this._innerFillData, 30);
 		$super(el, params);
@@ -475,7 +473,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._dataset.recordCount() === 0) {
 				return;
 			}
-			Z._oldHoverRowClassName = '';
 			if (Z.prevRow) {
 				if (Z.prevRow.fixed) {
 					jQuery(Z.prevRow.fixed).removeClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
@@ -490,16 +487,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var recno = Z._dataset.recno();
 			if (otr) {
 				jQuery(otr).addClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
-				if(Z._hoverRowIndex == otr.rowIndex) {
-					Z._oldHoverRowClassName = jslet.ui.htmlclass.TABLECLASS.currentrow;
-				}
 			}
 			
 			otr = currRow.content;
 			jQuery(otr).addClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
-			if(Z._hoverRowIndex == otr.rowIndex) {
-				Z._oldHoverRowClassName = jslet.ui.htmlclass.TABLECLASS.currentrow;
-			}
 			Z.prevRow = currRow;
 		};
 	},
@@ -1068,55 +1059,47 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		jqLeftFixedTbl.off();
 		jqLeftFixedTbl.on('mouseenter', 'tr', function() {
-			Z._oldHoverRowClassName = this.className;
-			Z._hoverRowIndex = this.rowIndex;
-			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
-			jqRightFixedTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
+			jQuery(this).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqRightFixedTbl[0].rows[this.rowIndex]).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 		jqLeftFixedTbl.on('mouseleave', 'tr', function() {
-			this.className = Z._oldHoverRowClassName;
-			jqRightFixedTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
+			jQuery(this).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqRightFixedTbl[0].rows[this.rowIndex]).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 
 		jqRightFixedTbl.off();
 		jqRightFixedTbl.on('mouseenter', 'tr', function() {
-			Z._oldHoverRowClassName = this.className;
-			Z._hoverRowIndex = this.rowIndex;
-			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
-			jqLeftFixedTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
+			jQuery(this).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqLeftFixedTbl[0].rows[this.rowIndex]).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 		jqRightFixedTbl.on('mouseleave', 'tr', function() {
-			this.className = Z._oldHoverRowClassName;
-			jqLeftFixedTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
+			jQuery(this).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqLeftFixedTbl[0].rows[this.rowIndex]).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 		
 		jqLeftContentTbl.off();
 		jqLeftContentTbl.on('mouseenter', 'tr', function() {
-			Z._oldHoverRowClassName = this.className;
-			Z._hoverRowIndex = this.rowIndex;
-			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
-			jqRightContentTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
+			jQuery(this).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqRightContentTbl[0].rows[this.rowIndex]).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 		jqLeftContentTbl.on('mouseleave', 'tr', function(){
-			this.className = Z._oldHoverRowClassName;
-			jqRightContentTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
+			jQuery(this).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
+			jQuery(jqRightContentTbl[0].rows[this.rowIndex]).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 		});
 		
 		jqRightContentTbl.off();
 		jqRightContentTbl.on('mouseenter', 'tr', function(){
-			Z._oldHoverRowClassName = this.className;
-			Z._hoverRowIndex = this.rowIndex;
-			this.className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
+			jQuery(this).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 			var hasLeft = (Z._fixedRows > 0 || Z._sysColumns.length > 0);
 			if(hasLeft) {
-				jqLeftContentTbl[0].rows[this.rowIndex].className = jslet.ui.htmlclass.TABLECLASS.hoverrow;
+				jQuery(jqLeftContentTbl[0].rows[this.rowIndex]).addClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 			}
 		});
 		jqRightContentTbl.on('mouseleave', 'tr', function(){
-			this.className = Z._oldHoverRowClassName;
+			jQuery(this).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 			var hasLeft = (Z._fixedRows > 0 || Z._sysColumns.length > 0);
 			if(hasLeft) {
-				jqLeftContentTbl[0].rows[this.rowIndex].className = Z._oldHoverRowClassName;
+				jQuery(jqLeftContentTbl[0].rows[this.rowIndex]).removeClass(jslet.ui.htmlclass.TABLECLASS.hoverrow);
 			}
 		});
 		
