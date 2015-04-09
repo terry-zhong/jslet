@@ -77,8 +77,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
 	
-	Z._aggrated = false; //optional value: sum, count, avg
-	Z._aggratedBy = null;
+	Z._aggraded = false; //optional value: sum, count, avg
+	Z._aggradedBy = null;
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -482,7 +482,7 @@ jslet.data.Field.prototype = {
 	/**
 	 * Get or set field is unique or not.
 	 * 
-	 * @param {Boolean or undefined} required Field is unique or not.
+	 * @param {Boolean or undefined} unique Field is unique or not.
 	 * @return {Boolean or this}
 	 */
 	unique: function (unique) {
@@ -1108,7 +1108,6 @@ jslet.data.Field.prototype = {
 		if (converter === undefined) {
 			return Z._customValueConverter;
 		}
-		//jslet.Checker.test('Field.customValueConverter', converter).isClass(jslet.data.FieldValueConverter.className);
 		Z._customValueConverter = converter;
 		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
@@ -1211,36 +1210,36 @@ jslet.data.Field.prototype = {
 	},
 
 	/**
-	 * Get or set the type of aggrated value.
+	 * Get or set the type of aggraded value.
 	 * 
-	 * @param {String or undefined} aggrated optional value is: count,sum,avg.
+	 * @param {String or undefined} aggraded optional value is: count,sum,avg.
 	 * @return {String or this}
 	 */
-	aggrated: function (aggrated) {
+	aggraded: function (aggraded) {
 		var Z = this;
-		if (aggrated === undefined){
-			return Z._aggrated;
+		if (aggraded === undefined){
+			return Z._aggraded;
 		}
 		
-		Z._aggrated = aggrated? true: false;
+		Z._aggraded = aggraded? true: false;
 		return this;
 	},
 
 	/**
-	 * Get or set the field names to aggrate field value. 
+	 * Get or set the field names to aggrade field value. 
 	 * Multiple field names are separated by ','.
 	 * 
 	 * 
 	 * @param {String or undefined} aggrBy.
 	 * @return {String or this}
 	 */
-	aggratedBy: function(aggratedBy){
+	aggradedBy: function(aggradedBy){
 		var Z = this;
-		if (aggratedBy === undefined) {
-			return Z._aggratedBy;
+		if (aggradedBy === undefined) {
+			return Z._aggradedBy;
 		}
-		jslet.Checker.test('Field.aggratedBy', aggratedBy).isString();
-		Z._aggratedBy = jQuery.trim(aggratedBy);
+		jslet.Checker.test('Field.aggradedBy', aggradedBy).isString();
+		Z._aggradedBy = jQuery.trim(aggradedBy);
 	},
 
 	/**
@@ -1333,8 +1332,8 @@ jslet.data.Field.prototype = {
 		result.mergeSameBy(Z._mergeSameBy);
 		result.fixedValue(Z._fixedValue);
 		
-		result.aggrated(Z._aggrated);
-		result.aggratedBy(Z._aggratedBy);
+		result.aggraded(Z._aggraded);
+		result.aggradedBy(Z._aggradedBy);
 		
 		return result;
 	},
@@ -1451,13 +1450,14 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('valueCountLimit');
 	setPropValue('dataRange');
 	setPropValue('customValidator');
+	setPropValue('customValueConverter');
 	setPropValue('trueValue');
 	setPropValue('falseValue');
 	setPropValue('mergeSame');
 	setPropValue('mergeSameBy');
-	setPropValue('aggrated');
+	setPropValue('aggraded');
 
-	setPropValue('aggratedBy');
+	setPropValue('aggradedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
 	setPropValue('antiXss');

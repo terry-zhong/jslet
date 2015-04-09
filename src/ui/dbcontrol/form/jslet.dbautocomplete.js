@@ -326,8 +326,8 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
  */
 jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	var Z = this;
-	Z.dlgWidth = 500;
-	Z.dlgHeight = 200;
+	Z.dlgWidth = 320;
+	Z.dlgHeight = 180;
 
 	var lkf, lkds;
 	Z.comboCfg = autoCompleteObj;

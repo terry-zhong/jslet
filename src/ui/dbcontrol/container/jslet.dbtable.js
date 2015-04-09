@@ -65,7 +65,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup';
+		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded';
 		
 		/**
 		 * {Integer} Fixed row count.
@@ -101,6 +101,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		 * {Boolean} Identify if DBTable disable user to click header to sort.
 		 */
 		Z._disableHeadSort = false;
+		
+		Z._aggraded = true;
+		
 		/**
 		 * {String} one or more fields' name concatenated with ','
 		 * @see jslet.data.Dataset.select(selected, selectBy).
@@ -278,6 +281,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return this._hideHead;
 		}
 		this._hideHead = hideHead ? true: false;
+	},
+	
+	aggraded: function(aggraded) {
+		if(aggraded === undefined) {
+			return this._aggraded;
+		}
+		this._aggraded = aggraded ? true: false;
 	},
 	
 	disableHeadSort: function(disableHeadSort) {
@@ -776,7 +786,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z.fixedSectionHt = 0;
 		}
 		//Calculate Foot section's height
-		if (Z.dataset().checkAggrated()){
+		if (Z.aggraded() && Z.dataset().checkAggraded()){
 			Z.footSectionHt = Z._rowHeight;
 		} else {
 			Z.footSectionHt = 0;
@@ -1731,8 +1741,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	
 	_fillTotalSection: function () {
 		var Z = this,
-			aggrateValues = Z._dataset.aggratedValues();
-		if (!Z.footSectionHt || !aggrateValues) {
+			aggradeValues = Z._dataset.aggradedValues();
+		if (!Z.footSectionHt || !aggradeValues) {
 			return;
 		}
 		var hasLeft = Z._fixedCols > 0 && Z._sysColumns.length > 0,
@@ -1743,7 +1753,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		otrRight = Z.rightFootTbl.tBodies[0].rows[0];
 
 		var otd, k = 0, fldObj, cobj, fldName, totalValue;
-		var aggrateValueObj,
+		var aggradeValueObj,
 			labelDisplayed = false,
 			sysColCnt = Z._sysColumns.length;
 		for (var i = 0, len = Z.innerColumns.length; i < len; i++) {
@@ -1757,8 +1767,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otd.style.textAlign = 'right';
 
 			fldName = cobj.field;
-			aggrateValueObj = aggrateValues[fldName];
-			if (!aggrateValueObj) {
+			aggradeValueObj = aggradeValues[fldName];
+			if (!aggradeValueObj) {
 				var content;
 				if(labelDisplayed) {
 					content = '&nbsp;';
@@ -1771,9 +1781,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			fldObj = Z._dataset.getField(fldName);
 			if(fldObj.getType() === jslet.data.DataType.NUMBER) {
-				totalValue = aggrateValueObj.sum;
+				totalValue = aggradeValueObj.sum;
 			} else {
-				totalValue = aggrateValueObj.count;
+				totalValue = aggradeValueObj.count;
 			}
 			otd.firstChild.innerHTML =jslet.formatNumber(totalValue, fldObj.displayFormat());
 		}
@@ -2052,7 +2062,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			evtType = evt.eventType;
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
 			
-		} else if (evtType == jslet.data.RefreshEvent.AGGRATED) {
+		} else if (evtType == jslet.data.RefreshEvent.AGGRADED) {
 			Z._fillTotalSection();			
 		} else if (evtType == jslet.data.RefreshEvent.BEFORESCROLL) {
 			

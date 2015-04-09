@@ -237,8 +237,8 @@ jslet.data.RefreshEvent = {
 		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName};
 	},
 	
-	aggratedEvent: function() {
-		return {eventType: jslet.data.RefreshEvent.AGGRATED};		
+	aggradedEvent: function() {
+		return {eventType: jslet.data.RefreshEvent.AGGRADED};		
 	}
 };
 
@@ -255,7 +255,7 @@ jslet.data.RefreshEvent.INSERT = 'insert';
 jslet.data.RefreshEvent.DELETE = 'delete';// recno
 jslet.data.RefreshEvent.CHANGEPAGE = 'changePage';
 jslet.data.RefreshEvent.UPDATELOOKUP = 'updateLookup';
-jslet.data.RefreshEvent.AGGRATED = 'aggrated';
+jslet.data.RefreshEvent.AGGRADED = 'aggraded';
 
 jslet.data.RefreshEvent.ERROR = 'error';
 
@@ -281,7 +281,7 @@ jslet.data.FieldValidator.prototype = {
 	 * @param {String} inputChar Single character
 	 * @param {Boolean} True for passed, otherwise failed.
 	 */
-	checkInputChar: function (fldObj, inputChar, existText) {
+	checkInputChar: function (fldObj, inputChar, existText, cursorPos) {
 		var validChars = fldObj.validChars();
 		var valid = true;
 		if (validChars && inputChar) {
@@ -299,7 +299,7 @@ jslet.data.FieldValidator.prototype = {
 				}
 			}
 			if(scale > 0 && k >= 0) {
-				if(existText.length - k - 1 === scale) {
+				if(existText.length - k - 1 === scale && cursorPos - 1 > k) {
 					return false;
 				}
 			}

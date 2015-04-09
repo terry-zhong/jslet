@@ -33,7 +33,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,beforeUpdateToDataset,enableInvalidTip,onKeyDown';
+		Z.allProperties = 'dataset,field,beforeUpdateToDataset,enableInvalidTip,onKeyDown,autoSelectAll';
 
 		/**
 		 * @protected
@@ -42,11 +42,14 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._enableInvalidTip = true;
 		
 		Z._enterProcessed = false;
+		
+		Z._autoSelectAll = true;
 		/**
 		 * @private
 		 */
 		Z.oldValue = null;
 		Z.editMask = null;
+		Z._position;
 		$super(el, params);
 	},
 
@@ -63,6 +66,13 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return this._enableInvalidTip;
 		}
 		this._enableInvalidTip = enableInvalidTip? true: false;
+	},
+
+	autoSelectAll: function(autoSelectAll) {
+		if(autoSelectAll === undefined) {
+			return this._autoSelectAll;
+		}
+		this._autoSelectAll = autoSelectAll? true: false;
 	},
 
 	/**
@@ -98,6 +108,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			jqEl.on('mouseover', Z.doMouseOver);
 			jqEl.on('mouseout', Z.doMouseOut);
 		}
+		Z.doMetaChanged('required');
 	}, // end bind
 
 	doFocus: function (event) {
@@ -109,12 +120,15 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!fldObj.message()) {
 			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		}
-		jslet.ui.textutil.selectText(this);
+		if(Z._autoSelectAll) {
+			jslet.ui.textutil.selectText(this);
+		}
 	},
 
 	doBlur: function (event) {
 		var Z = this.jslet,
 			fldObj = Z._dataset.getField(Z._field);
+		Z._position = jslet.ui.textutil.getCursorPos(Z.el);
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
 		}
@@ -124,7 +138,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 
 		Z.updateToDataset();
-		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 	},
 	
 	doKeydown: function(event) {
@@ -135,8 +148,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var Z = this.jslet;
 			Z._enterProcessed = true;
 			Z.updateToDataset();
-
-			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		}
 	},
 
@@ -148,23 +159,19 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		event = jQuery.event.fix( event || window.event );
 		var keyCode = event.which,
-			existStr = jslet.getRemainingString(Z.el.value, jslet.ui.textutil.getSelectedText(Z.el));
-		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode), existStr)) {
+			existStr = jslet.getRemainingString(Z.el.value, jslet.ui.textutil.getSelectedText(Z.el)),
+			cursorPos = jslet.ui.textutil.getCursorPos(Z.el);
+		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode), existStr, cursorPos.begin)) {
 			event.preventDefault();
 		}
 		//When press 'enter', write data to dataset.
 		if(keyCode == 13) {
 			if(!Z._enterProcessed) {
 				Z.updateToDataset();
-				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 			} else {
 				Z._enterProcessed = false;
 			}
 		}
-	},
-
-	doChange: function (event) {
-		this.jslet.updateToDataset();
 	},
 
 	doMouseOver: function (event) {
@@ -189,6 +196,44 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	},
 	
 	/**
+	 * Input a text into text control at current cursor position.
+	 * 
+	 * @param {String} text the text need to be input.
+	 */
+	inputText: function(text) {
+		if(!text) {
+			return;
+		}
+		jslet.Checker.test('DBText.inputText#text', text).isString();
+		
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		if(fldObj.getType() !== jslet.data.DataType.STRING) {
+			console.warn('Only String Field can be input!');
+			return;
+		}
+		var ch, chs = [];
+		for(var i = 0, len = text.length; i < len; i++) {
+			ch = text[i];
+			if (Z._dataset.fieldValidator.checkInputChar(fldObj, ch)) {
+				chs.push(ch);
+			}
+		}
+		if(!Z._position) {
+			Z._position = jslet.ui.textutil.getCursorPos(Z.el);
+		}
+		var subStr = chs.join(''),
+			value =Z.el.value,
+			begin = Z._position.begin,
+			end = Z._position.end;
+		var prefix = value.substring(0, begin), 
+			suffix = value.substring(end); 
+		Z.el.value = prefix + text + suffix;
+		Z._position = jslet.ui.textutil.getCursorPos(Z.el);		
+		Z.updateToDataset();
+	},
+	
+	/**
 	 * @override
 	 */
 	refreshControl: function ($super, evt, isForce) {
@@ -208,6 +253,14 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			jslet.ui.setEditableStyle(Z.el, fldObj.disabled(), fldObj.readOnly());
 		}
 		
+		if(metaName && metaName == 'required') {
+			var jqEl = jQuery(Z.el);
+			if (fldObj.required()) {
+				jqEl.addClass('jl-ctrl-required');
+			} else {
+				jqEl.removeClass('jl-ctrl-required');
+			}
+		}
 		if(!metaName || metaName == 'editMask') {
 			var editMaskCfg = fldObj.editMask();
 			if (editMaskCfg) {
@@ -268,6 +321,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			} else {
 				value = Z._dataset.getFieldText(Z._field, true, Z._valueIndex);
 			}
+			if(fldObj.getType() === jslet.data.DataType.STRING && fldObj.antiXss()) {
+				value = jslet.htmlDecode(value);
+			}
 			Z.el.value = value;
 		}
 		Z.oldValue = Z.el.value;
@@ -308,6 +364,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		} finally {
 			Z._keep_silence_ = false;
 		}
+		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		return true;
 	}, // end updateToDataset
 

@@ -104,6 +104,9 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			for (var i = 0, fcnt = allFlds.length; i < fcnt; i++) {
 				fldObj = allFlds[i];
 				fldName = fldObj.name();
+				if(!fldObj.visible()) {
+					continue;
+				}
 				found = false;
 				for (var j = 0; j < layoutcnt; j++) {
 					editFld = Z._fields[j];
@@ -113,7 +116,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 					}
 				}
 				
-				if (!found && fldObj.visible()) {
+				if (!found) {
 					fldLayouts.push({
 					field: fldObj.name()
 					});

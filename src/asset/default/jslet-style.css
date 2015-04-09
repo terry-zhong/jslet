@@ -110,6 +110,10 @@
     font-size: smaller;
 }
 
+.jl-ctrl-required {
+	background-color: rgba(244, 244, 149, 0.37)!important;
+}
+
 .jl-lbl-message {
     color: red;
 	text-align: left!important;

@@ -99,6 +99,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			jqEl.on('click', 'option', Z._doCheckLimitCount);
 		}
 		jqEl.addClass('form-control');//Bootstrap class
+		Z.doMetaChanged('required');
 	}, // end bind
 
 	_doChanged: function (event) {
@@ -268,6 +269,14 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			Z.el.disabled = disabled;
 			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true);
+		}
+		if(metaName && metaName == 'required') {
+			var jqEl = jQuery(Z.el);
+			if (fldObj.required()) {
+				jqEl.addClass('jl-ctrl-required');
+			} else {
+				jqEl.removeClass('jl-ctrl-required');
+			}
 		}
 		if(metaName == 'message') {
 			Z.renderInvalid();
