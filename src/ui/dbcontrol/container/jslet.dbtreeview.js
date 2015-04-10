@@ -257,10 +257,10 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.html('');
 		Z.oldWidth = jqEl.width();
 		Z.oldHeight = jqEl.height();
-		Z.nodeHeight = Z.iconWidth =  parseInt(jslet.ui.getCssValue('jl-tree-lines', 'width'));
+		Z.nodeHeight = Z.iconWidth =  parseInt(jslet.ui.getCssValue('jl-tree', 'line-height'));
 		Z.treePanelHeight = jqEl.height();
 		Z.treePanelWidth = jqEl.width();
-		Z.nodeCount = Math.floor(Z.treePanelHeight / Z.nodeHeight) - 1;
+		Z.nodeCount = Math.floor(Z.treePanelHeight / Z.nodeHeight);
 
 		Z._initVm();
 		Z._initFrame();
@@ -596,7 +596,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				jQuery(otd).addClass('jl-tree-lines').attr('jsletline', 1);
 			}
 		}
-		if (cellCnt > reqiredCnt){
+		if (cellCnt >= reqiredCnt){
 			for( var i = 0, cnt = cellCnt - reqiredCnt; i < cnt; i++){
 				cells[i].style.display = 'none';
 			}

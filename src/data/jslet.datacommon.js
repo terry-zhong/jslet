@@ -31,25 +31,16 @@ jslet.data.DatasetCreation = function() {
 	var _creatingDatasets = [];
 	var _needCheck = false;
 	
-	var _enabled = false;
-	
-	this.enabled = function(enabled) {
-		if(enabled === undefined) {
-			return _enabled;
-		}
-		_enabled = enabled;
-	}
 	/**
 	 * If the relative dataset does not exist, fire this event.
 	 * In this event, you can create them. Pattern:
-	 * this.onDatasetRequired = function(dsName, dsCatalog){ }
+	 * this.onCreatingDataset = function(dsName, dsCatalog){ }
 	 * 
 	 * @param {String} dsName Relative dataset name need to be created.
-	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
-	 * 		0 or undefined - Lookup dataset;
-	 * 		1 - Sub dataset
+	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value: 
+	 * 			@see jslet.data.DatasetType
 	 */
-	this.onDatasetRequired = null;
+	this.onCreatingDataset = jslet.data.DatasetType.NORMAL;
 	
 	/**
 	 * If the relative dataset does not exist, fire this event.
@@ -58,8 +49,7 @@ jslet.data.DatasetCreation = function() {
 	 * 
 	 * @param {String} dsName Relative dataset name need to be created.
 	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
-	 * 		0 or undefined - Lookup dataset;
-	 * 		1 - Sub dataset
+	 * 		 @see jslet.data.DatasetType
 	 */
 	this.onDatasetReady = null;
 	
@@ -68,22 +58,18 @@ jslet.data.DatasetCreation = function() {
 	 * 
 	 * @param {String} dsName Relative dataset name need to be created.
 	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
-	 * 		0 or undefined - Lookup dataset;
-	 * 		1 - Sub dataset
+	 * 		 @see jslet.data.DatasetType
 	 * @param {String} realDsName real dataset name is used for external system to create dataset. 
 	 * 		The creating dataset's is dsName, but its data is queried by realDsName.
 	 */
-	this.fireDatasetRequiredEvent = function(dsName, dsCatalog, realDsName){
-		if(!_enabled) {
-			return;
-		}
+	this.addCreatingDataset = function(dsName, dsCatalog, realDsName){
 		var k = _creatingDatasets.indexOf(dsName);
 		if(k < 0) {
 			_creatingDatasets.push(dsName);
 			_needCheck = true;
 		}
-		if(this.onDatasetRequired) {
-			this.onDatasetRequired(dsName, dsCatalog, realDsName);
+		if(this.onCreatingDataset) {
+			this.onCreatingDataset(dsName, dsCatalog, realDsName);
 		}
 	}
 	
@@ -92,9 +78,6 @@ jslet.data.DatasetCreation = function() {
 	 * 
 	 */
 	this.fireDatasetCreated = function(dsName){
-		if(!_enabled) {
-			return;
-		}
 		var k = _creatingDatasets.indexOf(dsName);
 		if(k >= 0) {
 			_creatingDatasets.splice(k, 1);

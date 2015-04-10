@@ -958,7 +958,7 @@ jslet.data.Field.prototype = {
 		if (jslet.isString(subDsObj)) {
 			subDsObj = jslet.data.getDataset(subDsObj);
 			if(!subDsObj) {
-				jslet.data.datasetCreation.fireDatasetRequiredEvent(subdataset, jslet.data.DatasetType.DETAIL); //1 - sub dataset
+				jslet.data.datasetCreation.addCreatingDataset(subdataset, jslet.data.DatasetType.DETAIL); //1 - sub dataset
 			}
 		}
 		if(needProcessRelation) {
@@ -1661,7 +1661,7 @@ jslet.data.FieldLookup.prototype = {
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);
 			if(!lkDsObj) {
-				jslet.data.datasetCreation.fireDatasetRequiredEvent(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset); //0 - lookup dataset, 1 - subdataset
+				jslet.data.datasetCreation.addCreatingDataset(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset); //1 - lookup dataset, 2 - subdataset
 			}
 		}
 		if(lkDsObj) {
