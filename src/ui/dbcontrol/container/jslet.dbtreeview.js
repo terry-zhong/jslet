@@ -231,10 +231,10 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				event.preventDefault();
 			}
 		});
-		jqEl.on('mouseenter', 'table.jl-tree-nodes', function(event){
+		jqEl.on('mouseenter', 'td.jl-tree-text', function(event){
 			jQuery(this).addClass('jl-tree-nodes-hover');
 		});
-		jqEl.on('mouseleave', 'table.jl-tree-nodes', function(event){
+		jqEl.on('mouseleave', 'td.jl-tree-text', function(event){
 			jQuery(this).removeClass('jl-tree-nodes-hover');
 		});
 		if (!jqEl.hasClass('jl-tree')) {
@@ -308,7 +308,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		var sb = jqEl.find('.jl-tree-scrollbar');
 		
 		sb.on('scroll',function(){
-			var numb=Math.round(this.scrollTop/Z.nodeHeight);
+			var numb=Math.floor(this.scrollTop/Z.nodeHeight);
 			if (numb!=Z.listvm.getVisibleStartRow()){
 				Z._skip_ = true;
 				try {
@@ -368,7 +368,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z.listvm.onNeedShowRowsCountChanged = function(allCount){
 			Z._fillData();
-			jQuery(Z.el).find('.jl-tree-tracker').height(Z.nodeHeight * allCount);
+			jQuery(Z.el).find('.jl-tree-tracker').height(Z.nodeHeight * (allCount + 2));
 		};
 		
 		Z.listvm.onCheckStateChanged = function(){
