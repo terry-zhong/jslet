@@ -27,72 +27,8 @@ jslet.data.DatasetType = {
 	DETAIL: 2  //Detail dataset	 
 };
 
-jslet.data.DatasetCreation = function() {
-	var _creatingDatasets = [];
-	var _needCheck = false;
-	
-	/**
-	 * If the relative dataset does not exist, fire this event.
-	 * In this event, you can create them. Pattern:
-	 * this.onCreatingDataset = function(dsName, dsCatalog){ }
-	 * 
-	 * @param {String} dsName Relative dataset name need to be created.
-	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value: 
-	 * 			@see jslet.data.DatasetType
-	 */
-	this.onCreatingDataset = jslet.data.DatasetType.NORMAL;
-	
-	/**
-	 * If the relative dataset does not exist, fire this event.
-	 * In this event, you can create them. Pattern:
-	 * this.onDatasetReady = function(){ }
-	 * 
-	 * @param {String} dsName Relative dataset name need to be created.
-	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
-	 * 		 @see jslet.data.DatasetType
-	 */
-	this.onDatasetReady = null;
-	
-	/**
-	 * If the relative dataset does not exist, fire this event.
-	 * 
-	 * @param {String} dsName Relative dataset name need to be created.
-	 * @param {Integer} dsCatalog Dataset catalog of relative dataset, optional value:
-	 * 		 @see jslet.data.DatasetType
-	 * @param {String} realDsName real dataset name is used for external system to create dataset. 
-	 * 		The creating dataset's is dsName, but its data is queried by realDsName.
-	 */
-	this.addCreatingDataset = function(dsName, dsCatalog, realDsName){
-		var k = _creatingDatasets.indexOf(dsName);
-		if(k < 0) {
-			_creatingDatasets.push(dsName);
-			_needCheck = true;
-		}
-		if(this.onCreatingDataset) {
-			this.onCreatingDataset(dsName, dsCatalog, realDsName);
-		}
-	}
-	
-	/**
-	 * Fire onDatasetReady event when all datasets created.
-	 * 
-	 */
-	this.fireDatasetCreated = function(dsName){
-		var k = _creatingDatasets.indexOf(dsName);
-		if(k >= 0) {
-			_creatingDatasets.splice(k, 1);
-		}
-		
-		if(_needCheck && _creatingDatasets.length === 0) {
-			if(this.onDatasetReady) {
-				this.onDatasetReady();
-			}
-			_needCheck = false;
-		}
-	}
-}
+jslet.data.onCreatingDataset = function(dsName, dsCatalog, realDsName, hostDatasetName) { };
 
-jslet.data.datasetCreation = new jslet.data.DatasetCreation();
 
 jslet.data.DataType = {
 	NUMBER: 'N', //Number

@@ -2534,19 +2534,12 @@ jslet.data.Dataset.prototype = {
 	 */
 	disableControls: function () {
 		this._lockCount++;
-		var fldObj, lkf, lkds;
+		var fldObj, subDs;
 		for (var i = 0, cnt = this._normalFields.length; i < cnt; i++) {
 			fldObj = this._normalFields[i];
-			lkf = fldObj.lookup();
-			if (lkf !== null) {
-				try {
-					lkds = lkf.dataset();
-				} catch(e) {
-					lkds = null;
-				}
-				if (lkds !== null) {
-					lkds.disableControls();
-				}
+			subDs = fldObj.subDataset();
+			if (subDs !== null) {				
+				subDs.disableControls();
 			}
 		}
 	},
@@ -2564,19 +2557,12 @@ jslet.data.Dataset.prototype = {
 			this.refreshControl();
 		}
 
-		var fldObj, lkf, lkds;
+		var fldObj, subDs;
 		for (var i = 0, cnt = this._normalFields.length; i < cnt; i++) {
 			fldObj = this._normalFields[i];
-			lkf = fldObj.lookup();
-			if (lkf !== null) {
-				try {
-					lkds = lkf.dataset();
-				} catch(e) {
-					lkds = null;
-				}
-				if (lkds !== null) {
-					lkds.enableControls(needRefreshCtrl);
-				}
+			subDs = fldObj.subDataset();
+			if (subDs !== null) {				
+				subDs.enableControls();
 			}
 		}
 	},
@@ -3395,6 +3381,8 @@ jslet.data.Dataset.prototype = {
 				ruleObj = rules[i];
 				if(!ruleObj.className || 
 						ruleObj.className != jslet.data.ContextRule.className) {
+					
+					jslet.Checker.test('Dataset.contextRules#ruleObj', ruleObj).isPlanObject();
 					rules[i] = jslet.data.createContextRule(ruleObj);
 				}
 			}
@@ -3743,8 +3731,8 @@ jslet.data.Dataset.prototype = {
 		var Z = dataset;
 		if (!result) {
 			Z.dataList([]);
-			if(result.info) {
-				jslet.showInfo(info);
+			if(result && result.info) {
+				jslet.showInfo(result.info);
 			}
 			return;
 		}
@@ -3773,7 +3761,7 @@ jslet.data.Dataset.prototype = {
 
 		var evt = jslet.data.RefreshEvent.changePageEvent();
 		Z.refreshControl(evt);
-		if(result.info) {
+		if(result && result.info) {
 			jslet.showInfo(result.info);
 		}
 	},
@@ -3831,7 +3819,7 @@ jslet.data.Dataset.prototype = {
 		if(!chgRecs || chgRecs.length === 0) {
 			return;
 		}
-		var result = this._addRecordClassFlag(chgRecs, flag, this._recordClass);
+		var result = this._addRecordClassFlag(chgRecs, flag, this._recordClass || jslet.global.defaultRecordClass);
 		for(var i = 0, len = result.length; i < len; i++) {
 			pendingRecs.push(result[i]);
 		}
@@ -3888,8 +3876,8 @@ jslet.data.Dataset.prototype = {
 	
 	_doSaveSuccess: function(result, dataset) {
 		if (!result) {
-			if(result.info) {
-				jslet.showInfo(info);
+			if(result && result.info) {
+				jslet.showInfo(result.info);
 			}
 			return;
 		}
@@ -3927,7 +3915,7 @@ jslet.data.Dataset.prototype = {
 		
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
-		if(result.info) {
+		if(result && result.info) {
 			jslet.showInfo(result.info);
 		}
 	},
@@ -4000,8 +3988,8 @@ jslet.data.Dataset.prototype = {
 	_doSubmitSelectedSuccess: function(result, dataset) {
 		result = result.main;
 		if (!result || result.length === 0) {
-			if(result.info) {
-				jslet.showInfo(info);
+			if(result && result.info) {
+				jslet.showInfo(result.info);
 			}
 			return;
 		}
@@ -4044,7 +4032,7 @@ jslet.data.Dataset.prototype = {
 		Z.calcAggradedValue();
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
-		if(result.info) {
+		if(result && result.info) {
 			jslet.showInfo(result.info);
 		}
 	},
@@ -4424,9 +4412,16 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
  */
 jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	jslet.Checker.test('createDataset#fieldConfig', fieldConfig).required().isArray();
-	var dsObj = new jslet.data.Dataset(dsName),fldObj;
+	jslet.Checker.test('Dataset.createDataset#datasetCfg', dsCfg).isPlanObject();
+	var dsObj = new jslet.data.Dataset(dsName),
+		fldObj, 
+		fldCfg;
 	for (var i = 0, cnt = fieldConfig.length; i < cnt; i++) {
-		fldObj = jslet.data.createField(fieldConfig[i]);
+		fldCfg = fieldConfig[i];
+		jslet.Checker.test('Dataset.createDataset#fieldCfg', fldCfg).isPlanObject();
+		
+		fldCfg.dsName = dsName;
+		fldObj = jslet.data.createField(fldCfg);
 		dsObj.addField(fldObj);
 	}
 	
@@ -4484,7 +4479,6 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setPropValue('contextRules');
 		
 	}
-	jslet.data.datasetCreation.fireDatasetCreated(dsName);
 	return dsObj;
 };
 

@@ -875,6 +875,17 @@ jslet.Checker = {
 		return this;
 	},
 	
+	isPlanObject: function() {
+		if(this.varValue !== null && 
+				this.varValue !== undefined &&
+				this.varValue !== false &&
+				!jQuery.isPlainObject(this.varValue)) {
+				throw new Error('[' + this.varName + '] must be a plan object!');
+		}
+		return this;
+				
+	},
+	
 	isFunction: function() {
 		if(this.varValue !== null && 
 			this.varValue !== undefined &&

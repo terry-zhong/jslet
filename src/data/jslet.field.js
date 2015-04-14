@@ -18,7 +18,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	jslet.Checker.test('Field#dataType', dataType).isString().required();
 
 	var Z = this;
-	Z._dataset = null; 
+	Z._dataset = null;
+	Z._dsName = null;
 	Z._displayOrder = 0;
 	Z._fieldName = fieldName;
 	Z._dataType = dataType;
@@ -102,6 +103,9 @@ jslet.data.Field.prototype = {
 			dataset = jslet.data.getDataset(dataset); 
 		} else {
 			jslet.Checker.test('Field.dataset', dataset).isClass(jslet.data.Dataset.className);
+		}
+		if(dataset) {
+			Z._dsName = dataset.name();
 		}
 		Z._removeRelation();
 		Z._dataset = dataset;
@@ -942,7 +946,7 @@ jslet.data.Field.prototype = {
 	subDataset: function (subdataset) {
 		var Z = this;
 		if (subdataset === undefined) {
-			if(!Z._subDsParsed) {
+			if(!Z._subDsParsed && Z._subDataset) {
 				Z.subDataset(Z._subDataset);
 				if(!Z._subDsParsed) {
 					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
@@ -957,8 +961,8 @@ jslet.data.Field.prototype = {
 		var subDsObj = subdataset;
 		if (jslet.isString(subDsObj)) {
 			subDsObj = jslet.data.getDataset(subDsObj);
-			if(!subDsObj) {
-				jslet.data.datasetCreation.addCreatingDataset(subdataset, jslet.data.DatasetType.DETAIL); //1 - sub dataset
+			if(!subDsObj && jslet.data.onCreatingDataset) {
+				jslet.data.onCreatingDataset(subdataset, jslet.data.DatasetType.DETAIL, null, Z._dsName); //1 - sub dataset
 			}
 		}
 		if(needProcessRelation) {
@@ -1381,6 +1385,9 @@ jslet.data.createField = function (fieldConfig, parent) {
 
 	var fldObj = new jslet.data.Field(cfg.name, dtype);
 
+	if(fieldConfig.dsName) {
+		fldObj._dsName = fieldConfig.dsName;
+	}
 	function setPropValue(propName) {
 		var propValue = cfg[propName];
 		if(propValue === undefined) {
@@ -1500,7 +1507,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 				}
 			}
 		}
-		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg));
+		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg, fldObj._dsName));
 	}
 	return fldObj;
 };
@@ -1597,6 +1604,7 @@ jslet.data.createGroupField = function(fldName, label, parent) {
  */
 jslet.data.FieldLookup = function() {
 	var Z = this;
+	Z._hostDatasetName = null;
 	Z._hostField = null;//The field which contains this lookup field object.
 	Z._dataset = null;
 	Z._realDataset = null;
@@ -1660,8 +1668,8 @@ jslet.data.FieldLookup.prototype = {
 		var lkDsObj = lkdataset;
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);
-			if(!lkDsObj) {
-				jslet.data.datasetCreation.addCreatingDataset(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset); //1 - lookup dataset, 2 - subdataset
+			if(!lkDsObj && jslet.data.onCreatingDataset) {
+				jslet.data.onCreatingDataset(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset, Z._hostDatasetName); //1 - lookup dataset, 2 - subdataset
 			}
 		}
 		if(lkDsObj) {
@@ -1887,14 +1895,14 @@ jslet.data.FieldLookup.prototype = {
  * @param {Json Object} param A json object which property names are same as jslet.data.FieldLookup. Example: {dataset: fooDataset, keyField: 'xxx', ...}
  * @return {jslet.data.FieldLookup}
  */
-jslet.data.createFieldLookup = function(param) {
+jslet.data.createFieldLookup = function(param, hostDsName) {
 	jslet.Checker.test('createFieldLookup#param', param).required().isObject();
 	var lkds = param.dataset;
 	if (!lkds) {
 		throw new Error('Property: dataset required!');
 	}
 	var lkFldObj = new jslet.data.FieldLookup();
-
+		lkFldObj._hostDatasetName = hostDsName;
 	if (param.realDataset !== undefined) {
 		lkFldObj.realDataset(param.realDataset);
 	}
