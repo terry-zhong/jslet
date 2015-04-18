@@ -4282,6 +4282,9 @@ jslet.data.Dataset.prototype = {
 		Z._deletedDelta.length = 0;
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z.filter(null);
+		if(Z.filtered() || Z.fixedFilter()) {
+			Z._doFilterChanged();			
+		}
 		Z.indexFields(Z.indexFields());
 		Z._recno = -1;
 		Z.first();

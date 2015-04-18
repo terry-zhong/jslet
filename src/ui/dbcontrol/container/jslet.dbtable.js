@@ -8,7 +8,7 @@
 jslet.ui.htmlclass.TABLECLASS = {
 	currentrow: 'jl-tbl-current',
 	celldiv: 'jl-tbl-cell',
-	scrollBarWidth: 17,
+	scrollBarWidth: 16,
 	selectColWidth: 30,
 	hoverrow: 'jl-tbl-row-hover',
 	
@@ -1745,7 +1745,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!Z.footSectionHt || !aggradeValues) {
 			return;
 		}
-		var hasLeft = Z._fixedCols > 0 && Z._sysColumns.length > 0,
+		var sysColCnt = Z._sysColumns.length,
+			hasLeft = Z._fixedCols > 0 || sysColCnt > 0,
 			otrLeft, otrRight;
 		if (hasLeft) {
 			otrLeft = Z.leftFootTbl.tBodies[0].rows[0];
@@ -1755,7 +1756,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var otd, k = 0, fldObj, cobj, fldName, totalValue;
 		var aggradeValueObj,
 			labelDisplayed = false,
-			sysColCnt = Z._sysColumns.length;
+			canShowLabel = true;
+		if(sysColCnt > 0) {
+			otd = otrLeft.cells[sysColCnt - 1];
+			otd.innerHTML = jslet.locale.DBTable.totalLabel;
+			canShowLabel = false;
+		}
 		for (var i = 0, len = Z.innerColumns.length; i < len; i++) {
 			cobj = Z.innerColumns[i];
 
@@ -1769,16 +1775,19 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			fldName = cobj.field;
 			aggradeValueObj = aggradeValues[fldName];
 			if (!aggradeValueObj) {
-				var content;
-				if(labelDisplayed) {
-					content = '&nbsp;';
-				} else {
-					content = jslet.locale.DBTable.totalLabel;
-					labelDisplayed = true;
+				if(canShowLabel) {
+					var content;
+					if(labelDisplayed) {
+						content = '&nbsp;';
+					} else {
+						content = jslet.locale.DBTable.totalLabel;
+						labelDisplayed = true;
+					}
+					otd.firstChild.innerHTML = content;
 				}
-				otd.firstChild.innerHTML = content;
 				continue;
 			}
+			canShowLabel = false;
 			fldObj = Z._dataset.getField(fldName);
 			if(fldObj.getType() === jslet.data.DataType.NUMBER) {
 				totalValue = aggradeValueObj.sum;
