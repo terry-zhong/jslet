@@ -136,8 +136,13 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(jqEl.attr('readOnly') || jqEl.attr('disabled')) {
 			return;
 		}
-
 		Z.updateToDataset();
+		Z._isBluring = true;
+		try {
+			Z.doValueChanged();
+		} finally {
+			Z._isBluring = false;
+		}
 	},
 	
 	doKeydown: function(event) {
@@ -316,7 +321,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
 			Z.editMask.setValue(value);
 		} else {
-			if (document.activeElement != Z.el || Z.el.readOnly) {
+			if (document.activeElement != Z.el || Z.el.readOnly || Z._isBluring) {
 				value = Z._dataset.getFieldText(Z._field, false, Z._valueIndex);
 			} else {
 				value = Z._dataset.getFieldText(Z._field, true, Z._valueIndex);

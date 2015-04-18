@@ -35,7 +35,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,textField,searchField,popupHeight,popupWidth,showStyle,textReadOnly,onGetSearchField';
+		Z.allProperties = 'dataset,field,textField,searchField,popupHeight,popupWidth,showStyle,textReadOnly,onGetSearchField,correlateCheck';
 		Z._textField = null;
 		
 		Z._showStyle = 'auto';
@@ -49,6 +49,8 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		Z._pickupField = null;
 		
 		Z._onGetSearchField = null;
+		
+		Z._correlateCheck = true;
 		
 		$super(el, params);
 	},
@@ -125,6 +127,13 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		this._onGetSearchField = onGetSearchField;
 	},
 		
+	correlateCheck: function(correlateCheck) {
+		if(correlateCheck === undefined) {
+			return this._correlateCheck;
+		}
+		this._correlateCheck = correlateCheck;
+	},
+	
 	/**
 	 * @override
 	 */
@@ -321,6 +330,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			if (!Z.isMultiple()) {
 				treeparam.onItemDblClick = jQuery.proxy(Z._confirmSelect, Z);
 			}
+			treeparam.correlateCheck = Z.comboSelectObj.correlateCheck();
 			window.setTimeout(function(){
 				Z.otree = jslet.ui.createControl(treeparam, contentPanel, '100%', '100%');
 			}, 1);
