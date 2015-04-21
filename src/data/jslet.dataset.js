@@ -912,7 +912,7 @@ jslet.data.Dataset.prototype = {
 	
 	_sortByFields: function() {
 		var Z = this;
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			return;
 		}
 
@@ -1380,7 +1380,7 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			return false;
 		}
 		jslet.Checker.test('dataset.moveToRecord#recordObj', recordObj).required().isObject();
@@ -1538,7 +1538,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('parentField and keyField not set,use insertRecord() instead!');
 		}
 
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			Z.innerInsert();
 			return;
 		}
@@ -1583,7 +1583,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('parentField and keyField not set,use insertRecord() instead!');
 		}
 
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			Z.innerInsert();
 			return;
 		}
@@ -1716,7 +1716,7 @@ jslet.data.Dataset.prototype = {
 			Z.dataList(records);
 		}
 		var preRecno = Z.recno(), k;
-		if (Z.hasData()) {
+		if (Z.hasRecord()) {
 			k = records.indexOf(this.getRecord()) + 1;
 		} else {
 			k = 0;
@@ -2162,7 +2162,7 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			Z.insertRecord();
 		} else {
 			Z._aborted = false;
@@ -3661,7 +3661,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	selectedRecords: function () {
 		var Z = this;
-		if (!Z.hasData()) {
+		if (!Z.hasRecord()) {
 			return null;
 		}
 

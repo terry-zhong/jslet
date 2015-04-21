@@ -353,7 +353,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	existField: function(fldName) {
-		fldObj = this._dataset.getField(fldName);
+		var fldObj = this._dataset.getField(fldName);
 		return fldObj ? true: false;
 	},
 	
