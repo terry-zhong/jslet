@@ -100,25 +100,22 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.el.src = '';
 			return;
 		}
-		try {
-			var srcURL = Z._dataset.getFieldValue(Z._field);
-			if (!srcURL) {
-				srcURL = '';
-			} else {
-				if (Z._baseUrl) {
-					srcURL = Z._baseUrl + srcURL;
-				}
+
+		var srcURL = Z._dataset.getFieldValue(Z._field);
+		if (!srcURL) {
+			srcURL = '';
+		} else {
+			if (Z._baseUrl) {
+				srcURL = Z._baseUrl + srcURL;
 			}
-			if (Z.el.src != srcURL) {
-				var altText = srcURL;
-				if(Z._altField) {
-					altText = Z._dataset.getFieldText(Z._altField);
-				}
-				Z.el.alt = altText;
-				Z.el.src = srcURL;
+		}
+		if (Z.el.src != srcURL) {
+			var altText = srcURL;
+			if(Z._altField) {
+				altText = Z._dataset.getFieldText(Z._altField);
 			}
-		} catch (e) {
-			jslet.showError(e);
+			Z.el.alt = altText;
+			Z.el.src = srcURL;
 		}
 	},
 

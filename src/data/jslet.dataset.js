@@ -818,6 +818,10 @@ jslet.data.Dataset.prototype = {
 		
 		jslet.Checker.test('Dataset.indexFields', indFlds).isString();
 		indFlds = jQuery.trim(indFlds);
+		if(!indFlds && !Z._indexFields) {
+			return this;
+		}
+
 		Z._indexFields = indFlds;
 		Z._innerIndexFields = indFlds? Z._parseIndexFields(indFlds): [];
 		var idxFld, fixedIdxFld;
@@ -1240,7 +1244,7 @@ jslet.data.Dataset.prototype = {
 		if (recno == Z._recno) {
 			return this;
 		}
-		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
+		if (!Z._silence && Z._status != jslet.data.DataSetStatus.BROWSE) {
 			Z.confirm();
 			if (Z._aborted) {
 				return this;
@@ -2378,6 +2382,13 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
+	 * The recno when the record is invalid. If the record is valid, return -1.
+	 */
+	errorRecno: function() {
+		return this._errorRecno;
+	},
+	
+	/**
 	 * Confirm insert or update
 	 */
 	confirm: function () {
@@ -2385,8 +2396,9 @@ jslet.data.Dataset.prototype = {
 		if (Z._silence || Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return true;
 		}
-		
+		Z._errorRecno = Z._recno;
 		Z._innerValidateData();
+		
 		var evt;
 		if (Z.hasFieldErrorMessage() || !Z._confirmSubDataset()) {
 			
@@ -2407,6 +2419,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._aborted) {
 			return false;
 		}
+		Z._errorRecno = -1;
 		var rec;
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			if (Z._logChanged) {
@@ -2492,7 +2505,6 @@ jslet.data.Dataset.prototype = {
 			evt = jslet.data.RefreshEvent.deleteEvent(no);
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
-			Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			return;
 		} else {
@@ -4114,7 +4126,7 @@ jslet.data.Dataset.prototype = {
 			}
 			if (ctrl.field() == fldName) {
 				fldObj = Z.getField(fldName);
-				if(!fldObj || !fldObj.visible() || fldObj.disabled()) {
+				if(!fldObj || !fldObj.visible() || fldObj.disabled()|| !ctrl.isActiveRecord()) {
 					continue;
 				}
 				el = ctrl.el;

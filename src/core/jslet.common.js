@@ -1060,7 +1060,7 @@ jslet.showError = function (e) {
 	} else {
 		msg = e.message;
 	}
-	if (jslet.ui.MessageBox) {
+	if (jslet.ui && jslet.ui.MessageBox) {
 		jslet.ui.MessageBox.error(msg);
 	} else {
 		alert(msg);
@@ -1079,7 +1079,7 @@ jslet.showInfo = function (e, timeout) {
 	} else {
 		msg = e.message;
 	}
-	if (jslet.ui.MessageBox) {
+	if (jslet.ui && jslet.ui.MessageBox) {
 		jslet.ui.MessageBox.alert(msg, jslet.locale.MessageBox.Info, null, timeout);
 	} else {
 		alert(msg);

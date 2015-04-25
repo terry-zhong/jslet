@@ -62,10 +62,16 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	bind: function () {
-		this.renderAll();
-		var jqEl = jQuery(this.el);
+		var Z = this;
+		Z.renderAll();
+		var jqEl = jQuery(Z.el);
 		jqEl.on('click', 'input[type="radio"]', function(event){
-			event.delegateTarget.jslet.updateToDataset(this);
+			var ctrl = this;
+			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
+				if(Z._dataset.errorRecno() < 0) {
+					event.delegateTarget.jslet.updateToDataset(ctrl);
+				}
+			}, 5)
 		});
 		jqEl.addClass('form-control');//Bootstrap class
 		jqEl.css('height', 'auto');
@@ -86,7 +92,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			disabled = Z.disabled;
 			var radios = jQuery(Z.el).find('input[type="radio"]');
 			for(var i = 0, cnt = radios.length; i < cnt; i++){
-				jslet.ui.setEditableStyle(radios[i], disabled, readOnly);
+				jslet.ui.setEditableStyle(radios[i], disabled, readOnly, false, fldObj.required());
 			}
 		}
 		if(metaName == 'message') {
@@ -106,16 +112,12 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		try {
-			var value = Z._dataset.getFieldValue(Z._field),
-				radios = jQuery(Z.el).find('input[type="radio"]'), 
-				radio;
-			for(var i = 0, cnt = radios.length; i < cnt; i++){
-				radio = radios[i];
-				radio.checked = (value == jQuery(radio.parentNode).attr('value'));
-			}
-		} catch (e) {
-			jslet.showError(e);
+		var value = Z._dataset.getFieldValue(Z._field),
+			radios = jQuery(Z.el).find('input[type="radio"]'), 
+			radio;
+		for(var i = 0, cnt = radios.length; i < cnt; i++){
+			radio = radios[i];
+			radio.checked = (value == jQuery(radio.parentNode).attr('value'));
 		}
 	},
 	
@@ -126,7 +128,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		var fldObj = Z._dataset.getField(Z._field), lkf = fldObj.lookup();
 		if (!lkf) {
-			jslet.showError(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			console.error(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}
@@ -181,8 +183,6 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		try {
 			Z._dataset.setFieldValue(Z._field, jQuery(currCheckBox.parentNode).attr('value'));
 			currCheckBox.checked = true;
-		} catch (e) {
-			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

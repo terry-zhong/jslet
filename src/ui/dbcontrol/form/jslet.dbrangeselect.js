@@ -123,7 +123,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					count = values.length;
 				}
 				if (count >= limitCount) {
-					jslet.showError(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+					jslet.showInfo(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 							[''	+ limitCount]));
 					
 					window.setTimeout(function(){
@@ -170,7 +170,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			Z.el.disabled = disabled;
-			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true);
+			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true, fldObj.required());
 		}
 		if(metaName == 'message') {
 			Z.renderInvalid();
@@ -189,42 +189,39 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		try {
-			if (!Z.el.multiple) {
-				var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
-				if (value !== null) {
-					Z.el.value = value;
-				} else {
-					Z.el.value = null;
-				}
-			} else {
-				var arrValue = Z._dataset.getFieldValue(Z._field),
-					optCnt = Z.el.options.length, opt, selected, i;
-				Z._keep_silence_ = true;
-				try {
-					for (i = 0; i < optCnt; i++) {
-						opt = Z.el.options[i];
-						if (opt) {
-							opt.selected = false;
-						}
-					}
 
-					var vcnt = arrValue.length - 1;
-					for (i = 0; i < optCnt; i++) {
-						opt = Z.el.options[i];
-						for (j = vcnt; j >= 0; j--) {
-							selected = (arrValue[j] == opt.value);
-							if (selected) {
-								opt.selected = selected;
-							}
-						} // end for j
-					} // end for i
-				} finally {
-					Z._keep_silence_ = false;
-				}
+		if (!Z.el.multiple) {
+			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			if (value !== null) {
+				Z.el.value = value;
+			} else {
+				Z.el.value = null;
 			}
-		} catch (e) {
-			jslet.showError(e);
+		} else {
+			var arrValue = Z._dataset.getFieldValue(Z._field),
+				optCnt = Z.el.options.length, opt, selected, i;
+			Z._keep_silence_ = true;
+			try {
+				for (i = 0; i < optCnt; i++) {
+					opt = Z.el.options[i];
+					if (opt) {
+						opt.selected = false;
+					}
+				}
+
+				var vcnt = arrValue.length - 1;
+				for (i = 0; i < optCnt; i++) {
+					opt = Z.el.options[i];
+					for (j = vcnt; j >= 0; j--) {
+						selected = (arrValue[j] == opt.value);
+						if (selected) {
+							opt.selected = selected;
+						}
+					} // end for j
+				} // end for i
+			} finally {
+				Z._keep_silence_ = false;
+			}
 		}
 	},
 	
@@ -271,8 +268,6 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			} else {
 				Z._dataset.setFieldValue(Z._field, value);
 			}
-		} catch (e) {
-			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

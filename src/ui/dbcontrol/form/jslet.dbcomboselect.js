@@ -286,7 +286,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = Z.lookupDs();
 
-		var template = ['<div class="jl-combopnl-head row"><div class="col-xs-12">',
+		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12">',
 		                '<input class="form-control" type="text" size="20"></input></div></div>',
 			'<div class="jl-combopnl-content',
 			Z.isMultiple() ? ' jl-combopnl-multiselect': '',

@@ -116,13 +116,18 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._skipFocusEvent) {
 			return;
 		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(!fldObj.message()) {
-			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
-		}
-		if(Z._autoSelectAll) {
-			jslet.ui.textutil.selectText(this);
-		}
+		window.setTimeout(function(){
+			if(!Z.isActiveRecord() && Z._dataset.errorRecno() >= 0) { //If the previous record exists errors, it can be focused.
+				return;
+			}
+			var fldObj = Z._dataset.getField(Z._field);
+			if(!fldObj.message()) {
+				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+			}
+			if(Z._autoSelectAll) {
+				jslet.ui.textutil.selectText(Z.el);
+			}
+		}, 5);
 	},
 
 	doBlur: function (event) {
@@ -255,7 +260,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
-			jslet.ui.setEditableStyle(Z.el, fldObj.disabled(), fldObj.readOnly());
+			jslet.ui.setEditableStyle(Z.el, fldObj.disabled(), fldObj.readOnly(), false, fldObj.required());
 		}
 		
 		if(metaName && metaName == 'required') {

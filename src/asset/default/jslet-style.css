@@ -494,8 +494,13 @@ a.jl-pb-button-disabled:hover {
 	overflow:hidden;
 }
 
+.jl-radiogroup table, .jl-checkboxgroup table{
+	border: 0!important;
+}
+
 .jl-radiogroup td, .jl-checkboxgroup td {
 	padding-right: 8px;
+	border: 0!important;
 }
 
 .jl-waitingbox-icon {

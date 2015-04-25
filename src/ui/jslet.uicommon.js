@@ -476,7 +476,7 @@ jslet.ui.getCssValue = function(className, styleName){
 	return result;
 };
 
-jslet.ui.setEditableStyle = function(formElement, disabled, readOnly, onlySetStyle) {
+jslet.ui.setEditableStyle = function(formElement, disabled, readOnly, onlySetStyle, required) {
 	if(!onlySetStyle) {
 		formElement.disabled = disabled;
 		formElement.readOnly = readOnly;
@@ -485,9 +485,13 @@ jslet.ui.setEditableStyle = function(formElement, disabled, readOnly, onlySetSty
 	if(disabled || readOnly) {
 		if (!jqEl.hasClass('jl-readonly')) {
 			jqEl.addClass('jl-readonly');
+			jqEl.removeClass('jl-ctrl-required');
 		}
 	} else {
 		jqEl.removeClass('jl-readonly');
+		if(required) {
+			jqEl.addClass('jl-ctrl-required');
+		}
 	}
 };
 

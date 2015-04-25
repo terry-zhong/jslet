@@ -91,7 +91,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			fldObj = Z._dataset.getField(Z._field);
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
-			jslet.ui.setEditableStyle(Z.el, disabled, disabled);
+			jslet.ui.setEditableStyle(Z.el, disabled, disabled, false, fldObj.required());
 		}
 		if(metaName == 'message') {
 			if(Z._enableInvalidTip) {
@@ -106,16 +106,12 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
-		try {
-			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
-			if (value !== null && value == fldObj.trueValue()) {
-				Z.el.checked = true;
-			} else {
-				Z.el.checked = false;
-			}
-		} catch (e) {
-			jslet.showError(e);
-		} // end try
+		var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+		if (value !== null && value == fldObj.trueValue()) {
+			Z.el.checked = true;
+		} else {
+			Z.el.checked = false;
+		}
 	},
 	
 	focus: function() {
@@ -144,8 +140,6 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._keep_silence_ = true;
 		try {
 			Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
-		} catch (e) {
-			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

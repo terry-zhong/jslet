@@ -250,7 +250,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
 			lkf = fldObj.lookup();
 		if (!lkf) {
-			jslet.showError(Z._field + ' is NOT a lookup field!');
+			console.error(Z._field + ' is NOT a lookup field!');
 			return;
 		}
 

@@ -62,10 +62,14 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	bind: function () {
-		this.renderAll();
-		var jqEl = jQuery(this.el);
+		var Z = this;
+		Z.renderAll();
+		var jqEl = jQuery(Z.el);
 		jqEl.on('click', 'input[type="checkbox"]', function (event) {
-			event.delegateTarget.jslet.updateToDataset(this);
+			var ctrl = this;
+			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
+				event.delegateTarget.jslet.updateToDataset(ctrl);
+			}, 5)
 		});
 		jqEl.addClass('form-control');//Bootstrap class
 		jqEl.css('height', 'auto');
@@ -84,7 +88,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			disabled = disabled || readOnly;
 			var chkBoxes = jQuery(Z.el).find('input[type="checkbox"]');
 			for(var i = 0, cnt = chkBoxes.length; i < cnt; i++){
-				jslet.ui.setEditableStyle(chkBoxes[i], disabled, readOnly);
+				jslet.ui.setEditableStyle(chkBoxes[i], disabled, readOnly, false, fldObj.required());
 			}
 		}
 		if(metaName == 'message') {
@@ -104,30 +108,26 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		try {
-			var checkboxs = jQuery(Z.el).find('input[type="checkbox"]'),
-				chkcnt = checkboxs.length, 
-				checkbox, i;
+		var checkboxs = jQuery(Z.el).find('input[type="checkbox"]'),
+			chkcnt = checkboxs.length, 
+			checkbox, i;
+		for (i = 0; i < chkcnt; i++) {
+			checkbox = checkboxs[i];
+			checkbox.checked = false;
+		}
+		var values = Z._dataset.getFieldValue(Z._field);
+		if(values && values.length > 0) {
+			var valueCnt = values.length, value;
 			for (i = 0; i < chkcnt; i++) {
 				checkbox = checkboxs[i];
-				checkbox.checked = false;
-			}
-			var values = Z._dataset.getFieldValue(Z._field);
-			if(values && values.length > 0) {
-				var valueCnt = values.length, value;
-				for (i = 0; i < chkcnt; i++) {
-					checkbox = checkboxs[i];
-					for (var j = 0; j < valueCnt; j++) {
-						value = values[j];
-						if (value == checkbox.value) {
-							checkbox.checked = true;
-						}
+				for (var j = 0; j < valueCnt; j++) {
+					value = values[j];
+					if (value == checkbox.value) {
+						checkbox.checked = true;
 					}
 				}
 			}
-		} catch (e) {
-			jslet.showError(e);
-		}		
+		}
 	},
 	
 	/**
@@ -138,7 +138,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			fldObj = Z._dataset.getField(Z._field), 
 			lkf = fldObj.lookup();
 		if (!lkf) {
-			jslet.showError(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			console.error(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}

@@ -118,7 +118,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					count = values.length;
 				}
 				if (count >= limitCount) {
-					jslet.showError(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+					jslet.showInfo(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 							[''	+ limitCount]));
 					
 					window.setTimeout(function(){
@@ -156,6 +156,9 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		
 		if(!dftValue) {
 			fldObj.defaultValue(firstItemValue);
+		}
+		if(this._dataset.changedStatus() && !fldObj.getValue()) {
+			fldObj.setValue(firstItemValue);
 		}
 	},
 	
@@ -268,7 +271,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			Z.el.disabled = disabled;
-			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true);
+			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true, fldObj.required());
 		}
 		if(metaName && metaName == 'required') {
 			var jqEl = jQuery(Z.el);
@@ -398,8 +401,6 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z._dataset.setFieldValue(Z._field, value);
 			}
 			
-		} catch (e) {
-			jslet.showError(e);
 		} finally {
 			Z._keep_silence_ = false;
 		}

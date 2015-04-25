@@ -161,7 +161,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 			for(var i = 0, cnt = items.length; i < cnt; i++){
 				item = items[i];
 				item.disabled = disabled;
-				jslet.ui.setEditableStyle(item, disabled, disabled, true);
+				jslet.ui.setEditableStyle(item, disabled, disabled, true, fldObj.required());
 			}
 		}
 		if(metaName == 'message') {

@@ -186,14 +186,10 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
 				Z._field == evt.fieldName) {
-			if(evt.metaName != 'message') {
-				Z.doMetaChanged(evt.metaName);
-			} else {
-				if (!isForce && !Z.isActiveRecord()) {
-					return false;
-				}
-				Z.doMetaChanged(evt.metaName);
+			if (!isForce && !Z.isActiveRecord()) {
+				return false;
 			}
+			Z.doMetaChanged(evt.metaName);
 			return true;
 		}
 		//Lookup data changed

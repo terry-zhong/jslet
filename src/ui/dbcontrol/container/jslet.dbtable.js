@@ -195,7 +195,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._sysColumns = null;//all system column like sequence column, select column, sub-group column
 		Z._isHoriOverflow = false;
 		Z._oldHeight = null;
-		Z._fillDataDebounce = jslet.debounce(this._innerFillData, 30);
 		$super(el, params);
 	},
 	
@@ -464,12 +463,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (rowno < 0) {
 				return;
 			}
-			var context = Z._dataset.startSilenceMove();
-			try {
-				Z._fillData();
-			} finally {
-				Z._dataset.endSilenceMove(context);
-			}
+			Z._fillData();
 			
 			Z._syncScrollBar(rowno);
 			Z._showCurrentRow();
@@ -808,7 +802,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			for(var i = 0; i < Z._fixedCols; i++){
 				w += Z.innerColumns[i].width;
 			}
-			Z.fixedColWidth = w+3;
+			Z.fixedColWidth = w + 4;
 		} else {
 			Z.fixedColWidth = 0;
 		}
@@ -1009,6 +1003,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		
 		jqRightHead.on('dragover', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+			if(!dragTransfer) {
+				return false;
+			}
 			var otd = this.parentNode,
 				e = event.originalEvent,
 				transfer = e.dataTransfer;
@@ -1022,6 +1019,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 
 		jqRightHead.on('dragenter', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+			if(!dragTransfer) {
+				return false;
+			}
 			var otd = this.parentNode,
 				e = event.originalEvent,
 				transfer = e.dataTransfer;
@@ -1035,11 +1035,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 		
 		jqRightHead.on('dragleave', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+			if(!dragTransfer) {
+				return false;
+			}
 			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
 			return  false;
 		});
 		
 		jqRightHead.on('drop', '.jl-tbl-header-cell .jl-tbl-cell', function(event){
+			if(!dragTransfer) {
+				return false;
+			}
 			jQuery(event.currentTarget).removeClass('jl-tbl-col-over');
 			var currCell = this.parentNode,
 				e = event.originalEvent,
@@ -1128,6 +1134,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._keep_silence_ = true;
 				try {
 					Z.listvm.setVisibleStartRow(num);
+					Z._showCurrentRow(true);
 				} finally {
 					Z._keep_silence_ = false;
 				}
@@ -1615,8 +1622,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			colCfg.cellRender.createCell.call(Z, ochild, colCfg);
 		} else if (!Z._isCellEditable(colCfg)) {
 				jslet.ui.DBTable.defaultCellRender.createCell.call(Z, ochild, colCfg);
+				colCfg.editable = false;
 		} else {
 				jslet.ui.DBTable.editableCellRender.createCell.call(Z, ochild, colCfg);
+				colCfg.editable = true;
 		}
 		otr.appendChild(otd);
 	},
@@ -1798,7 +1807,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
-	_innerFillData: function () {
+	_fillData: function () {
 		var Z = this;
 		var preRecno = Z._dataset.recno(),
 			allCnt = Z.listvm.getNeedShowRowCount(),
@@ -1817,10 +1826,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 
-	_fillData: function () {
-		this._fillDataDebounce.apply(this);
-	},
-	
 	_fillRow: function (isFixed) {
 		var Z = this,
 			rowCnt = 0, start = 0, leftBody = null, rightBody,
@@ -1923,7 +1928,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		if (colCfg.cellRender && colCfg.cellRender.refreshCell) {
 			colCfg.cellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
-		} else if (!Z._isCellEditable(colCfg)) {
+		} else if (!colCfg.editable) {
 			jslet.ui.DBTable.defaultCellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
 		} else {
 			jslet.ui.DBTable.editableCellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
@@ -2308,6 +2313,7 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			text = Z._dataset.getFieldText(fldName);
 		} catch (e) {
 			text = 'error: ' + e.message;
+			console.error(e);
 		}
 		
 		cellPanel.title = text;
@@ -2339,7 +2345,7 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 	},
 	
 	refreshCell: function (cellPanel, colCfg, recNo) {
-		if (!colCfg) {
+		if (!colCfg || !cellPanel.firstChild) {
 			return;
 		}
 		var editCtrl = cellPanel.firstChild.jslet;

@@ -485,6 +485,7 @@ jslet.data.ContextRuleLookup = function() {
 	var Z = this;
 	Z._dataset = undefined;
 	Z._filter = undefined;
+	Z._fixedFilter = undefined;
 	Z._criteria = undefined;
 	Z._displayFields = undefined;
 	Z._onlyLeafLevel = undefined;
@@ -495,7 +496,7 @@ jslet.data.ContextRuleLookup.className = 'jslet.data.ContextRuleLookup';
 jslet.data.ContextRuleLookup.prototype ={
 	className: jslet.data.ContextRuleLookup.className,
 	
-	properties: ['dataset', 'filter', 'criteria', 'displayFields', 'onlyLeafLevel'],
+	properties: ['dataset', 'filter', 'fixedFilter', 'criteria', 'displayFields', 'onlyLeafLevel'],
 	
 	dataset: function(datasetName){
 		var Z = this;
@@ -513,6 +514,15 @@ jslet.data.ContextRuleLookup.prototype ={
 		}
 		jslet.Checker.test('ContextRuleLookup.filter', filter).isString();
 		Z._filter = jQuery.trim(filter);
+	},
+
+	fixedFilter: function(fixedFilter){
+		var Z = this;
+		if (fixedFilter === undefined){
+			return Z._fixedFilter;
+		}
+		jslet.Checker.test('ContextRuleLookup.fixedFilter', fixedFilter).isString();
+		Z._fixedFilter = jQuery.trim(fixedFilter);
 	},
 
 	criteria: function(criteria){
@@ -663,6 +673,10 @@ jslet.data.createContextRule = function(cxtRuleCfg) {
 		
 		if(lookupCfg.filter !== undefined) {
 			lookup.filter(lookupCfg.filter);
+		}
+		
+		if(lookupCfg.fixedFilter !== undefined) {
+			lookup.fixedFilter(lookupCfg.fixedFilter);
 		}
 		
 		if(lookupCfg.criteria !== undefined) {
@@ -919,6 +933,14 @@ jslet.data.ContextRuleEngine.prototype = {
 				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
 			}
 			lkDsObj.filter(ruleFilter);
+			lkDsObj.filtered(true);
+		}
+		var ruleFilter = ruleLookup.fixedFilter();
+		if(ruleFilter != undefined) {
+			for(var fldName in this._ruleEnv) {
+				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
+			}
+			lkDsObj.fixedFilter(ruleFilter);
 			lkDsObj.filtered(true);
 		}
 		var ruleCriteria = ruleLookup.criteria();

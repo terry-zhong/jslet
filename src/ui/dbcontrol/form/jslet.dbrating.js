@@ -207,24 +207,20 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	doValueChanged: function() {
-		var Z = this;
-		try {
-			var fldObj = Z._dataset.getField(Z._field),
-				value = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
-				itemCnt = Z._itemCount * Z._splitCount,
-				valueNo = Math.ceil(value * Z._splitCount),
-				oitem, offsetW, bgX, ratingRow = Z.el.firstChild.rows[0],
-				bgW = Z._itemWidth * 2,
-				isRtl = jslet.locale.isRtl;
-			
-			Z.value = value;
-			for (var i = 0; i < itemCnt; i++) {
-				oitem = ratingRow.childNodes[i];
-				Z._setBackgroundPos(oitem, Z._getPosX(i % Z._splitCount, i < valueNo ? 0: 2));
-			}
-		} catch (e) {
-			jslet.showError(e);
-		}	
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field),
+			value = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
+			itemCnt = Z._itemCount * Z._splitCount,
+			valueNo = Math.ceil(value * Z._splitCount),
+			oitem, offsetW, bgX, ratingRow = Z.el.firstChild.rows[0],
+			bgW = Z._itemWidth * 2,
+			isRtl = jslet.locale.isRtl;
+		
+		Z.value = value;
+		for (var i = 0; i < itemCnt; i++) {
+			oitem = ratingRow.childNodes[i];
+			Z._setBackgroundPos(oitem, Z._getPosX(i % Z._splitCount, i < valueNo ? 0: 2));
+		}
 	},
 	
 	/**

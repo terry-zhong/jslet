@@ -1468,6 +1468,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
 	setPropValue('antiXss');
+	setPropValue('validChars');
 	
 	var regularExpr = cfg.regularExpr;
 	var regularMessage = cfg.regularMessage;
