@@ -132,12 +132,17 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 					[fldObj.name()]));
 			return;
 		}
-		var lkds = lkf.dataset();
+		var lkds = lkf.dataset(),
+		cnt = lkds.recordCount();
+		if(cnt === 0) {
+			Z.el.innerHTML = jslet.locale.DBRadioGroup.noOptions;
+			return;
+		}
 		var oldRecno = lkds.recno();
 		try {
 			var template = ['<table cellpadding="0" cellspacing="0">'],
 				isNewRow = false, 
-				cnt = lkds.recordCount(),
+				
 				itemId;
 			Z._itemIds = [];
 			for (var k = 0; k < cnt; k++) {

@@ -147,14 +147,18 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		
 		var lkds = lkf.dataset(),
-			cnt = lkds.recordCount(),
-			context = lkds.startSilenceMove(),
-			itemId;
+			cnt = lkds.recordCount();
+		if(cnt === 0) {
+			Z.el.innerHTML = jslet.locale.DBCheckBoxGroup.noOptions;
+			return;
+		}
 		Z._itemIds = [];
 		try {
 			var template = ['<table cellpadding="0" cellspacing="0">'],
 			isNewRow = false;
 
+			var context = lkds.startSilenceMove(),
+			itemId;
 			for (var k = 0; k < cnt; k++) {
 				lkds.recnoSilence(k);
 				isNewRow = (k % Z._columnCount === 0);

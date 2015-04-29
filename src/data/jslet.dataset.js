@@ -2015,8 +2015,9 @@ jslet.data.Dataset.prototype = {
 				fldName = fldObj.name();
 				scale = fldObj.scale() || 0;
 				aggradedValueObj = aggradedValues[fldName];
-				if(!aggradedValueObj) {
-					continue;
+				if(!aggradedValueObj ) {
+					aggradedValueObj = {count: 0, sum: 0};
+					aggradedValues[fldName] = aggradedValueObj;
 				}
 				var sumValue = aggradedValueObj.sum;
 				if(sumValue) {

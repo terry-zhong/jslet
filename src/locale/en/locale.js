@@ -70,7 +70,12 @@
 	};
 	
 	locale.DBCheckBoxGroup = {
-		invalidCheckedCount: 'Not exceed {0} items!'
+		invalidCheckedCount: 'Not exceed {0} items!',
+		noOptions: 'No options'
+	};
+	
+	locale.DBRadioGroup = {
+		noOptions: 'No options'
 	};
 	
 	locale.DBBetweenEdit = {

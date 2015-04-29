@@ -1129,12 +1129,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._keep_silence_) {
 				return;
 			}
+			if(!Z._readOnly && !Z._dataset.confirm()) {
+				return;
+			}
 			var num = Math.round(this.scrollTop / Z._rowHeight);// + Z._fixedRows;
 			if (num != Z.listvm.getVisibleStartRow()) {
 				Z._keep_silence_ = true;
 				try {
 					Z.listvm.setVisibleStartRow(num);
-					Z._showCurrentRow(true);
+					Z._showCurrentRow();
 				} finally {
 					Z._keep_silence_ = false;
 				}
@@ -1803,7 +1806,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			} else {
 				totalValue = aggradeValueObj.count;
 			}
-			otd.firstChild.innerHTML =jslet.formatNumber(totalValue, fldObj.displayFormat());
+			var displayValue = totalValue? jslet.formatNumber(totalValue, fldObj.displayFormat()) : '';
+			otd.firstChild.innerHTML = displayValue;
 		}
 	},
 	
