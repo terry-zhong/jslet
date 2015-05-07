@@ -435,7 +435,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
             Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
        		event.preventDefault();
         });
-        
+
+        jqEl.on('click', 'div.jl-tbl-cell', function(event){
+        	var colCfg = event.currentTarget.parentNode.jsletColCfg;
+        	var fldName = colCfg.field;
+        	
+//        	console.log('recno: ' + Z._dataset.recno() + ', field: ' + fldName);
+        });
+
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			if (keyCode == 38) {//KEY_UP
@@ -583,7 +590,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					if (!fldObj) {
 						throw new Error("Field: " + cobj.field + " doesn't exist!");
 					}
-					if (fldObj.getType() == jslet.data.DataType.GROUP){
+					var children = fldObj.children();
+					if (children && children.length > 0){
 						fldName = fldObj.name();
 						var isUnique = true;
 						// cobj.field is not a child of a groupfield, we need check if the topmost parent field is duplicate or not 
@@ -701,9 +709,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		ohead.id = jslet.nextId();
 		heads.push(ohead);
 		context.depth = Math.max(level, context.depth);
-		if (fldObj.getType() == jslet.data.DataType.GROUP){
+		var fldChildren = fldObj.children();
+		if (fldChildren && fldChildren.length > 0){
 			ohead.subHeads = [];
-			var fldChildren = fldObj.children(), added = false;
+			var added = false;
 			for(var i = 0, cnt = fldChildren.length; i< cnt; i++){
 				Z._convertField2Head(context, fldChildren[i], ohead);
 			}
@@ -2320,7 +2329,6 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			console.error(e);
 		}
 		
-		cellPanel.title = text;
 		if (fldObj.urlExpr()) {
 			var url = '<a href=' + fldObj.calcUrl(),
 				target = fldObj.urlTarget();
@@ -2331,6 +2339,7 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			text = url;
 		}
 		jQuery(cellPanel).html(text);
+		cellPanel.title = jQuery(cellPanel).text();
 	} 
 });
 
