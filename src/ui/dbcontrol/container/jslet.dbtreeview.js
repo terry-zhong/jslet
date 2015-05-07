@@ -671,7 +671,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			oicon.style.display = 'none';
 		}
 				//Text
-		var text = Z.evaluator.eval();
+		var text = Z.evaluator.eval() || '';
 		jslet.ui.textMeasurer.setElement(Z.el);
 		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length;
 		totalWidth += width + 10;

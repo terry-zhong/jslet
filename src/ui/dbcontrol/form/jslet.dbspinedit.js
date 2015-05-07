@@ -76,8 +76,8 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 			jqEl = jQuery(Z.el),
 			s = '<input type="text" class="form-control">' + 
 		    	'<div class="jl-spinedit-btn-group">' +
-		    	'<button class="btn btn-default jl-spinedit-up"><i class="fa fa-caret-up"></i></button>' + 
-		    	'<button class="btn btn-default jl-spinedit-down"><i class="fa fa-caret-down"></i></button>';
+		    	'<button class="btn btn-default jl-spinedit-up" tabindex="-1"><i class="fa fa-caret-up"></i></button>' + 
+		    	'<button class="btn btn-default jl-spinedit-down" tabindex="-1"><i class="fa fa-caret-down"></i></button>';
 		jqEl.html(s);
 		
 		var editor = jqEl.find('input')[0],

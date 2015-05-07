@@ -219,11 +219,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		var keyCode = event.keyCode ? event.keyCode : 
 			event.which	? event.which: event.charCode;
-
+		var Z = this.jslet;
 		if (keyCode != 13 && keyCode != 9) {
-			this.jslet._invokePopup();
-		} else if (this.jslet.contentPanel) {
-			this.jslet.contentPanel.confirmSelect();
+			Z._invokePopup();
+		} else if (Z.contentPanel) {
+			if(Z.contentPanel.isShowing()) {
+				Z.contentPanel.confirmSelect();
+			}
 		}
 	},
 
@@ -409,9 +411,16 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 
 	Z.doClosePopup = function () {
 		Z.isPop = false;
-		Z.lkDataset.filter(null);
+		var oldRecno = Z.lkDataset.recno() || 0;
+		try {
+			Z.lkDataset.filter(null);
+		} finally {
+			if(oldRecno >= 0) {
+				Z.lkDataset.recno(oldRecno);
+			}
+		}
 	};
-
+	
 	Z.closePopup = function () {
 		Z.popup.hide();
 	};

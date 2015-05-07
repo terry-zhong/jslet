@@ -1129,7 +1129,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._keep_silence_) {
 				return;
 			}
-			if(!Z._readOnly && !Z._dataset.confirm()) {
+			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
 				return;
 			}
 			var num = Math.round(this.scrollTop / Z._rowHeight);// + Z._fixedRows;

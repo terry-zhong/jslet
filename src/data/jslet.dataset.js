@@ -1653,6 +1653,9 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	status: function(status) {
+		if(status === undefined) {
+			return this._status;
+		}
 		this._status = status;
 		return this;
 	},
