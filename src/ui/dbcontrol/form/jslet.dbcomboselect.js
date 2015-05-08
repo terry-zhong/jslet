@@ -351,20 +351,21 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var fldValue = Z.dataset.getFieldValue(Z.field, Z._valueIndex), 
 			lkds = Z.lookupDs();
 
+		var fldObj = Z.dataset.getField(Z.field),
+			lkfld = fldObj.lookup();
+
+		if(lkfld.onlyLeafLevel()) {
+			lkds.onCheckSelectable(function(){
+				return !this.hasChildren();
+			});
+		}
 		if (!Z.isMultiple()) {
 			if (fldValue) {
 				lkds.findByKey(fldValue);
 			}
 			return;
 		}
-		var fldObj = Z.dataset.getField(Z.field),
-			lkfld = fldObj.lookup();
 		lkds.selectAll(false);
-		if(lkfld.onlyLeafLevel()) {
-			lkds.onCheckSelectable(function(){
-				return !this.hasChildren();
-			});
-		}
 		if (fldValue) {
 			var arrKeyValues = fldValue;
 			if(!jslet.isArray(fldValue)) {
@@ -416,7 +417,10 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			lkfld = fldObj.lookup(),
 			isMulti = Z.isMultiple(),
 			lookupDs = Z.lookupDs();
-
+		
+		if(!lookupDs.checkSelectable()) {
+			return;
+		}
 		if (isMulti) {
 			fldValue = lookupDs.selectedKeyValues();
 		} else {
