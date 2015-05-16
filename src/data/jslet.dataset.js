@@ -4362,8 +4362,10 @@ jslet.data.Dataset.prototype = {
 			context = Z.startSilenceMove(); 
 		try{
 			startRecno = startRecno || 0;
-			endRecno = endRecno || Z.recordCount() - 1;
-			for(var k = startRecno; k < endRecno; k++) {
+			if(endRecno !== 0 && !endRecno) {
+				endRecno = Z.recordCount() - 1;
+			}
+			for(var k = startRecno; k <= endRecno; k++) {
 				Z.recno(k);
 				if(callBackFn) { 
 					callBackFn.call(Z); 

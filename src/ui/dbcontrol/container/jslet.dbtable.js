@@ -64,7 +64,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick';
+		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender';
 		
 		/**
 		 * {Integer} Fixed row count.
@@ -193,7 +193,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		 *   //fieldName: String
 		 */
 		Z._onFillCell = null;		
-		
+
+		Z._defaultCellRender = null;
+
 		//@private
 		Z._repairHeight = 0;
 		Z.contentHeight = 0;
@@ -205,7 +207,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._currRow = null;
 		Z._currColNum = 0;
-		
 		$super(el, params);
 	},
 	
@@ -342,6 +343,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 			jslet.Checker.test('DBTable.treeField', treeField).isString();
 		this._treeField = treeField;
+	},
+
+	defaultCellRender: function(defaultCellRender) {
+		if(defaultCellRender === undefined) {
+			return this._defaultCellRender;
+		}
+		jslet.Checker.test('DBTable.defaultCellRender', defaultCellRender).isObject();
+		
+		this._defaultCellRender = defaultCellRender;
 	},
 	
 	currColNum: function(currColNum) {
@@ -720,7 +730,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var fields;
 			if(Z._preTmpRecno >= 0 && Z._preTmpColNum >= 0) {
 				fields = Z._getSelectionFields(Z._preColNum || 0, Z._preTmpColNum);
-				Z._dataset.selection.remove(Z._preRecno || 0, Z._preTmpRecno, fields, true);
+				Z._dataset.selection.remove(Z._preRecno || 0, Z._preTmpRecno, fields, false);
 			}
 			fields = Z._getSelectionFields(Z._preColNum || 0, Z._currColNum);
 			Z._dataset.selection.add(Z._preRecno || 0, currRecno, fields, true);
@@ -1638,8 +1648,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		oth.innerHTML = '<div style="position: relative" unselectable="on" class="jl-unselectable jl-tbl-header-div jl-border-box ' + 
 			(cobj.widthCssName || '') +'">';
 		var ochild = oth.childNodes[0];
-		if (cobj.cellRender && cobj.cellRender.createHeader){
-			cobj.cellRender.createHeader.call(Z, ochild, cobj);
+		var cellRender = cobj.cellRender || Z._defaultCellRender;
+		if (cellRender && cellRender.createHeader) {
+			cellRender.createHeader.call(Z, ochild, cobj);
 		} else {
 			var sh = cobj.label || '&nbsp;';
 			if(cobj.field && Z._isCellEditable(cobj)) {
@@ -1938,8 +1949,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jQuery(otd).addClass('jl-tbl-cell');
 		otd.innerHTML = '<div class="jl-tbl-cell-div ' + (colCfg.widthCssName || '') + '"></div>';
 		var ochild = otd.firstChild;
-		if (colCfg.cellRender) {
-			colCfg.cellRender.createCell.call(Z, ochild, colCfg);
+		var cellRender = colCfg.cellRender || Z._defaultCellRender;
+		if (cellRender && cellRender.createCell) {
+			cellRender.createCell.call(Z, ochild, colCfg);
 		} else if (!Z._isCellEditable(colCfg)) {
 				jslet.ui.DBTable.defaultCellRender.createCell.call(Z, ochild, colCfg);
 				colCfg.editable = false;
@@ -2247,8 +2259,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 
-		if (colCfg.cellRender && colCfg.cellRender.refreshCell) {
-			colCfg.cellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
+		var cellRender = colCfg.cellRender || Z._defaultCellRender;
+		if (cellRender && cellRender.refreshCell) {
+			cellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
 		} else if (!colCfg.editable) {
 			jslet.ui.DBTable.defaultCellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
 		} else {
@@ -2441,7 +2454,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this,
 			otr,
 			rowObj = Z._currRow;
-		if(!Z._readOnly) {
+		if(!rowObj || !Z._readOnly) {
 			return;
 		}
 		if(Z._currColNum >= Z._fixedCols) {
@@ -2483,9 +2496,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jQuery(Z.el).find('td.jl-tbl-cell').each(function(k, otd){
         	var colCfg = otd.jsletColCfg;
         	var recno = parseInt(otd.parentNode.jsletrecno);
-        	if(recno === NaN) {
-        		debugger
-        	}
         	if((recno || recno === 0) && colCfg) {
         		var fldName = colCfg.field;
         		if(fldName) {
