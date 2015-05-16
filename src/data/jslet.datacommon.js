@@ -37,7 +37,7 @@ jslet.data.DataType = {
 	TIME: 'T',  //Time
 	BOOLEAN: 'B', //Boolean
 	DATASET: 'V', //Dataset field
-	GROUP: 'G'  //Group Field
+	CROSS: 'C'   //Cross Field
 };
 
 jslet.data.FieldValueStyle = {
@@ -572,7 +572,7 @@ jslet.data.record2Json = function(records, excludeFields) {
 	}
 	
 	function record2JsonFilter(key, value) {
-		if(key == jslet.data.FieldValueCache.CACHENAME) {
+		if(key == '_jl_') {
 			return undefined;
 		}
 		if(excludeFields) {
@@ -590,18 +590,30 @@ jslet.data.record2Json = function(records, excludeFields) {
 	return JSON.stringify(records, record2JsonFilter);
 };
 
+jslet.data.getRecInfo = function(record) {
+	if(!record) {
+		throw new Error('Record can\'t be null!')
+	}
+	if(!record) {
+		return null;
+	}
+	var recInfo = record._jl_;
+	if(!recInfo) {
+		recInfo = {};
+		record._jl_ = recInfo;
+	}
+	return recInfo;
+}
+
 /*Field value cache manager*/
 jslet.data.FieldValueCache = {
-	CACHENAME: '_cache_',
 	
 	put: function(record, fieldName, value, valueIndex) {
-		if(!record) {
-			throw new Error('Record can\'t be null!')
-		}
-		var cacheObj = record[this.CACHENAME];
+		var recInfo = jslet.data.getRecInfo(record), 
+			cacheObj = recInfo.cache;
 		if(!cacheObj) {
 			cacheObj = {};
-			record[this.CACHENAME] = cacheObj;
+			record._jl_.cache = cacheObj;
 		}
 		if(valueIndex || valueIndex === 0) {
 			var fldCacheObj = cacheObj[fieldName];
@@ -616,10 +628,8 @@ jslet.data.FieldValueCache = {
 	},
 	
 	get: function(record, fieldName, valueIndex) {
-		if(!record) {
-			return undefined;
-		}
-		var cacheObj = record[this.CACHENAME];
+		var recInfo = jslet.data.getRecInfo(record), 
+			cacheObj = recInfo.cache;
 		if(cacheObj) {
 			if(valueIndex || valueIndex === 0) {
 				var fldCacheObj = cacheObj[fieldName];
@@ -636,12 +646,10 @@ jslet.data.FieldValueCache = {
 	},
 	
 	clear: function(record, fieldName) {
-		if(!record) {
-			return;
-		}
-		var cacheObj = record[this.CACHENAME];
+		var recInfo = jslet.data.getRecInfo(record), 
+			cacheObj = recInfo.cache;
 		if(cacheObj) {
-			cacheObj[fieldName] = undefined;
+			delete cacheObj[fieldName];
 		}
 	},
 	
@@ -650,10 +658,11 @@ jslet.data.FieldValueCache = {
 		if(!dataList) {
 			return;
 		}
-		var rec, cacheObj;
+		var rec, cacheObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
-			cacheObj = rec[this.CACHENAME];
+			var recInfo = jslet.data.getRecInfo(rec), 
+				cacheObj = recInfo.cache;
 			if(cacheObj) {
 				delete cacheObj[fieldName];
 			}
@@ -661,9 +670,8 @@ jslet.data.FieldValueCache = {
 	},
 	
 	removeCache: function(record) {
-		if(record) {
-			record[this.CACHENAME] = {};
-		}
+		var recInfo = jslet.data.getRecInfo(record);
+		delete recInfo['cache'];
 	},
 	
 	removeAllCache: function(dataset) {
@@ -671,14 +679,147 @@ jslet.data.FieldValueCache = {
 		if(!dataList) {
 			return;
 		}
-		var rec, cacheObj;
+		var rec, cacheObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
-			delete rec[this.CACHENAME];
+			recInfo = jslet.data.getRecInfo(rec); 
+			delete recInfo['cache'];
 		}
 	}
 };
 /*End of field value cache manager*/
+
+/*Field value cache manager*/
+jslet.data.FieldError = {
+	
+	put: function(record, fldName, errorMsg, valueIndex, inputText) {
+		if(!errorMsg) {
+			jslet.data.FieldError.clear(record, fldName, valueIndex);
+			return;
+		}
+		var recInfo = jslet.data.getRecInfo(record), 
+			errObj = recInfo.error;
+		if(!errObj) {
+			errObj = {};
+			recInfo.error = errObj;
+		}
+		var errMsgObj = {message: errorMsg};
+		if(inputText !== undefined) {
+			errMsgObj.inputText = inputText;
+		}
+		if(valueIndex || valueIndex === 0) {
+			var fldErrObj = errObj[fldName];
+			if(!fldErrObj || !jslet.isObject(fldErrObj)){
+				fldErrObj = {};
+				errObj[fldName] = fldErrObj;
+			}
+			fldErrObj[valueIndex+""] = errMsgObj;
+		} else {
+			errObj[fldName] = errMsgObj;
+		}
+	},
+	
+	get: function(record, fldName, valueIndex) {
+		var recInfo = jslet.data.getRecInfo(record), 
+			errObj = recInfo.error;
+		if(errObj) {
+			var fldErrObj = errObj[fldName];
+			if(!fldErrObj) {
+				return null;
+			}
+			if(fldErrObj.message) {
+				return fldErrObj;
+			} else {
+				if(valueIndex || valueIndex === 0) {
+					return fldErrObj[valueIndex+""];
+				} else {
+					return fldErrObj["0"];
+				}
+			}
+		} else {
+			return null;
+		}
+	},
+	
+	clear: function(record, fldName, valueIndex) {
+		var recInfo = jslet.data.getRecInfo(record), 
+			errObj = recInfo.error;
+		if(errObj) {
+			if(valueIndex || valueIndex === 0) {
+				var fldErrObj = errObj[fldName];
+				if(fldErrObj && jslet.isObject(fldErrObj)){
+					delete fldErrObj[valueIndex+""];
+				}
+			} else {
+				delete errObj[fieldName];
+			}
+		}
+	},
+	
+	existFieldError: function(record, fldName, valueIndex) {
+		var recInfo = jslet.data.getRecInfo(record), 
+		errObj = recInfo.error;
+		if(errObj) {
+			var fldErrObj = errObj[fldName];
+			if(!fldErrObj){
+				return false;
+			}
+			if(valueIndex || valueIndex === 0) {
+				return fldErrObj[valueIndex+""]? true: false;
+			}
+			return true;
+		}
+		return false;
+	},
+	
+	existRecordError: function(record) {
+		var recInfo = jslet.data.getRecInfo(record), 
+		errObj = recInfo.error;
+		if(errObj) {
+			for(var fldName in errObj) {
+				if(errObj[fldName]) {
+					return true;
+				}
+			}
+		}
+		return false;
+	},
+	
+	clearFieldError: function(dataset, fldName) {
+		var dataList = dataset.dataList();
+		if(!dataList) {
+			return;
+		}
+		var rec, errObj, recInfo;
+		for(var i = 0, len = dataList.length; i < len; i++) {
+			rec = dataList[i];
+			var recInfo = jslet.data.getRecInfo(rec), 
+				errObj = recInfo.error;
+			if(errObj) {
+				delete errObj[fldName];
+			}
+		}
+	},
+	
+	clearRecordError: function(record) {
+		var recInfo = jslet.data.getRecInfo(record);
+		delete recInfo['error'];
+	},
+	
+	clearDatasetError: function(dataset) {
+		var dataList = dataset.dataList();
+		if(!dataList) {
+			return;
+		}
+		var rec, errObj, recInfo;
+		for(var i = 0, len = dataList.length; i < len; i++) {
+			rec = dataList[i];
+			recInfo = jslet.data.getRecInfo(rec); 
+			delete recInfo['error'];
+		}
+	}
+};
+/*End of field value error manager*/
 
 jslet.data.DatasetRelationManager = function() {
 	var relations= [];
@@ -836,4 +977,197 @@ jslet.emptyPromise = {
 
 jslet.data.displayOrderComparator = function(fldObj1, fldObj2) {
 	return fldObj1.displayOrder() - fldObj2.displayOrder();
+}
+
+/**
+ * Data selection class.
+ */
+jslet.data.DataSelection = function(dataset) {
+	this._dataset = dataset;
+	this._selection = [];
+	this._onChanged;
+}
+
+jslet.data.DataSelection.prototype = {
+	/**
+	 * Select all data.
+	 * 
+	 * @param {String[]} fields An array of field name to be selected.
+	 * @param {Boolean} fireEvent Identify firing event or not.
+	 */
+	selectAll: function(fields, fireEvent) {
+		jslet.Checker.test('DataSelection.add#fields', fields).isArray();
+		this.removeAll();
+		if(!fields) {
+			var arrFldObj = this._dataset.getNormalFields(), fldName;
+			fields = [];
+			for(var i = 0, len = arrFldObj.length; i < len; i++) {
+				fldName = arrFldObj[i].name();
+				fields.push(fldName);
+			}
+		}
+		this.add(0, this._dataset.recordCount() - 1, fields, fireEvent)
+	},
+	
+	/**
+	 * Remove all selected data.
+	 */
+	removeAll: function() {
+		this._selection = [];
+	},
+	
+	/**
+	 * Add data into selection.
+	 * 
+	 * @param {Integer} startRecno The start recno to be selected.
+	 * @param {Integer} endRecno The end recno to be selected.
+	 * @param {String[]} fields An array of field name to be selected.
+	 * @param {Boolean} fireEvent Identify firing event or not.
+	 */
+	add: function(startRecno, endRecno, fields, fireEvent) {
+		jslet.Checker.test('DataSelection.add#startRecno', startRecno).required().isNumber();
+		jslet.Checker.test('DataSelection.add#endRecno', endRecno).required().isNumber();
+		jslet.Checker.test('DataSelection.add#fields', fields).required().isArray();
+
+		if(endRecno === undefined) {
+			endRecno = startRecno;
+		}
+		var fldName;
+		for(var recno = startRecno; recno <= endRecno; recno++) {
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldName = fields[i];
+				this._selectCell(recno, fldName, true);
+			}
+		}
+		if(fireEvent && this._onChanged) {
+			this._onChanged(startRecno, endRecno, fields, true);
+		}
+	},
+
+	/**
+	 * Unselect data.
+	 * 
+	 * @param {Integer} startRecno The start recno to be unselected.
+	 * @param {Integer} endRecno The end recno to be selected.
+	 * @param {String[]} fields An array of field name to be unselected.
+	 * @param {Boolean} fireEvent Identify firing event or not.
+	 */
+	remove: function(startRecno, endRecno, fields, fireEvent) {
+		jslet.Checker.test('DataSelection.remove#startRecno', startRecno).required().isNumber();
+		jslet.Checker.test('DataSelection.remove#endRecno', endRecno).required().isNumber();
+		jslet.Checker.test('DataSelection.remove#fields', fields).required().isArray();
+
+		if(endRecno === undefined) {
+			endRecno = startRecno;
+		}
+		if(startRecno > endRecno) {
+			var tmp = startRecno;
+			startRecno = endRecno;
+			endRecno = tmp;
+		}
+		var fldName;
+		for(var recno = startRecno; recno <= endRecno; recno++) {
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldName = fields[i];
+				this._selectCell(recno, fldName, false);
+			}
+		}
+		if(fireEvent && this._onChanged) {
+			this._onChanged(startRecno, endRecno, fields, false);
+		}
+	},
+
+	/**
+	 * Fired when the selection area is changed.
+	 * 
+	 * @param {Function} onChanged The event handler, format:
+	 * 	function(startRecno, endRecno, fields, selected) {
+	 * 		//startRecno - Integer, start recno;
+	 * 		//endRecno - Integer, end recno;
+	 * 		//fields - String[], field names;
+	 * 		//selected - Boolean, selected or not;	
+	 * 	}
+	 * 	
+	 */
+	onChanged: function(onChanged) {
+		if(onChanged === undefined) {
+			return this._onChanged;
+		}
+		jslet.Checker.test('DataSelection.onChanged', onChanged).isFunction();
+		this._onChanged = onChanged;
+	},
+	
+	/**
+	 * Check the specified cell is selected or not.
+	 * 
+	 * @param {Integer} recno Record no.
+	 * @param {String} fldName Field name.
+	 * 
+	 * @return {Boolean}
+	 */
+	isSelected: function(recno, fldName) {
+		jslet.Checker.test('DataSelection.isSelected#recno', recno).required().isNumber();
+		jslet.Checker.test('DataSelection.isSelected#fldName', fldName).required().isString();
+		var selObj;
+		for(var i = 0, len = this._selection.length; i < len; i++) {
+			selObj = this._selection[i];
+			if(selObj._recno_ === recno && selObj[fldName]) {
+				return true;
+			}
+		}
+		return false;
+	},
+	
+	/**
+	 * Get selected text.
+	 * 
+	 * @param {String} seperator Seperator for fields.
+	 * 
+	 * @return {String}
+	 */
+	getSelectionText: function(seperator) {
+		if(!seperator) {
+			seperator = '\t';
+		}
+		var dataset = this._dataset,
+			result = [], 
+			context = dataset.startSilenceMove(),
+			fields = dataset.getNormalFields(),
+			fldCnt = fields.length,
+			fldName, textRec = '';
+		try {
+			dataset.first();
+			while(!dataset.isEof()) { 
+				for(var i = 0; i < fldCnt; i++) {
+					fldName = fields[i].name();
+					if(this.isSelected(dataset.recno(), fldName)) {
+						textRec += dataset.getFieldText(fldName) + seperator; 
+					}
+				}
+				result.push(textRec);
+				textRec = '';
+				dataset.next(); 
+			} 
+		} finally { 
+			dataset.endSilenceMove(context); 
+		} 
+		return result.join('\n'); 
+	},
+	
+	_selectCell: function(recno, fldName, selected) {
+		var selObj
+			found = false;
+		for(var i = 0, len = this._selection.length; i < len; i++) {
+			selObj = this._selection[i];
+			if(selObj._recno_ === recno) {
+				found = true;
+				selObj[fldName] = selected;
+			}
+		}
+		if(selected && !found) {
+			selObj = {_recno_: recno};
+			selObj[fldName] = true;
+			this._selection.push(selObj);
+		}
+	}
 }

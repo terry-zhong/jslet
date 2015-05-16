@@ -1086,3 +1086,30 @@ jslet.showInfo = function (e, timeout) {
 	}
 };
 
+jslet.Clipboard = function() {
+	var clipboard = document.getElementById('jsletClipboard');
+	if(!clipboard) {
+		jQuery('<textarea id="jsletClipboard" style="position:absolute;top:-1000px"></textarea>').appendTo(document.body);
+	
+	    window.addEventListener('copy', function (event) {
+	        var text = jQuery('#jsletClipboard').val();
+	        if(text) {
+		        if(event.clipboardData) {
+		        	event.clipboardData.setData('text/plain', text);
+		        } else {
+		        	window.clipboardData.setData('text', text);
+		        }
+		        console.log('copy')
+		        event.preventDefault();
+		        return false;
+	        }
+	    });            
+	}
+}
+
+jslet.Clipboard.putText = function(text) {
+	var clipboard = jQuery('#jsletClipboard').val(text);
+	clipboard[0].select();
+}
+
+jslet.Clipboard();

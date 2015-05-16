@@ -16,9 +16,11 @@ jslet.data.Dataset = function (name) {
 	Z._name = null; //Dataset name
 	Z._recordClass = jslet.global.defaultRecordClass; //Record class, used for serialized/deserialize
 	Z._dataList = null; //Array of data records
-	
+	Z._oriDataList = null;
 	Z._fields = []; //Array of jslet.data.Field
-	Z._normalFields = []; //Array of jslet.data.Field except group field
+	Z._oriFields = null;
+	
+	Z._normalFields = []; //Array of jslet.data.Field except the fields with children.
 	Z._recno = -1;
 	Z._filteredRecnoArray = null;
 
@@ -100,7 +102,10 @@ jslet.data.Dataset = function (name) {
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
 	Z._aggradedValues = null;
-	Z._afterScrollDebounce = jslet.debounce(Z._innerAfterScrollDebounce, 30);	
+	Z._errorRecno = -1;
+	Z._afterScrollDebounce = jslet.debounce(Z._innerAfterScrollDebounce, 30);
+	
+	Z.selection = new jslet.data.DataSelection(Z);
 	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
@@ -469,7 +474,7 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
-	 * Get fields except group field
+	 * Get fields except the fields with children.
 	 * @return {Array of jslet.data.Field}
 	 */
 	getNormalFields: function() {
@@ -519,7 +524,8 @@ jslet.data.Dataset.prototype = {
 				break;
 			}
 			
-			if (fldObj.getType() == jslet.data.DataType.GROUP) {
+			var children = fldObj.children();
+			if(children && children.length > 0) {
 				isBreak = this._travelField(fldObj.children(), callBackFn);
 				if (isBreak) {
 					break;
@@ -535,7 +541,8 @@ jslet.data.Dataset.prototype = {
 	_cacheNormalFields: function() {
 		var arrFields = this._normalFields = [];
 		this._travelField(this._fields, function(fldObj) {
-			if (fldObj.getType() != jslet.data.DataType.GROUP) {
+			var children = fldObj.children();
+			if(!children || children.length === 0) {
 				arrFields.push(fldObj);
 			}
 			return false; //Identify if cancel traveling or not
@@ -919,6 +926,7 @@ jslet.data.Dataset.prototype = {
 		if (!Z.hasRecord()) {
 			return;
 		}
+		Z.selection.removeAll();
 
 		Z._sortingFields = [];
 		var idxFld;
@@ -967,16 +975,14 @@ jslet.data.Dataset.prototype = {
 			Z._combineIndexCfg(fname, order);
 			return;
 		}
-		if (fldObj.getType() != jslet.data.DataType.GROUP) {
+		var children = fldObj.children();
+		if (!children || children.length === 0) {
 			Z._combineIndexCfg(fldObj.name(), order);
 		} else {
-			var children = fldObj.children();
-			if (children) {
-				for(var k = 0, childCnt = children.length; k < childCnt; k++) {
-					Z._createIndexCfg(children[k], order);
-				}
+			for(var k = 0, childCnt = children.length; k < childCnt; k++) {
+				Z._createIndexCfg(children[k], order);
 			}
-		}
+		}		
 	},
 	
 	/**
@@ -1118,6 +1124,7 @@ jslet.data.Dataset.prototype = {
 	
 	_doFilterChanged: function() {
 		var Z = this;
+		Z.selection.removeAll();
 		Z.disableControls();
 		try {
 			if (!Z._filtered) {
@@ -1668,27 +1675,20 @@ jslet.data.Dataset.prototype = {
 		if(!record) {
 			return null;
 		}
-		var cacheObj = record[jslet.data.FieldValueCache.CACHENAME];
-		
+		var recInfo = jslet.data.getRecInfo(record);		
 		if(status === undefined) {
-			if(!cacheObj) {
+			if(!recInfo) {
 				return jslet.data.DataSetStatus.BROWSE;
 			}
-			return cacheObj._data_status_;
+			return recInfo.status;
 		}
-		var oldValue = -1;
-		if(!cacheObj) {
-			cacheObj = {};
-			record[jslet.data.FieldValueCache.CACHENAME] = cacheObj;
-		} else {
-			oldValue = cacheObj._data_status_;
-		}
+		var	oldValue = recInfo.status;
 		if(oldValue != status) {
 			if(this._contextRuleEngine) {
 				this._contextRuleEngine.evalStatus();
 			}
 		}
-		cacheObj._data_status_ = status;
+		recInfo.status = status;
 	},
 	
 	/**
@@ -1696,6 +1696,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	innerInsert: function (beforeInsertFn) {
 		var Z = this;
+		Z.selection.removeAll();
 		var mfld = Z._datasetField, mds = null;
 		if (mfld) {
 			mds = mfld.dataset();
@@ -1818,6 +1819,7 @@ jslet.data.Dataset.prototype = {
 	batchAppendRecords: function(records, replaceExists) {
 		jslet.Checker.test('dataset.records', records).required().isArray();
 		var Z = this;
+		Z.selection.removeAll();
 		Z.disableControls();
 		try{
 			var keyField = Z.keyField(), rec,
@@ -2024,8 +2026,8 @@ jslet.data.Dataset.prototype = {
 				}
 				var sumValue = aggradedValueObj.sum;
 				if(sumValue) {
-					sumValue = new Number(sumValue);
-					sumValue = sumValue.toFixed(scale);
+					var pow = Math.pow(10, scale);
+					sumValue = Math.round(sumValue * pow) / pow;
 					aggradedValueObj.sum = sumValue;
 				}
 			} //end for i
@@ -2170,6 +2172,7 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
+		Z.selection.removeAll();
 		if (!Z.hasRecord()) {
 			Z.insertRecord();
 		} else {
@@ -2203,6 +2206,7 @@ jslet.data.Dataset.prototype = {
 		if (recCnt === 0) {
 			return;
 		}
+		Z.selection.removeAll();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			Z.cancel();
 			return;
@@ -2314,9 +2318,11 @@ jslet.data.Dataset.prototype = {
 			fldValue = Z.getFieldValue(fldName);
 			if(fldObj.valueStyle() == jslet.data.FieldValueStyle.NORMAL) {
 				if(!fldObj.message()) {
+//				if(Z.existFieldError(fldName)) {
 					invalidMsg = Z.fieldValidator.checkRequired(fldObj, fldValue);
 					invalidMsg = invalidMsg || Z.fieldValidator.checkValue(fldObj, fldValue);
 					if (invalidMsg) {
+//						Z.setFieldError(fldName, invalidMsg)
 						fldObj.message(invalidMsg);
 						if(!firstInvalidField) {
 							firstInvalidField = fldName;
@@ -2330,6 +2336,7 @@ jslet.data.Dataset.prototype = {
 			} else {
 				invalidMsg = Z.fieldValidator.checkRequired(fldObj, fldValue);
 				if (invalidMsg) {
+//					Z.setFieldError(fldName, invalidMsg)
 					fldObj.message(invalidMsg);
 					if(!firstInvalidField) {
 						firstInvalidField = fldName;
@@ -2348,6 +2355,7 @@ jslet.data.Dataset.prototype = {
 							invalidMsg = jslet.locale.Dataset.betwwenInvalid;
 						}
 						if (invalidMsg) {
+//							Z.setFieldError(fldName, invalidMsg, 0);
 							fldObj.message(invalidMsg);
 							if(!firstInvalidField) {
 								firstInvalidField = fldName;
@@ -2357,10 +2365,13 @@ jslet.data.Dataset.prototype = {
 					}
 				}
 				if(fldValue) {
+					var recObj = Z.getRecord();
 					for(var k = 0, len = fldValue.length; k < len; k++) {
+//						if(Z.existFieldError(fldName, k)) {
 						if(!fldObj.message(k)) {
 							invalidMsg = invalidMsg || Z.fieldValidator.checkValue(fldObj, fldValue);
 							if (invalidMsg) {
+//								Z.setFieldError(fldName, invalidMsg, k)
 								fldObj.message(invalidMsg, k);
 								if(!firstInvalidField) {
 									firstInvalidField = fldName;
@@ -2424,15 +2435,13 @@ jslet.data.Dataset.prototype = {
 			return false;
 		}
 		Z._errorRecno = -1;
-		var rec;
+		var rec = Z.getRecord();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			if (Z._logChanged) {
-				rec = Z.getRecord();
 				Z._insertedDelta.push(rec);
 			}
 		} else {
 			if (Z._logChanged) {
-				rec = Z.getRecord();
 				if (Z._insertedDelta.indexOf(rec) < 0 ) {
 					var k = Z._updatedDelta.indexOf(rec);
 					if (k < 0) {
@@ -2445,8 +2454,9 @@ jslet.data.Dataset.prototype = {
 		}
 		Z._modiObject = null;
 		Z.status(jslet.data.DataSetStatus.BROWSE);
-		
+//		jslet.data.FieldError.clearRecordError(rec);
 		Z.clearFieldErrorMessage();
+		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCONFIRM);
 		Z.calcAggradedValue();
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
@@ -2486,6 +2496,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return;
 		}
+
 		Z.clearFieldErrorMessage();
 		if (Z.recordCount() === 0) {
 			return;
@@ -2500,6 +2511,7 @@ jslet.data.Dataset.prototype = {
 			k = Z._recno,
 			records = Z.dataList();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
+			Z.selection.removeAll();
 			var no = Z.recno();
 			records.splice(k, 1);
 			Z._refreshInnerRecno();
@@ -2516,6 +2528,7 @@ jslet.data.Dataset.prototype = {
 				k = Z._filteredRecnoArray[Z._recno];
 			}
 			jslet.data.FieldValueCache.removeCache(Z._modiObject);
+//			jslet.data.FieldError.clearRecordError(Z._modiObject);
 			records[k] = Z._modiObject;
 			Z._modiObject = null;	
 		}
@@ -2583,6 +2596,44 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
+	existFieldError: function(fldName, valueIndex) {
+		if (this.recordCount() === 0) {
+			return false;
+		}
+
+		var currRec = this.getRecord();
+		if (!currRec) {
+			return false;
+		}
+		return jslet.data.FieldError.existFieldError(currRec, fldName, valueIndex);
+	},
+	
+	getFieldError: function(fldName, valueIndex) {
+		if (this.recordCount() === 0) {
+			return null;
+		}
+
+		var currRec = this.getRecord();
+		if (!currRec) {
+			return null;
+		}
+		return jslet.data.FieldError.get(currRec, fldName, valueIndex);
+	},
+		
+	setFieldError: function(fldName, errorMsg, valueIndex, inputText) {
+		var Z = this;
+		if (Z.recordCount() === 0) {
+			return Z;
+		}
+
+		var currRec = Z.getRecord();
+		if (!currRec) {
+			return Z;
+		}
+		jslet.data.FieldError.put(currRec, fldName, errorMsg, valueIndex, inputText);
+		return this;
+	},
+		
 	/**
 	 * Get field value of current record
 	 * 
@@ -2641,6 +2692,7 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		fldObj.message(null, valueIndex);
+//		jslet.data.FieldError.clear(currRec, fldName, valueIndex);
 		if (Z._onFieldChange) {
 			var eventFunc = jslet.getFunction(Z._onFieldChange);
 			if(eventFunc) {
@@ -2810,6 +2862,9 @@ jslet.data.Dataset.prototype = {
 	hasFieldErrorMessage: function() {
 		var fields = this.getNormalFields();
 		for(var i = 0, len = fields.length; i < len; i++) {
+//			var fldErrObj = this.getFieldError(fields[i].name())
+//			if(fldErrObj) {
+//				console.log(fldErrObj.message);
 			if(fields[i].message()) {
 				console.error(fields[i].message());
 				return true;
@@ -3016,7 +3071,10 @@ jslet.data.Dataset.prototype = {
 		var invalidMsg = Z.fieldValidator.checkInputText(fldObj, inputText);
 		fldObj.message(invalidMsg, valueIndex);
 		if (invalidMsg) {
+//			Z.setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
 			return undefined;
+//		} else {
+//			Z.setFieldError(fldObj.name(), null, valueIndex);
 		}
 		
 		if(!inputText){
@@ -3928,6 +3986,7 @@ jslet.data.Dataset.prototype = {
 		Z._insertedDelta = [];
 		Z._updatedDelta = [];
 		Z._deletedDelta = [];
+		Z.selection.removeAll();
 		
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
@@ -4014,6 +4073,7 @@ jslet.data.Dataset.prototype = {
 			arrRecs = Z.selectedRecords() || [],
 			i, k,
 			records = Z.dataList();
+		Z.selection.removeAll();
 		if(deleteOnSuccess) {
 			for(i = arrRecs.length; i >= 0; i--) {
 				rec = arrRecs[i];
@@ -4267,6 +4327,54 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
+	 /** 
+	* Get filtered data list. 
+	* 
+	*/ 
+	filteredDataList: function() { 
+		var Z= this, 
+			result = [], 
+			context = Z.startSilenceMove(); 
+		try { 
+			Z.first(); 
+			while(!Z.isEof()) { 
+				result.push(Z.getRecord()); 
+				Z.next(); 
+			} 
+		} finally { 
+			Z.endSilenceMove(context); 
+		} 
+		return result; 
+	}, 
+
+	/** 
+	* Iterate the whole dataset, and run the specified callback function. 
+	* Example: 
+	* 
+	* dataset.iterate(function(){}); 
+	* 
+	*/ 
+	iterate: function(callBackFn, startRecno, endRecno) { 
+		jslet.Checker.test('Dataset.iterate#callBackFn', callBackFn).required().isFunction(); 
+	
+		var Z= this, 
+			result = [], 
+			context = Z.startSilenceMove(); 
+		try{
+			startRecno = startRecno || 0;
+			endRecno = endRecno || Z.recordCount() - 1;
+			for(var k = startRecno; k < endRecno; k++) {
+				Z.recno(k);
+				if(callBackFn) { 
+					callBackFn.call(Z); 
+				} 
+			} 
+		}finally{ 
+			Z.endSilenceMove(context); 
+		} 
+		return result; 
+	}, 
+	
 	/**
 	 * Set or get raw data list
 	 * 
@@ -4290,6 +4398,7 @@ jslet.data.Dataset.prototype = {
 			Z._dataList = datalst;
 		}
 		jslet.data.FieldValueCache.removeAllCache(Z);
+		jslet.data.FieldError.clearDatasetError(Z);
 		
 		Z.clearFieldErrorMessage();
 		jslet.data.convertDateFieldValue(Z);

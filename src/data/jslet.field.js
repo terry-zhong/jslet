@@ -71,7 +71,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dateChar = null;
 	Z._dateRegular = null;
 	Z._parent = null; //parent field object
-	Z._children = null; //child field object, only group field has child field object.
+	Z._children = null; //child field object
 	Z._trueValue = true;
 	Z._falseValue = false;
 	Z._mergeSame = false;
@@ -80,6 +80,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	
 	Z._aggraded = false; //optional value: sum, count, avg
 	Z._aggradedBy = null;
+	
+	Z._crossSource = null;
 };
 
 jslet.data.Field.className = 'jslet.data.Field';
@@ -248,7 +250,6 @@ jslet.data.Field.prototype = {
 
 	/**
 	 * Get or set parent field object.
-	 * It is ignored if dataType is not jslet.data.DataType.GROUP
 	 * 
 	 * @param {jslet.data.Field or undefined} parent Parent field object.
 	 * @return {jslet.data.Field or this}
@@ -265,7 +266,6 @@ jslet.data.Field.prototype = {
 
 	/**
 	 * Get or set child fields of this field.
-	 * It is ignored if dataType is not jslet.data.DataType.GROUP
 	 * 
 	 * @param {jslet.data.Field[] or undefined} children Child field object.
 	 * @return {jslet.data.Field or this}
@@ -684,7 +684,11 @@ jslet.data.Field.prototype = {
 	readOnly: function (readOnly) {
 		var Z = this;
 		if (readOnly === undefined){
-			if (Z._dataType == jslet.data.DataType.DATASET || Z._dataType == jslet.data.DataType.GROUP) {
+			if (Z._dataType == jslet.data.DataType.DATASET) {
+				return true;
+			}
+			var children = Z.children();
+			if (children && children.length === 0) {
 				return true;
 			}
 
@@ -698,7 +702,11 @@ jslet.data.Field.prototype = {
 	
 	fieldReadOnly: function() {
 		var Z = this;
-		if (Z._dataType == jslet.data.DataType.DATASET || Z._dataType == jslet.data.DataType.GROUP) {
+		if (Z._dataType == jslet.data.DataType.DATASET) {
+			return true;
+		}
+		var children = Z.children();
+		if (children && children.length === 0) {
 			return true;
 		}
 
@@ -755,7 +763,7 @@ jslet.data.Field.prototype = {
 		var Z = this;
 		if (mvalueStyle === undefined) {
 			if(Z._dataType == jslet.data.DataType.DATASET ||  
-				Z._dataType == jslet.data.DataType.GROUP) 
+					Z._children && Z._children.length > 0) 
 				return jslet.data.FieldValueStyle.NORMAL;
 			
 			return Z._valueStyle;
@@ -1246,6 +1254,15 @@ jslet.data.Field.prototype = {
 		Z._aggradedBy = jQuery.trim(aggradedBy);
 	},
 
+	crossSource: function(crossSource) {
+		var Z = this;
+		if(crossSource === undefined) {
+			return Z._crossSource;
+		}
+		jslet.Checker.test('Field.crossSource', crossSource).isClass(jslet.data.CrossFieldSource.className);
+		Z._crossSource = crossSource;
+	},
+	
 	/**
 	 * Get or set fixed field value, if field value not specified, fixed field value used.
 	 * 
@@ -1360,7 +1377,7 @@ jslet.data.Field.URLTARGETBLANK = '_blank';
  * </code></pre>
  * 
  * @param {Json Object} fieldConfig A json object which property names are same as jslet.data.Field. Example: {name: 'xx', type: 'N', ...}
- * @param {jslet.data.Field} parent Parent field object. It must be a 'Group' field.
+ * @param {jslet.data.Field} parent Parent field object.
  * @return {jslet.data.Field}
  */
 jslet.data.createField = function (fieldConfig, parent) {
@@ -1378,8 +1395,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 				dtype != jslet.data.DataType.NUMBER && 
 				dtype != jslet.data.DataType.DATE && 
 				dtype != jslet.data.DataType.BOOLEAN && 
-				dtype != jslet.data.DataType.DATASET && 
-				dtype != jslet.data.DataType.GROUP)
+				dtype != jslet.data.DataType.CROSS && 
+				dtype != jslet.data.DataType.DATASET)
 		dtype = jslet.data.DataType.STRING;
 	}
 
@@ -1390,9 +1407,9 @@ jslet.data.createField = function (fieldConfig, parent) {
 	}
 	function setPropValue(propName) {
 		var propValue = cfg[propName];
-		if(propValue === undefined) {
-			propValue = cfg[propName.toLowerCase()];
-		}
+//		if(propValue === undefined) {
+//			propValue = cfg[propName.toLowerCase()];
+//		}
 		if (propValue !== undefined) {
 			fldObj[propName](propValue);
 		}
@@ -1402,7 +1419,10 @@ jslet.data.createField = function (fieldConfig, parent) {
 	if(parent) {
 		fldObj.dataset(parent.dataset());
 	}
-	
+	if(cfg.crossSource) {
+ 		var crossSrc = jslet.data.createCrossFieldSource(cfg.crossSource);
+ 		fldObj.crossSource(crossSrc);
+	}
 	setPropValue('displayOrder');
 	setPropValue('label');
 	setPropValue('tip');
@@ -1420,20 +1440,6 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	setPropValue('visible');
 
-	if (dtype == jslet.data.DataType.GROUP){
-		if (cfg.children){
-			var fldChildren = [], 
-				childFldObj;
-			for(var i = 0, cnt = cfg.children.length; i < cnt; i++){
-				childFldObj = jslet.data.createField(cfg.children[i], fldObj);
-				childFldObj.displayOrder(i);
-				fldChildren.push(childFldObj);
-			}
-			fldObj.children(fldChildren);
-		}
-		fldObj.alignment('center');
-		return fldObj;
-	}
 	setPropValue('unique');
 	setPropValue('required');
 	setPropValue('readOnly');
@@ -1510,6 +1516,18 @@ jslet.data.createField = function (fieldConfig, parent) {
 		}
 		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg, fldObj._dsName));
 	}
+	if (cfg.children){
+		var fldChildren = [], 
+			childFldObj;
+		for(var i = 0, cnt = cfg.children.length; i < cnt; i++){
+			childFldObj = jslet.data.createField(cfg.children[i], fldObj);
+			childFldObj.displayOrder(i);
+			fldChildren.push(childFldObj);
+		}
+		fldObj.children(fldChildren);
+		fldObj.alignment('center');
+	}
+	
 	return fldObj;
 };
 
@@ -1518,7 +1536,7 @@ jslet.data.createField = function (fieldConfig, parent) {
  * 
  * @param {String} fldName Field name.
  * @param {Integer} length Field length.
- * @param {jslet.data.Field} parent (Optional)Parent field object. It must be a 'Group' field.
+ * @param {jslet.data.Field} parent (Optional)Parent field object.
  * @return {jslet.data.Field}
  */
 jslet.data.createStringField = function(fldName, length, parent) {
@@ -1592,10 +1610,15 @@ jslet.data.createDatasetField = function(fldName, subDataset, parent) {
  * @param {jslet.data.Field} parent (Optional)Parent field object. It must be a 'Group' field.
  * @return {jslet.data.Field}
  */
-jslet.data.createGroupField = function(fldName, label, parent) {
-	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.GROUP, parent);
-	fldObj.label(label);
-	return fldObj;
+//jslet.data.createGroupField = function(fldName, label, parent) {
+//	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.GROUP, parent);
+//	fldObj.label(label);
+//	return fldObj;
+//};
+
+jslet.data.createCrossField = function(fldName, crossSource, parent) {
+	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.CROSS, parent);
+	fldObj.crossSource(crossSource);
 };
 
 /**
@@ -1935,3 +1958,199 @@ jslet.data.createFieldLookup = function(param, hostDsName) {
 	return lkFldObj;
 };
 
+jslet.data.CrossFieldSource = function() {
+	var Z = this;
+	
+	Z._sourceType = 0; //Optional value: 0-field, 1-custom'
+	Z._sourceField = null;
+	Z._lookupLevel = 1;
+	
+	Z._labels = null;
+	Z._values = null;
+	Z._matchExpr = null;
+	
+	Z._hideEmptyValue = false;
+	Z._hasSubtotal = true;
+	Z._subtotalPosition = 1; //Optional value: 0-first, 1-end
+	Z._subtotalLabel = null;		
+};
+jslet.data.CrossFieldSource.className = 'jslet.data.CrossFieldSource';
+
+jslet.data.CrossFieldSource.prototype = {
+	className: jslet.data.CrossFieldSource.className,
+	
+	clone: function(){
+		var Z = this, 
+			result = new jslet.data.CrossFieldSource();
+		result.sourceType(Z._sourceType);
+		result.sourceField(Z._sourceField);
+		result.lookupLevel(Z._lookupLevel);
+		result.labels(Z._labels);
+		result.values(Z._values);
+		result.matchExpr(Z._matchExpr);
+		result.hideEmptyValue(Z._hideEmptyValue);
+		result.hasSubtotal(Z._hasSubtotal);
+		result.subtotalPosition(Z._subtotalPosition);
+		result.subtotalLabel(Z._subtotalLabel);
+		return result;
+	},
+	
+	/**
+	 * Cross source type, optional value: 0 - field, 1 - custom.
+	 * 
+	 * @param {Number or undefined} sourceType Cross source type.
+	 * @return {Number or this}
+	 */
+	sourceType: function(sourceType) {
+		var Z = this;
+		if (sourceType === undefined) {
+			return Z._sourceType;
+		}
+		jslet.Checker.test('CrossFieldSource.sourceType', sourceType).isNumber();
+		Z._sourceType = sourceType;
+		return this;
+	},
+
+	/**
+	 * Identify the field name which is used to create cross field. Avaliable when crossType is 0-Field.
+	 * sourceField must be a lookup field and required. 
+	 * 
+	 * @param {String or undefined} sourceField The field name which is used to create cross field.
+	 * @return {String or this}
+	 */
+	sourceField: function(sourceField) {
+		var Z = this;
+		if (sourceField === undefined) {
+			return Z._sourceField;
+		}
+		jslet.Checker.test('CrossFieldSource.sourceField', sourceField).isString();
+		Z._sourceField = sourceField;
+		return this;
+	},
+	
+	/**
+	 * Identify cross field labels. Avaliable when crossType is 1-Field.
+	 * If labels is null, use "values" as "labels" instead.
+	 * 
+	 * @param {String[] or undefined} labels The cross field labels.
+	 * @return {String[] or this}
+	 */
+	labels: function(labels) {
+		var Z = this;
+		if (labels === undefined) {
+			return Z._labels;
+		}
+		jslet.Checker.test('CrossFieldSource.labels', labels).isArray();
+		Z._labels = labels;
+		return this;
+	},
+	
+	/**
+	 * Identify cross field cross values. Avaliable when crossType is 1-Field.
+	 * If crossType is 1-Field, "values" is reqired.
+	 * 
+	 * @param {Object[] or undefined} values The cross field source values.
+	 * @return {Object[] or this}
+	 */
+	values: function(values) {
+		var Z = this;
+		if (values === undefined) {
+			return Z._values;
+		}
+		jslet.Checker.test('CrossFieldSource.values', values).isArray();
+		Z._values = values;
+		return this;
+	},
+	
+	/**
+	 * Identify the field name which is used to create cross field. Avaliable when crossType is 1-Custom.
+	 * If crossType is 1-Custom, matchExpr is required. 
+	 * 
+	 * @param {String or undefined} matchExpr The expression which use to match value.
+	 * @return {String or this}
+	 */
+	matchExpr: function(matchExpr) {
+		var Z = this;
+		if (matchExpr === undefined) {
+			return Z._matchExpr;
+		}
+		jslet.Checker.test('CrossFieldSource.matchExpr', matchExpr).isString();
+		Z._matchExpr = matchExpr;
+		return this;
+	},
+	
+	/**
+	 * Identify it has subtotal column or not.
+	 * 
+	 * @param {Boolean or undefined} hasSubtotal True - has subtotal, false otherwise.
+	 * @return {Boolean or this}
+	 */
+	hasSubtotal: function(hasSubtotal) {
+		var Z = this;
+		if (hasSubtotal === undefined) {
+			return Z._hasSubtotal;
+		}
+		jslet.Checker.test('CrossFieldSource.hasSubtotal', hasSubtotal).isString();
+		Z._hasSubtotal = hasSubtotal;
+		return this;
+	},
+	
+	/**
+	 * Identify the "subtotal" column position. Avaliable when "hasSubtotal" is true;
+	 * Optional Value: 0 - At first column, 1 - At last column.
+	 * 
+	 * @param {Number or undefined} subtotalPosition subtotal column position.
+	 * @return {Number or this}
+	 */
+	subtotalPosition: function(subtotalPosition) {
+		var Z = this;
+		if (subtotalPosition === undefined) {
+			return Z._subtotalPosition;
+		}
+		jslet.Checker.test('CrossFieldSource.subtotalPosition', subtotalPosition).isNumber();
+		Z._subtotalPosition = subtotalPosition;
+		return this;
+	},
+
+	/**
+	 * Subtotal label. Avaliable when "hasSubtotal" is true;
+	 * 
+	 * @param {String or undefined} subtotalLabel Subtotal label.
+	 * @return {String or this}
+	 */
+	subtotalLabel: function(subtotalLabel) {
+		var Z = this;
+		if (subtotalLabel === undefined) {
+			return Z._subtotalLabel;
+		}
+		jslet.Checker.test('CrossFieldSource.subtotalLabel', subtotalLabel).isString();
+		Z._subtotalLabel = subtotalLabel;
+		return this;
+	}
+}
+
+jslet.data.createCrossFieldSource = function(cfg) {
+	var result = new jslet.data.CrossFieldSource();
+	var srcType = cfg.sourceType || 0;
+	result.sourceType(srcType);
+	if(cfg.hasSubtotal !== undefined) {
+		result.hasSubtotal(cfg.hasSubtotal);
+	}
+	
+	if(cfg.subtotalPosition !== undefined) {
+		result.subtotalPosition(cfg.subtotalPosition);
+	}
+	
+	if(cfg.subtotalLabel !== undefined) {
+		result.subtotalLabel(cfg.subtotalLabel);
+	}
+	
+	if(srcType === 0) {
+		result.sourceField(cfg.sourceField);
+	} else {
+		result.labels(cfg.labels);
+		result.values(cfg.values);
+		result.matchExpr(cfg.matchExpr);
+	}
+	return result;
+}
