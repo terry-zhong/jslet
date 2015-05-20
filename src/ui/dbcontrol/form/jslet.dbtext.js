@@ -123,6 +123,8 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var fldObj = Z._dataset.getField(Z._field);
 			if(!fldObj.message()) {
 				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+			} else {
+				Z.oldValue = null;
 			}
 			if(Z._autoSelectAll) {
 				jslet.ui.textutil.selectText(Z.el);

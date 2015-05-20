@@ -1137,14 +1137,22 @@ jslet.data.DataSelection.prototype = {
 			context = dataset.startSilenceMove(),
 			fields = dataset.getNormalFields(),
 			fldCnt = fields.length,
-			fldName, textRec = '';
+			fldName, textRec = '', fldObj, text;
 		try {
 			dataset.first();
 			while(!dataset.isEof()) { 
 				for(var i = 0; i < fldCnt; i++) {
-					fldName = fields[i].name();
+					fldObj = fields[i];
+					fldName = fldObj.name();
 					if(this.isSelected(dataset.recno(), fldName)) {
-						textRec += dataset.getFieldText(fldName) + seperator; 
+						//If Number field does not have lookup field, return field value, not field text. 
+						//Example: 'amount' field
+						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+							text = fldObj.getValue();
+						} else {
+							text = dataset.getFieldText(fldName);
+						}
+						textRec += text + seperator; 
 					}
 				}
 				result.push(textRec);

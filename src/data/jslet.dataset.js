@@ -481,6 +481,20 @@ jslet.data.Dataset.prototype = {
 		return this._normalFields;
 	},
 	
+	getEditableFields: function() {
+		var fields = this._normalFields,
+			fldObj,
+			result = [];
+		
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			if(fldObj.visible() && !fldObj.disabled() && !fldObj.readOnly()) {
+				result.push(fldObj.name());
+			}
+		}
+		return result;
+	},
+	
 	/**
 	 * Set the specified fields to be visible, others to be hidden.
 	 * 
@@ -4305,7 +4319,13 @@ jslet.data.Dataset.prototype = {
 						continue;
 					}
 					if (dispValue) {
-						value = Z.getFieldText(fldName);
+						//If Number field does not have lookup field, return field value, not field text. 
+						//Example: 'amount' field
+						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+							value = Z.getFieldValue(fldName);
+						} else {
+							value = Z.getFieldText(fldName);
+						}
 					} else {
 						value = Z.getFieldValue(fldName);
 					}

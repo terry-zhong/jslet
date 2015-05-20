@@ -540,23 +540,23 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         	if(!Z.readOnly) {
         		return;
         	}
-        	if(event.shiftKey || event.ctrlKey) {
-	        	var otd = event.currentTarget;
-	        	var colCfg = otd.jsletColCfg;
-	        	if(colCfg) {
-	        		if(colCfg.isSeq) { //If the cell is sequence cell, process row selection.
-	        			Z._processRowSelection(event.ctrlKey, event.shiftKey, event.altKey);
-	        		} else {
-		        		var colNum = colCfg.colNum;
-		        		if(colNum !== 0 && !colNum) {
-		        			return;
-		        		}
-						Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
-		        		Z.currColNum(colNum);
-						Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+        	var otd = event.currentTarget;
+        	var colCfg = otd.jsletColCfg;
+        	if(colCfg) {
+        		if(colCfg.isSeq) { //If the cell is sequence cell, process row selection.
+        			Z._processRowSelection(event.ctrlKey, event.shiftKey, event.altKey);
+        		} else {
+	        		var colNum = colCfg.colNum;
+	        		if(colNum !== 0 && !colNum) {
+	        			return;
 	        		}
-	            	Z._doCellClick(colCfg);
-	        	}
+					Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+	        		Z.currColNum(colNum);
+					Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+        		}
+            	Z._doCellClick(colCfg);
+        	}
+        	if(event.shiftKey || event.ctrlKey) {
 	       		event.preventDefault();
 	       		event.stopImmediatePropagation();
 	       		return false;
