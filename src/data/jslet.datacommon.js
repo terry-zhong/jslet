@@ -682,6 +682,9 @@ jslet.data.FieldValueCache = {
 		var rec, cacheObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
+			if(!rec) {
+				continue;
+			}
 			recInfo = jslet.data.getRecInfo(rec); 
 			delete recInfo['cache'];
 		}
