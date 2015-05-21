@@ -4264,7 +4264,9 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	handleLookupDatasetChanged: function(fldName) {
+		jslet.data.FieldValueCache.clearAll(this, fldName);
 		this.refreshControl(jslet.data.RefreshEvent.lookupEvent(fldName));
+		this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
 	},
 	
 	/**

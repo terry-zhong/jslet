@@ -46,6 +46,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		
 		Z._enableInvalidTip = true;
 		
+		Z._innerEditFilterExpr;
 		$super(el, params);
 	},
 
@@ -211,10 +212,18 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		var oldRecno = lkds.recno(),
 			optValue, optDispValue, 
-			firstItemValue = null;
+			firstItemValue = null,
+			editFilter = lkf.editFilter();
+		Z._innerEditFilterExpr = null;
+		if(editFilter) {
+			Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
+		}
 		try {
 			for (var i = 0, cnt = lkds.recordCount(); i < cnt; i++) {
 				lkds.recnoSilence(i);
+				if(Z._innerEditFilterExpr && !Z._innerEditFilterExpr.eval()) {
+					continue;
+				}
 				if (Z._groupField) {
 					groupValue = lkds.getFieldValue(Z._groupField);
 					if (groupValue != preGroupValue) {
@@ -314,6 +323,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					value = '_null_';
 				}
 			}
+			Z._checkOptionEditable(fldObj, value);
 			Z.el.value = value;
 		} else {
 			var arrValue = Z._dataset.getFieldValue(Z._field);
@@ -340,6 +350,19 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
  
+	_checkOptionEditable: function(fldObj, fldValue) {
+		var Z = this;
+		if(!Z._innerEditFilterExpr) {
+			return;
+		}
+		var lkDs = fldObj.lookup().dataset(); 
+		if(lkDs.findByKey(fldValue) && !Z._innerEditFilterExpr.eval()) {
+			Z.el.disabled = true;
+		} else {
+			Z.el.disabled = false;
+		}
+	},
+	
 	focus: function() {
 		this.el.focus();
 	},

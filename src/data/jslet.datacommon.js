@@ -1151,6 +1151,9 @@ jslet.data.DataSelection.prototype = {
 							text = fldObj.getValue();
 						} else {
 							text = dataset.getFieldText(fldName);
+							if(text === null || text === undefined) {
+								text = '';
+							}
 						}
 						textRec += text + seperator; 
 					}

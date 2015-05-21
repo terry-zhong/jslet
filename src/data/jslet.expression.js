@@ -17,6 +17,7 @@
  * @param {String} expre Expression
  */
 jslet.Expression = function(dataset, expr) {
+	jslet.Checker.test('jslet.Expression#dataset', dataset).required();
 	jslet.Checker.test('jslet.Expression#expr', expr).required().isString();
 	this._fields = [];
 	this._otherDatasetFields = [];
@@ -28,6 +29,7 @@ jslet.Expression = function(dataset, expr) {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
 		}
 	}else{
+		jslet.Checker.test('jslet.Expression#dataset', dataset).isClass(jslet.data.Dataset.className);
 		this._dataset = dataset;
 	}
 	

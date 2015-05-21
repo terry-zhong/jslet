@@ -50,7 +50,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		
 		Z._onGetSearchField = null;
 		
-		Z._correlateCheck = true;
+		Z._correlateCheck = false;
 		
 		$super(el, params);
 	},

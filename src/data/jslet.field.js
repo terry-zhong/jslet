@@ -1642,6 +1642,7 @@ jslet.data.FieldLookup = function() {
 	Z._parentField = null;
 	Z._onlyLeafLevel = true;
 	Z._returnFieldMap = null;
+	Z._editFilter = null;
 };
 jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 
@@ -1659,6 +1660,7 @@ jslet.data.FieldLookup.prototype = {
 		result.parentField(Z._parentField);
 		result.onlyLeafLevel(Z._onlyLeafLevel);
 		result.returnFieldMap(Z._returnFieldMap);
+		result.editFilter(Z._editFilter);
 		return result;
 	},
 	
@@ -1896,20 +1898,24 @@ jslet.data.FieldLookup.prototype = {
 		return this;
 	},
 
-//	/**
-//	 * Identify whether convert field value. If true, it won't validate that the field value must come from the lookup dataset.
-//	 * 
-//	 * @param {Boolean or undefined} noConvertion True - field value must come from the lookup dataset, false - otherwise.
-//	 * @return {Boolean or this}
-//	 */
-//	noConvertion: function(noConvertion) {
-//		var Z = this;
-//		if (noConvertion === undefined) {
-//			return Z._noConvertion;
-//		}
-//		Z._noConvertion = noConvertion ? true: false;
-//		return this;
-//	}
+	/**
+	 * An expression for display field value. Example:
+	 * <pre><code>
+	 * lookupFldObj.displayFields('[code]-[name]'); 
+	 * </code></pre>
+	 */
+	editFilter: function(editFilter) {
+		var Z = this;
+		if (editFilter === undefined) {
+			return Z._editFilter;
+		}
+		jslet.Checker.test('FieldLookup.editFilter', editFilter).isString();
+		
+		if (Z._editFilter != editFilter) {
+			Z._editFilter = editFilter;
+		}
+		return this;
+	}
 	
 };
 
@@ -1954,6 +1960,9 @@ jslet.data.createFieldLookup = function(param, hostDsName) {
 	}
 	if (param.returnFieldMap !== undefined) {
 		lkFldObj.returnFieldMap(param.returnFieldMap);
+	}
+	if (param.editFilter !== undefined) {
+		lkFldObj.editFilter(param.editFilter);
 	}
 	return lkFldObj;
 };

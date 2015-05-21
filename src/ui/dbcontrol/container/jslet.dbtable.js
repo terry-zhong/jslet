@@ -64,7 +64,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender';
+		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender';
 		
 		/**
 		 * {Integer} Fixed row count.
@@ -80,7 +80,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._hasSeqCol = true;
 		
 		Z._reverseSeqCol = false;
-		
+	
+		Z._seqColHeader = null;
 		/**
 		 * {Boolean} Identify if there is select column in DBTable.
 		 */
@@ -268,6 +269,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._reverseSeqCol = reverseSeqCol ? true: false;
 	},
 		
+	seqColHeader: function(seqColHeader) {
+		if(seqColHeader === undefined) {
+			return this._seqColHeader;
+		}
+		this._seqColHeader = seqColHeader;
+	},
+		
+	
 	hasSelectCol: function(hasSelectCol) {
 		if(hasSelectCol === undefined) {
 			return this._hasSelectCol;
@@ -2793,7 +2802,7 @@ jslet.ui.DefaultCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			url += '>' + text + '</a>';
 			text = url;
 		}
-		if(text == '' || text === null || text === undefined) {
+		if(text === '' || text === null || text === undefined) {
 			text = '&nbsp;';
 		}
 		var jqCellPanel = jQuery(cellPanel); 
@@ -2831,7 +2840,7 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 
 jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 	createHeader: function(cellPanel, colCfg) {
-		cellPanel.innerHTML = '&nbsp;';
+		cellPanel.innerHTML = this._seqColHeader || '&nbsp;';
 	},
 	
 	createCell: function (cellPanel, colCfg) {
