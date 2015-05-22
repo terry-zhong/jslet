@@ -516,6 +516,28 @@ jslet.ui.bindControl = function (el, jsletparam) {
 };
 
 /**
+* Unbind jslet control and clear jslet property.
+* 
+* @param {Html Element} el Html element
+*/
+jslet.ui.unbindControl = function(el) {
+	if (el.jslet && el.jslet.destroy) {
+		el.jslet.destroy();
+	}
+	el.jslet = null;
+};
+
+/**
+* re-bind jslet control.
+* 
+* @param {Html Element} el Html element
+*/
+jslet.ui.rebindControl = function(el) {
+	jslet.ui.unbindControl(el);
+	jslet.ui.bindControl(el);
+};
+
+/**
 * Scan the specified html element children and bind jslet control to these html element with 'data-jslet' attribute.
 * 
 * @param {Html Element} pElement Parent html element which need to be scan, if null, document.body used.

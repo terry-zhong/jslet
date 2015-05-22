@@ -4221,6 +4221,15 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
+	 * Refresh whole field.
+	 * 
+	 * @param {String} fldName field name.
+	 */
+	refreshField: function(fldName) {
+		this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
+	},
+	
+	/**
 	 * @private 
 	 */
 	refreshControl: function (updateEvt) {
@@ -4266,7 +4275,8 @@ jslet.data.Dataset.prototype = {
 	handleLookupDatasetChanged: function(fldName) {
 		jslet.data.FieldValueCache.clearAll(this, fldName);
 		this.refreshControl(jslet.data.RefreshEvent.lookupEvent(fldName));
-		this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
+		//Don't use the following code, is will cause DBAutoComplete control issues.
+		//this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
 	},
 	
 	/**
