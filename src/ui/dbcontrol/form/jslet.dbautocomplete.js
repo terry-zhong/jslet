@@ -197,9 +197,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			lkds = lkf.dataset();
 			if (keyCode == 38) { //up arrow
 				lkds.prior();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			}
 			if (keyCode == 40) {//down arrow
 				lkds.next();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			}
 			return;
 		}

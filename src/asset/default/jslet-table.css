@@ -14,6 +14,10 @@
 	width: 100%;
 }
 
+.jl-table input:focus, textarea:focus, select:focus {
+	outline: 1px solid rgba(102, 175, 233, 0.6)!important;
+}
+
 .jl-table table {
 	border-collapse: separate;
     border-spacing: 0;
@@ -178,7 +182,7 @@
 }
 
 .jl-tbl-curr-cell {
-	border: 1px dotted blue!important;	
+	outline: 1px dotted blue!important;	
     /*position: absolute;
     z-index: 999;*/
 }

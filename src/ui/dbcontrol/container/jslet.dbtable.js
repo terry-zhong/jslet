@@ -591,6 +591,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._dataset.selection.selectAll(fields, true);
 				Z._refreshSelection();
 				event.preventDefault();
+	       		event.stopImmediatePropagation();
 				return false;
 			}
 			if(keyCode === 37) { //Arrow Left
@@ -606,6 +607,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			} else if( keyCode === 39) { //Arrow Right
 				if(!Z._readOnly) {
 					return;
@@ -620,22 +623,28 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			} else if (keyCode == 38) {//KEY_UP
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.priorRow();
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			} else if (keyCode == 40) {//KEY_DOWN
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.nextRow();
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			} else if (keyCode == 33) {//KEY_PAGEUP
 				Z.listvm.priorPage();
 				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			} else if (keyCode == 34) {//KEY_PAGEDOWN
 				Z.listvm.nextPage();
 				event.preventDefault();
+	       		event.stopImmediatePropagation();
 			}
 		});		
 	}, // end bind
