@@ -1771,6 +1771,8 @@ jslet.data.Dataset.prototype = {
 		if (!Z._silence && Z._contextRuleEnabled) {
 			Z.calcContextRule();
 		}
+		Z.calcAggradedValue();		
+
 		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
@@ -1906,10 +1908,14 @@ jslet.data.Dataset.prototype = {
 	 * @rivate
 	 * Calculate default value.
 	 */
-	checkAggraded: function() {
+	checkAggraded: function(fldName) {
 		var Z = this,
-		fields = Z.getNormalFields(), 
-		fldObj;
+			fldObj;
+		if(fldName) {
+			fldObj = Z.getField(fldName);
+			return fldObj.aggraded();
+		}
+		var fields = Z.getNormalFields();
 		for(var i = 0, len = fields.length; i< len; i++) {
 			fldObj = fields[i];
 			if(fldObj.aggraded()) {
@@ -1923,9 +1929,9 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * Calculate aggraded value.
 	 */
-	calcAggradedValue: function() {
+	calcAggradedValue: function(fldName) {
 		var Z = this;
-		if(!Z.checkAggraded()) {
+		if(!Z.checkAggraded(fldName)) {
 			return;
 		}
 		var fields = Z.getNormalFields(), 
@@ -2532,6 +2538,7 @@ jslet.data.Dataset.prototype = {
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
 			}
+			Z.calcAggradedValue();		
 			evt = jslet.data.RefreshEvent.deleteEvent(no);
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -2547,6 +2554,7 @@ jslet.data.Dataset.prototype = {
 			Z._modiObject = null;	
 		}
 
+		Z.calcAggradedValue();		
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 		Z._aborted = false;
@@ -2722,6 +2730,7 @@ jslet.data.Dataset.prototype = {
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
 		Z.updateFormula(fldName);
+		Z.calcAggradedValue(fldName);
 		return this;
 	},
 
@@ -4383,7 +4392,10 @@ jslet.data.Dataset.prototype = {
 	* Iterate the whole dataset, and run the specified callback function. 
 	* Example: 
 	* 
-	* dataset.iterate(function(){}); 
+	* dataset.iterate(function(){
+	* 	var fldValue = this.getFieldValue('xxx');
+	* 	this.setFieldValue('xxx', fldValue);
+	* }); 
 	* 
 	*/ 
 	iterate: function(callBackFn, startRecno, endRecno) { 

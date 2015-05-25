@@ -56,10 +56,10 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	},
 
 	/**
-	 * Get or set popup panel width.
+	 * Get or set the field name of text box.
 	 * 
-	 * @param popupHeight {Integer} Popup panel width.
-	 * @return {Integer or this}
+	 * @param textField {String} Field name of text box.
+	 * @return {String or this}
 	 */
 	textField: function(textField) {
 		if(textField === undefined) {

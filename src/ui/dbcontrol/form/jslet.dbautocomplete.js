@@ -259,7 +259,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			console.error(Z._field + ' is NOT a lookup field!');
 			return;
 		}
-
+		
 		var lkds = lkf.dataset();
 		var eventFunc = jslet.getFunction(Z._beforePopup);
 		if (eventFunc) {
@@ -290,6 +290,10 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			lkds.filter(null);
 		}
 		
+		//Clear field value of 'lookupField'
+		if(Z._lookupField) {
+			Z._dataset.setFieldValue(Z._lookupField, null);
+		}
 		if (!Z.contentPanel) {
 			Z.contentPanel = new jslet.ui.DBAutoCompletePanel(Z);
 		} else {
