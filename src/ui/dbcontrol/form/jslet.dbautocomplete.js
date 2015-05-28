@@ -380,7 +380,7 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	Z.confirmSelect = function () {
 		Z.comboCfg._isSelecting = true;
 		var fldValue = Z.lkDataset.keyValue();
-		if (fldValue) {
+		if (fldValue || fldValue === 0) {
 			Z.dataset.setFieldValue(Z.field, fldValue, Z.valueIndex);
 			
 			var fldObj = Z.dataset.getField(Z.field),

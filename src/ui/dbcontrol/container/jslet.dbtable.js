@@ -1050,7 +1050,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
 				maxWidth = fldObj ? fldObj.displayWidth() : 0;
-				if (cobj.label) {
+				if (!Z._hideHead && cobj.label) {
 					maxWidth = Math.max(maxWidth, cobj.label.length);
 				}
 				cobj.width = maxWidth ? (maxWidth * Z.charWidth) : 10;

@@ -3873,9 +3873,10 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
-		Z.errorMessage(errCode + " : " + errMsg);
+		errMsg = errMsg + "[" + errCode + "]";
+		Z.errorMessage(errMsg);
 		if(Z._autoShowError) {
-			jslet.showError(errCode + " : " + errMsg);
+			jslet.showError(errMsg);
 		}
 	},
 	
