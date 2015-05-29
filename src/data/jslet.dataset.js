@@ -3787,7 +3787,8 @@ jslet.data.Dataset.prototype = {
 		try {
 			for (var i = 0, cnt = this.recordCount(); i < cnt; i++) {
 				this.recnoSilence(i);
-				if (this.selected()) {
+				var state = this.selected();
+				if (state && state !== 2) { // 2: partial select
 					result.push(this.getFieldValue(this._keyField));
 				}
 			}
