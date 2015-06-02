@@ -585,7 +585,11 @@ jslet.data.Dataset.prototype = {
 	*/
 	addField: function (fldObj) {
 		jslet.Checker.test('Dataset.addField#fldObj', fldObj).required().isClass(jslet.data.Field.className);
-		var Z = this;
+		var Z = this,
+			fldName = fldObj.name();
+		if(Z.getField(fldName)) {
+			Z.removeField(fldName);
+		}
 		Z._fields.push(fldObj);
 		fldObj.dataset(Z);
 		var dispOrder = fldObj.displayOrder(); 
@@ -807,7 +811,7 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		jslet.Checker.test('Dataset.fixedIndexFields', fixedIndexFields).isString();
-		indFlds = jQuery.trim(fixedIndexFields);
+		
 		Z._fixedIndexFields = fixedIndexFields;
 		Z._innerFixedIndexFields = fixedIndexFields? Z._parseIndexFields(fixedIndexFields): [];
 		var idxFld, fixedIdxFld;
@@ -839,7 +843,7 @@ jslet.data.Dataset.prototype = {
 		
 		jslet.Checker.test('Dataset.indexFields', indFlds).isString();
 		indFlds = jQuery.trim(indFlds);
-		if(!indFlds && !Z._indexFields) {
+		if(!indFlds && !Z._indexFields && !Z._fixedIndexFields) {
 			return this;
 		}
 

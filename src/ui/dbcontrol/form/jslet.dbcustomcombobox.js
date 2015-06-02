@@ -76,7 +76,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var dbbtn = jqEl.find('button')[0];
 		if (this.buttonClick) {
 			jQuery(dbbtn).on('click', function(event){
-				Z.buttonClick();
+				Z.buttonClick(dbbtn);
 			});
 		}
 	},

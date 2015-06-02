@@ -561,6 +561,31 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		}
 	};
 	
+	this.checkChildNodes = function(state, relativeCheck){
+		var node = this.getCurrentRow();
+		node.state = state ? 1 : 0;
+		dataset.selected(node.state);
+
+		if (node.children && node.children.length > 0) {
+			this._updateChildState(node, state);
+		}
+		if (relativeCheck){
+			if (node.parent) {
+				this._updateParentState(node, state);
+			}
+		}
+
+		if (state) {
+			this._updateParentNodeBoldByChecked(node);
+		} else {
+			this._updateParentNodeBoldByNotChecked(node);
+		}
+		
+		if (this.onCheckStateChanged) {
+			this.onCheckStateChanged();
+		}
+	};
+	
 	this._updateChildState = function(node, state){
 		var b = dataset.startSilenceMove(),
 			childNode;

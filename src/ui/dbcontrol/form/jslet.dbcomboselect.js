@@ -152,7 +152,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		}
 	},
 
-	buttonClick: function () {
+	buttonClick: function (btnEle) {
 		var Z = this, 
 			el = Z.el, 
 			fldObj = Z._dataset.getField(Z._field), 
@@ -180,7 +180,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 				Z._contentPanel.popupHeight = Z._popupHeight;
 			}
 		}
-		jslet.ui.PopupPanel.excludedElement = el;
+		jslet.ui.PopupPanel.excludedElement = btnEle;
 		var r = jqEl.offset(), h = jqEl.outerHeight(), x = r.left, y = r.top + h;
 		if (jslet.locale.isRtl){
 			x = x + jqEl.outerWidth();
@@ -189,6 +189,9 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	},
 	
 	closePopup: function(){
+		if(this._contentPanel) {
+			this._contentPanel.closePopup();
+		}
 		this._contentPanel = null;
 	},
 	
@@ -255,7 +258,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		}
 		Z.popup.setContent(Z.panel, '100%', '100%');
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
-		jQuery(Z.panel).find(".jl-combopnl-head select").focus();
+		jQuery(Z.panel).find(".jl-combopnl-head input").focus();
 	},
 
 	closePopup: function () {
@@ -300,6 +303,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		Z.panel.innerHTML = template.join('');
 		var jqPanel = jQuery(Z.panel),
 			jqPh = jqPanel.find('.jl-combopnl-head');
+		jqPanel.on('keydown', function(event){
+			if(event.keyCode === 27) {
+				Z.closePopup();
+			}
+		});
 		Z.searchBoxEle = jqPh.find('input')[0];
 		jQuery(Z.searchBoxEle).on('keydown', jQuery.proxy(Z._findData, Z));
 		

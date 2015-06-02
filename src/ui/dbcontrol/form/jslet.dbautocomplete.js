@@ -6,9 +6,9 @@
  * ======================================================================== */
 
 /**
- * @class DBAutoCompleteBox. Example:
+ * @class DBAutoComplete. Example:
  * <pre><code>
- * var jsletParam = {type:"DBAutoCompleteBox",field:"department", matchType:"start"};
+ * var jsletParam = {type:"DBAutoComplete",field:"department", matchType:"start"};
  * //1. Declaring:
  *      &lt;input id="cboAuto" type="text" data-jslet='jsletParam' />
  *      
@@ -304,7 +304,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		
 		//Clear field value of 'lookupField'
 		if(Z._lookupField) {
-			Z._dataset.setFieldValue(Z._lookupField, null);
+			Z._dataset.getRecord()[Z._lookupField] = null;
 		}
 		if (!Z.contentPanel) {
 			Z.contentPanel = new jslet.ui.DBAutoCompletePanel(Z);

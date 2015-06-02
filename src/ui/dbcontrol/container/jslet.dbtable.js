@@ -1283,7 +1283,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		});
 
-		jQuery(Z.leftHeadTbl).on('mousedown', '.jl-focusable-item', function(event){
+		jQuery(Z.leftHeadTbl).on('mouseup', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
@@ -1292,7 +1292,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return false;
 		});
 		
-		jqRightHead.on('mousedown', '.jl-focusable-item', function(event){
+		jqRightHead.on('mouseup', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
@@ -1394,7 +1394,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return;
 			}
 			var	srcField = dragTransfer.fieldName;
-			console.log('srcfield: ' + srcField + ', dest field: ' + destField)
 			Z._moveColumn(srcRowIndex, srcCellIndex, currCellIndex);
 	    	return false;
 		});

@@ -236,16 +236,18 @@
 
 .jl-combopnl-head {
 	height:35px;
+	position:absolute;
+	width:100%;
 }
 
 .jl-combopnl-content {
     width: 100%;
     height: 100%;
-    padding-bottom: 35px;
+    padding-top: 35px;
 }
 
 .jl-combopnl-multiselect {
-    padding-bottom: 80px;
+    padding-bottom: 45px;
 }
 
 .jl-combopnl-footer {

@@ -78,7 +78,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		return true;
 	},
 
-	buttonClick: function () {
+	buttonClick: function (btnEle) {
 		var el = this.el, 
 			Z = this, 
 			fldObj = Z._dataset.getField(Z._field),
@@ -119,7 +119,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			}, null, width + 'px', height + 'px', true); //Hide panel first
 		}
 		
-		jslet.ui.PopupPanel.excludedElement = el;//event.element();
+		jslet.ui.PopupPanel.excludedElement = btnEle;//event.element();
 		var r = jqEl.offset(), 
 			h = jqEl.outerHeight(), 
 			x = r.left, y = r.top + h;

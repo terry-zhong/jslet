@@ -772,9 +772,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (menuid == 'collapseAll') {
 			this.collapseAll();
 		} else if (menuid == 'checkAll') {
-			this.listvm.checkNode(true, true);
+			this.listvm.checkChildNodes(true, this._correlateCheck);
 		} else if (menuid == 'uncheckAll') {
-			this.listvm.checkNode(false, true);
+			this.listvm.checkChildNodes(false, this._correlateCheck);
 		}
 	},
 	
