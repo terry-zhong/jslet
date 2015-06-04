@@ -693,11 +693,16 @@ jslet.data.Dataset.prototype = {
 		}
 		else {
 			arrField.splice(0, 1);
-			var lkf = fldObj.lookup();
+			var lkf = fldObj.lookup();//Lookup dataset
 			if (lkf) {
 				var lkds = lkf.dataset();
 				if (lkds) {
 					return lkds.getField(arrField.join('.'));
+				}
+			} else {
+				var subDs = fldObj.subDataset(); //Detail dataset
+				if(subDs) {
+					return subDs.getField(arrField.join('.'));
 				}
 			}
 		}
@@ -2849,18 +2854,25 @@ jslet.data.Dataset.prototype = {
 		if (k > 0) {
 			subfldName = fldName.substr(0, k);
 			fldObj = Z.getField(subfldName);
-			var lkf = fldObj.lookup();
-			if (!lkf) {
+			var lkf = fldObj.lookup(),
+				subDs = fldObj.subDataset();
+			
+			if (!lkf && !subDs) {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [subfldName]));
 			}
-			value = dataRec[subfldName];
-			lkds = lkf.dataset();
-			if (lkds.findByField(lkds.keyField(), value)) {
-				fldValue = lkds.getFieldValue(fldName.substr(k + 1));
+			if(lkf) {
+				value = dataRec[subfldName];
+				lkds = lkf.dataset();
+				if (lkds.findByField(lkds.keyField(), value)) {
+					fldValue = lkds.getFieldValue(fldName.substr(k + 1));
+				} else {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+								[lkds.name(),lkds.keyField(), value]));
+				}
 			} else {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
-							[lkds.name(),lkds.keyField(), value]));
+				fldValue = subDs.getFieldValue(fldName.substr(k + 1));
 			}
+			
 		} else {
 			if (!fldObj) {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
@@ -2922,32 +2934,38 @@ jslet.data.Dataset.prototype = {
 		}
 		var currRec = Z.getRecord(), 
 			k = fldName.indexOf('.'), 
-			fldObj, lkf, lkds, value;
+			fldObj, value;
 		if (k > 0) { //Field chain
-			fldName = fldName.substr(0, k);
-			fldObj = Z.getField(fldName);
+			var subFldName = fldName.substr(0, k);
+			fldName = fldName.substr(k + 1);
+			fldObj = Z.getField(subFldName);
 			if (!fldObj) {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
-			lkf = fldObj.lookup();
-			if (!lkf) {
+			var lkf = fldObj.lookup(),
+				subDs = fldObj.subDataset();
+			if (!lkf && !subDs) {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [fldName]));
 			}
-			value = currRec[fldName];
-			if (value === null || value === undefined) {
-				return '';
-			}
-			lkds = lkf.dataset();
-			if (lkds.findByField(lkds.keyField(), value)) {
-				fldName = fldName.substr(k + 1);
-				if (fldName.indexOf('.') > 0) {
-					return lkds.getFieldValue(fldName);
-				} else {
-					return lkds.getFieldText(fldName, isEditing, valueIndex);
+			if(lkf) {
+				value = currRec[subFldName];
+				if (value === null || value === undefined) {
+					return '';
 				}
-			} else {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
-						[lkds.name(), lkds.keyField(), value]));
+				var lkds = lkf.dataset();
+				if (lkds.findByField(lkds.keyField(), value)) {
+					if (fldName.indexOf('.') > 0) {
+						return lkds.getFieldValue(fldName);
+					} else {
+						return lkds.getFieldText(fldName, isEditing, valueIndex);
+					}
+				} else {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+							[lkds.name(), lkds.keyField(), value]));
+				}
+			}
+			else {
+				return subDs.getFieldText(fldName, isEditing, valueIndex);
 			}
 		}
 		//Not field chain

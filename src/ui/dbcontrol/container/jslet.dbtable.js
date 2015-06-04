@@ -732,7 +732,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this,
 			currRecno = Z._dataset.recno(),
 			fldName;
-		if(hasCtrlKey) {
+		if(hasCtrlKey || !Z._autoClearSelection) { //If autoClearSelection = false, click a cell will select it.
 			fldName = Z.innerColumns[Z._currColNum].field;
 			if(fldName) {
 				if(Z._dataset.selection.isSelected(currRecno, fldName)) {
@@ -1285,6 +1285,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		jQuery(Z.leftHeadTbl).on('mouseup', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
+			var el = event.target;
+			if (Z.isDraggingColumn) {
+				return;
+			}
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
 			event.stopImmediatePropagation();
@@ -1294,6 +1298,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		jqRightHead.on('mouseup', '.jl-focusable-item', function(event){
 			event = jQuery.event.fix(event || window.event);
+			var el = event.target;
+			if (Z.isDraggingColumn) {
+				return;
+			}
 			Z._doHeadClick(this.parentNode.parentNode.parentNode.jsletcolcfg, event.ctrlKey);
 			Z._head_label_cliecked = true;
 			event.stopImmediatePropagation();
