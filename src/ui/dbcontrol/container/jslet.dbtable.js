@@ -2489,6 +2489,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			otr = rowObj.fixed;
 		}
+		var recno = otr.jsletrecno;
+		if(recno !== Z._dataset.recno()) {
+    		if(Z.prevCell) {
+    			Z.prevCell.removeClass('jl-tbl-curr-cell');
+    		}
+			return;
+		}
 		var ocells = otr.cells, otd;
 		for(var i = 0, len = ocells.length; i < len; i++) {
 			otd = ocells[i];
@@ -2579,7 +2586,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._showCurrentRow(true);
 		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL) {
 			Z.listvm.refreshModel();
-			Z.listvm.setVisibleStartRow(0, true);
 			Z._updateSortFlag(true);
 			Z._fillData();
 			Z._showCurrentRow(true);

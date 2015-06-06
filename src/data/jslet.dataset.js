@@ -777,7 +777,15 @@ jslet.data.Dataset.prototype = {
 	sortFunc: function (rec1, rec2) {
 		var dsObj = jslet.temp.sortDataset;
 		
-		var indexFlds = dsObj._sortingFields, v1, v2, fname, flag = 1;
+		var indexFlds = dsObj._sortingFields,
+			strFields = [];
+		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
+			fname = indexFlds[i].fieldName;
+			if(dsObj.getField(fname).getType() === jslet.data.DataType.STRING) {
+				strFields.push(fname);
+			}
+		}
+		var  v1, v2, fname, flag = 1;
 		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
 			fname = indexFlds[i].fieldName;
 			v1 = dsObj.fieldValueByRec(rec1, fname);
@@ -786,6 +794,10 @@ jslet.data.Dataset.prototype = {
 				continue;
 			}
 			if (v1 !== null && v2 !== null) {
+				if(strFields.indexOf(fname) >= 0) {
+					v1 = v1.toLowerCase();
+					v2 = v2.toLowerCase();
+				}
 				if (v1 < v2) {
 					flag = -1;
 				} else {
@@ -4002,12 +4014,12 @@ jslet.data.Dataset.prototype = {
 			}
 			return;
 		}
-		result = result.main;
+		var mainData = result.main;
 		var Z = dataset;
-		jslet.data.convertDateFieldValue(Z, result);
+		jslet.data.convertDateFieldValue(Z, mainData);
 		var state, rec, c, oldRecs, oldRec;
-		for(var i = 0, len = result.length; i < len; i++) {
-			rec = result[i];
+		for(var i = 0, len = mainData.length; i < len; i++) {
+			rec = mainData[i];
 			state = rec[jslet.global.changeStateField];
 			if(!state) {
 				continue;
@@ -4108,8 +4120,8 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	_doSubmitSelectedSuccess: function(result, dataset) {
-		result = result.main;
-		if (!result || result.length === 0) {
+		var mainData = result.main;
+		if (!result || mainData.length === 0) {
 			if(result && result.info) {
 				jslet.showInfo(result.info);
 			}
@@ -4130,13 +4142,13 @@ jslet.data.Dataset.prototype = {
 			Z._refreshInnerRecno();
 		} else {
 			var newRec, oldRec, len;
-			jslet.data.convertDateFieldValue(Z, result);
+			jslet.data.convertDateFieldValue(Z, mainData);
 			for(i = arrRecs.length - 1; i >= 0; i--) {
 				oldRec = arrRecs[i];
-				len = result.length;
+				len = mainData.length;
 				for(k = 0; k < len; k++)
 				{
-					newRec = result[k];
+					newRec = mainData[k];
 					if(oldRec[jslet.global.changeStateField] == newRec[jslet.global.changeStateField]) {
 						for(var propName in newRec) {
 							oldRec[propName] = newRec[propName];
