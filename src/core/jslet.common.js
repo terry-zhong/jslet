@@ -1099,11 +1099,11 @@ jslet.Clipboard = function() {
 		        } else {
 		        	window.clipboardData.setData('text', text);
 		        }
-		        console.log('copy')
+		        jQuery('#jsletClipboard').val(null);
 		        event.preventDefault();
 		        return false;
 	        }
-	    });            
+	    });
 	}
 }
 

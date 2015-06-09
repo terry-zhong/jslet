@@ -66,6 +66,7 @@ var _initialModules = [
 	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule'], baseOnLoader: true },
 	
 //ui
+	{ name: 'tabbable', src: '../src/ui/jquery.tabbable.js', deps: ['jquery'], baseOnLoader: true },
 	{ name: 'basecontrol', src: '../src/ui/jslet.control.js', deps: ['class'], baseOnLoader: true },
 	{ name: 'dnd', src: '../src/ui/jslet.dnd.js', deps: ['common'], baseOnLoader: true },
 	{ name: 'editmask', src: '../src/ui/jslet.editmask.js', deps: ['common'], baseOnLoader: true },

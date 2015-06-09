@@ -575,8 +575,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			if(event.ctrlKey && keyCode == 67) { //ctrl + c
-				jslet.Clipboard.putText(Z._dataset.selection.getSelectionText());
-				window.setTimeout(function(){Z.el.focus();}, 5);
+				var selectedText = Z._dataset.selection.getSelectionText();
+				if(selectedText) {
+					jslet.Clipboard.putText(selectedText);
+					window.setTimeout(function(){Z.el.focus();}, 5);
+				}
 				return;
 			}
 			if(event.ctrlKey && keyCode == 65) { //ctrl + a
@@ -1528,8 +1531,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			Z.headSectionHt = Z.maxHeadRows * Z._headRowHeight;
 		}
-		Z._checkHoriOverflow();
-		Z._calcAndSetContentHeight();
+		Z._changeContentWidth(0);
 
 		Z.noRecordDiv.style.top = Z.headSectionHt + 'px';
 		Z.noRecordDiv.style.left = jqEl.find('.jl-tbl-fixedcol').width() + 5 + 'px';
@@ -1740,7 +1742,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jqTr1.height(h);
 			jqTr2.height(h);
 		}
-		Z._changeContentWidth(0);
 		Z.sortedCell = null;
 		Z.indexField = null;
 	}, // end renderHead
@@ -2211,14 +2212,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		
 		var otr, colCfg, isfirstCol, recNo = -1, cells, clen, otd,
-		fldCnt = Z.innerColumns.length,
+			fldCnt = Z.innerColumns.length,
 			allCnt = Z.listvm.getNeedShowRowCount() - Z.listvm.getVisibleStartRow(),
 			fixedRows = hasLeft ? leftBody.rows : null,
 			contentRows = rightBody.rows,
 			sameValueNodes = {},
-			isFirst = true;
+			isFirst = true,
+			actualCnt = Math.min(contentRows.length, rowCnt);
 
-		for (var i = 0; i < rowCnt; i++) {
+		for (var i = 0; i < actualCnt ; i++) {
 			if (i >= allCnt) {
 				if (hasLeft) {
 					otr = fixedRows[i];

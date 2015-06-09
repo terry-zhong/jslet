@@ -1158,14 +1158,20 @@ jslet.data.DataSelection.prototype = {
 						textRec += text + seperator; 
 					}
 				}
-				result.push(textRec);
+				if(textRec) {
+					result.push(textRec);
+				}
 				textRec = '';
 				dataset.next(); 
 			} 
 		} finally { 
 			dataset.endSilenceMove(context); 
-		} 
-		return result.join('\n'); 
+		}
+		if(result.length > 0) {
+			return result.join('\n');
+		} else {
+			return null;
+		}
 	},
 	
 	_selectCell: function(recno, fldName, selected) {

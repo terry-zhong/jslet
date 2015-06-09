@@ -43,6 +43,7 @@
 	<target name="build-js-ui" depends="clean,init">
 		<concat destfile="${dist.dir}/jslet-ui.debug.js" encoding="UTF-8">
 			<filelist dir="${src.dir}/ui">
+			    <file name="jquery.tabbable.js" />
 			    <file name="jslet.uicommon.js" />
 			    <file name="jslet.control.js" />
 			    <file name="jslet.dnd.js" />

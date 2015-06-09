@@ -512,4 +512,128 @@ jslet.scrollbarSize = function() {
 
 	return width;
 };
+
+/**
+ * Control focus manager.
+ * 
+ * @param containerId {String} container id, if containerid is not specified, container is document.
+ */
+jslet.ui.FocusManager = function(containerId) {
+	this._onChangingFocus = null;
+	this._focusKeyCode = null;
+	this._containerId = containerId;
 	
+	this.initialize();
+}
+
+jslet.ui.FocusManager.prototype = {
+	/**
+	 * Get or set onChangingFocus event handler. 
+	 * 
+	 * @param onChangingFocus {Function} event handler, pattern:
+	 * function doChangingFocus(element, reserve, datasetObj, fieldName) {
+	 * 		console.log('Changind focus');
+	 * }
+	 * 
+	 * focusManager.onChangingFocus(doChangingFocus);
+	 * 
+	 */
+	onChangingFocus: function(onChangingFocus) {
+		if(onChangingFocus === undefined) {
+			return this._onChangingFocus;
+		}
+		jslet.Checker.test('FocusManager.onChangingFocus', onChangingFocus).isFunction();
+		this._onChangingFocus = onChangingFocus;
+	},
+	
+	/**
+	 * Get or set 'focusKeyCode'
+	 * 
+	 * @param {Integer} focusKeyCode - Key code for changing focus.
+	 * 
+	 */
+	focusKeyCode: function(focusKeyCode) {
+		if(focusKeyCode === undefined) {
+			return this._focusKeyCode;
+		}
+		jslet.Checker.test('FocusManager.focusKeyCode', focusKeyCode).isNumber();
+		this._focusKeyCode = focusKeyCode;
+	},
+	
+	initialize: function() {
+		function isTabableElement(ele) {
+			var tagName = ele.tagName;
+			if(tagName == 'TEXTAREA' || tagName == 'A' || tagName == 'BUTTON') {
+				return false;
+			}
+			if(tagName == 'INPUT') {
+				var typeAttr = ele.type;
+				if(typeAttr == 'button' || typeAttr == 'image' || typeAttr == 'reset' || typeAttr == 'submit' || typeAttr == 'url' || typeAttr == 'file') {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		var Z = this;
+		
+		function doChangingFocus(ele, reverse) {
+			if(!Z._onChangingFocus) {
+				return true;
+			}
+			var ojslet = jslet(ele), 
+				dsObj = null, fldName = null;
+			if(ojslet) {
+				if(ojslet.dataset) {
+					dsObj = ojslet.dataset();	
+				}
+				
+				if(ojslet.field) {
+					fldName = ojslet.field();	
+				}
+			}
+			return Z._onChangingFocus(ele, reverse, dsObj, fldName);
+		}
+		
+		function handleHostKeyDown(event) {
+			var focusKeyCode = Z._focusKeyCode || jslet.global.defaultFocusKeyCode || 9;
+			var keyCode = event.which;
+			if(keyCode === focusKeyCode || keyCode === 9) {
+				if(keyCode !== 9 && !isTabableElement(event.target)) {
+					return;
+				}
+				if(this._containerId) {
+					jqHost = jQuery('#' + this._containerId);
+					if(jqHost.length === 0) {
+						throw new Error('Not found container: ' + this._containerId);
+					}
+				} else {
+					jqHost = jQuery(document);
+				}
+				
+				if(event.shiftKey){
+					jQuery.tabPrev(jqHost, true, doChangingFocus);
+				}
+				else{
+					jQuery.tabNext(jqHost, true, doChangingFocus);
+				}
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+	       		return false;
+			}
+		}
+		var jqHost;
+		if(this._containerId) {
+			jqHost = jQuery('#' + this._containerId);
+			if(jqHost.length === 0) {
+				throw new Error('Not found container: ' + this._containerId);
+			}
+		} else {
+			jqHost = jQuery(document);
+		}
+		jqHost.keypress(handleHostKeyDown);
+	}
+}
+
+jslet.ui.rootFocusManager = new jslet.ui.FocusManager();
+

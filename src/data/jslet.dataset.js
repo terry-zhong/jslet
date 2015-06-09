@@ -1901,12 +1901,16 @@ jslet.data.Dataset.prototype = {
 				continue;
 			}
 			value = fldObj.defaultValue();
-			if (value === undefined || value === null) {
+			if (value === undefined || value === null || value === '') {
 				expr = fldObj.defaultExpr();
 				if (!expr) {
 					continue;
 				}
 				value = window.eval(expr);
+			} else {
+				if(fldObj.getType() === jslet.data.DataType.NUMBER) {
+					value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
+				}
 			}
 			var valueStyle = fldObj.valueStyle();
 			if(value && jslet.isDate(value)) {
@@ -2049,8 +2053,11 @@ jslet.data.Dataset.prototype = {
 					}
 					aggradedValueObj.count = aggradedValueObj.count + 1;
 					if(fldObj.getType() === jslet.data.DataType.NUMBER) {
-						value = Z.getFieldValue(fldName);
-						aggradedValueObj.sum = aggradedValueObj.sum + value || 0;
+						value = Z.getFieldValue(fldName) || 0;
+						if(jslet.isString(value)) {
+							throw new Error('Field: ' + fldName + ' requires Number value!');
+						}
+						aggradedValueObj.sum = aggradedValueObj.sum + value;
 					}
 				} //end for i
 				Z.next();
@@ -2712,6 +2719,10 @@ jslet.data.Dataset.prototype = {
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
+		if(value && fldObj.getType() === jslet.data.DataType.NUMBER) {
+			value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
+		}
+		
 		var currRec = Z.getRecord();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
 			currRec[fldName] = value;

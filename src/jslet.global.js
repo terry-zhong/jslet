@@ -27,6 +27,8 @@ jslet.global = {
 	
 	defaultRecordClass: null,
 	
+	defaultFocusKeyCode: 9,
+	
 	debugMode: true
 };
 
