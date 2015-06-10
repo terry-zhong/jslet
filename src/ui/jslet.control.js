@@ -348,6 +348,15 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
+	setTabIndex: function() {
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		if(fldObj) {
+			var tabIdx = fldObj.tabIndex();
+			Z.el.tabIndex = tabIdx;
+		}
+	},
+	
 	existField: function(fldName) {
 		var fldObj = this._dataset.getField(fldName);
 		return fldObj ? true: false;

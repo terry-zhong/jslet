@@ -82,13 +82,18 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		$super(metaName);
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
-		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
+		if(!metaName || metaName == "disabled" || metaName == "readOnly" || metaName == 'tabIndex') {
 			var disabled = fldObj.disabled(),
 				readOnly = fldObj.readOnly();
 			disabled = disabled || readOnly;
-			var chkBoxes = jQuery(Z.el).find('input[type="checkbox"]');
+			var chkBoxes = jQuery(Z.el).find('input[type="checkbox"]'),
+				chkEle, 
+				tabIndex = fldObj.tabIndex(),
+				required = fldObj.required();
 			for(var i = 0, cnt = chkBoxes.length; i < cnt; i++){
-				jslet.ui.setEditableStyle(chkBoxes[i], disabled, readOnly, false, fldObj.required());
+				chkEle = chkBoxes[i];
+				jslet.ui.setEditableStyle(chkEle, disabled, readOnly, false, required);
+				chkEle.tabIndex = tabIndex;
 			}
 		}
 		if(metaName == 'message') {

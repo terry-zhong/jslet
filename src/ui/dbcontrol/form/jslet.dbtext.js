@@ -297,6 +297,10 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z.renderInvalid();
 			}
 		}
+		if(!metaName || metaName == 'tabIndex') {
+			Z.setTabIndex();
+		}
+		
 		Z.el.maxLength = fldObj.getEditLength();
 	},
 	

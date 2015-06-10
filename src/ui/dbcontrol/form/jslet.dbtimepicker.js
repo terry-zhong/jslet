@@ -155,13 +155,16 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 		$super(metaName);
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
-		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
+		if(!metaName || metaName == "disabled" || metaName == "readOnly" || metaName == 'tabIndex') {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
-			var items = jQuery(Z.el).find("select"), item;
+			var items = jQuery(Z.el).find("select"), item,
+				required = fldObj.required(),
+				tabIdx = fldObj.tabIndex();
 			for(var i = 0, cnt = items.length; i < cnt; i++){
 				item = items[i];
 				item.disabled = disabled;
-				jslet.ui.setEditableStyle(item, disabled, disabled, true, fldObj.required());
+				jslet.ui.setEditableStyle(item, disabled, disabled, true, required);
+				item.tabIndex = tabIdx;
 			}
 		}
 		if(metaName == 'message') {

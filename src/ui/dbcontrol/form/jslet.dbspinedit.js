@@ -26,7 +26,7 @@
  *
  * </code></pre>
  */
-jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
+jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
@@ -65,7 +65,6 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBText, {
 			jqEl = jQuery(Z.el);
 		if(!jqEl.hasClass('jl-spinedit')) {
 			jqEl.addClass('input-group jl-spinedit');
-			jqEl.attr('role', 'spinbutton');
 		}
 		Z._createControl();
 		Z.renderAll();

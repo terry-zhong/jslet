@@ -84,15 +84,20 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		$super(metaName);
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
-		if(!metaName || metaName == "disabled" || metaName == "readOnly") {
+		if(!metaName || metaName == "disabled" || metaName == "readOnly" || metaName == 'tabIndex') {
 			var disabled = fldObj.disabled(),
 				readOnly = fldObj.readOnly();
 		
 			Z.disabled = disabled || readOnly;
 			disabled = Z.disabled;
-			var radios = jQuery(Z.el).find('input[type="radio"]');
+			var radios = jQuery(Z.el).find('input[type="radio"]'),
+				required = fldObj.required(),
+				radioEle = radios[i],
+				tabIdx = fldObj.tabIndex();
+			
 			for(var i = 0, cnt = radios.length; i < cnt; i++){
-				jslet.ui.setEditableStyle(radios[i], disabled, readOnly, false, fldObj.required());
+				jslet.ui.setEditableStyle(radioEle, disabled, readOnly, false, required);
+				radioEle.tabIndex = tabIdx;
 			}
 		}
 		if(metaName == 'message') {

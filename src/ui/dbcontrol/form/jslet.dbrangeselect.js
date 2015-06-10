@@ -175,6 +175,9 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(metaName == 'message') {
 			Z.renderInvalid();
 		}
+		if(!metaName || metaName == 'tabIndex') {
+			Z.setTabIndex();
+		}
 	},
 	
 	/**

@@ -21,6 +21,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dataset = null;
 	Z._dsName = null;
 	Z._displayOrder = 0;
+	Z._tabIndex = 0;
 	Z._fieldName = fieldName;
 	Z._dataType = dataType;
 	Z._length = 0;
@@ -287,7 +288,7 @@ jslet.data.Field.prototype = {
 	 * Get or set field display order.
 	 * Dataset uses this property to resolve field order.
 	 * 
-	 * @param {Integer or undefined} index Field display order.
+	 * @param {Integer or undefined} displayOrder Field display order.
 	 * @return {Integer or this}
 	 */
 	displayOrder: function (displayOrder) {
@@ -300,6 +301,23 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
+	/**
+	 * Get or set the edit control tab index of this field.
+	 * 
+	 * @param {Integer or undefined} tabIndex the edit control tab index of this field.
+	 * @return {Integer or this}
+	 */
+	tabIndex: function(tabIndex) {
+		var Z = this;
+		if (tabIndex === undefined) {
+			return Z._tabIndex;
+		}
+		jslet.Checker.test('Field.tabIndex', tabIndex).isNumber();
+		Z._tabIndex = parseInt(tabIndex);
+		Z._fireMetaChangedEvent('tabIndex');
+		return this;
+	},
+	
 	/**
 	 * Get or set field stored length.
 	 * If it's a database field, it's usually same as the length of database.  
@@ -1310,6 +1328,8 @@ jslet.data.Field.prototype = {
 		if (Z._editMask) {
 			result.editMask(Z._editMask.clone());
 		}
+		result.displayOrder(Z._displayOrder);
+		result.tabIndex(Z._tabIndex);
 		result.displayFormat(Z._displayFormat);
 		result.dateFormat(Z._dateFormat);
 		result.formula(Z._formula);
@@ -1423,6 +1443,7 @@ jslet.data.createField = function (fieldConfig, parent) {
  		var crossSrc = jslet.data.createCrossFieldSource(cfg.crossSource);
  		fldObj.crossSource(crossSrc);
 	}
+	setPropValue('tabIndex');
 	setPropValue('displayOrder');
 	setPropValue('label');
 	setPropValue('tip');
