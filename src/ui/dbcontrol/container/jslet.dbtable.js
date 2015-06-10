@@ -1657,6 +1657,37 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._calcAndSetContentHeight();
 	},
 	
+	_refreshHeadCell: function(fldName) {
+		var Z = this,
+			jqEl = jQuery(Z.el), oth = null, cobj;
+		jqEl.find('.jl-tbl-header-cell').each(function(index, value){
+			cobj = this.jsletcolcfg;
+			if(cobj && cobj.field == fldName) {
+				oth = this;
+				return false;
+			}
+		});
+		if(!oth) {
+			return;
+		}
+		var fldObj = Z._dataset.getField(cobj.field);
+		cobj.label = fldObj.label();
+		var ochild = oth.childNodes[0];
+		var cellRender = cobj.cellRender || Z._defaultCellRender;
+		if (cellRender && cellRender.createHeader) {
+			ochild.html('');
+			cellRender.createHeader.call(Z, ochild, cobj);
+		} else {
+			var sh = cobj.label || '&nbsp;';
+			if(cobj.field && Z._isCellEditable(cobj)) {
+				if(fldObj && fldObj.required()) {
+					sh = '<span class="jl-lbl-required">*</span>' + sh;
+				}
+			} 
+			jQuery(oth).find('.jl-focusable-item').html(sh);
+		}
+	},
+	
 	_createHeadCell: function (otr, cobj) {
 		var Z = this,
 			rowSpan = 0, colSpan = 0;
@@ -2574,11 +2605,26 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 	},
 
+	_doMetaChanged: function(metaName, fldName) {
+		var Z = this;
+		if(metaName == 'label' && !Z._hideHead) {
+			Z._refreshHeadCell(fldName);
+		}
+		
+		if(metaName == 'required' && !Z._readOnly && !Z._hideHead) {
+			Z._refreshHeadCell(fldName);
+		}
+
+		if(metaName == 'visible') {
+			
+		}
+	},
+	
 	refreshControl: function (evt) {
 		var Z = this, 
 			evtType = evt.eventType;
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
-			
+			Z._doMetaChanged(evt.metaName, evt.fieldName);
 		} else if (evtType == jslet.data.RefreshEvent.AGGRADED) {
 			Z._fillTotalSection();			
 		} else if (evtType == jslet.data.RefreshEvent.BEFORESCROLL) {
