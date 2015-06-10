@@ -62,10 +62,6 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
 			Z._field == evt.fieldName && 
 			evt.metaName == 'editControl') {
-			if(Z.editControl) {
-				Z.editControl.destroy();
-				Z.el.innerHTML = '';
-			}
 			Z.renderAll();
 			return true;
 		}
@@ -75,26 +71,16 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	renderAll: function () {
-		var Z = this,
-			fldObj = Z._dataset.getField(Z._field),
+		var Z = this;
+		Z.removeAllChildControls();
+		var	fldObj = Z._dataset.getField(Z._field),
 			param = fldObj.editControl();
 		param.dataset = Z._dataset;
 		param.field = Z._field;
-		var tag = jslet.ui.createControl(param, Z.el);
-		tag.el.style.width = '100%';
-	},
-	
-	/**
-	 * @override
-	 */
-	destroy: function($super){
-		if(this.editControl) {
-			this.editControl.destroy();
-		}
-		this.editControl = null;
-		$super();
+		var dbCtrl = jslet.ui.createControl(param, Z.el);
+		dbCtrl.el.style.width = '100%';
+		Z.addChildControl(dbCtrl);
 	}
-	
 });
 
 jslet.ui.register('DBPlace', jslet.ui.DBPlace);

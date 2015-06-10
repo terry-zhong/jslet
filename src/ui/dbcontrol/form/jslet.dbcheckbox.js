@@ -154,6 +154,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	destroy: function($super){
 		jQuery(this.el).off();
+		$super();
 	}
 });
 

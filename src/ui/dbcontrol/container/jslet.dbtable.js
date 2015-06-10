@@ -208,6 +208,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._currRow = null;
 		Z._currColNum = 0;
+		
+		Z._rowHeightChanged = false;
 		$super(el, params);
 	},
 	
@@ -245,9 +247,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jslet.Checker.test('DBTable.rowHeight', rowHeight).isGTZero();
 		this._rowHeight = parseInt(rowHeight);
+		this._rowHeightChanged = true;
 	},
 	
-	headRowHeight: function(rowHeight) {
+	headRowHeight: function(headRowHeight) {
 		if(headRowHeight === undefined) {
 			return this._headRowHeight;
 		}
@@ -297,9 +300,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return Z._readOnly;
 		}
 		Z._readOnly = readOnly ? true: false;
-		if(!Z._readOnly) {
+		if(!Z._readOnly && !Z._rowHeightChanged) {
 			Z._rowHeight = 35;
-			Z._headRowHeight = 35;
 		}
 	},
 	

@@ -72,6 +72,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			valueIndex: Z._valueIndex
 		});
 		jQuery(Z.textCtrl.el).on('keydown', this.popupUp);
+		Z.addChildControl(Z.textCtrl);
 		
 		var dbbtn = jqEl.find('button')[0];
 		if (this.buttonClick) {
@@ -85,7 +86,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	renderAll: function () {
-		this.bind();
+		this.refreshControl();
 	},
 	
 	popupUp: function(event) {

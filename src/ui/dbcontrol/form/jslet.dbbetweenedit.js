@@ -63,6 +63,7 @@ jslet.ui.DBBetweenEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	renderAll: function () {
 		var Z = this;
+		Z.removeAllChildControls();
 		jslet.ui.textMeasurer.setElement(Z.el);
 		var lbl = jslet.locale.Dataset.betweenLabel;
 		if (!lbl) {
@@ -84,24 +85,19 @@ jslet.ui.DBBetweenEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		param.dataset = Z._dataset;
 		param.field = Z._field;
 		param.valueIndex = 0;
-		var tag = jslet.ui.createControl(param, minTd);
-		tag.el.style.width = '98%';
-		Z.minElement = tag;
+		var dbctrl = jslet.ui.createControl(param, minTd);
+		dbctrl.el.style.width = '98%';
+		Z.minElement = dbctrl;
+		Z.addChildControl(dbctrl);
+		
 		param.valueIndex = 1;
-		tag = jslet.ui.createControl(param, maxTd);
-		tag.el.style.width = '98%';
+		dbctrl = jslet.ui.createControl(param, maxTd);
+		dbctrl.el.style.width = '98%';
+		Z.addChildControl(dbctrl);
 	},
 	
 	focus: function() {
 		this.minElement.focus();
-	},
-	
-	/**
-	 * @override
-	 */
-	destroy: function($super){
-		this.minElement = null;
-		$super();
 	}
 	
 });

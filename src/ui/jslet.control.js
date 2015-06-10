@@ -36,6 +36,7 @@ jslet.ui.Control = jslet.Class.create({
 			throw new Error(jslet.formatString(jslet.locale.DBControl.invalidHtmlTag, template));
 		}
 
+		this._childControls = null;
 		this.setParams(ctrlParams);
 		this.checkRequiredProperty();
 		this.el.jslet = this;
@@ -95,12 +96,36 @@ jslet.ui.Control = jslet.Class.create({
 		}//end for
 	},
 	
+	addChildControl: function(childCtrl) {
+		var Z = this;
+		if(!Z._childControls) {
+			Z._childControls = [];
+		}
+		if(childCtrl) {
+			Z._childControls.push(childCtrl);
+		}
+	},
+	
+	removeAllChildControls: function() {
+		var Z = this, childCtrl;
+		if(!Z._childControls) {
+			return;
+		}
+		for(var i = 0, len = Z._childControls.length; i < len; i++) {
+			childCtrl = Z._childControls[i];
+			childCtrl.destroy();
+		}
+		Z._childControls = null;
+	},
+	
 	/**
 	 * Destroy method
 	 */
 	destroy: function(){
-		this.el.jslet = null;
-		this.el = null;
+		if(this.el) {
+			this.el.jslet = null;
+			this.el = null;
+		}
 	}
 });
 
@@ -184,12 +209,18 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			evtType = evt.eventType;
 		// Meta changed 
-		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
-				Z._field == evt.fieldName) {
-			if (!isForce && !Z.isActiveRecord()) {
-				return false;
+		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
+			var metaName = evt.metaName;
+			if(Z._field && Z._field == evt.fieldName) {
+				if (!isForce && !Z.isActiveRecord()) {
+					return false;
+				}
+				Z.doMetaChanged(metaName);
+			} else {
+				if(!Z._field && (metaName == 'visible' || metaName == 'editControl')) {
+					Z.doMetaChanged(metaName);
+				}
 			}
-			Z.doMetaChanged(evt.metaName);
 			return true;
 		}
 		//Lookup data changed
@@ -268,6 +299,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	destroy: function ($super) {
+		this.removeAllChildControls();
 		if (this._dataset) {
 			this._dataset.removeLinkedControl(this);
 		}

@@ -92,10 +92,11 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			disabled = Z.disabled;
 			var radios = jQuery(Z.el).find('input[type="radio"]'),
 				required = fldObj.required(),
-				radioEle = radios[i],
+				radioEle,
 				tabIdx = fldObj.tabIndex();
 			
 			for(var i = 0, cnt = radios.length; i < cnt; i++){
+				radioEle = radios[i];
 				jslet.ui.setEditableStyle(radioEle, disabled, readOnly, false, required);
 				radioEle.tabIndex = tabIdx;
 			}

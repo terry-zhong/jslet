@@ -45,6 +45,8 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		 */
 		Z._rowHeight = 30;
 		
+		Z._metaChangedDebounce = jslet.debounce(Z.renderAll, 10);
+
 		$super(el, params);
 	},
 	
@@ -94,6 +96,8 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 	renderAll: function () {
 		var Z = this,
 			jqEl = jQuery(Z.el);
+		Z.removeChildControls();
+		
 		if (!jqEl.hasClass('jl-inspector'))
 			jqEl.addClass('jl-inspector jl-round5');
 		var totalWidth = jqEl.width(),
@@ -146,7 +150,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 			otd.style.height = '0';
 		}
 		
-		var oldRowNo = -1, oldC = -1, rowNo, odiv, oLabel, fldName, editor, fldCtrl;
+		var oldRowNo = -1, oldC = -1, rowNo, odiv, oLabel, fldName, editor, fldCtrl, dbCtrl;
 		Z.preRowIndex = -1;
 		for (i = 0; i < fcnt; i++) {
 			fldObj = visibleFlds[i];
@@ -167,11 +171,12 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 			
 			oLabel = document.createElement('label');
 			otd.appendChild(oLabel);
-			new jslet.ui.DBLabel(oLabel, {
+			dbCtrl = new jslet.ui.DBLabel(oLabel, {
 				type: 'DBLabel',
 				dataset: Z._dataset,
 				field: fldName
 			});
+			Z.addChildControl(dbCtrl);
 			
 			otd = otr.insertCell(-1);
 			otd.className = jslet.ui.htmlclass.DBINSPECTOR.editorColCls;
@@ -188,26 +193,17 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 			if (!editor.isCheckBox) {
 				editor.el.style.width = '100%';//editorWidth - 10 + 'px';
 			}
+			Z.addChildControl(editor);
 		} // end for
 	},
 	
 	/**
 	 * @override
 	 */
-	refreshControl: function (evt) {
-		//if (!evt) {
-		//evt = jslet.data.RefreshEvent.CHANGEMETA;
-		//}
-		//if (evt.eventType == jslet.data.RefreshEvent.CHANGEMETA) {
-		//this.renderAll();
-		//}
-	},
-	
-	/**
-	 * @override
-	 */
-	destroy: function($super){
-		$super();
+	doMetaChanged: function($super, metaName){
+		if(metaName && (metaName == 'visible' || metaName == 'editControl')) {
+			this._metaChangedDebounce.call(this);
+		}
 	}
 });
 

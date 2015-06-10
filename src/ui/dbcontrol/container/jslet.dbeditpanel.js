@@ -35,6 +35,8 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		 */
 		Z._fields;
 		
+		Z._metaChangedDebounce = jslet.debounce(Z.renderAll, 10);
+
 		$super(el, params);
 	},
 	
@@ -182,6 +184,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderAll: function () {
 		var Z = this;
+		Z.removeAllChildControls();
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-editpanel')) {
 			jqEl.addClass('jl-editpanel form-horizontal');
@@ -192,7 +195,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		var layouts = Z._calcLayout();
 		//calc max label width
 			
-		var r = -1, oLabel, editorCfg, fldName, fldObj, ohr, octrlDiv, opanel, ctrlId;
+		var r = -1, oLabel, editorCfg, fldName, fldObj, ohr, octrlDiv, opanel, ctrlId, dbCtrl;
 		for (var i = 0, cnt = layouts.length; i < cnt; i++) {
 			layout = layouts[i];
 			if (layout.showLine) {
@@ -226,10 +229,11 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				editorCfg.field = fldName;
 				editor = jslet.ui.createControl(editorCfg, null);
 				octrlDiv.appendChild(editor.el);
+				Z.addChildControl(editor);
 				
 				oLabel = document.createElement('label');
 				octrlDiv.appendChild(oLabel);
-				new jslet.ui.DBLabel(oLabel, {
+				dbCtrl = new jslet.ui.DBLabel(oLabel, {
 					type: 'DBLabel',
 					dataset: Z._dataset,
 					field: fldName
@@ -238,15 +242,17 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				ctrlId = jslet.nextId();
 				editor.el.id = ctrlId;
 				jQuery(oLabel).attr('for', ctrlId);
+				Z.addChildControl(dbCtrl);
 			} else {
 				oLabel = document.createElement('label');
 				opanel.appendChild(oLabel);
 				oLabel.className = 'col-sm-' + layout._innerLabelCols;
-				new jslet.ui.DBLabel(oLabel, {
+				dbctrl = new jslet.ui.DBLabel(oLabel, {
 					type: 'DBLabel',
 					dataset: Z._dataset,
 					field: fldName
 				});
+				Z.addChildControl(dbCtrl);
 				
 				octrlDiv = document.createElement('div');
 				opanel.appendChild(octrlDiv);
@@ -265,6 +271,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				ctrlId = jslet.nextId();
 				editor.el.id = ctrlId;
 				jQuery(oLabel).attr('for', ctrlId);
+				Z.addChildControl(editor);
 			}
 		}
 	}, // render All
@@ -272,7 +279,10 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	/**
 	 * @override
 	 */
-	refreshControl: function (evt) {
+	doMetaChanged: function($super, metaName){
+		if(metaName && (metaName == 'visible' || metaName == 'editControl')) {
+			this._metaChangedDebounce.call(this);
+		}
 	}
 });
 
