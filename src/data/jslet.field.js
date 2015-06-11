@@ -21,7 +21,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dataset = null;
 	Z._dsName = null;
 	Z._displayOrder = 0;
-	Z._tabIndex = 0;
+	Z._tabIndex = null;
 	Z._fieldName = fieldName;
 	Z._dataType = dataType;
 	Z._length = 0;
@@ -735,10 +735,10 @@ jslet.data.Field.prototype = {
 		return this._disabled;
 	},
 	
-	_fireMetaChangedEvent: function(metaName) {
+	_fireMetaChangedEvent: function(metaName, changeAllRows) {
 		var ds = this.dataset();
 		if (ds) {
-			var evt = jslet.data.RefreshEvent.changeMetaEvent(metaName, this._fieldName);
+			var evt = jslet.data.RefreshEvent.changeMetaEvent(metaName, this._fieldName, changeAllRows);
 			ds.refreshControl(evt);
 		}
 	},

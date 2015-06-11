@@ -150,12 +150,12 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	/**
 	 * @override
 	 */
-	doBlur: function (event) {
-		if (this.disabled || this.readOnly) {
+	doBlur: function () {
+		var Z = this;
+		if (Z.el.disabled || Z.el.readOnly) {
 			return;
 		}
-		var Z = this.jslet,
-			fldObj = Z._dataset.getField(Z._field);
+		var	fldObj = Z._dataset.getField(Z._field);
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
 		}
@@ -224,6 +224,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			this.jslet._invokePopup();
 			return;
 		}
+		if (keyCode != 13 && keyCode != 9) {
+			Z._invokePopup();
+		} else if (Z.contentPanel) {
+			if(Z.contentPanel.isShowing()) {
+				Z.contentPanel.confirmSelect();
+			}
+		}
 	},
 
 	/**
@@ -233,16 +240,16 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		if (this.disabled || this.readOnly) {
 			return;
 		}
-		var keyCode = event.keyCode ? event.keyCode : 
-			event.which	? event.which: event.charCode;
-		var Z = this.jslet;
-		if (keyCode != 13 && keyCode != 9) {
-			Z._invokePopup();
-		} else if (Z.contentPanel) {
-			if(Z.contentPanel.isShowing()) {
-				Z.contentPanel.confirmSelect();
-			}
-		}
+//		var keyCode = event.keyCode ? event.keyCode : 
+//			event.which	? event.which: event.charCode;
+//		var Z = this.jslet;
+//		if (keyCode != 13 && keyCode != 9) {
+//			Z._invokePopup();
+//		} else if (Z.contentPanel) {
+//			if(Z.contentPanel.isShowing()) {
+//				Z.contentPanel.confirmSelect();
+//			}
+//		}
 	},
 
 	_invokePopup: function () {
@@ -364,6 +371,8 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	Z.create = function () {
 		if (!Z.panel) {
 			Z.panel = document.createElement('div');
+			Z.panel.style.width = '100%';
+			Z.panel.style.height = '100%';
 			jQuery(Z.panel).on("mousedown", function(event){
 				Z.comboCfg._isSelecting = true;
 				event.stopPropagation();
@@ -374,6 +383,22 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 			lkfld = fldObj.lookup(),
 			lkds = lkfld.dataset();
 		Z.lkDataset = lkds;
+		var fields = lkds.getNormalFields(),
+			totalChars = 0;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			if(fldObj.visible()) {
+				totalChars += fldObj.displayWidth();
+			}
+		}
+		var totalWidth = totalChars * (jslet.global.defaultCharWidth || 12) + 30;
+		Z.dlgWidth = totalWidth;
+		if(Z.dlgWidth < 150) {
+			Z.dlgWidth = 150;
+		}
+		if(Z.dlgWidth > 500) {
+			Z.dlgWidth = 500;
+		}
 
 		Z.panel.innerHTML = '';
 
@@ -382,7 +407,7 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 			tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, noborder:true, hasSelectCol: false, hasSeqCol: false, hideHead: true };
 		tableparam.onRowClick = Z.confirmSelect;
 
-		Z.otable = jslet.ui.createControl(tableparam, Z.panel, cntw, cnth);
+		Z.otable = jslet.ui.createControl(tableparam, Z.panel, '100%', cnth);
 		Z.otable.el.focus();
 		Z.otable.el.style.border = "0";
 		

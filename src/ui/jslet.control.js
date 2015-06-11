@@ -210,9 +210,10 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 			evtType = evt.eventType;
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
-			var metaName = evt.metaName;
+			var metaName = evt.metaName,
+				changeAllRows = evt.changeAllRows;
 			if(Z._field && Z._field == evt.fieldName) {
-				if (!isForce && !Z.isActiveRecord()) {
+				if (!changeAllRows && !isForce && !Z.isActiveRecord()) {
 					return false;
 				}
 				Z.doMetaChanged(metaName);
@@ -385,7 +386,9 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 			fldObj = Z._dataset.getField(Z._field);
 		if(fldObj) {
 			var tabIdx = fldObj.tabIndex();
-			Z.el.tabIndex = tabIdx;
+			if(tabIdx !== null) {
+				Z.el.tabIndex = tabIdx;
+			}
 		}
 	},
 	

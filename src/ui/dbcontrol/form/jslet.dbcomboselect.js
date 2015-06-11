@@ -40,7 +40,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		
 		Z._showStyle = 'auto';
 		
-		Z._popupWidth = 500;
+		Z._popupWidth = 300;
 
 		Z._popupHeight = 300;
 		
@@ -247,6 +247,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	showPopup: function (left, top, ajustX, ajustY) {
 		var Z = this;
 		Z._initSelected();
+		var showType = Z.showStyle.toLowerCase();
 		if (!Z.panel) {
 			Z.panel = Z._create();
 		} else {
@@ -255,6 +256,24 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			window.setTimeout(function(){
 				ojslet.renderAll();
 			}, 1);
+		}
+		if(showType == 'table') {
+			var fields = Z.lookupDs().getNormalFields(),
+				fldObj, totalChars = 0;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				if(fldObj.visible()) {
+					totalChars += fldObj.displayWidth();
+				}
+			}
+			var totalWidth = totalChars * (jslet.global.defaultCharWidth || 12) + 60;
+			Z.popupWidth = totalWidth;
+			if(Z.popupWidth < 150) {
+				Z.popupWidth = 150;
+			}
+			if(Z.popupWidth > 500) {
+				Z.popupWidth = 500;
+			}
 		}
 		Z.popup.setContent(Z.panel, '100%', '100%');
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);

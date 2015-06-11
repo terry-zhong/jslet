@@ -29,6 +29,8 @@ jslet.global = {
 	
 	defaultFocusKeyCode: 9,
 	
+	defaultCharWidth: 12,
+	
 	debugMode: true
 };
 

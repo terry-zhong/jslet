@@ -46,7 +46,7 @@ jslet.data.Dataset = function (name) {
 	Z._bof = false;
 	Z._eof = false;
 	Z._igoreEvent = false;
-	Z._logChanged = true;
+	Z._logChanges = true;
 
 	Z._modiObject = null;
 	Z._lockCount = 0;
@@ -178,7 +178,7 @@ jslet.data.Dataset.prototype = {
 		result._fixedFilter = Z._fixedFilter;
 		result._filter = Z._filter;
 		result._filtered = Z._filtered;
-		result._logChanged = Z._logChanged;
+		result._logChanges = Z._logChanges;
 		result._fixedIndexFields = Z._fixedIndexFields;
 		result._indexFields = Z._indexFields;
 		var keyFldName = Z._keyField,
@@ -286,7 +286,7 @@ jslet.data.Dataset.prototype = {
 			fldObj;
 		for(var i = 0, len = fields.length; i < len; i++) {
 			fldObj = fields[i];
-			fldObj._fireMetaChangedEvent('readOnly');
+			fldObj._fireMetaChangedEvent('readOnly', true);
 		}
 		return this;
 	},
@@ -2277,7 +2277,7 @@ jslet.data.Dataset.prototype = {
 		if (Z._aborted) {
 			return;
 		}
-		if (Z._logChanged) {
+		if (Z._logChanges) {
 			var rec = Z.getRecord(), isNew = false, i, cnt;
 			cnt = Z._insertedDelta.length;
 			for (i = 0; i < cnt; i++) {
@@ -2485,11 +2485,11 @@ jslet.data.Dataset.prototype = {
 		Z._errorRecno = -1;
 		var rec = Z.getRecord();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
-			if (Z._logChanged) {
+			if (Z._logChanges) {
 				Z._insertedDelta.push(rec);
 			}
 		} else {
-			if (Z._logChanged) {
+			if (Z._logChanges) {
 				if (Z._insertedDelta.indexOf(rec) < 0 ) {
 					var k = Z._updatedDelta.indexOf(rec);
 					if (k < 0) {
@@ -2597,14 +2597,14 @@ jslet.data.Dataset.prototype = {
 	 * Set or get logChanges
 	 * if NOT need send changes to Server, can set logChanges to false  
 	 * 
-	 * @param {Boolean} logChanged
+	 * @param {Boolean} logChanges
 	 */
-	logChanges: function (logChanged) {
-		if (logChanged === undefined) {
-			return Z._logChanged;
+	logChanges: function (logChanges) {
+		if (logChanges === undefined) {
+			return Z._logChanges;
 		}
 
-		this._logChanged = logChanged;
+		this._logChanges = logChanges;
 	},
 
 	/**
@@ -4693,7 +4693,7 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setBooleanPropValue('autoShowError');
 		setBooleanPropValue('autoRefreshHostDataset');
 		setBooleanPropValue('readOnly');
-		setBooleanPropValue('logChanged');
+		setBooleanPropValue('logChanges');
 		setPropValue('datasetListener');
 		setPropValue('onFieldChange');
 		setPropValue('onCheckSelectable');
@@ -4742,3 +4742,41 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 //	
 //	
 //}
+
+jslet.data.ChangeLog = function(dataset) {
+	this._dataset = dataset;
+	this._changedRecords = null;
+}
+
+jslet.data.ChangeLog.prototype = {
+	log: function(recObj) {
+		var dsObj = this._dataset;
+		if(!dsObj._logChanges) {
+			return;
+		}
+		var recInfo = jslet.data.getRecInfo(recObj);
+		if(!recInfo.status) {
+			return;
+		}
+		var masterFldObj = dsObj.datasetField(),
+		  chgRecords;
+		if(masterFldObj) {
+			var masterFldName = masterFldObj.name(),
+				masterDsObj = masterFldObj.dataset();
+				masterRecInfo = jslet.data.getRecInfo(masterDsObj.getRecord());
+				if(!masterRecInfo.sublog) {
+					masterRecInfo.sublog = {};
+				}
+				if(!masterRecInfo.sublog[masterFldName]) {
+					masterRecInfo.sublog[masterFldName] = null;
+					chgRecords = masterRecInfo.sublog[masterFldName];
+				}
+		} else {
+			if(!this._changedRecords) {
+				this._changedRecords = [];
+			}
+			chgRecords = this._changedRecords;
+		}
+		chgRecords.push(recObj);
+	}
+}

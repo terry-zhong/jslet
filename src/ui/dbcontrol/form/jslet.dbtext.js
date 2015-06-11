@@ -93,10 +93,10 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jqEl.addClass('form-control');
 		
 		if (Z.doFocus) {
-			jqEl.on('focus', Z.doFocus);
+			jqEl.on('focus', jQuery.proxy(Z.doFocus, Z));
 		}
 		if (Z.doBlur) {
-			jqEl.on('blur', Z.doBlur);
+			jqEl.on('blur', jQuery.proxy(Z.doBlur, Z));
 		}
 		if (Z.doKeydown) {
 			jqEl.on('keydown', Z.doKeydown);
@@ -111,8 +111,8 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.doMetaChanged('required');
 	}, // end bind
 
-	doFocus: function (event) {
-		var Z = this.jslet;
+	doFocus: function () {
+		var Z = this;
 		if (Z._skipFocusEvent) {
 			return;
 		}
@@ -132,8 +132,8 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}, 5);
 	},
 
-	doBlur: function (event) {
-		var Z = this.jslet,
+	doBlur: function () {
+		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
 		Z._position = jslet.ui.textutil.getCursorPos(Z.el);
 		if (fldObj.readOnly() || fldObj.disabled()) {

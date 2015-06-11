@@ -91,6 +91,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	
 	popupUp: function(event) {
 		if(event.keyCode == jslet.ui.KeyCode.DOWN) {
+			jslet(this).doBlur(event);
 			var el = jslet.ui.findJsletParent(this.parentNode);
 			el.jslet.buttonClick();
 		}

@@ -519,7 +519,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.ui.textMeasurer.setElement(Z.el);
 		Z.charHeight = jslet.ui.textMeasurer.getHeight('M')+4;
 		jslet.ui.textMeasurer.setElement();
-		Z.charWidth = 12;
+		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
 				
 		Z._initializeVm();

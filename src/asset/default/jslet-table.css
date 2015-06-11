@@ -53,6 +53,13 @@
 	border-left: 1px solid #a4bed4;	
 }
 
+.jl-tbl-noborder .jl-scrollbar-col {
+	width: 17px;
+	border: 0;
+	border-left: 0!important;	
+}
+
+
 .jl-scrollbar-hidden {
 	width: 0;
 }

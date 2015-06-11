@@ -116,8 +116,12 @@ jslet.data.RefreshEvent = {
 		return this._updateAllEvent;
 	},
 	
-	changeMetaEvent: function(metaName, fieldName) {
-		return {eventType: jslet.data.RefreshEvent.CHANGEMETA, metaName: metaName, fieldName: fieldName};
+	changeMetaEvent: function(metaName, fieldName, changeAllRows) {
+		var result = {eventType: jslet.data.RefreshEvent.CHANGEMETA, metaName: metaName, fieldName: fieldName};
+		if(changeAllRows !== undefined) {
+			result.changeAllRows = changeAllRows;
+		}
+		return result;
 	},
 	
 	beforeScrollEvent: function(recno) {
@@ -491,14 +495,16 @@ jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConve
 jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText, valueIndex) {
 		var value = '',
-			lkFldObj = fldObj.lookup();
+			lkFldObj = fldObj.lookup(),
+			lkDs = lkFldObj.dataset();
 		
-		value = lkFldObj.dataset()._convertFieldValue(
+		value = lkDs._convertFieldValue(
 				lkFldObj.codeField(), inputText, lkFldObj.keyField());
 		if (value === null) {
 			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
 			fldObj.message(invalidMsg, valueIndex);
-			return null;
+			lkDs.first();
+			return undefined;
 		}
 		if(fldObj.valueStyle() === jslet.data.FieldValueStyle.NORMAL) {
 			var fieldMap = lkFldObj.returnFieldMap(),
