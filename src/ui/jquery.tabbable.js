@@ -52,9 +52,12 @@
 			container = document;
 		}
 		var selectables = jQuery(container).find(selector);
+		sortByTabIndex(selectables);
 		var current = $(':focus');
 		var nextIndex = 0;
+		var currEle = null;
 		if(current.length === 1){
+			currEle = current[0];
 			var currentIndex = selectables.index(current);
 			if(currentIndex + 1 < selectables.length){
 				nextIndex = currentIndex + 1;
@@ -65,15 +68,17 @@
 			}
 		}
 
-		var jqEl = selectables.eq(nextIndex);
 		var canFocus = true;
-		if(onChangingFocus) {
-			canFocus = onChangingFocus(jqEl[0], false);
+		if(onChangingFocus && currEle) {
+			canFocus = onChangingFocus(currEle, false);
 		}
 		if(canFocus) {
+			var jqEl = selectables.eq(nextIndex);
 			jqEl.focus();
+			return jqEl[0];
+		} else {
+			return currEle;
 		}
-		return jqEl[0];
 	}
 
 	function selectPrevTabbableOrFocusable(selector, container, isLoop, onChangingFocus){
@@ -81,9 +86,12 @@
 			container = document;
 		}
 		var selectables = jQuery(container).find(selector);
+		sortByTabIndex(selectables);
 		var current = $(':focus');
 		var prevIndex = selectables.length - 1;
+		var currEle = null;
 		if(current.length === 1){
+			currEle = current[0];
 			var currentIndex = selectables.index(current);
 			if(currentIndex > 0){
 				prevIndex = currentIndex - 1;
@@ -94,17 +102,42 @@
 			}
 		}
 
-		var jqEl = selectables.eq(prevIndex);
 		var canFocus = true;
-		if(onChangingFocus) {
-			canFocus = onChangingFocus(jqEl[0], true);
+		if(onChangingFocus && currEle) {
+			canFocus = onChangingFocus(currEle, true);
 		}
 		if(canFocus) {
+			var jqEl = selectables.eq(prevIndex);
 			jqEl.focus();
+			return jqEl[0];
+		} else {
+			return currEle;
 		}
-		return jqEl[0];
 	}
 
+	function sortByTabIndex(items) {
+		if(!items) {
+			return;
+		}
+		
+		var item, item1, k;
+		for(var i = 1, len = items.length; i < len; i++) {
+			item = items[i];
+			k = 0;
+			for(var j = i - 1; j >= 0; j--) {
+				item1 = items[j];
+				if(item1.tabIndex <= item.tabIndex) {
+					k = j + 1;
+					break;
+				}
+			} //end for j
+			if(i !== k) {
+				items.splice(i, 1);
+				items.splice(k, 0, item);
+			}
+		} //end for i
+	}
+	
 	/**
 	 * :focusable and :tabbable, both taken from jQuery UI Core
 	 */

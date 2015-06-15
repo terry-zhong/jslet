@@ -695,6 +695,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr = currRow.content;
 			jQuery(otr).addClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
 			Z._currRow = currRow;
+			if(!Z._readOnly) {
+				var colCfg = Z.innerColumns[Z._currColNum],
+					fldName = colCfg.field,
+					fldObj = Z._dataset.getField(fldName);
+				if(fldObj && !fldObj.disabled() && !fldObj.readOnly()) {
+					Z._dataset.focusEditControl(fldName);
+				}
+				
+			}
 		};
 	},
 	

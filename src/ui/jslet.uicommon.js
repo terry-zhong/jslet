@@ -578,11 +578,8 @@ jslet.ui.FocusManager.prototype = {
 		var Z = this;
 		
 		function doChangingFocus(ele, reverse) {
-			if(!Z._onChangingFocus) {
-				return true;
-			}
 			var ojslet = jslet(ele), 
-				dsObj = null, fldName = null;
+				dsObj = null, fldName = null, valueIndex = null;
 			if(ojslet) {
 				if(ojslet.dataset) {
 					dsObj = ojslet.dataset();	
@@ -591,8 +588,21 @@ jslet.ui.FocusManager.prototype = {
 				if(ojslet.field) {
 					fldName = ojslet.field();	
 				}
+				
+				if(ojslet.valueIndex) {
+					valueIndex = ojslet.valueIndex();
+				}
+				if(dsObj && fldName) {
+					var errMsg = dsObj.getField(fldName).message(valueIndex);
+					if(errMsg) {
+						return false;
+					}
+				}
 			}
-			return Z._onChangingFocus(ele, reverse, dsObj, fldName);
+			if(!Z._onChangingFocus) {
+				return true;
+			}
+			return Z._onChangingFocus(ele, reverse, dsObj, fldName, valueIndex);
 		}
 		
 		function handleHostKeyDown(event) {
@@ -631,7 +641,7 @@ jslet.ui.FocusManager.prototype = {
 		} else {
 			jqHost = jQuery(document);
 		}
-		jqHost.keypress(handleHostKeyDown);
+		jqHost.keydown(handleHostKeyDown);
 	}
 }
 
