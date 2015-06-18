@@ -76,6 +76,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.Checker.test('DBEditPanel.fields.dataCols', fldCfg.colSpan).isNumber().between(1,11);
 			fldCfg.inFirstCol = fldCfg.inFirstCol ? true: false;
 			fldCfg.showLine = fldCfg.showLine ? true: false;
+			fldCfg.visible = fldCfg.visible ? true: false;
 		}
 		this._fields = fields;
 	},
@@ -101,26 +102,30 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		
 		if (!Z._onlySpecifiedFields) {
 			fldLayouts = [];
-			var fldName, found, editFld, maxFld, 
+			var fldName, found, editFld, maxFld, visible,
 				layoutcnt = Z._fields ? Z._fields.length : 0;
 			for (var i = 0, fcnt = allFlds.length; i < fcnt; i++) {
 				fldObj = allFlds[i];
 				fldName = fldObj.name();
-				if(!fldObj.visible()) {
-					continue;
-				}
+				visible = fldObj.visible();
 				found = false;
 				for (var j = 0; j < layoutcnt; j++) {
 					editFld = Z._fields[j];
 					if (fldName == editFld.field) {
 						found = true;
-						fldLayouts.push(editFld);
+						if(editFld.visible === undefined || editFld.visible) {
+							fldLayouts.push(editFld);
+						}
+						break;
 					}
 				}
 				
 				if (!found) {
+					if(!visible) {
+						continue;
+					}
 					fldLayouts.push({
-					field: fldObj.name()
+						field: fldObj.name()
 					});
 				}
 			} //end for i

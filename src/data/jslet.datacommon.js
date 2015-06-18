@@ -283,9 +283,21 @@ jslet.data.FieldValidator.prototype = {
 		var value = inputText;
 		if (!fldObj.lookup()) {//Not lookup field
 			if (fldType == jslet.data.DataType.NUMBER) {
-				if (fldObj.scale() === 0) {
+				var scale = fldObj.scale() || 0;
+				var length = fldObj.length();
+				if (scale === 0) {
 					value = parseInt(inputText);
 				} else {
+					var k = inputText.indexOf('.');
+					var actual = k > 0? k: inputText.length,
+						expected = length - scale;
+					if(actual > expected) {
+						return jslet.formatString(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]);
+					}
+					actual = k > 0 ? inputText.length - k - 1: 0;
+					if(actual > scale) {
+						return jslet.formatString(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]);
+					}
 					value = parseFloat(inputText);
 				}
 			}

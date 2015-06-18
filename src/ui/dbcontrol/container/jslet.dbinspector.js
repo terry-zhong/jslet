@@ -34,7 +34,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,columnCount,rowHeight';
+		Z.allProperties = 'dataset,columnCount,rowHeight,fields';
 		
 		/**
 		 * {Integer} Column count
@@ -45,6 +45,8 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		 */
 		Z._rowHeight = 30;
 		
+		Z._fields = null;
+		
 		Z._metaChangedDebounce = jslet.debounce(Z.renderAll, 10);
 
 		$super(el, params);
@@ -54,7 +56,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		if(columnCount === undefined) {
 			return this._columnCount;
 		}
-		jslet.Checker.test('DBEditPanel.columnCount', columnCount).isGTZero();
+		jslet.Checker.test('DBInspector.columnCount', columnCount).isGTZero();
 		this._columnCount = parseInt(columnCount);
 	},
 	
@@ -62,13 +64,27 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		if(rowHeight === undefined) {
 			return this._rowHeight;
 		}
-		jslet.Checker.test('DBEditPanel.rowHeight', rowHeight).isGTZero();
+		jslet.Checker.test('DBInspector.rowHeight', rowHeight).isGTZero();
 		this._rowHeight = parseInt(rowHeight);
 	},
 	
+	fields: function(fields) {
+		if(fields === undefined) {
+			return this._fields;
+		}
+		jslet.Checker.test('DBInspector.fields', fields).isArray();
+		var fldCfg;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldCfg = fields[i];
+			jslet.Checker.test('DBInspector.fields.field', fldCfg.field).isString().required();
+			fldCfg.visible = fldCfg.visible ? true: false;
+		}
+		this._fields = fields;
+	},
+	
 	/**
-		 * @override
-		 */
+	* @override
+	*/
 	isValidTemplateTag: function (el) {
 		return el.tagName.toLowerCase() == 'div';
 	},
@@ -96,19 +112,34 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 	renderAll: function () {
 		var Z = this,
 			jqEl = jQuery(Z.el);
-		Z.removeChildControls();
+		Z.removeAllChildControls();
 		
 		if (!jqEl.hasClass('jl-inspector'))
 			jqEl.addClass('jl-inspector jl-round5');
 		var totalWidth = jqEl.width(),
 			allFlds = Z._dataset.getFields();
 		jqEl.html('<table cellpadding=0 cellspacing=0 style="margin:0;padding:0;table-layout:fixed;width:100%;height:100%"><tbody></tbody></table>');
-		var oCol, fldObj, i,
+		var oCol, fldObj, i, found, visible, fldName, cfgFld,
 			fcnt = allFlds.length,
 			visibleFlds = [];
 		for (i = 0; i < fcnt; i++) {
 			fldObj = allFlds[i];
-			if (fldObj.visible()) {
+			fldName = fldObj.name();
+			found = false;
+			if(Z._fields) {
+				for(var j = 0, len = Z._fields.length; j < len; j++) {
+					cfgFld = Z._fields[j];
+					if(fldName == cfgFld.field) {
+						found = true;
+						visible = cfgFld.visible? true: false;
+						break;
+					} 
+				}
+			}
+			if(!found) {
+				visible = fldObj.visible();
+			}
+			if (visible) {
 				visibleFlds.push(fldObj);
 			}
 		}

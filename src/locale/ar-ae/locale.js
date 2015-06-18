@@ -38,6 +38,8 @@
 		invalidDate: 'Invalid date!',
 		invalidInt: 'Only:0-9,- allowed!',
 		invalidFloat: 'Only:0-9,-,. allowed',
+		invalidIntegerPart: 'Invalid integer part, expected length：{0}, actual length：{1}!',
+		invalidDecimalPart: 'Invalid decimal part, expected length：{0}, actual length：{1}!',
 		cannotConfirm: 'Exists invalid data, check it first!',
 		notInRange: 'يجب أن تكون قيمة الإدخال في نطاق: {0} إلى {1}', //Input value must be in range: {0} to {1}
 		lessThanValue: 'Input value must less than: {0}',

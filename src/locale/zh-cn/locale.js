@@ -38,6 +38,8 @@
 			invalidDate: '无效日期!',
 			invalidInt: '只允许:0-9,-',
 			invalidFloat: '只允许:0-9,-,.',
+			invalidIntegerPart: '整数部分超长，允许：{0}位，实际：{1}位！',
+			invalidDecimalPart: '小数部分超长，允许：{0}位，实际：{1}位！',
 			cannotConfirm: '数据录入有误，请先检查!',
 			notInRange: '录入的值必须在:{0}和{1}之间',
 			lessThanValue: '录入的值必须小于: {0}',

@@ -353,7 +353,9 @@ jslet.data.Field.prototype = {
 				}
 			}
 		}
-
+		if(Z._dataType === jslet.data.DataType.NUMBER && Z._scale > 0) {
+			return Z._length + 1; // 1 for decimal point
+		}
 		return Z._length > 0 ? Z._length : 10;
 	},
 

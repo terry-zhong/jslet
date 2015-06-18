@@ -2929,7 +2929,7 @@ jslet.data.Dataset.prototype = {
 //			if(fldErrObj) {
 //				console.log(fldErrObj.message);
 			if(fields[i].message()) {
-				console.error(fields[i].message());
+				console.warn(fields[i].message());
 				return true;
 			}
 		}
@@ -4064,9 +4064,12 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	_doSubmitSelectedSuccess: function(result, dataset) {
+		if(!result) {
+			return;
+		}
 		var mainData = result.main;
-		if (!result || mainData.length === 0) {
-			if(result && result.info) {
+		if (!mainData || mainData.length === 0) {
+			if(result.info) {
 				jslet.showInfo(result.info);
 			}
 			return;
