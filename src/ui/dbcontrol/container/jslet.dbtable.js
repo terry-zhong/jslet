@@ -1627,12 +1627,43 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			jQuery(srcCell).insertBefore(destCell);
 		}
+		var srcColCfg = srcCell.jsletcolcfg,
+			destColCfg = destCell.jsletcolcfg,
+			srcFldName = srcColCfg.field,
+			destFldName = destColCfg.field;
+		if(srcFldName && destFldName) {
+			Z._dataset.moveField(srcFldName, destFldName);
+		}
 		
 		moveOneTableColumn(Z.rightHeadTbl.createTHead().rows, rowIndex + 1, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightFixedTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightContentTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightFootTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
-		Z._prepareColumn();
+		Z._changeColNum(rowObj, srcCellIndex, destCellIndex);
+	},
+	
+	_changeColNum: function(rowObj, srcCellIndex, destCellIndex) {
+		var srcCell = rowObj.cells[srcCellIndex],
+			destCell = rowObj.cells[destCellIndex],
+			srcColCfg = srcCell.jsletcolcfg,
+			destColCfg = destCell.jsletcolcfg;
+		srcColCfg.colNum = destColCfg.colNum;
+		var cellObj, colCfg;
+		if(srcCellIndex < destCellIndex) {
+			for(var i = srcCellIndex + 1; i <= destCellIndex; i++) {
+				colCfg = rowObj[i].jsletcolcfg;
+				if(colCfg) {
+					colCfg.colNum -= 1;
+				}
+			}
+		} else {
+			for(var i = destCellIndex; i < srcCellIndex; i++) {
+				colCfg = rowObj[i].jsletcolcfg;
+				if(colCfg) {
+					colCfg.colNum += 1;
+				}
+			}
+		}
 	},
 	
 	_calcAndSetContentHeight: function(){
@@ -2548,7 +2579,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         		if(Z.prevCell) {
         			Z.prevCell.removeClass('jl-tbl-curr-cell');
         		}
-        		var jqCell = jQuery(otd.firstChild);
+        		var jqCell = jQuery(otd);
         		jqCell.addClass('jl-tbl-curr-cell');
         		Z.prevCell = jqCell;
         	}

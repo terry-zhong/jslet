@@ -76,7 +76,7 @@
 	width: 100%;
 }
 
-.jl-tbl-contentcol div{
+.jl-tbl-contentcol>div{
 	height: auto;
 }
 
@@ -190,8 +190,6 @@
 
 .jl-tbl-curr-cell {
 	outline: 1px dotted blue!important;	
-    /*position: absolute;
-    z-index: 999;*/
 }
 
 .jl-tbl-sorter {

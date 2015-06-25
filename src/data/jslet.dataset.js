@@ -636,6 +636,41 @@ jslet.data.Dataset.prototype = {
 		return Z;
 	},
 
+	moveField: function(fromFldName, toFldName) {
+		var Z = this,
+			fromFldObj = Z.getField(fromFldName),
+			toFldObj = Z.getField(toFldName),
+			fromParent = fromFldObj.parent(),
+			toParent = toFldObj.parent();
+		if(!fromFldObj || !toFldObj || fromParent != toParent) {
+			return;
+		}
+		var fields;
+		if(fromParent) {
+			fields = fromParent.children();
+		} else {
+			fields = Z._fields;
+		}
+		var fldObj, fldName,
+			fromOrder = fromFldObj.displayOrder(),
+			toOrder = toFldObj.displayOrder(),
+			fromIndex = fields.indexOf(fromFldObj),
+			toIndex = fields.indexOf(toFldObj);
+		fromFldObj.displayOrder(toFldObj.displayOrder());
+		if(fromIndex < toIndex) {
+			for(var i = fromIndex + 1; i <= toIndex; i++) {
+				fldObj = fields[i];
+				fldObj.diplayOrder(fldObj.displayOrder() - 1);
+			}
+		} else {
+			for(var i = toIndex; i < fromIndex; i++) {
+				fldObj = fields[i];
+				fldObj.diplayOrder(fldObj.displayOrder() + 1);
+			}
+		}
+		Z._fields.sort(jslet.data.displayOrderComparator);
+	},
+	
 	/**
 	 * Remove field by field name.
 	 * 
@@ -4331,7 +4366,27 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
-	 /** 
+	/**
+	 * Export data to CSV file.
+	 * 
+	 * @param {fileName}fileName - CSV file name.
+	 * @param {String}includeFieldLabel - export with field labels, can be null  
+	 * @param {Boolean}dispValue - true: export display value of field, false: export actual value of field 
+	 * @param {Boolean}onlySelected - export selected records or not.
+	 * @param {String[]} onlyFields - specified the field name to export.
+	 */
+	exportCsvFile: function(fileName, includeFieldLabel, dispValue, onlySelected, onlyFields) {
+		jslet.Checker.test('Dataset.exportCsvFile#fileName', fileName).required().isString();
+    	var str = this.exportCsv();
+        var a = document.createElement('a');
+		
+        var blob = new Blob([str], {'type': 'text\/csv'});
+        a.href = window.URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+    },
+    
+	/** 
 	* Get filtered data list. 
 	* 
 	*/ 
