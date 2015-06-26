@@ -1252,13 +1252,21 @@ jslet.data.Dataset.prototype = {
 		}
 		Z._filteredRecnoArray = null;
 		var tempRecno = [];
-		for (var i = 0, cnt = Z.dataList().length; i < cnt; i++) {
-			Z._recno = i;
-			if (Z._filterData()) {
-				tempRecno.push(i);
+		var oldRecno = Z._recno;
+		try {
+			for (var i = 0, cnt = Z.dataList().length; i < cnt; i++) {
+				Z._recno = i;
+				if (Z._filterData()) {
+					tempRecno.push(i);
+				}
 			}
 		}
-		Z._filteredRecnoArray = tempRecno;
+		finally {
+			Z._recno = oldRecno;
+		}
+		if(tempRecno.length > 0) {
+			Z._filteredRecnoArray = tempRecno;
+		}
 	},
 
 	_innerAfterScrollDebounce: function() {
@@ -1400,6 +1408,7 @@ jslet.data.Dataset.prototype = {
 				if (subds) {
 //					subds.confirm();
 //					subds.dataList(Z.getFieldValue(fldObj.name()));
+					subds._refreshInnerRecno();
 					subds.calcAggradedValue();
 					var indexflds = subds.indexFields();
 					if (indexflds) {
@@ -1778,13 +1787,20 @@ jslet.data.Dataset.prototype = {
 			}
 			return recInfo.status;
 		}
-		var	oldValue = recInfo.status;
-		if(oldValue != status) {
+		var	oldStatus = recInfo.status;
+		if(status === jslet.data.DataSetStatus.DELETE) {
+			recInfo.status = status;
+			return;
+		}
+		if(oldStatus === jslet.data.DataSetStatus.INSERT) {
+			return;
+		}
+		if(oldStatus != status) {
 			if(this._contextRuleEngine) {
 				this._contextRuleEngine.evalStatus();
 			}
+			recInfo.status = status;
 		}
-		recInfo.status = status;
 	},
 	
 	/**
@@ -4834,11 +4850,21 @@ jslet.data.DataTransformer.prototype = {
 					if(submitAllSubData === undefined) {
 						submitAllSubData = !subDsObj._onlyChangedSubmitted;
 					}
-					if(submitAllSubData) {
-						subList = this._convert(subDsObj, fldObj.getValue());
-					} else {
-						subList = this._convert(subDsObj, subLog? subLog[fldName]: null);
+					var allList = fldObj.getValue();
+					if(!submitAllSubData) { //add deleted record
+						var subChgList = subLog? subLog[fldName]: null;
+						if(subChgList) {
+							var subChgRec, subRecInfo;
+							for(var k = 0, chgLen = subChgList.length; k < chgLen; k++) {
+								subChgRec = subChgList[k];
+								subRecInfo = jslet.data.getRecInfo(subChgRec);
+								if(subRecInfo && subRecInfo.status === jslet.data.DataSetStatus.DELETE) {
+									allList.push(subChgRec);
+								}
+							}
+						}
 					}
+					subList = this._convert(subDsObj, allList);
 					if(subList) {
 						newRec[fldName] = subList;
 					}

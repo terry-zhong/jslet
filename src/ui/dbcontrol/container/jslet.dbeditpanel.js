@@ -76,7 +76,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.Checker.test('DBEditPanel.fields.dataCols', fldCfg.colSpan).isNumber().between(1,11);
 			fldCfg.inFirstCol = fldCfg.inFirstCol ? true: false;
 			fldCfg.showLine = fldCfg.showLine ? true: false;
-			fldCfg.visible = fldCfg.visible ? true: false;
+			fldCfg.visible = (fldCfg.visible === undefined || fldCfg.visible) ? true: false;
 		}
 		this._fields = fields;
 	},
