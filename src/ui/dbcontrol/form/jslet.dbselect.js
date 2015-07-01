@@ -252,7 +252,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 				}
 				content.push('<option value="');
 				optValue = lkds.getFieldValue(lkf.keyField());
-				if(i === 0) {
+				if(firstItemValue === null) {
 					firstItemValue = optValue;
 				}
 				content.push(optValue);

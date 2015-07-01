@@ -1264,9 +1264,7 @@ jslet.data.Dataset.prototype = {
 		finally {
 			Z._recno = oldRecno;
 		}
-		if(tempRecno.length > 0) {
-			Z._filteredRecnoArray = tempRecno;
-		}
+		Z._filteredRecnoArray = tempRecno;
 	},
 
 	_innerAfterScrollDebounce: function() {
@@ -4039,7 +4037,6 @@ jslet.data.Dataset.prototype = {
 		}
 		var mainData = result.main;
 		var Z = dataset;
-		jslet.data.convertDateFieldValue(Z, mainData);
 		Z._dataTransformer.refreshSubmittedData(mainData);
 
 		Z.calcAggradedValue();
@@ -4140,7 +4137,6 @@ jslet.data.Dataset.prototype = {
 			Z._refreshInnerRecno();
 		} else {
 			var newRec, oldRec, len;
-			jslet.data.convertDateFieldValue(Z, mainData);
 			Z._dataTransformer.refreshSubmittedData(mainData);
 		}
 		Z.calcAggradedValue();
@@ -4894,6 +4890,18 @@ jslet.data.DataTransformer.prototype = {
 		if(!submittedData || submittedData.length === 0) {
 			return;
 		}
+		jslet.data.convertDateFieldValue(dsObj, submittedData);
+		var masterFldObj = dsObj.datasetField(), chgLogs, records;
+		if(!masterFldObj) {
+			chgLogs = dsObj._changeLog._changedRecords;
+			records = chgLogs;
+		} else {
+			var masterRec = masterFldObj.dataset().getRecord();
+			var masterRecInfo = jslet.data.getRecInfo(masterRec);
+			chgLogs = masterRecInfo.subLog? masterRecInfo.subLog[masterFldObj.name()]: null;
+			records = masterFldObj.getValue();
+		}
+
 		var newRec, oldRec, flag;
 		for(var i = 0, len = submittedData.length; i < len; i++) {
 			newRec = submittedData[i];
@@ -4901,48 +4909,57 @@ jslet.data.DataTransformer.prototype = {
 				console.warn('The return record exists null. Please check it.');
 				continue;
 			}
-			this._refreshRecord(dsObj, newRec);			
+			this._refreshRecord(dsObj, newRec, records, chgLogs);
 		}
 	},
 		
-	_refreshRecord: function(dsObj, newRec) {
+	_refreshRecord: function(dsObj, newRec, records, chgLogs) {
 		var recState = newRec[jslet.global.changeStateField];
-		if(!recState || recState.length === 0) {
+		if(!recState) {
 			return;
 		}
-		var masterFldObj = dsObj.datasetField(), chgLog;
-		if(!masterFldObj) {
-			chgLog = dsObj._changeLog._changedRecords;
-		} else {
-			var masterRec = masterFldObj.dataset().getRecord();
-			var masterRecInfo = jslet.data.getRecInfo(masterRec);
-			chgLog = masterRecInfo.subLog;
+		if(chgLogs && recState.charAt(0) == 'd') {
+			for(var i = 0, len = chgLogs.length; i < len; i++) {
+				if(recState == chgLogs[i][jslet.global.changeStateField]) {
+					chgLogs.splice(i, 1);
+					break;
+				}
+			}
+			return;
 		}
-		if(chgLog) {
-			var oldRec, fldObj;
-			for(var i = chgLog.length - 1; i >= 0; i--) {
-				oldRec = chgLog[i];
-				if(oldRec[jslet.global.changeStateField] != recState) {
+		records = records || [];
+		var oldRec, fldObj;
+		for(var i = records.length - 1; i >= 0; i--) {
+			oldRec = records[i];
+			if(oldRec[jslet.global.changeStateField] != recState) {
+				continue;
+			}
+			for(var fldName in newRec) {
+				if(!fldName) {
 					continue;
 				}
-				if(recState.charAt(0) !== 'd') {
-					for(var fldName in newRec) {
-						if(!fldName) {
-							continue;
-						}
-						fldObj = dsObj.getField(fldName);
-						if(fldObj && fldObj.subDataset()) {
-							this._refreshDataset(fldObj.subDataset(), newRec[fldName]);
-						} else {
-							oldRec[fldName] = newRec[fldName];
-						}
-					} // end for fldName
-					oldRec[jslet.global.changeStateField] = null;
+				fldObj = dsObj.getField(fldName);
+				if(fldObj && fldObj.subDataset()) {
+					this._refreshDataset(fldObj.subDataset(), newRec[fldName]);
+				} else {
+					oldRec[fldName] = newRec[fldName];
 				}
-				chgLog.splice(i, 1);
-				jslet.data.FieldValueCache.removeCache(oldRec);
-			} // end for i
-		}
+			} // end for fldName
+			if(chgLogs) {
+				for(var i = 0, len = chgLogs.length; i < len; i++) {
+					if(recState == chgLogs[i][jslet.global.changeStateField]) {
+						chgLogs.splice(i, 1);
+						break;
+					}
+				}
+			}
+			oldRec[jslet.global.changeStateField] = null;
+			var recInfo = jslet.data.getRecInfo(oldRec);
+			if(recInfo && recInfo.status) {
+				recInfo.status = 0;
+			}
+			jslet.data.FieldValueCache.removeCache(oldRec);
+		} // end for i
 	}
 	
 }

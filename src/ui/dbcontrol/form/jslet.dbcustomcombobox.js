@@ -120,6 +120,25 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var jqEl = jQuery(Z.el);
 			jqEl.find('button').attr("disabled", flag);
 		}
+		if(!metaName || metaName == 'tabIndex') {
+			Z.setTabIndex();
+		}
+
+	},
+	
+	/** 
+	 * @override
+	 */ 
+	setTabIndex: function() {
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field);
+		if(fldObj) {
+			var tabIdx = fldObj.tabIndex();
+			if(tabIdx !== null) {
+				Z.el.tabIndex = -1;
+				Z.textCtrl.el.tabIndex = tabIdx;
+			}
+		}
 	},
 	
 	/**
