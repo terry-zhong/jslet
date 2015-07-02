@@ -1341,8 +1341,7 @@ jslet.data.Dataset.prototype = {
 			return this;
 		}
 		if (!Z._silence && Z._status != jslet.data.DataSetStatus.BROWSE) {
-			Z.confirm();
-			if (Z._aborted) {
+			if(!Z.confirm()) {
 				return this;
 			}
 		}
@@ -1385,9 +1384,13 @@ jslet.data.Dataset.prototype = {
 		var evt;
 		if (!Z._silence) {
 			Z._aborted = false;
-			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESCROLL);
-			if (Z._aborted) {
-				return false;
+			try {
+				Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESCROLL);
+				if (Z._aborted) {
+					return false;
+				}
+			} finally {
+				Z._aborted = false;
 			}
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.beforeScrollEvent(Z._recno);
@@ -1457,9 +1460,7 @@ jslet.data.Dataset.prototype = {
 	_moveCursor: function (recno) {
 		var Z = this;
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			Z._aborted = false;
-			Z.confirm();
-			if (Z._aborted) {
+			if(!Z.confirm()) {
 				return;
 			}
 		}
@@ -1476,8 +1477,7 @@ jslet.data.Dataset.prototype = {
 	moveToRecord: function (recordObj) {
 		var Z = this;
 		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			Z.confirm();
-			if (Z._aborted) {
+			if(!Z.confirm()) {
 				return;
 			}
 		}
@@ -1614,8 +1614,9 @@ jslet.data.Dataset.prototype = {
 	 */
 	_checkStatusAndConfirm: function () {
 		if (this._status != jslet.data.DataSetStatus.BROWSE) {
-			this.confirm();
+			return this.confirm();
 		}
+		return true;
 	},
 
 	/**
@@ -1730,9 +1731,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	insertRecord: function () {
 		var Z = this;
-		Z._aborted = false;
-		Z._checkStatusAndConfirm();
-		if (Z._aborted) {
+		if(!Z._checkStatusAndConfirm()) {
 			return;
 		}
 
@@ -1744,9 +1743,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	appendRecord: function () {
 		var Z = this;
-		Z._aborted = false;
-		Z._checkStatusAndConfirm();
-		if (Z._aborted) {
+		if(!Z._checkStatusAndConfirm()) {
 			return;
 		}
 
@@ -1806,9 +1803,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	innerInsert: function (beforeInsertFn) {
 		var Z = this;
-		Z._aborted = false;
-		Z._checkStatusAndConfirm();
-		if (Z._aborted) {
+		if(!Z._checkStatusAndConfirm()) {
 			return;
 		}
 
@@ -1823,9 +1818,13 @@ jslet.data.Dataset.prototype = {
 		}
 
 		Z._aborted = false;
-		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREINSERT);
-		if (Z._aborted) {
-			return;
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREINSERT);
+			if (Z._aborted) {
+				return;
+			}
+		} finally {
+			Z._aborted = false;
 		}
 
 		var records = Z.dataList();
@@ -1869,7 +1868,6 @@ jslet.data.Dataset.prototype = {
 		}
 		Z.calcAggradedValue();		
 
-		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 		var evt = jslet.data.RefreshEvent.insertEvent(preRecno, Z.recno(), Z._recno < Z.recordCount() - 1);
@@ -1931,9 +1929,7 @@ jslet.data.Dataset.prototype = {
 	batchAppendRecords: function(records, replaceExists) {
 		jslet.Checker.test('dataset.records', records).required().isArray();
 		var Z = this;
-		Z._aborted = false;
-		Z._checkStatusAndConfirm();
-		if (Z._aborted) {
+		if(!Z._checkStatusAndConfirm()) {
 			return;
 		}
 		
@@ -2306,9 +2302,13 @@ jslet.data.Dataset.prototype = {
 			Z.insertRecord();
 		} else {
 			Z._aborted = false;
-			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREUPDATE);
-			if (Z._aborted) {
-				return;
+			try {
+				Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREUPDATE);
+				if (Z._aborted) {
+					return;
+				}
+			} finally {
+				Z._aborted = false;
 			}
 
 			Z._modiObject = {};
@@ -2320,8 +2320,6 @@ jslet.data.Dataset.prototype = {
 
 			Z.status(jslet.data.DataSetStatus.UPDATE);
 			Z.changedStatus(jslet.data.DataSetStatus.UPDATE);
-						
-			Z._aborted = false;
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERUPDATE);
 		}
 	},
@@ -2354,9 +2352,13 @@ jslet.data.Dataset.prototype = {
 		}
 
 		Z._aborted = false;
-		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREDELETE);
-		if (Z._aborted) {
-			return;
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREDELETE);
+			if (Z._aborted) {
+				return;
+			}
+		} finally {
+			Z._aborted = false;
 		}
 		var preRecno = Z.recno(), 
 			isLast = preRecno == (recCnt - 1), 
@@ -2376,9 +2378,6 @@ jslet.data.Dataset.prototype = {
 
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		
-		var evt = jslet.data.RefreshEvent.deleteEvent(preRecno);
-		Z.refreshControl(evt);
-
 		if (isLast) {
 			Z._silence++;
 			try {
@@ -2387,13 +2386,15 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
-		Z.calcAggradedValue();		
+		Z.calcAggradedValue();
+		var evt = jslet.data.RefreshEvent.deleteEvent(preRecno);
+		Z.refreshControl(evt);
+		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		if (Z.isBof() && Z.isEof()) {
 			return;
 		}
 		evt = jslet.data.RefreshEvent.scrollEvent(Z._recno);
-
 		Z.refreshControl(evt);
 	},
 
@@ -2534,17 +2535,20 @@ jslet.data.Dataset.prototype = {
 			} else {
 				console.info(jslet.locale.Dataset.cannotConfirm);
 			}
-			Z._aborted = true;
 			evt = jslet.data.RefreshEvent.updateRecordEvent();
 			Z.refreshControl(evt);
-			Z.errorMessage(jslet.locale.Dataset.cannotConfirm);			
+			Z.errorMessage(jslet.locale.Dataset.cannotConfirm);
 			return false;
 		}
 		Z.errorMessage();
 		Z._aborted = false;
-		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECONFIRM);
-		if (Z._aborted) {
-			return false;
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECONFIRM);
+			if (Z._aborted) {
+				return false;
+			}
+		} finally {
+			Z._aborted = false;
 		}
 		Z._errorRecno = -1;
 		var rec = Z.getRecord();
@@ -2600,11 +2604,14 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		Z._aborted = false;
-		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECANCEL);
-		if (Z._aborted) {
-			return;
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECANCEL);
+			if (Z._aborted) {
+				return;
+			}
+		} finally {
+			Z._aborted = false;
 		}
-
 		var evt, 
 			k = Z._recno,
 			records = Z.dataList();
@@ -2635,7 +2642,6 @@ jslet.data.Dataset.prototype = {
 		Z.calcAggradedValue();		
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
-		Z._aborted = false;
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
@@ -3657,9 +3663,13 @@ jslet.data.Dataset.prototype = {
 		if(rec) {
 			if(Z.checkSelectable()) {
 				Z._aborted = false;
-				Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESELECT);
-				if (Z._aborted) {
-					return Z;
+				try {
+					Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESELECT);
+					if (Z._aborted) {
+						return Z;
+					}
+				} finally {
+					Z._aborted = false;
 				}
 				rec[selFld] = selected;
 				Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECT);

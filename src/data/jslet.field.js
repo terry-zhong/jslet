@@ -874,10 +874,15 @@ jslet.data.Field.prototype = {
 			return (Z._lookup !== null)? {type: 'dbselect'}:{type: 'dbtext'};
 		}
 		if(typeof (editCtrl) === 'string') {
-			if(editCtrl.indexOf(':') > 0) {
-				editCtrl = jslet.JSON.parse(editCtrl);
+			editCtrl = jQuery.trim(editCtrl);
+			if(editCtrl) {
+				if(editCtrl.indexOf(':') > 0) {
+					editCtrl = jslet.JSON.parse(editCtrl);
+				} else {
+					editCtrl =  {type: editCtrl};
+				}
 			} else {
-				editCtrl =  {type: editCtrl};
+				editCtrl = null;
 			}
 		}
 		Z._editControl = editCtrl;
