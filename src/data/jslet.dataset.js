@@ -1334,20 +1334,20 @@ jslet.data.Dataset.prototype = {
 		recno = parseInt(recno);
 		if(!Z.hasRecord()) {
 			Z._bof = Z._eof = true;
-			return this;
+			return true;
 		}
 		
 		if (recno == Z._recno) {
-			return this;
+			return true;
 		}
 		if (!Z._silence && Z._status != jslet.data.DataSetStatus.BROWSE) {
 			if(!Z.confirm()) {
-				return this;
+				return false;
 			}
 		}
 		Z._gotoRecno(recno);
 		Z._bof = Z._eof = false;
-		return this;
+		return true;
 	},
 	
 	/**
@@ -1407,16 +1407,7 @@ jslet.data.Dataset.prototype = {
 				fldObj = Z._subDatasetFields[i];
 				subds = fldObj.subDataset();
 				if (subds) {
-//					subds.confirm();
-//					subds.dataList(Z.getFieldValue(fldObj.name()));
-					subds._refreshInnerRecno();
-					subds.calcAggradedValue();
-					var indexflds = subds.indexFields();
-					if (indexflds) {
-						subds.indexFields(indexflds);
-					} else {
-						subds.refreshControl();
-					}
+					subds._initialize();
 				}
 			} //end for
 		} //end if
@@ -2657,7 +2648,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	logChanges: function (logChanges) {
 		if (logChanges === undefined) {
-			return Z._logChanges;
+			return this._logChanges;
 		}
 
 		this._logChanges = logChanges;
@@ -4094,6 +4085,9 @@ jslet.data.Dataset.prototype = {
 	 */
 	submit: function(extraInfo, excludeFields) {
 		var Z = this;
+		if(!Z.confirm()) {
+			return;
+		}
 		Z._checkDataProvider();
 
 		if(!Z._submitUrl) {
@@ -4174,6 +4168,9 @@ jslet.data.Dataset.prototype = {
 	 */
 	submitSelected: function (url, deleteOnSuccess, extraInfo, excludeFields) {
 		var Z = this;
+		if(!Z.confirm()) {
+			return;
+		}
 		Z._checkDataProvider();
 		if(!url) {
 			throw new Error('Url required! Use: yourDataset.submitSelected(yourUrl)');
@@ -4483,6 +4480,23 @@ jslet.data.Dataset.prototype = {
 		} else {
 			Z._dataList = datalst;
 		}
+		Z._initialize();
+		var fields = Z._subDatasetFields;
+		if(fields) {
+			var fldObj, subDs;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				subDs = fldObj.subDataset();
+				if(subDs) {
+					subDs._initialize();
+				}
+			}
+		}
+		return this;
+	},
+	
+	_initialize: function() {
+		var Z = this;
 		jslet.data.FieldValueCache.removeAllCache(Z);
 		jslet.data.FieldError.clearDatasetError(Z);
 		
@@ -4490,17 +4504,16 @@ jslet.data.Dataset.prototype = {
 		jslet.data.convertDateFieldValue(Z);
 		Z._changeLog.clear();
 		Z.status(jslet.data.DataSetStatus.BROWSE);
+		Z.indexFields(Z.indexFields());
 		Z.filter(null);
 		if(Z.filtered() || Z.fixedFilter()) {
 			Z._doFilterChanged();			
 		}
-		Z.indexFields(Z.indexFields());
 		Z._recno = -1;
 		Z.first();
 		Z.calcAggradedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
 		Z.refreshLookupHostDataset();
-		return this;
 	},
 	
 	/**
@@ -4748,6 +4761,9 @@ jslet.data.ChangeLog.prototype = {
 	},
 	
 	log: function(recObj) {
+		if(!this._dataset.logChanges()) {
+			return;
+		}
 		if(!recObj) {
 			recObj = this._dataset.getRecord();
 		}
@@ -4762,6 +4778,9 @@ jslet.data.ChangeLog.prototype = {
 	},
 	
 	unlog: function(recObj) {
+		if(!this._dataset.logChanges()) {
+			return;
+		}
 		if(!recObj) {
 			recObj = this._dataset.getRecord();
 		}
@@ -4770,7 +4789,6 @@ jslet.data.ChangeLog.prototype = {
 		if(k >= 0) {
 			chgRecords.splice(k, 1);
 		}
-		console.log(chgRecords);
 	},
 	
 	clear: function() {

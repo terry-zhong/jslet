@@ -1719,6 +1719,17 @@ jslet.data.FieldLookup.prototype = {
 			
 			return Z._dataset;
 		}
+		var lkDsName;
+		if(lkdataset) {
+			if (typeof(lkdataset) == 'string') {
+				lkDsName = lkdataset;
+			} else {
+				lkDsName = lkdataset.name();
+			}
+			if(lkDsName == Z._hostDatasetName) {
+				throw new Error(jslet.locale.Dataset.LookupDatasetNotSameAsHost);
+			}
+		}
 		var lkDsObj = lkdataset;
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);

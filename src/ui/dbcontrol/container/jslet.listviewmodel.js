@@ -305,10 +305,16 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	this.getCurrentRow = function(){
 		return needShowRows[currentRowno];
 	};
-		
+	
+	this.skipSetCurrentRowno = function() {
+		this._skipSetCurrentRowno = true;
+	};
+	
 	this.setCurrentRowno = function (rowno, notFireEvt, checkVisible) {
-	//	if (currentRowno == rowno)
-	//		return needShowRows ? needShowRows[rowno]: null;
+		if(this._skipSetCurrentRowno) {
+			this._skipSetCurrentRowno = false;
+			return;
+		}
 		if(rowno === undefined) {
 			return null;
 		}
@@ -344,8 +350,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			}
 		}
 		if (recno >= 0){
-			dataset.recno(recno);
-			if (dataset.aborted()) {
+			if(!dataset.recno(recno)) {
 				return null;
 			}
 		}

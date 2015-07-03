@@ -415,9 +415,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			jQuery(Z.el).parent().removeClass('has-error');
 		}
-		if(!jslet.ui.globalTip) {
-			Z.el.title = invalidMsg || '';
-		}
+		Z.el.title = invalidMsg || '';
 	},
  
 	destroy: function ($super) {

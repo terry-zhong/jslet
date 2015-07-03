@@ -104,10 +104,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z.doKeypress) {
 			jqEl.on('keypress', Z.doKeypress);
 		}
-		if (Z._enableInvalidTip && jslet.ui.globalTip) {
-			jqEl.on('mouseover', Z.doMouseOver);
-			jqEl.on('mouseout', Z.doMouseOut);
-		}
 		Z.doMetaChanged('required');
 	}, // end bind
 
@@ -184,20 +180,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 				Z._enterProcessed = false;
 			}
 		}
-	},
-
-	doMouseOver: function (event) {
-		var Z = this.jslet,
-			fldObj = Z._dataset.getField(Z._field),
-			invalidMsg = fldObj.message();
-		
-		if (invalidMsg) {
-			jslet.ui.globalTip.show(invalidMsg, event);
-		}
-	},
-
-	doMouseOut: function (event) {
-		jslet.ui.globalTip.hide();
 	},
 
 	focus: function() {

@@ -46,7 +46,7 @@
 		moreThanValue: 'Input value must more than: {0}',
 		cannotDelParent: 'Cannot delete record which has children!',
 		notUnique: 'Input value is not unique!',
-		
+		LookupDatasetNotSameAsHost: 'Lookup dataset cannot be the host dataset!',
 		betweenLabel: ' - ',
 		betwwenInvalid: 'Min value should not be great than max value',
 		value: 'Value',

@@ -2968,8 +2968,8 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		var editCtrl = Z._createEditControl(colCfg);
 		jQuery(editCtrl).css('width', '100%').on('focus', function(){
 			this.jslet._dataset.recno(this.jslet.currRecno());
+			Z.listvm.skipSetCurrentRowno();
 		});
-		console.log(editCtrl.tabIndex)
 		editCtrl.style.border = '0px';
 		cellPanel.appendChild(editCtrl);
 	},
