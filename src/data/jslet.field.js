@@ -498,7 +498,7 @@ jslet.data.Field.prototype = {
 		if (dftValue === undefined) {
 			return Z._defaultValue;
 		}
-		jslet.Checker.test('Field.defaultValuen', Z.dftValue).isDataType(Z._dateType);
+		jslet.Checker.test('Field.defaultValue', Z.dftValue).isDataType(Z._dateType);
 		Z._defaultValue = dftValue;
 		return this;
 	},
@@ -789,6 +789,11 @@ jslet.data.Field.prototype = {
 			return Z._valueStyle;
 		}
 		
+		if(mvalueStyle) {
+			mvalueStyle = parseInt(mvalueStyle);
+		} else {
+			mvalueStyle = 0;
+		}
 		jslet.Checker.test('Field.valueStyle', mvalueStyle).isNumber().inArray([0,1,2]);
 		Z._valueStyle = mvalueStyle;
 		Z._clearFieldCache();		
@@ -807,7 +812,11 @@ jslet.data.Field.prototype = {
 		if (count === undefined) {
 			return Z._valueCountLimit;
 		}
-		jslet.Checker.test('Field.valueCountLimit', count).isNumber();
+		if(count) {
+			jslet.Checker.test('Field.valueCountLimit', count).isNumber();
+		} else {
+			count = 0;
+		}
 		Z._valueCountLimit = parseInt(count);
 		return this;
 	},
@@ -1094,8 +1103,8 @@ jslet.data.Field.prototype = {
 		if(range && jslet.isString(range)) {
 			range = jslet.JSON.parse(range);
 		}
-		jslet.Checker.test('Field.dataRange', range).isObject();
 		if(range) {
+			jslet.Checker.test('Field.dataRange', range).isObject();
 			if(range.min) {
 				jslet.Checker.test('Field.dataRange.min', range.min).isDataType(Z._dateType);
 			}
@@ -1166,7 +1175,9 @@ jslet.data.Field.prototype = {
 		if (validator === undefined) {
 			return Z._customValidator;
 		}
-		jslet.Checker.test('Field.customValidator', validator).isFunction();
+		if(validator) {
+			jslet.Checker.test('Field.customValidator', validator).isFunction();
+		}
 		Z._customValidator = validator;
 		return this;
 	},

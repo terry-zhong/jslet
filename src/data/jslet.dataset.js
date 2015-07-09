@@ -1685,7 +1685,7 @@ jslet.data.Dataset.prototype = {
 			context = Z.startSilenceMove(true),
 			found = false,
 			parentKeys = [],
-			currPKey, prePKey = Z.keyValue();
+			currPKey, lastPKey = prePKey = Z.keyValue();
 		try {
 			Z.next();
 			while (!Z.isEof()) {

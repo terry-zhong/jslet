@@ -587,20 +587,20 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			item = Z.listvm.setCurrentRowno(rowNo, true),
 			cells = row.cells, 
 			cellCnt = cells.length, 
-			reqiredCnt = item.level + 4,
+			requiredCnt = item.level + 4,
 			otd;
 		row.jsletrowno = rowNo;
-		if (cellCnt < reqiredCnt){
+		if (cellCnt < requiredCnt){
 			for(var i = 1, cnt = requiredCnt - cellCnt; i < cnt; i++){
 				otd = row.insertCell(0);
 				jQuery(otd).addClass('jl-tree-lines').attr('jsletline', 1);
 			}
 		}
-		if (cellCnt >= reqiredCnt){
-			for( var i = 0, cnt = cellCnt - reqiredCnt; i < cnt; i++){
+		if (cellCnt >= requiredCnt){
+			for( var i = 0, cnt = cellCnt - requiredCnt; i < cnt; i++){
 				cells[i].style.display = 'none';
 			}
-			for(var i = cellCnt - reqiredCnt; i < reqiredCnt; i++){
+			for(var i = cellCnt - requiredCnt; i < requiredCnt; i++){
 				cells[i].style.display = '';
 			}
 		}
