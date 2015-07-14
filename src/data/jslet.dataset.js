@@ -2766,12 +2766,12 @@ jslet.data.Dataset.prototype = {
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
-		if(value && fldObj.getType() === jslet.data.DataType.NUMBER) {
-			value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
-		}
-		
 		var currRec = Z.getRecord();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
+			if(value && fldObj.getType() === jslet.data.DataType.NUMBER && !jslet.isArray(value)) {
+				value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
+			}
+			
 			currRec[fldName] = value;
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
 				return this;

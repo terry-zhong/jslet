@@ -49,7 +49,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,displayFields,hasCheckBox,correlateCheck,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,iconClassField,onGetIconClass,onCreateContextMenu';
+		Z.allProperties = 'dataset,displayFields,hasCheckBox,correlateCheck,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,iconClassField,onGetIconClass,onCreateContextMenu';
 		Z.requiredProperties = 'displayFields';
 		
 		/**
@@ -90,6 +90,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		Z._onItemClick = null;
 		
 		Z._onItemDblClick = null;
+
+		Z._beforeCheckBoxClick = null;
+		
 		/**
 		 * {Event} You can use this event to customize your tree node icon flexibly.
 		 * Pattern: 
@@ -186,6 +189,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jslet.Checker.test('DBTreeView.onItemDblClick', onItemDblClick).isFunction();
 		this._onItemDblClick = onItemDblClick;
+	},
+	
+	beforeCheckBoxClick: function(beforeCheckBoxClick) {
+		if(beforeCheckBoxClick === undefined) {
+			return this._beforeCheckBoxClick;
+		}
+		jslet.Checker.test('DBTreeView.beforeCheckBoxClick', beforeCheckBoxClick).isFunction();
+		this._beforeCheckBoxClick = beforeCheckBoxClick;
 	},
 	
 	onGetIconClass: function(onGetIconClass) {
@@ -482,10 +493,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._readOnly) {
 			return;
 		}
-		if (Z.beforeCheckBoxClick) {
-			if (!Z.beforeCheckBoxClick()) {
-				return;
-			}
+		if (Z._beforeCheckBoxClick && !Z._beforeCheckBoxClick.call(Z)) {
+			return;
 		}
 		var node = Z.listvm.getCurrentRow();
 		Z.listvm.checkNode(!node.state? 1:0, Z._correlateCheck);
