@@ -148,11 +148,27 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		try {
 			var template = ['<table cellpadding="0" cellspacing="0">'],
 				isNewRow = false, 
-				
 				itemId;
+			var editFilter = lkf.editFilter();
+			Z._innerEditFilterExpr = null;
+			var editItemDisabled = lkf.editItemDisabled();
+			if(editFilter) {
+				Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
+			}
+			var disableOption = false, k = -1;
+			
 			Z._itemIds = [];
-			for (var k = 0; k < cnt; k++) {
-				lkds.recnoSilence(k);
+			for (var i = 0; i < cnt; i++) {
+				lkds.recnoSilence(i);
+				disableOption = false;
+				if(Z._innerEditFilterExpr && !Z._innerEditFilterExpr.eval()) {
+					if(!editItemDisabled) {
+						continue;
+					} else {
+						disableOption = true;
+					}
+				}
+				k++;
 				isNewRow = (k % Z._columnCount === 0);
 				if (isNewRow) {
 					if (k > 0) {
@@ -168,7 +184,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				template.push(Z._field);
 				template.push('" type="radio"  id="');
 				template.push(itemId);
-				template.push('" /><label for="');
+				template.push('" ' + (disableOption? ' disabled': '') + '/><label for="');
 				template.push(itemId);
 				template.push('">');
 				template.push(lkf.getCurrentDisplayValue());

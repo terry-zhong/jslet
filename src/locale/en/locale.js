@@ -73,7 +73,8 @@
 	
 	locale.DBCheckBoxGroup = {
 		invalidCheckedCount: 'Not exceed {0} items!',
-		noOptions: 'No options'
+		noOptions: 'No options',
+		selectAll: 'All'
 	};
 	
 	locale.DBRadioGroup = {

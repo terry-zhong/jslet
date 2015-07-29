@@ -192,6 +192,16 @@ jslet.data.Dataset is the core class of Jslet framework. Features:
 <tr class="rowColor">
 <td class="colFirst"><code>String <br />this</code></td>
 <td class="colLast"><code>
+	<strong><a href="#fixedIndexFields()">fixedIndexFields</a></strong>() <br />
+	<strong><a href="#fixedIndexFields()">fixedIndexFields</a></strong>(fieldNames)
+	</code>
+<div class="block">Get or set fixed index fields of dataset, field names separated by comma(,). "Fixed index fields" means the index fields is not changed.</div>
+</td>
+</tr>
+
+<tr class="rowColor">
+<td class="colFirst"><code>String <br />this</code></td>
+<td class="colLast"><code>
 	<strong><a href="#indexFields()">indexFields</a></strong>() <br />
 	<strong><a href="#indexFields()">indexFields</a></strong>(fieldNames)
 	</code>
@@ -202,6 +212,15 @@ jslet.data.Dataset is the core class of Jslet framework. Features:
 <td class="colFirst" colspan="2"><h4>Filtering Data</h4></td>
 </tr>
 
+<tr class="rowColor">
+<td class="colFirst"><code>String <br />this</code></td>
+<td class="colLast"><code>
+	<strong><a href="#fixedFilter()">fixedFilter</a></strong>() <br />
+	<strong><a href="#fixedFilter()">fixedFilter</a></strong>(filterExpr)
+	</code>
+<div class="block">Get or set dataset fixed filter expression. "Fixed filter" means the filter expression is not changed. </div>
+</td>
+</tr>
 <tr class="rowColor">
 <td class="colFirst"><code>String <br />this</code></td>
 <td class="colLast"><code>
@@ -309,7 +328,14 @@ jslet.data.Dataset is the core class of Jslet framework. Features:
 <td class="colFirst"><code>Object[] <br />void</code></td>
 <td class="colLast"><code><strong><a href="#dataList()">dataList</a></strong>()<br />
 	<strong><a href="#dataList()">dataList</a></strong>(arrayData)</code> 
-<div class="block">Get or set data to dataset.</div>
+<div class="block">Get or set data list from/to dataset.</div>
+</td>
+</tr>
+
+<tr class="rowColor">
+<td class="colFirst"><code>Object[] <br />void</code></td>
+<td class="colLast"><code><strong><a href="#filteredDataList()">filteredDataList</a></strong>()</code><br />
+<div class="block">Get filtered data list from dataset.</div>
 </td>
 </tr>
 
@@ -831,6 +857,25 @@ var dsObj = new jslet.data.Dataset("test");
 <dt><span class="strong">Since:</span></dt><dd>1.0</dd>
 </dl></li></ul>
 
+<a id="fixedIndexFields()"></a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fixedIndexFields</h4>
+<pre>fixedIndexFields()</pre>
+<div class="block">Get dataset fixed index fields.</div>
+<dl>
+<dt><span class="strong">Returns:</span></dt><dd>String, index fields</dd>
+</dl>
+<hr />
+<pre>fixedIndexFields(indexFieldNames)</pre>
+<div class="block">Set fixed index fields, field names separated by comma(',').</div>
+<dl>
+<dt><span class="strong">Parameters:</span></dt>
+<dd><code>indexFieldNames</code> - (Required) String, index field names, separated by comma(',').</dd>
+<dt><span class="strong">Returns:</span></dt><dd>this</dd>
+<dt><span class="strong">Since:</span></dt><dd>1.0</dd>
+</dl></li></ul>
+
 <a name="indexFields()"></a>
 <ul class="blockList">
 <li class="blockList">
@@ -846,6 +891,31 @@ var dsObj = new jslet.data.Dataset("test");
 <dl>
 <dt><span class="strong">Parameters:</span></dt>
 <dd><code>indexFieldNames</code> - (Required) String, index field names, separated by comma(',').</dd>
+<dt><span class="strong">Returns:</span></dt><dd>this</dd>
+<dt><span class="strong">Since:</span></dt><dd>1.0</dd>
+</dl></li></ul>
+
+<a id="fixedFilter()"></a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fixedFilter</h4>
+<pre>fixedFilter()</pre>
+<div class="block">Get dataset fixed filter expression.</div>
+<dl>
+<dt><span class="strong">Returns:</span></dt><dd>String, filter expression</dd>
+</dl>
+<hr />
+<pre>fixedFilter(filterExpr)</pre>
+<div class="block">Set dataset fixed filter expression. Here is <a href="../common/exprsyntax.html">expression syntax</a>. <br />
+	Filter can work depending on property: filtered, filtered must be true. Example:
+<pre><code class="sample">
+dsFoo.fixedFilter('[name] like "Bob%"');
+dsFoo.fixedFilter('[age] &gt; 20');
+</code></pre>
+</div>
+<dl>
+<dt><span class="strong">Parameters:</span></dt>
+<dd><code>filterExpr</code> - (Required) String, filter expression.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this</dd>
 <dt><span class="strong">Since:</span></dt><dd>1.0</dd>
 </dl></li></ul>
@@ -1034,6 +1104,16 @@ dsFoo.findByKey('A001');
 <dd><code>datalist</code> - (Required) Object[], data list.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this</dd>
 <dt><span class="strong">Since:</span></dt><dd>1.0</dd>
+</dl></li></ul>
+
+<a id="filteredDataList()"></a>
+<ul class="blockList">
+<li class="blockList">
+<h4>filteredDataList</h4>
+<pre>filteredDataList()</pre>
+<div class="block">Get filtered data list of this dataset.</div>
+<dl>
+<dt><span class="strong">Returns:</span></dt><dd>Object[], filtered data list.</dd>
 </dl></li></ul>
 
 <a name="insertRecord()"></a>

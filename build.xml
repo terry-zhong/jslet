@@ -71,6 +71,7 @@
 			    <file name="jslet.dbinspector.js" />
 			    <file name="jslet.dbtable.js" />
 			    <file name="jslet.dbtreeview.js" />
+			    <file name="jslet.commondialog.js" />
 			</filelist>
 			<filelist dir="${src.dir}/ui/dbcontrol/form">
 			    <file name="jslet.dbplace.js" />

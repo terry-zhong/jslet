@@ -118,8 +118,9 @@ var _initialModules = [
 	{ name: 'dbtreeview', src: '../src/ui/dbcontrol/container/jslet.dbtreeview.js', deps: ['jslet-treeview','listviewmodel'], baseOnLoader: true },
 	{ name: 'dbeditpanel', src: '../src/ui/dbcontrol/container/jslet.dbeditpanel.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dbchart', src: '../src/ui/dbcontrol/container/jslet.dbchart.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
-
-	{ name: 'containercontrols', deps: ['dbtable','dbtreeview','dbeditpanel','dbinspector','dbchart'], baseOnLoader: true },
+	{ name: 'commondialog', src: '../src/ui/dbcontrol/container/jslet.commondialog.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
+	
+	{ name: 'containercontrols', deps: ['commondialog', 'dbtable','dbtreeview','dbeditpanel','dbinspector','dbchart'], baseOnLoader: true },
 
 	{ name: 'dbpagebar', src: '../src/ui/dbcontrol/misc/jslet.dbpagebar.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dberror', src: '../src/ui/dbcontrol/misc/jslet.dberror.js', deps: ['jslet-data','uicore'], baseOnLoader: true },

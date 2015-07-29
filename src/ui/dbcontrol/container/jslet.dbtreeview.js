@@ -600,7 +600,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			otd;
 		row.jsletrowno = rowNo;
 		if (cellCnt < requiredCnt){
-			for(var i = 1, cnt = requiredCnt - cellCnt; i < cnt; i++){
+			for(var i = 1, cnt = requiredCnt - cellCnt; i <= cnt; i++){
 				otd = row.insertCell(0);
 				jQuery(otd).addClass('jl-tree-lines').attr('jsletline', 1);
 			}
@@ -682,7 +682,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				//Text
 		var text = Z.evaluator.eval() || '';
 		jslet.ui.textMeasurer.setElement(Z.el);
-		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length;
+		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length * 4;
 		totalWidth += width + 10;
 		//node.style.width = totalWidth + 'px';
 		jslet.ui.textMeasurer.setElement();

@@ -23,10 +23,6 @@ jQuery(function () {
 	test('jslet.Dataset: name()', function () {
 		var dsName = dsEmp.name();
 		ok(dsName == 'employee', 'jslet.Dataset.name().');
-		
-		throws(function(){
-			 dsEmp.name('test-db');
-		}, 'jslet.Dataset.name() is readonly.');
 	});
 
 	test('jslet.Dataset: field count', function() {

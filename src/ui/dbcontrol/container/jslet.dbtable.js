@@ -366,16 +366,23 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	currColNum: function(currColNum) {
+		var Z = this;
 		if(currColNum === undefined) {
-			return this._currColNum;
+			return Z._currColNum;
 		}
-		var oldColNum = this._currColNum;
+		var oldColNum = Z._currColNum;
 //		if(oldColNum === currColNum) {
 //			return;
 //		}
-		this._currColNum = currColNum;
-		this._adjustCurrentCellPos(oldColNum > currColNum);
-		this._showCurrentCell();
+		Z._currColNum = currColNum;
+		Z._adjustCurrentCellPos(oldColNum > currColNum);
+		Z._showCurrentCell();
+		if(Z._findDialog) {
+			var colCfg = Z.innerColumns[currColNum];
+			if(colCfg.field) {
+				Z._findDialog.findingField(colCfg.field);
+			}
+		}
 	},
 	
 	onRowClick: function(onRowClick) {
@@ -521,7 +528,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.ui.textMeasurer.setElement();
 		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
-				
+		Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
 		Z._initializeVm();
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
@@ -576,6 +583,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
+			
+			if(event.ctrlKey && keyCode == 70) { //ctrl + f
+				Z._findDialog.show();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+				return false;
+			}
 			if(event.ctrlKey && keyCode == 67) { //ctrl + c
 				var selectedText = Z._dataset.selection.getSelectionText();
 				if(selectedText) {
@@ -1165,9 +1179,29 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 
+	_changeColWidthCssRule: function(cssName, width){
+		var Z = this,
+			styleEle = document.getElementById(Z._widthStyleId),
+			styleObj = styleEle.styleSheet || styleEle.sheet,
+			cssRules = styleObj.cssRules || styleObj.rules,
+			cssRule = null, found = false;
+			cssName = '.' + cssName;
+		for(var i = 0, len = cssRules.length; i < len; i++) {
+			cssRule = cssRules[i];
+			if(cssRule.selectorText == cssName) {
+				found = true;
+				break;
+			}
+		}
+		if(found) {
+			cssRule.style['width'] = width + 'px';
+		}
+		return found;
+	},
+
 	_changeColWidth: function (index, deltaW) {
-		var Z = this;
-		var colObj = Z.innerColumns[index];
+		var Z = this,
+			colObj = Z.innerColumns[index];
 		if (colObj.width + deltaW <= 0) {
 			return;
 		}
@@ -1175,38 +1209,53 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(colObj.field) {
 			Z._dataset.getField(colObj.field).displayWidth(Math.round(colObj.width/Z.charWidth))
 		}
-		
-		 function getRule(cssName){
-			var styleEle = document.getElementById(Z._widthStyleId),
-				styleObj = styleEle.styleSheet || styleEle.sheet,
-				cssRules = styleObj.cssRules || styleObj.rules,
-				cssRule;
-			cssName = '.' + cssName;
-			for(var i = 0, len = cssRules.length; i < len; i++) {
-				cssRule = cssRules[i];
-				if(cssRule.selectorText == cssName) {
-					return cssRule;
-				}
-			}
-			return null;
-		};
-		var cssRule = getRule(colObj.widthCssName);
-		if(cssRule) {
-			cssRule.style['width'] = colObj.width + 'px';
+		if(Z._changeColWidthCssRule(colObj.widthCssName, colObj.width)) {
+			Z._changeContentWidth(deltaW);
 		}
-
-		Z._changeContentWidth(deltaW);
 	},
 
-	_changeContentWidth: function (deltaW) {
+	_refreshSeqColWidth: function() {
+		var Z = this;
+		if (!Z._hasSeqCol) {
+			return;
+		}
+		var oldSeqColWidth = Z.seqColWidth;
+		Z.seqColWidth = ('' + Z._dataset.recordCount()).length * Z.charWidth;
+		var sWidth = jslet.ui.htmlclass.TABLECLASS.selectColWidth;
+		Z.seqColWidth = Z.seqColWidth > sWidth ? Z.seqColWidth: sWidth;
+		if(Z.seqColWidth == oldSeqColWidth) {
+			return;
+		}
+		var colObj;
+		for(var i = 0, len = Z._sysColumns.length; i < len; i++) {
+			colObj = Z._sysColumns[i];
+			if(colObj.isSeqCol) {
+				break;
+			}
+		}
+		colObj.width = Z.seqColWidth;
+		Z._changeColWidthCssRule(colObj.widthCssName, Z.seqColWidth);
+		var deltaW = Z.seqColWidth - oldSeqColWidth;
+		Z._changeContentWidth(deltaW, true);
+	},
+
+	_changeContentWidth: function (deltaW, isLeft) {
 		var Z = this,
-			totalWidth = Z.getTotalWidth(),
+			totalWidth = Z.getTotalWidth(isLeft),
 			totalWidthStr = totalWidth + 'px';
-		Z.rightHeadTbl.parentNode.style.width = totalWidthStr;
-		Z.rightFixedTbl.parentNode.style.width = totalWidthStr;
-		Z.rightContentTbl.parentNode.style.width = totalWidthStr;
-		if (Z.footSectionHt) {
-			Z.rightFootTbl.style.width = totalWidthStr;
+		if(!isLeft) {
+			Z.rightHeadTbl.parentNode.style.width = totalWidthStr;
+			Z.rightFixedTbl.parentNode.style.width = totalWidthStr;
+			Z.rightContentTbl.parentNode.style.width = totalWidthStr;
+			if (Z.footSectionHt) {
+				Z.rightFootTbl.style.width = totalWidthStr;
+			}
+		} else {
+			Z.fixedColWidth = totalWidth;
+			Z.leftHeadTbl.parentNode.parentNode.style.width = Z.fixedColWidth + 1 + 'px';
+			Z.leftHeadTbl.parentNode.style.width = totalWidthStr;
+			Z.leftFixedTbl.parentNode.style.width = totalWidthStr;
+			Z.leftContentTbl.parentNode.style.width = totalWidthStr;
 		}
 		Z._checkHoriOverflow();
 	},
@@ -1857,11 +1906,20 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.indexField = null;
 	}, // end renderHead
 
-	getTotalWidth: function(){
+	getTotalWidth: function(isLeft){
 		var Z= this,
 		totalWidth = 0;
-		for(var i = Z._fixedCols, cnt = Z.innerColumns.length; i < cnt; i++){
-			totalWidth += Z.innerColumns[i].width;
+		if(!isLeft) {
+			for(var i = Z._fixedCols, cnt = Z.innerColumns.length; i < cnt; i++){
+				totalWidth += Z.innerColumns[i].width;
+			}
+		} else {
+			for(var i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
+				totalWidth += Z._sysColumns[i].width;
+			}
+			for(var i = 0, cnt = Z._fixedCols; i < cnt; i++){
+				totalWidth += Z.innerColumns[i].width;
+			}
 		}
 		return totalWidth;
 	},
@@ -2296,6 +2354,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} finally {
 			Z._dataset.endSilenceMove(context);
 		}
+		Z._refreshSeqColWidth();
 	},
 
 	_fillRow: function (isFixed) {

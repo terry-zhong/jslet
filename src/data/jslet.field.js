@@ -788,7 +788,7 @@ jslet.data.Field.prototype = {
 			
 			return Z._valueStyle;
 		}
-		
+
 		if(mvalueStyle) {
 			mvalueStyle = parseInt(mvalueStyle);
 		} else {
@@ -1195,7 +1195,16 @@ jslet.data.Field.prototype = {
 				return Z._scale ? '+-0123456789.' : '+-0123456789';
 			}
 			if (Z._dataType == jslet.data.DataType.DATE){
-				return '0123456789' + (this.dateSeparator() ? this.dateSeparator() : '');
+				var displayFormat = Z.displayFormat();
+				var chars = '0123456789';
+				for(var i = 0, len = displayFormat.length; i < len; i++) {
+					var c = displayFormat.charAt(i);
+					if(c === 'y' || c === 'M' || c === 'd' || c === 'h' || c === 'm' || c === 's') {
+						continue;
+					}
+					chars += c;
+				}
+				return chars;
 			}
 		}
 		
@@ -1682,6 +1691,7 @@ jslet.data.FieldLookup = function() {
 	Z._onlyLeafLevel = true;
 	Z._returnFieldMap = null;
 	Z._editFilter = null;
+	Z._editItemDisabled = false;
 };
 jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 
@@ -1700,6 +1710,7 @@ jslet.data.FieldLookup.prototype = {
 		result.onlyLeafLevel(Z._onlyLeafLevel);
 		result.returnFieldMap(Z._returnFieldMap);
 		result.editFilter(Z._editFilter);
+		result.editItemDisabled(Z._editItemDisabled);
 		return result;
 	},
 	
@@ -1951,8 +1962,11 @@ jslet.data.FieldLookup.prototype = {
 	/**
 	 * An expression for display field value. Example:
 	 * <pre><code>
-	 * lookupFldObj.displayFields('[code]-[name]'); 
+	 * lookupFldObj.editFilter('like([code], "101%" '); 
 	 * </code></pre>
+	 * 
+	 * @param {String or undefined} flag True - Only leaf level item user can selects, false - otherwise.
+	 * @return {String or this}
 	 */
 	editFilter: function(editFilter) {
 		var Z = this;
@@ -1964,6 +1978,23 @@ jslet.data.FieldLookup.prototype = {
 		if (Z._editFilter != editFilter) {
 			Z._editFilter = editFilter;
 		}
+		return this;
+	},
+	
+	/**
+	 * Disable or hide the edit item which not match the 'editFilter'.
+	 * editItemDisabled is true, the non-matched item will be disabled, not hidden.
+	 * 
+	 * @param {Boolean or undefined} editItemDisabled - true: disable edit item, false: hide edit item, default is true.
+	 * @return {Boolean or this}
+	 */
+	editItemDisabled: function(editItemDisabled) {
+		var Z = this;
+		if (editItemDisabled === undefined) {
+			return Z._editItemDisabled;
+		}
+		
+		Z._editItemDisabled = editItemDisabled? true: false;
 		return this;
 	}
 	
@@ -2014,6 +2045,10 @@ jslet.data.createFieldLookup = function(param, hostDsName) {
 	if (param.editFilter !== undefined) {
 		lkFldObj.editFilter(param.editFilter);
 	}
+	if (param.editItemDisabled !== undefined) {
+		lkFldObj.editItemDisabled(param.editItemDisabled);
+	}
+	
 	return lkFldObj;
 };
 

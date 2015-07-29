@@ -73,7 +73,8 @@
 
 	locale.DBCheckBoxGroup = {
 		invalidCheckedCount: '最大可选择的个数不能超过: {0}!',
-		noOptions: '无可选项'
+		noOptions: '无可选项',
+		selectAll: '全部'
 	};
 
 	locale.DBRadioGroup = {

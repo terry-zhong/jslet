@@ -203,7 +203,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 				lkds.indexFields(extraIndex);
 			}
 		}
-		var preGroupValue, groupValue, groupDisplayValue, content = [];
+		var preGroupValue = null, groupValue, groupDisplayValue, content = [];
 
 		if (!Z.el.multiple && !fldObj.required()){
 			content.push('<option value="_null_">');
@@ -215,14 +215,21 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			firstItemValue = null,
 			editFilter = lkf.editFilter();
 		Z._innerEditFilterExpr = null;
+		var editItemDisabled = lkf.editItemDisabled();
 		if(editFilter) {
 			Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
 		}
+		var disableOption = false;
 		try {
 			for (var i = 0, cnt = lkds.recordCount(); i < cnt; i++) {
 				lkds.recnoSilence(i);
+				disableOption = false;
 				if(Z._innerEditFilterExpr && !Z._innerEditFilterExpr.eval()) {
-					continue;
+					if(!editItemDisabled) {
+						continue;
+					} else {
+						disableOption = true;
+					}
 				}
 				if (Z._groupField) {
 					groupValue = lkds.getFieldValue(Z._groupField);
@@ -256,7 +263,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					firstItemValue = optValue;
 				}
 				content.push(optValue);
-				content.push('">');
+				content.push('"'+ (disableOption? ' disabled': '') +  '>');
 				content.push(lkf.getCurrentDisplayValue());
 				content.push('</option>');
 			} // end for
@@ -321,12 +328,14 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		
 		if (!Z.el.multiple) {
 			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			if(!Z._checkOptionEditable(fldObj, value)) {
+				value = null;
+			}
 			if (value === null){
 				if (!fldObj.required()) {
 					value = '_null_';
 				}
 			}
-			Z._checkOptionEditable(fldObj, value);
 			Z.el.value = value;
 		} else {
 			var arrValue = Z._dataset.getFieldValue(Z._field);
@@ -355,14 +364,14 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
  
 	_checkOptionEditable: function(fldObj, fldValue) {
 		var Z = this;
-		if(!Z._innerEditFilterExpr) {
-			return;
+		if(!Z._innerEditFilterExpr || fldValue === null || fldValue === undefined || fldValue === '') {
+			return true;
 		}
 		var lkDs = fldObj.lookup().dataset(); 
 		if(lkDs.findByKey(fldValue) && !Z._innerEditFilterExpr.eval()) {
-			Z.el.disabled = true;
+			return false;
 		} else {
-			Z.el.disabled = false;
+			return true;
 		}
 	},
 	

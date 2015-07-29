@@ -833,11 +833,17 @@ jslet.data.Dataset.prototype = {
 				strFields.push(fname);
 			}
 		}
-		var  v1, v2, fname, flag = 1;
+		var  v1, v2, fname, flag = 1, idxFldCfg;
 		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
-			fname = indexFlds[i].fieldName;
-			v1 = dsObj.fieldValueByRec(rec1, fname);
-			v2 = dsObj.fieldValueByRec(rec2, fname);
+			idxFldCfg = indexFlds[i];
+			fname = idxFldCfg.fieldName;
+			if(idxFldCfg.useTextToSort) {
+				v1 = dsObj.getFieldTextByRec(rec1, fname);
+				v2 = dsObj.getFieldTextByRec(rec2, fname);
+			} else {
+				v1 = dsObj.fieldValueByRec(rec1, fname);
+				v2 = dsObj.fieldValueByRec(rec2, fname);
+			}
 			if (v1 == v2) {
 				continue;
 			}
@@ -945,6 +951,7 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 			idxFld, 
 			found = false;
+		//Check fixed index fields
 		for(var i = Z._innerFixedIndexFields.length - 1; i>=0; i--) {
 			idxFld = Z._innerFixedIndexFields[i];
 			if(idxFld.fieldName === fldName) {
@@ -960,6 +967,7 @@ jslet.data.Dataset.prototype = {
 			Z._sortByFields();
 			return;
 		}
+		//Check index fields
 		found = false;
 		for(var i = Z._innerIndexFields.length - 1; i>=0; i--) {
 			idxFld = Z._innerIndexFields[i];
@@ -1060,7 +1068,11 @@ jslet.data.Dataset.prototype = {
 		}
 		var children = fldObj.children();
 		if (!children || children.length === 0) {
-			Z._combineIndexCfg(fldObj.name(), order);
+			var useTextToSort = true;
+			if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+				useTextToSort = false;
+			}
+			Z._combineIndexCfg(fldObj.name(), order, useTextToSort);
 		} else {
 			for(var k = 0, childCnt = children.length; k < childCnt; k++) {
 				Z._createIndexCfg(children[k], order);
@@ -1071,7 +1083,7 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * @private
 	 */
-	_combineIndexCfg: function(fldName, order) {
+	_combineIndexCfg: function(fldName, order, useTextToSort) {
 		for(var i = 0, len = this._sortingFields.length; i < len; i++) {
 			if (this._sortingFields[i].fieldName == fldName) {
 				this._sortingFields.splice(i,1);//remove duplicated field
@@ -1079,7 +1091,8 @@ jslet.data.Dataset.prototype = {
 		}
 		var indexNameObj = {
 				fieldName: fldName,
-				order: order
+				order: order,
+				useTextToSort: useTextToSort
 			};
 		this._sortingFields.push(indexNameObj);
 	},
@@ -2603,7 +2616,8 @@ jslet.data.Dataset.prototype = {
 		} finally {
 			Z._aborted = false;
 		}
-		var evt, 
+		 Z._cancelSubDataset();
+		 var evt, 
 			k = Z._recno,
 			records = Z.dataList();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
@@ -2619,6 +2633,8 @@ jslet.data.Dataset.prototype = {
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
+			evt = jslet.data.RefreshEvent.scrollEvent(Z._recno); 
+			Z.refreshControl(evt); 
 			return;
 		} else {
 			if (Z._filteredRecnoArray) {
@@ -2640,6 +2656,26 @@ jslet.data.Dataset.prototype = {
 		Z.refreshControl(evt);
 	},
 
+    /*
+     * @private
+     */
+    _cancelSubDataset: function() {
+        var Z = this,
+            fldObj, 
+            subDatasets = [];
+        for (var i = 0, len = Z._normalFields.length; i < len; i++) {
+            fldObj = Z._normalFields[i];
+            if(fldObj.getType() === jslet.data.DataType.DATASET) {
+                subDatasets.push(fldObj.subDataset());
+            }
+        }
+        var subDs;
+        for(var i = 0, len = subDatasets.length; i < len; i++) {
+            subDs = subDatasets[i];
+            subDs.cancel();
+        }
+    },
+     
 	/**
 	 * Set or get logChanges
 	 * if NOT need send changes to Server, can set logChanges to false  
@@ -2731,6 +2767,74 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 		
+	/**
+	 * Get field value of specified record
+	 * 
+	 * @param {Object} dataRec - specified record
+	 * @param {String} fldName - field name
+	 * @return {Object} field value
+	 */
+	fieldValueByRec: function (dataRec, fldName, valueIndex) {
+		var Z = this;
+		if (Z.recordCount() === 0) {
+			return null;
+		}
+
+		if (!dataRec) {
+			dataRec = Z.getRecord();
+		}
+
+		var k = fldName.indexOf('.'), 
+			subfldName, fldValue = null,
+			fldObj = Z.getField(fldName),
+			value, lkds;
+		if (k > 0) {
+			subfldName = fldName.substr(0, k);
+			fldObj = Z.getField(subfldName);
+			var lkf = fldObj.lookup(),
+				subDs = fldObj.subDataset();
+			
+			if (!lkf && !subDs) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [subfldName]));
+			}
+			if(lkf) {
+				value = dataRec[subfldName];
+				lkds = lkf.dataset();
+				if (lkds.findByField(lkds.keyField(), value)) {
+					fldValue = lkds.getFieldValue(fldName.substr(k + 1));
+				} else {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+								[lkds.name(),lkds.keyField(), value]));
+				}
+			} else {
+				fldValue = subDs.getFieldValue(fldName.substr(k + 1));
+			}
+			
+		} else {
+			if (!fldObj) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			}
+			var formula = fldObj.formula();
+			if (!formula) {
+				value = dataRec[fldName];
+				fldValue = value !== undefined ? value :null;
+			} else {
+				if(dataRec[fldName] === undefined) {
+					fldValue = Z._calcFormula(dataRec, fldName);
+					dataRec[fldName] = fldValue;
+				} else {
+					value = dataRec[fldName];
+					fldValue = value !== undefined ? value :null;
+				}
+			}
+		}
+
+		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
+			return fldValue;
+		}
+		return jslet.getArrayValue(fldValue, valueIndex);
+	},
+
 	/**
 	 * Get field value of current record
 	 * 
@@ -2900,74 +3004,6 @@ jslet.data.Dataset.prototype = {
 		
 	},
 	
-	/**
-	 * Get field value of specified record
-	 * 
-	 * @param {Object} dataRec - specified record
-	 * @param {String} fldName - field name
-	 * @return {Object} field value
-	 */
-	fieldValueByRec: function (dataRec, fldName, valueIndex) {
-		var Z = this;
-		if (Z.recordCount() === 0) {
-			return null;
-		}
-
-		if (!dataRec) {
-			dataRec = Z.getRecord();
-		}
-
-		var k = fldName.indexOf('.'), 
-			subfldName, fldValue = null,
-			fldObj = Z.getField(fldName),
-			value, lkds;
-		if (k > 0) {
-			subfldName = fldName.substr(0, k);
-			fldObj = Z.getField(subfldName);
-			var lkf = fldObj.lookup(),
-				subDs = fldObj.subDataset();
-			
-			if (!lkf && !subDs) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [subfldName]));
-			}
-			if(lkf) {
-				value = dataRec[subfldName];
-				lkds = lkf.dataset();
-				if (lkds.findByField(lkds.keyField(), value)) {
-					fldValue = lkds.getFieldValue(fldName.substr(k + 1));
-				} else {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
-								[lkds.name(),lkds.keyField(), value]));
-				}
-			} else {
-				fldValue = subDs.getFieldValue(fldName.substr(k + 1));
-			}
-			
-		} else {
-			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-			}
-			var formula = fldObj.formula();
-			if (!formula) {
-				value = dataRec[fldName];
-				fldValue = value !== undefined ? value :null;
-			} else {
-				if(dataRec[fldName] === undefined) {
-					fldValue = Z._calcFormula(dataRec, fldName);
-					dataRec[fldName] = fldValue;
-				} else {
-					value = dataRec[fldName];
-					fldValue = value !== undefined ? value :null;
-				}
-			}
-		}
-
-		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
-			return fldValue;
-		}
-		return jslet.getArrayValue(fldValue, valueIndex);
-	},
-
 	hasFieldErrorMessage: function() {
 		var fields = this.getNormalFields();
 		for(var i = 0, len = fields.length; i < len; i++) {
@@ -2990,7 +3026,7 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
-	 * Get field display text 
+	 * Get field display text. 
 	 * 
 	 * @param {String} fldName Field name
 	 * @param {Boolean} isEditing In edit mode or not, if in edit mode, return 'Input Text', else return 'Display Text'
@@ -2998,11 +3034,32 @@ jslet.data.Dataset.prototype = {
 	 * @return {String} 
 	 */
 	getFieldText: function (fldName, isEditing, valueIndex) {
+		if (this.recordCount() === 0) {
+			return null;
+		}
+
+		var currRec = this.getRecord();
+		if (!currRec) {
+			return null;
+		}
+		return this.getFieldTextByRec(currRec, fldName, valueIndex);
+	},
+	
+	/**
+	 * Get field display text by data record.
+	 * 
+	 * @param {Object} data record.
+	 * @param {String} fldName Field name
+	 * @param {Boolean} isEditing In edit mode or not, if in edit mode, return 'Input Text', else return 'Display Text'
+	 * @param {Integer} valueIndex identify which item will get if the field has multiple values.
+	 * @return {String} 
+	 */
+	getFieldTextByRec: function (dataRec, fldName, isEditing, valueIndex) {
 		var Z = this;
 		if (Z.recordCount() === 0) {
 			return '';
 		}
-		var currRec = Z.getRecord(), 
+		var currRec = dataRec, 
 			k = fldName.indexOf('.'), 
 			fldObj, value;
 		if (k > 0) { //Field chain
@@ -3035,6 +3092,7 @@ jslet.data.Dataset.prototype = {
 				}
 			}
 			else {
+				//Can't use it in sort function.
 				return subDs.getFieldText(fldName, isEditing, valueIndex);
 			}
 		}
@@ -3050,8 +3108,8 @@ jslet.data.Dataset.prototype = {
 			result = [];
 		if(valueStyle == jslet.data.FieldValueStyle.BETWEEN && valueIndex === undefined)
 		{
-			var minVal = Z.getFieldText(fldName, isEditing, 0),
-				maxVal = Z.getFieldText(fldName, isEditing, 1);
+			var minVal = Z.getFieldTextByRec(currRec, fldName, isEditing, 0),
+				maxVal = Z.getFieldTextByRec(currRec, fldName, isEditing, 1);
 			if(!isEditing && !minVal && !maxVal){
 				return '';
 			}
@@ -3074,7 +3132,7 @@ jslet.data.Dataset.prototype = {
 			}
 			
 			for(var i = 0; i <= len; i++) {
-				result.push(Z.getFieldText(fldName, isEditing, i));
+				result.push(Z.getFieldTextByRec(currRec, fldName, isEditing, i));
 				if(i < len) {
 					result.push(jslet.global.valueSeparator);
 				}
@@ -3088,7 +3146,7 @@ jslet.data.Dataset.prototype = {
 				return cacheValue;
 			}
 		}
-		value = Z.getFieldValue(fldName, valueIndex);
+		value = Z.fieldValueByRec(currRec, fldName, valueIndex);
 		if (value === null || value === undefined) {
 			var fixedValue = fldObj.fixedValue();
 			if(fixedValue) {
@@ -3232,9 +3290,10 @@ jslet.data.Dataset.prototype = {
 	 *   dsFoo.find('[age] > 20');
 	 * </code></pre>
 	 * @param {String} condition condition expression.
+	 * @param {Boolean} fromCurrentPosition Identify whether finding data from current position or not.
 	 * @return {Boolean} 
 	 */
-	find: function (condition) {
+	find: function (condition, fromCurrentPosition) {
 		var Z = this;
 		if (Z.recordCount() === 0) {
 			return false;
@@ -3252,9 +3311,12 @@ jslet.data.Dataset.prototype = {
 			return true;
 		}
 		Z._silence++;
-		var foundRecno = -1, oldRecno = Z._recno;
+		var foundRecno = -1, 
+			oldRecno = Z._recno;
 		try {
-			Z.first();
+			if(!fromCurrentPosition) {
+				Z.first();
+			}
 			while (!Z.isEof()) {
 				if (Z._innerFindCondition.eval()) {
 					foundRecno = Z._recno;
@@ -3278,21 +3340,59 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * @param {String} fldName - field name
 	 * @param {Object} findingValue - finding value
+	 * @param {Boolean} fromCurrentPosition Identify whether finding data from current position or not.
+	 * @param {Boolean} findingByText - Identify whether finding data with field text, default is with field value
+	 * @param {String} matchType null or undefined - match whole value, 'first' - match first, 'last' - match last, 'any' - match any
 	 * @return {Boolean} 
 	 */
-	findByField: function (fldName, findingValue) {
-		var Z = this;
+	findByField: function (fldName, findingValue, fromCurrentPosition, findingByText, matchType) {
 		
+		function matchValue(matchType, value, findingValue) {
+			if(!matchType) {
+				return value == findingValue;
+			}
+			if(matchType == 'first') {
+				return jslet.like(value, findingValue + '%');
+			}
+			if(matchType == 'any') {
+				return jslet.like(value, '%' + findingValue + '%');
+			}
+			if(matchType == 'last') {
+				return jslet.like(value, '%' + findingValue);
+			}
+		}
+		
+		var Z = this,
+			fldObj = Z.getField(fldName);
+		if(!fldObj) {
+			throw new Error('Field name: ' + fldName + ' NOT Found!');
+		}
+		
+		var byText = true;
+		if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+			byText = false;
+		}
 		var value, i;
 		if(Z._ignoreFilter) {
 			if(!Z.hasData()) {
 				return false;
 			}
 			var records = Z.dataList(),
-				len = records.length;
-			for(i = 0; i < len; i++) {
-				value = Z.fieldValueByRec(records[i], fldName);
-				if (value == findingValue) {
+				len = records.length,
+				dataRec;
+			var start = 0;
+			if(fromCurrentPosition) {
+				var currRec = Z.getRecord();
+				start = records.indexOf(currRec) + 1;
+			}
+			for(i = start; i < len; i++) {
+				dataRec = records[i];
+				if(findingByText && byText) {
+					value = Z.getFielTextByRec(dataRec, fldName);
+				} else {
+					value = Z.fieldValueByRec(dataRec, fldName);
+				}
+				if (matchValue(matchType, value, findingValue)) {
 					Z._ignoreFilterRecno = i;
 					return true;
 				}
@@ -3303,18 +3403,31 @@ jslet.data.Dataset.prototype = {
 			return false;
 		}
 
-		value = Z.getFieldValue(fldName);
-		if (value == findingValue) {
-			return true;
+		if(!fromCurrentPosition) {
+			if(findingByText && byText) {
+				value = Z.getFieldText(fldName);
+			} else {
+				value = Z.getFieldValue(fldName);
+			}
+			if (matchValue(matchType, value, findingValue)) {
+				return true;
+			}
 		}
-
 		var foundRecno = -1, oldRecno = Z.recno();
 		try {
-			var cnt = Z.recordCount();
-			for (i = 0; i < cnt; i++) {
+			var cnt = Z.recordCount(),
+				start = 0;
+			if(fromCurrentPosition) {
+				start = Z.recno() + 1;
+			}
+			for (i = start; i < cnt; i++) {
 				Z.recnoSilence(i);
-				value = Z.getFieldValue(fldName);
-				if (value == findingValue) {
+				if(findingByText && byText) {
+					value = Z.getFieldText(fldName);
+				} else {
+					value = Z.getFieldValue(fldName);
+				}
+				if (matchValue(matchType, value, findingValue)) {
 					foundRecno = Z._recno;
 					break;
 				}

@@ -33,7 +33,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,columnCount';
+		Z.allProperties = 'dataset,field,columnCount,hasSelectAllBox';
 		/**
 		 * {Integer} Column count
 		 */
@@ -48,6 +48,13 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		jslet.Checker.test('DBCheckBoxGroup.columnCount', columnCount).isGTEZero();
 		this._columnCount = parseInt(columnCount);
+	},
+	
+	hasSelectAllBox: function(hasSelectAllBox) {
+		if(hasSelectAllBox === undefined) {
+			return this._hasSelectAllBox;
+		}
+		this._hasSelectAllBox = hasSelectAllBox? true: false;
 	},
 	
 	/**
@@ -118,6 +125,9 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			checkbox, i;
 		for (i = 0; i < chkcnt; i++) {
 			checkbox = checkboxs[i];
+			if(jQuery(checkbox).hasClass('jl-selectall')) {
+				continue;
+			}
 			checkbox.checked = false;
 		}
 		var values = Z._dataset.getFieldValue(Z._field);
@@ -160,12 +170,41 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._itemIds = [];
 		try {
 			var template = ['<table cellpadding="0" cellspacing="0">'],
-			isNewRow = false;
-
+				isNewRow = false;
+			var editFilter = lkf.editFilter();
+			Z._innerEditFilterExpr = null;
+			var editItemDisabled = lkf.editItemDisabled();
+			if(editFilter) {
+				Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
+			}
+			var disableOption = false;
+			
 			var context = lkds.startSilenceMove(),
-			itemId;
-			for (var k = 0; k < cnt; k++) {
-				lkds.recnoSilence(k);
+				itemId = jslet.nextId(), k = -1;
+			if(Z._hasSelectAllBox && lkds.recordCount() > 0) {
+				template.push('<tr>');
+				itemId = jslet.nextId();
+				template.push('<td style="white-space: nowrap; "><input type="checkbox" class="jl-selectall"');
+				template.push(' id="');
+				template.push(itemId);
+				template.push('"/><label for="');
+				template.push(itemId);
+				template.push('">');
+				template.push(jslet.locale.DBCheckBoxGroup.selectAll);
+				template.push('</label></td>');
+				k = 0;
+			}
+			for (var i = 0; i < cnt; i++) {
+				lkds.recnoSilence(i);
+				disableOption = false;
+				if(Z._innerEditFilterExpr && !Z._innerEditFilterExpr.eval()) {
+					if(!editItemDisabled) {
+						continue;
+					} else {
+						disableOption = true;
+					}
+				}
+				k++;
 				isNewRow = (k % Z._columnCount === 0);
 				if (isNewRow) {
 					if (k > 0) {
@@ -178,7 +217,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				template.push(lkds.getFieldValue(lkf.keyField()));
 				template.push('" id="');
 				template.push(itemId);
-				template.push('" /><label for="');
+				template.push('" ' + (disableOption? ' disabled': '') + '/><label for="');
 				template.push(itemId);
 				template.push('">');
 				template.push(lkf.getCurrentDisplayValue());
@@ -200,13 +239,29 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._is_silence_) {
 			return;
 		}
+		var allBoxes = jQuery(Z.el).find('input[type="checkbox"]'), chkBox;
+		if(jQuery(currCheckBox).hasClass('jl-selectall')) {
+			var isAllSelected = currCheckBox.checked;
+			for(var j = 0, allCnt = allBoxes.length; j < allCnt; j++){
+				chkBox = allBoxes[j];
+				if(chkBox == currCheckBox) {
+					continue;
+				}
+				if (!chkBox.disabled) {
+					chkBox.checked = isAllSelected;
+				}
+			} //end for j
+			
+		}
 		var fldObj = Z._dataset.getField(Z._field),
 			limitCount = fldObj.valueCountLimit();
 		
 		var values = [], count = 0;
-		var allBoxes = jQuery(Z.el).find('input[type="checkbox"]'),chkBox;
 		for(var j = 0, allCnt = allBoxes.length; j < allCnt; j++){
 			chkBox = allBoxes[j];
+			if(jQuery(chkBox).hasClass('jl-selectall')) {
+				continue;
+			}
 			if (chkBox.checked) {
 				values.push(chkBox.value);
 				count ++;
