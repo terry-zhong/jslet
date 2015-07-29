@@ -149,9 +149,9 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var lkds = fldObj.lookup().dataset();
 			var found = lkds.findByKey(dftValue);
 			if(found) {
-				return
+				return;
 			} else {
-				dftValue = null
+				dftValue = null;
 			}
 		}
 		
@@ -272,6 +272,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			jQuery(Z.el).html(content.join(''));
 			Z._setDefaultValue(fldObj, firstItemValue);
+			Z.doValueChanged();
 		} finally {
 			lkds.recnoSilence(oldRecno);
 		}

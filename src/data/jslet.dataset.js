@@ -3042,7 +3042,7 @@ jslet.data.Dataset.prototype = {
 		if (!currRec) {
 			return null;
 		}
-		return this.getFieldTextByRec(currRec, fldName, valueIndex);
+		return this.getFieldTextByRec(currRec, fldName, isEditing, valueIndex);
 	},
 	
 	/**
