@@ -838,11 +838,11 @@ jslet.data.Dataset.prototype = {
 			idxFldCfg = indexFlds[i];
 			fname = idxFldCfg.fieldName;
 			if(idxFldCfg.useTextToSort) {
-				v1 = dsObj.getFieldTextByRec(rec1, fname);
-				v2 = dsObj.getFieldTextByRec(rec2, fname);
+				v1 = dsObj.getFieldTextByRecord(rec1, fname);
+				v2 = dsObj.getFieldTextByRecord(rec2, fname);
 			} else {
-				v1 = dsObj.fieldValueByRec(rec1, fname);
-				v2 = dsObj.fieldValueByRec(rec2, fname);
+				v1 = dsObj.getFieldValueByRecord(rec1, fname);
+				v2 = dsObj.getFieldValueByRecord(rec2, fname);
 			}
 			if (v1 == v2) {
 				continue;
@@ -1414,7 +1414,7 @@ jslet.data.Dataset.prototype = {
 		var preno = Z._recno;
 		Z._recno = recno;
 		
-		if (Z._subDatasetFields && Z._subDatasetFields.length > 0) {
+		if (Z._recno != preno && Z._subDatasetFields && Z._subDatasetFields.length > 0) {
 			var fldObj, subds;
 			for (var i = 0, len = Z._subDatasetFields.length; i < len; i++) {
 				fldObj = Z._subDatasetFields[i];
@@ -2400,6 +2400,7 @@ jslet.data.Dataset.prototype = {
 		}
 		evt = jslet.data.RefreshEvent.scrollEvent(Z._recno);
 		Z.refreshControl(evt);
+		Z.refreshLookupHostDataset();
 	},
 
 	/**
@@ -2768,13 +2769,28 @@ jslet.data.Dataset.prototype = {
 	},
 		
 	/**
+	 * Get field value of specified record number
+	 * 
+	 * @param {Object} recno - specified record number
+	 * @param {String} fldName - field name
+	 * @return {Object} field value
+	 */
+	getFieldValueByRecno: function(recno, fldName, valueIndex) {
+		var dataRec = this.getRecord(recno);
+		if(!dataRec) {
+			return null;
+		}
+		return this.getFieldValueByRecord(dataRec, fldName, valueIndex);
+	},
+	
+	/**
 	 * Get field value of specified record
 	 * 
 	 * @param {Object} dataRec - specified record
 	 * @param {String} fldName - field name
 	 * @return {Object} field value
 	 */
-	fieldValueByRec: function (dataRec, fldName, valueIndex) {
+	getFieldValueByRecord: function (dataRec, fldName, valueIndex) {
 		var Z = this;
 		if (Z.recordCount() === 0) {
 			return null;
@@ -2852,7 +2868,7 @@ jslet.data.Dataset.prototype = {
 		if (!currRec) {
 			return null;
 		}
-		return this.fieldValueByRec(currRec, fldName, valueIndex);
+		return this.getFieldValueByRecord(currRec, fldName, valueIndex);
 	},
 
 	/**
@@ -3042,19 +3058,36 @@ jslet.data.Dataset.prototype = {
 		if (!currRec) {
 			return null;
 		}
-		return this.getFieldTextByRec(currRec, fldName, isEditing, valueIndex);
+		return this.getFieldTextByRecord(currRec, fldName, isEditing, valueIndex);
+	},
+	
+	/**
+	 * Get field display text by record number.
+	 * 
+	 * @param {Object} recno - record number.
+	 * @param {String} fldName - Field name
+	 * @param {Boolean} isEditing - In edit mode or not, if in edit mode, return 'Input Text', else return 'Display Text'
+	 * @param {Integer} valueIndex - identify which item will get if the field has multiple values.
+	 * @return {String} 
+	 */
+	getFieldTextByRecno: function (recno, fldName, isEditing, valueIndex) {
+		var dataRec = this.getRecord(recno);
+		if(!dataRec) {
+			return null;
+		}
+		return this.getFieldTextByRecord(dataRec, fldName, isEditing, valueIndex);
 	},
 	
 	/**
 	 * Get field display text by data record.
 	 * 
-	 * @param {Object} data record.
-	 * @param {String} fldName Field name
-	 * @param {Boolean} isEditing In edit mode or not, if in edit mode, return 'Input Text', else return 'Display Text'
-	 * @param {Integer} valueIndex identify which item will get if the field has multiple values.
+	 * @param {Object} dataRec - data record.
+	 * @param {String} fldName - Field name
+	 * @param {Boolean} isEditing - In edit mode or not, if in edit mode, return 'Input Text', else return 'Display Text'
+	 * @param {Integer} valueIndex - identify which item will get if the field has multiple values.
 	 * @return {String} 
 	 */
-	getFieldTextByRec: function (dataRec, fldName, isEditing, valueIndex) {
+	getFieldTextByRecord: function (dataRec, fldName, isEditing, valueIndex) {
 		var Z = this;
 		if (Z.recordCount() === 0) {
 			return '';
@@ -3108,8 +3141,8 @@ jslet.data.Dataset.prototype = {
 			result = [];
 		if(valueStyle == jslet.data.FieldValueStyle.BETWEEN && valueIndex === undefined)
 		{
-			var minVal = Z.getFieldTextByRec(currRec, fldName, isEditing, 0),
-				maxVal = Z.getFieldTextByRec(currRec, fldName, isEditing, 1);
+			var minVal = Z.getFieldTextByRecord(currRec, fldName, isEditing, 0),
+				maxVal = Z.getFieldTextByRecord(currRec, fldName, isEditing, 1);
 			if(!isEditing && !minVal && !maxVal){
 				return '';
 			}
@@ -3132,7 +3165,7 @@ jslet.data.Dataset.prototype = {
 			}
 			
 			for(var i = 0; i <= len; i++) {
-				result.push(Z.getFieldTextByRec(currRec, fldName, isEditing, i));
+				result.push(Z.getFieldTextByRecord(currRec, fldName, isEditing, i));
 				if(i < len) {
 					result.push(jslet.global.valueSeparator);
 				}
@@ -3146,7 +3179,7 @@ jslet.data.Dataset.prototype = {
 				return cacheValue;
 			}
 		}
-		value = Z.fieldValueByRec(currRec, fldName, valueIndex);
+		value = Z.getFieldValueByRecord(currRec, fldName, valueIndex);
 		if (value === null || value === undefined) {
 			var fixedValue = fldObj.fixedValue();
 			if(fixedValue) {
@@ -3346,6 +3379,14 @@ jslet.data.Dataset.prototype = {
 	 * @return {Boolean} 
 	 */
 	findByField: function (fldName, findingValue, fromCurrentPosition, findingByText, matchType) {
+		var Z = this,
+			fldObj = Z.getField(fldName);
+		if(!fldObj) {
+			throw new Error('Field name: ' + fldName + ' NOT Found!');
+		}
+		if(!Z.confirm()) {
+			return false;
+		}
 		
 		function matchValue(matchType, value, findingValue) {
 			if(!matchType) {
@@ -3360,12 +3401,6 @@ jslet.data.Dataset.prototype = {
 			if(matchType == 'last') {
 				return jslet.like(value, '%' + findingValue);
 			}
-		}
-		
-		var Z = this,
-			fldObj = Z.getField(fldName);
-		if(!fldObj) {
-			throw new Error('Field name: ' + fldName + ' NOT Found!');
 		}
 		
 		var byText = true;
@@ -3390,7 +3425,7 @@ jslet.data.Dataset.prototype = {
 				if(findingByText && byText) {
 					value = Z.getFielTextByRec(dataRec, fldName);
 				} else {
-					value = Z.fieldValueByRec(dataRec, fldName);
+					value = Z.getFieldValueByRecord(dataRec, fldName);
 				}
 				if (matchValue(matchType, value, findingValue)) {
 					Z._ignoreFilterRecno = i;

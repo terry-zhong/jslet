@@ -84,7 +84,7 @@ jslet.Expression.prototype = {
 
 			if (!dsName) {
 				tmpExpr.push(this._expr.substring(start, end));
-				tmpExpr.push('context.mainds.fieldValueByRec(context.dataRec, "');
+				tmpExpr.push('context.mainds.getFieldValueByRecord(context.dataRec, "');
 				this._fields.push(fldName);
 			} else {
 				tmpExpr.push(this._expr.substring(start, end));
