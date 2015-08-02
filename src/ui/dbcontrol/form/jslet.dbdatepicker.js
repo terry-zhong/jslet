@@ -88,7 +88,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		}
 		var width = Z._popupWidth,
 			height = Z._popupHeight,
-			dateValue = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
+			dateValue = Z.getValue(),
 			range = fldObj.dataRange(),
 			minDate = null,
 			maxDate = null;
@@ -106,7 +106,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 				onDateSelected: function (date) {
 					Z.popup.hide();
 					Z.el.focus();
-					var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+					var value = Z.getValue();
 					if(!value) {
 						value = date;
 					} else {

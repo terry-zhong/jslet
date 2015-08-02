@@ -173,7 +173,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 	incValue: function () {
 		var Z = this,
-			val = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			val = Z.getValue();
 		if (!val) {
 			val = 0;
 		}
@@ -212,7 +212,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	
 	decValue: function () {
 		var Z = this,
-			val = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			val = Z.getValue();
 		if (!val) {
 			val = 0;
 		}

@@ -96,6 +96,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 		var jqEl = jQuery(Z.el);
 		jqEl.on('change', Z._doChanged);
+		jqEl.on('mousedown', Z._doMouseDown);
 		if(Z.el.multiple) {
 			jqEl.on('click', 'option', Z._doCheckLimitCount);
 		}
@@ -103,6 +104,19 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.doMetaChanged('required');
 	}, // end bind
 
+	_doMouseDown: function(event) {
+		var Z = this.jslet,
+			ctrlRecno = Z.ctrlRecno();
+		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
+			Z._skipRefresh = true;
+			try {
+				Z._dataset.recno(ctrlRecno);
+			} finally {
+				Z._skipRefresh = false;
+			}
+		}
+	},
+	
 	_doChanged: function (event) {
 		var Z = this.jslet;
 		if(Z.el.multiple) {
@@ -311,11 +325,19 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	doValueChanged: function() {
 		var Z = this;
-		if (Z._keep_silence_) {
+		if (Z._skipRefresh) {
 			return;
 		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
+		var errObj = Z.getFieldError();
+		if(errObj && errObj.message) {
+			Z.el.value = errObj.inputText;
+			Z.renderInvalid(errObj);
+			return;
+		} else {
+			Z.renderInvalid(null);
+		}
+		var value = Z.getValue();
+		if(!Z.el.multiple && value == Z.el.value) {
 			return;
 		}
 		var optCnt = Z.el.options.length, 
@@ -327,8 +349,8 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		
+		var fldObj = Z._dataset.getField(Z._field);
 		if (!Z.el.multiple) {
-			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
 			if(!Z._checkOptionEditable(fldObj, value)) {
 				value = null;
 			}
@@ -339,13 +361,13 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			Z.el.value = value;
 		} else {
-			var arrValue = Z._dataset.getFieldValue(Z._field);
+			var arrValue = value;
 			if(arrValue === null || arrValue.length === 0) {
 				return;
 			}
 				
 			var vcnt = arrValue.length - 1, selected;
-			Z._keep_silence_ = true;
+			Z._skipRefresh = true;
 			try {
 				for (i = 0; i < optCnt; i++) {
 					opt = Z.el.options[i];
@@ -358,7 +380,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					} // end for j
 				} // end for i
 			} finally {
-				Z._keep_silence_ = false;
+				Z._skipRefresh = false;
 			}
 		}
 	},
@@ -389,7 +411,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 	updateToDataset: function () {
 		var Z = this;
-		if (Z._keep_silence_) {
+		if (Z._skipRefresh) {
 			return;
 		}
 		var opt, value,
@@ -412,7 +434,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 
-		Z._keep_silence_ = true;
+		Z._skipRefresh = true;
 		try {
 			if (!isMulti) {
 				var fldObj = Z._dataset.getField(Z._field);
@@ -438,7 +460,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			
 		} finally {
-			Z._keep_silence_ = false;
+			Z._skipRefresh = false;
 		}
 	}, // end updateToDataset
 	

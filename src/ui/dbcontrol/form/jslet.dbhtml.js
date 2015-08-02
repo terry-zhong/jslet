@@ -56,7 +56,7 @@ jslet.ui.DBHtml = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	doValueChanged: function() {
-		var content = this._dataset.getFieldText(this._field);
+		var content = this.getText();
 		this.el.innerHTML = content;
 	},
 	

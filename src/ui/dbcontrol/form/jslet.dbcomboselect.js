@@ -375,7 +375,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 
 	_initSelected: function () {
 		var Z = this;
-		var fldValue = Z.dataset.getFieldValue(Z.field, Z._valueIndex), 
+		var fldValue = Z.comboSelectObj.getValue(), 
 			lkds = Z.lookupDs();
 
 		var fldObj = Z.dataset.getField(Z.field),
@@ -439,7 +439,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 
 	_confirmSelect: function () {
 		var Z = this;
-		var fldValue = Z.dataset.getFieldValue(Z.field, Z._valueIndex),
+		var fldValue = Z.comboSelectObj.getValue(),
 			fldObj = Z.dataset.getField(Z.field),
 			lkfld = fldObj.lookup(),
 			isMulti = Z.isMultiple(),

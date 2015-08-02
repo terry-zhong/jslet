@@ -49,7 +49,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,displayFields,hasCheckBox,correlateCheck,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,iconClassField,onGetIconClass,onCreateContextMenu';
+		Z.allProperties = 'dataset,displayFields,hasCheckBox,correlateCheck,onlyCheckChildren,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,iconClassField,onGetIconClass,onCreateContextMenu';
 		Z.requiredProperties = 'displayFields';
 		
 		/**
@@ -69,6 +69,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		 * {Boolean} if true, when you check one tree node, its children and its parent will check too;
 		 */
 		Z._correlateCheck = false;
+		
+		Z._onlyCheckChildren = false;
+		
 		///**
 		// * {String} Key field, it will use 'keyField' and 'parentField' to construct tree nodes.
 		// */
@@ -158,6 +161,13 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			return this._correlateCheck;
 		}
 		this._correlateCheck = correlateCheck ? true: false;
+	},
+	
+	onlyCheckChildren: function(onlyCheckChildren) {
+		if(onlyCheckChildren === undefined) {
+			return this._onlyCheckChildren;
+		}
+		this._onlyCheckChildren = onlyCheckChildren ? true: false;
 	},
 	
 	readOnly: function(readOnly) {
@@ -497,7 +507,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		var node = Z.listvm.getCurrentRow();
-		Z.listvm.checkNode(!node.state? 1:0, Z._correlateCheck);
+		Z.listvm.checkNode(!node.state? 1:0, Z._correlateCheck, Z._onlyCheckChildren);
 	},
 	
 	_syncToDs: function(otr){
@@ -517,6 +527,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		this.listvm.setCurrentRowno(rowno);
+		this._dataset.recno(this.listvm.getCurrentRecno());
 	},
 	
 	_fillData: function(){
@@ -534,7 +545,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._isRendering = true;
 		Z._skip_ = true;
-		var b=Z._dataset.startSilenceMove(),
+		var oldRecno = Z._dataset.rawRecno(),
 			preRowNo = Z.listvm.getCurrentRowno(),
 			ajustScrBar = true, maxNodeWidth = 0, nodeWidth;
 		try{
@@ -574,7 +585,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		} finally {
 			Z.listvm.setCurrentRowno(preRowNo, false);
-			Z._dataset.endSilenceMove(b);
+			Z._dataset.rawRecno(oldRecno);
 			Z._isRendering = false;
 			Z._skip_ = false;
 		}
@@ -598,6 +609,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			cellCnt = cells.length, 
 			requiredCnt = item.level + 4,
 			otd;
+		Z._dataset.rawRecno(Z.listvm.getCurrentRecno());
 		row.jsletrowno = rowNo;
 		if (cellCnt < requiredCnt){
 			for(var i = 1, cnt = requiredCnt - cellCnt; i <= cnt; i++){
@@ -699,7 +711,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	},
 		
 	_updateCheckboxState: function(){
-		var Z = this, b=Z._dataset.startSilenceMove(),
+		var Z = this, 
+			oldRecno = Z._dataset.rawRecno(),
 			jqEl = jQuery(Z.el),
 			nodes = jqEl.find('.jl-tree-nodes'),
 			rowNo, cellCnt, row;
@@ -711,11 +724,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				rowNo = row.jsletrowno;
 				if(rowNo) {
 					Z.listvm.setCurrentRowno(rowNo, true);
+					Z._dataset.rawRecno(Z.listvm.getCurrentRecno());
 					row.cells[cellCnt- 3].className = Z._getCheckClassName(Z._dataset.selected());
 				}
 			}
 		} finally {
-			Z._dataset.endSilenceMove(b);
+			Z._dataset.rawRecno(oldRecno);
 		}
 	},
 	
@@ -767,11 +781,11 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		jQuery(Z.el).on('contextmenu', function (event) {
 			var node = event.target,
 				nodeType = node.getAttribute(jslet.ui.DBTreeView.NODETYPE);
-				if(!nodeType || nodeType == '0') {
-					return;
-				}
-					Z._syncToDs(node);
-		Z.contextMenu.showContextMenu(event, Z);
+			if(!nodeType || nodeType == '0') {
+				return;
+			}
+			Z._syncToDs(node);
+			Z.contextMenu.showContextMenu(event, Z);
 		});
 	},
 	

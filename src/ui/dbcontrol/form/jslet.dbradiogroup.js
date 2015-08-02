@@ -118,7 +118,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		var value = Z._dataset.getFieldValue(Z._field),
+		var value = Z.getValue(),
 			radios = jQuery(Z.el).find('input[type="radio"]'), 
 			radio;
 		for(var i = 0, cnt = radios.length; i < cnt; i++){

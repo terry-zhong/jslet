@@ -107,27 +107,26 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.doMetaChanged('required');
 	}, // end bind
 
+	/**
+	 * @override
+	 */
 	doFocus: function () {
 		var Z = this;
 		if (Z._skipFocusEvent) {
 			return;
 		}
-		window.setTimeout(function(){
-			if(!Z.isActiveRecord() && Z._dataset.errorRecno() >= 0) { //If the previous record exists errors, it can be focused.
+		var ctrlRecno = Z.ctrlRecno();
+		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
+			if(!Z._dataset.recno(ctrlRecno)) {
 				return;
 			}
-			var fldObj = Z._dataset.getField(Z._field);
-			if(!fldObj.message()) {
-				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
-			} else {
-				Z.oldValue = null;
-			}
-			if(Z._autoSelectAll) {
-				jslet.ui.textutil.selectText(Z.el);
-			}
-		}, 5);
+		}
+		Z.doValueChanged();
 	},
 
+	/**
+	 * @override
+	 */
 	doBlur: function () {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
@@ -148,6 +147,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
 	
+	/**
+	 * @override
+	 */
 	doKeydown: function(event) {
 		event = jQuery.event.fix( event || window.event );
 		var keyCode = event.which;
@@ -159,6 +161,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
 
+	/**
+	 * @override
+	 */
 	doKeypress: function (event) {
 		var Z = this.jslet,
 			fldObj = Z._dataset.getField(Z._field);
@@ -169,7 +174,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var keyCode = event.which,
 			existStr = jslet.getRemainingString(Z.el.value, jslet.ui.textutil.getSelectedText(Z.el)),
 			cursorPos = jslet.ui.textutil.getCursorPos(Z.el);
-		if (!Z._dataset.fieldValidator.checkInputChar(fldObj, String.fromCharCode(keyCode), existStr, cursorPos.begin)) {
+		if (!Z._dataset.fieldValidator().checkInputChar(fldObj, String.fromCharCode(keyCode), existStr, cursorPos.begin)) {
 			event.preventDefault();
 		}
 		//When press 'enter', write data to dataset.
@@ -234,7 +239,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if($super(evt, isForce) && this.afterRefreshControl) {
 			this.afterRefreshControl(evt);
 		}
-	}, // end refreshControl
+	}, 
 
 	/**
 	 * @override
@@ -294,10 +299,15 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._keep_silence_) {
 			return;
 		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
+		var errObj = Z.getFieldError();
+		if(errObj && errObj.message) {
+			Z.el.value = errObj.inputText;
+			Z.renderInvalid(errObj);
 			return;
+		} else {
+			Z.renderInvalid(null);
 		}
+		var fldObj = Z._dataset.getField(Z._field);
 		var align = fldObj.alignment();
 	
 		if (jslet.locale.isRtl){
@@ -308,16 +318,15 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		Z.el.style.textAlign = align;
-
 		var value;
 		if (Z.editMask){
-			value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			value = Z.getValue();
 			Z.editMask.setValue(value);
 		} else {
 			if (document.activeElement != Z.el || Z.el.readOnly || Z._isBluring) {
-				value = Z._dataset.getFieldText(Z._field, false, Z._valueIndex);
+				value = Z.getText(false);
 			} else {
-				value = Z._dataset.getFieldText(Z._field, true, Z._valueIndex);
+				value = Z.getText(true);
 			}
 			if(fldObj.getType() === jslet.data.DataType.STRING && fldObj.antiXss()) {
 				value = jslet.htmlDecode(value);

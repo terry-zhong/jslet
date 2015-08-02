@@ -130,7 +130,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 			checkbox.checked = false;
 		}
-		var values = Z._dataset.getFieldValue(Z._field);
+		var values = Z.getValue();
 		if(values && values.length > 0) {
 			var valueCnt = values.length, value;
 			for (i = 0; i < chkcnt; i++) {

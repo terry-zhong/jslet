@@ -141,9 +141,6 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 
 	_dataset: undefined,
 
-	/**Inner use**/
-	_currRecno: -1,
-	
 	dataset: function(dataset) {
 		if(dataset === undefined) {
 			return this._dataset;
@@ -157,18 +154,6 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		this._dataset = dataset;
 	},
 
-	/**
-	 * DBTable uses this property.
-	 */
-	currRecno: function(currRecno) {
-		if(currRecno === undefined) {
-			return this._currRecno;
-		}
-
-		jslet.Checker.test('DBControl.currRecno', currRecno).isGTEZero();
-		this._currRecno = currRecno;
-	},
-	
 	/**
 	 * @protected
 	 */
@@ -230,7 +215,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 			return true;
 		}
 
-		if (!isForce && !Z.isActiveRecord()) {
+		if (!isForce && Z.isActiveRecord && !Z.isActiveRecord()) {
 			return false;
 		}
 		//Value changed
@@ -283,22 +268,6 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		return null;
 	},
 
-	/**
-	 * Check if this control is in current record.
-	 * In DBTable edit mode, one field corresponds many edit control(one row one edit control), but only one edit control is in active record.
-	 * Normally, only edit control in active record will refresh.  
-	 */
-	isActiveRecord: function(){
-		return this._currRecno < 0 || this._currRecno == this._dataset.recno();
-	},
-	
-	/**
-	 * Force refresh control, regardless of which in active record or not.
-	 */
-	forceRefreshControl: function(){
-		this.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(this._field), true);
-	},
-	
 	destroy: function ($super) {
 		this.removeAllChildControls();
 		if (this._dataset) {
@@ -319,8 +288,12 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	_field: undefined,
+	
 	_valueIndex: undefined,
+	
 	_enableInvalidTip: true,
+	/**Inner use**/
+	_ctrlRecno: -1,
 	
 	field: function(fldName) {
 		if(fldName === undefined) {
@@ -398,24 +371,81 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	/**
+	 * DBTable uses this property.
+	 */
+	ctrlRecno: function(ctrlRecno) {
+		if(ctrlRecno === undefined) {
+			return this._ctrlRecno;
+		}
+
+		jslet.Checker.test('DBControl.ctrlRecno', ctrlRecno).isGTEZero();
+		this._ctrlRecno = ctrlRecno;
+		this.doValueChanged();
+	},
+	
+	getValue: function() {
+		var Z = this;
+		if(Z._ctrlRecno < 0) {
+			return Z._dataset.getFieldValue(Z._field, Z._valueIndex); 
+		} else {
+			return Z._dataset.getFieldValueByRecno(Z._ctrlRecno, Z._field, Z._valueIndex);
+		}
+	},
+	
+	getText: function(isEditing) {
+		var Z = this;
+		if(Z._ctrlRecno < 0) {
+			return Z._dataset.getFieldText(Z._field, isEditing, Z._valueIndex); 
+		} else {
+			return Z._dataset.getFieldTextByRecno(Z._ctrlRecno, Z._field, isEditing, Z._valueIndex);
+		}
+	},
+	
+	/**
+	 * Check if this control is in current record.
+	 * In DBTable edit mode, one field corresponds many edit control(one row one edit control), but only one edit control is in active record.
+	 * Normally, only edit control in active record will refresh.  
+	 */
+	isActiveRecord: function(){
+		return this._ctrlRecno < 0 || this._ctrlRecno == this._dataset.recno();
+	},
+	
+	/**
+	 * Force refresh control, regardless of which in active record or not.
+	 */
+	forceRefreshControl: function(){
+		this.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(this._field), true);
+	},
+	
+	getFieldError: function() {
+		var Z = this,
+			errObj;
+		if(Z._ctrlRecno < 0) {
+			errObj = Z._dataset.getFieldError(Z._field, Z._valueIndex);
+		} else {
+			errObj = Z._dataset.getFieldErrorByRecno(Z._ctrlRecno, Z._field, Z._valueIndex);
+		}
+		return errObj;
+	},
+	
+	/**
 	 * @protected
 	 * Render invalid message and change the control to "invalid" style.
 	 * 
 	 *  @param {String} invalidMsg Invalid message, if it's null, clear the 'invalid' style. 
 	 */
-	renderInvalid: function () {
+	renderInvalid: function (errObj) {
 		var Z = this;
 		if (!Z._field) {
 			return;
 		}
-		var fldObj = Z.dataset().getField(Z._field);
-		var invalidMsg = fldObj.message(Z._valueIndex);
-		if (invalidMsg){
+		if (errObj){
 			jQuery(Z.el).parent().addClass('has-error');
+			Z.el.title = errObj.message || '';
 		} else {
 			jQuery(Z.el).parent().removeClass('has-error');
+			Z.el.title = '';
 		}
-		Z.el.title = invalidMsg || '';
 	},
  
 	destroy: function ($super) {

@@ -184,7 +184,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
-		var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
+		var value = Z.getValue(),
 			timePart = Z._splitTime(value),
 			hour = timePart.hour,
 			jqEl = jQuery(Z.el),
@@ -263,7 +263,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 				}
 				value = value.join('');
 			} else {
-				value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+				value = Z.getValue();
 				if(!value) {
 					value = new Date();
 				}

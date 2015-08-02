@@ -14,7 +14,8 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		visibleEndRow = 0,
 		needShowRows = null,//Array of all rows that need show, all of these rows's status will be 'expanded'
 		allRows = null,//Array of all rows, include 'expanded' and 'collapsed' rows
-		currentRowno = 0;
+		currentRowno = 0,
+		currentRecno = 0;
 	this.onTopRownoChanged = null; //Event handler: function(rowno){}
 	this.onVisibleCountChanged = null; //Event handler: function(visibleRowCount){}
 	this.onCurrentRownoChanged = null; //Event handler: function(rowno){}
@@ -313,7 +314,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	this.setCurrentRowno = function (rowno, notFireEvt, checkVisible) {
 		if(this._skipSetCurrentRowno) {
 			this._skipSetCurrentRowno = false;
-			return;
+			return null;
 		}
 		if(rowno === undefined) {
 			return null;
@@ -349,12 +350,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				}
 			}
 		}
-		if (recno >= 0){
-			if(!dataset.recno(recno)) {
-				return null;
-			}
-		}
+//		if (recno >= 0){
+//			if(!dataset.recno(recno)) {
+//				return null;
+//			}
+//		}
 		currentRowno = rowno;
+		currentRecno = recno;
 		if (!notFireEvt && this.onCurrentRownoChanged) {
 			this.onCurrentRownoChanged(preRowno, currentRowno);
 		}
@@ -363,6 +365,10 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	
 	this.getCurrentRowno = function () {
 		return currentRowno;
+	};
+	
+	this.getCurrentRecno = function() {
+		return currentRecno;
 	};
 	
 	this.nextRow = function () {
@@ -538,7 +544,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		this.setCurrentRowno(rowno, false, true);
 	};
 	
-	this.checkNode = function(state, relativeCheck){
+	this.checkNode = function(state, relativeCheck, onlyCheckChildren){
 		var node = this.getCurrentRow();
 //		if (node.state == state) {
 //			return;
@@ -550,7 +556,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			if (node.children && node.children.length > 0) {
 				this._updateChildState(node, state);
 			}
-			if (node.parent) {
+			if (node.parent && !onlyCheckChildren) {
 				this._updateParentState(node, state);
 			}
 		}

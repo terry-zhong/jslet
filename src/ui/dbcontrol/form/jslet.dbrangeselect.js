@@ -117,7 +117,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var fldObj = Z._dataset.getField(Z._field),
 				limitCount = fldObj.valueCountLimit();
 			if(limitCount) {
-				var values = Z._dataset.getFieldValue(Z._field),
+				var values = Z.getValue(),
 					count = 1;
 				if(jslet.isArray(values)) {
 					count = values.length;
@@ -194,14 +194,14 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 
 		if (!Z.el.multiple) {
-			var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+			var value = Z.getValue();
 			if (value !== null) {
 				Z.el.value = value;
 			} else {
 				Z.el.value = null;
 			}
 		} else {
-			var arrValue = Z._dataset.getFieldValue(Z._field),
+			var arrValue = Z.getValue(),
 				optCnt = Z.el.options.length, opt, selected, i;
 			Z._keep_silence_ = true;
 			try {

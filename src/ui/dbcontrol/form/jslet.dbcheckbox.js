@@ -40,6 +40,8 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.isCheckBox = true;
 		Z.allProperties = 'dataset,field,beforeClick';
 		Z._beforeClick = null;
+		
+		Z._skipRefresh = false;
 		$super(el, params);
 	},
 
@@ -73,6 +75,15 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 	_doClick: function (event) {
 		var Z = this.jslet;
+		var ctrlRecno = Z.ctrlRecno();
+		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
+			Z._skipRefresh = true;
+			try {
+				Z._dataset.recno(ctrlRecno);
+			} finally {
+				Z._skipRefresh = false;
+			}
+		}
 		if (Z._beforeClick) {
 			var result = Z._beforeClick.call(Z, Z.el);
 			if (!result) {
@@ -108,9 +119,12 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	doValueChanged: function() {
-		var Z = this,
-			fldObj = Z._dataset.getField(Z._field);
-		var value = Z._dataset.getFieldValue(Z._field, Z._valueIndex);
+		var Z = this;
+		if(Z._skipRefresh) {
+			return;
+		}
+		var fldObj = Z._dataset.getField(Z._field),
+			value = Z.getValue();
 		if (value !== null && value == fldObj.trueValue()) {
 			Z.el.checked = true;
 		} else {

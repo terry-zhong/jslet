@@ -209,7 +209,7 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field),
-			value = Z._dataset.getFieldValue(Z._field, Z._valueIndex),
+			value = Z.getValue(),
 			itemCnt = Z._itemCount * Z._splitCount,
 			valueNo = Math.ceil(value * Z._splitCount),
 			oitem, offsetW, bgX, ratingRow = Z.el.firstChild.rows[0],

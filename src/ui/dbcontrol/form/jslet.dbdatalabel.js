@@ -55,7 +55,7 @@ jslet.ui.DBDataLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
-		var text = Z._dataset.getFieldText(Z._field, Z._valueIndex);
+		var text = Z.getText();
 		Z.el.innerHTML = text;
 		Z.el.title = text;
 	},

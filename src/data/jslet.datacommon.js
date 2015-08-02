@@ -724,20 +724,19 @@ jslet.data.FieldError = {
 			errObj = {};
 			recInfo.error = errObj;
 		}
+		var fldErrObj = errObj[fldName];
+		if(!fldErrObj) {
+			fldErrObj = {};
+			errObj[fldName] = fldErrObj;
+		}
 		var errMsgObj = {message: errorMsg};
 		if(inputText !== undefined) {
 			errMsgObj.inputText = inputText;
 		}
-		if(valueIndex || valueIndex === 0) {
-			var fldErrObj = errObj[fldName];
-			if(!fldErrObj || !jslet.isObject(fldErrObj)){
-				fldErrObj = {};
-				errObj[fldName] = fldErrObj;
-			}
-			fldErrObj[valueIndex+""] = errMsgObj;
-		} else {
-			errObj[fldName] = errMsgObj;
+		if(!valueIndex) {
+			valueIndex = 0;
 		}
+		fldErrObj[valueIndex+""] = errMsgObj;
 	},
 	
 	get: function(record, fldName, valueIndex) {
@@ -748,15 +747,10 @@ jslet.data.FieldError = {
 			if(!fldErrObj) {
 				return null;
 			}
-			if(fldErrObj.message) {
-				return fldErrObj;
-			} else {
-				if(valueIndex || valueIndex === 0) {
-					return fldErrObj[valueIndex+""];
-				} else {
-					return fldErrObj["0"];
-				}
+			if(!valueIndex) {
+				valueIndex = 0;
 			}
+			return fldErrObj[valueIndex+""];
 		} else {
 			return null;
 		}
@@ -766,14 +760,22 @@ jslet.data.FieldError = {
 		var recInfo = jslet.data.getRecInfo(record), 
 			errObj = recInfo.error;
 		if(errObj) {
-			if(valueIndex || valueIndex === 0) {
-				var fldErrObj = errObj[fldName];
-				if(fldErrObj && jslet.isObject(fldErrObj)){
-					delete fldErrObj[valueIndex+""];
-				}
-			} else {
-				delete errObj[fieldName];
+			var fldErrObj = errObj[fldName];
+			if(!fldErrObj) {
+				return;
 			}
+			if(!valueIndex) {
+				valueIndex = 0;
+			}
+			delete fldErrObj[valueIndex+""];
+			var found = false;
+			for(var idx in fldErrObj) {
+				foutnd = true;
+				break;
+			}
+			if(!found) {
+				delete errObj[fldName];
+			} 
 		}
 	},
 	
@@ -785,10 +787,10 @@ jslet.data.FieldError = {
 			if(!fldErrObj){
 				return false;
 			}
-			if(valueIndex || valueIndex === 0) {
-				return fldErrObj[valueIndex+""]? true: false;
+			if(!valueIndex) {
+				valueIndex = 0;
 			}
-			return true;
+			return fldErrObj[valueIndex+""] ? true: false;
 		}
 		return false;
 	},

@@ -42,10 +42,10 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	currRecno: function($super, currRecno) {
-		var result = $super(currRecno);
-		if(currRecno !== undefined) {
-			this.textCtrl.currRecno(currRecno);
+	ctrlRecno: function($super, ctrlRecno) {
+		var result = $super(ctrlRecno);
+		if(ctrlRecno !== undefined) {
+			this.textCtrl.ctrlRecno(ctrlRecno);
 		}
 		return result;
 	},
