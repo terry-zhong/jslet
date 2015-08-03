@@ -1499,10 +1499,10 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
-		if (!Z.hasRecord()) {
+		if (!Z.hasRecord() || !recordObj) {
 			return false;
 		}
-		jslet.Checker.test('dataset.moveToRecord#recordObj', recordObj).required().isObject();
+		jslet.Checker.test('dataset.moveToRecord#recordObj', recordObj).isObject();
 		var k = Z.dataList().indexOf(recordObj);
 		if (k < 0) {
 			return false;
@@ -2931,7 +2931,6 @@ jslet.data.Dataset.prototype = {
 				arrValue.push(value);
 			}
 		}
-		fldObj.message(null, valueIndex);
 		if (Z._onFieldChange) {
 			var eventFunc = jslet.getFunction(Z._onFieldChange);
 			if(eventFunc) {
@@ -4648,18 +4647,17 @@ jslet.data.Dataset.prototype = {
 		jslet.data.FieldValueCache.removeAllCache(Z);
 		jslet.data.FieldError.clearDatasetError(Z);
 		
-//		Z.clearFieldErrorMessage();
 		jslet.data.FieldError.clearDatasetError(Z);
 
 		jslet.data.convertDateFieldValue(Z);
 		Z._changeLog.clear();
 		Z.status(jslet.data.DataSetStatus.BROWSE);
+		Z._recno = -1;
 		Z.indexFields(Z.indexFields());
 		Z.filter(null);
 		if(Z.filtered() || Z.fixedFilter()) {
 			Z._doFilterChanged();			
 		}
-		Z._recno = -1;
 		Z.first();
 		Z.calcAggradedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
