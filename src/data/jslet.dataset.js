@@ -1368,23 +1368,18 @@ jslet.data.Dataset.prototype = {
 		return true;
 	},
 	
-	rawRecno: function(recno) {
+	/**
+	 * Set record number silently, it will not fire any event.
+	 * 
+	 * @param {Integer}recno - record number
+	 */
+	recnoSilence: function (recno) {
 		var Z = this;
 		if (recno === undefined) {
 			return Z._recno;
 		}
 		Z._recno = recno;
 		return this;
-	},
-	
-	/**
-	 * @private
-	 * Set record number(Private)
-	 * 
-	 * @param {Integer}recno - record number
-	 */
-	recnoSilence: function (recno) {
-		this._recno = recno;
 	},
 
 	/**
@@ -1438,11 +1433,10 @@ jslet.data.Dataset.prototype = {
 				}
 			} //end for
 		} //end if
-		if (Z._contextRuleEnabled) {
-			this.calcContextRule();
-		}
-
 		if (!Z._silence) {
+			if (Z._contextRuleEnabled) {
+				this.calcContextRule();
+			}
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.scrollEvent(Z._recno, preno);
@@ -1884,7 +1878,6 @@ jslet.data.Dataset.prototype = {
 		if (!Z._silence && Z._contextRuleEnabled) {
 			Z.calcContextRule();
 		}
-		Z.calcAggradedValue();		
 
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERINSERT);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);

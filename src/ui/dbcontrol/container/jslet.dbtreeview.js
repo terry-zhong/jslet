@@ -545,7 +545,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._isRendering = true;
 		Z._skip_ = true;
-		var oldRecno = Z._dataset.rawRecno(),
+		var oldRecno = Z._dataset.recnoSilence(),
 			preRowNo = Z.listvm.getCurrentRowno(),
 			ajustScrBar = true, maxNodeWidth = 0, nodeWidth;
 		try{
@@ -585,7 +585,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		} finally {
 			Z.listvm.setCurrentRowno(preRowNo, false);
-			Z._dataset.rawRecno(oldRecno);
+			Z._dataset.recnoSilence(oldRecno);
 			Z._isRendering = false;
 			Z._skip_ = false;
 		}
@@ -609,7 +609,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			cellCnt = cells.length, 
 			requiredCnt = item.level + 4,
 			otd;
-		Z._dataset.rawRecno(Z.listvm.getCurrentRecno());
+		Z._dataset.recnoSilence(Z.listvm.getCurrentRecno());
 		row.jsletrowno = rowNo;
 		if (cellCnt < requiredCnt){
 			for(var i = 1, cnt = requiredCnt - cellCnt; i <= cnt; i++){
@@ -712,7 +712,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		
 	_updateCheckboxState: function(){
 		var Z = this, 
-			oldRecno = Z._dataset.rawRecno(),
+			oldRecno = Z._dataset.recnoSilence(),
 			jqEl = jQuery(Z.el),
 			nodes = jqEl.find('.jl-tree-nodes'),
 			rowNo, cellCnt, row;
@@ -724,12 +724,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				rowNo = row.jsletrowno;
 				if(rowNo) {
 					Z.listvm.setCurrentRowno(rowNo, true);
-					Z._dataset.rawRecno(Z.listvm.getCurrentRecno());
+					Z._dataset.recnoSilence(Z.listvm.getCurrentRecno());
 					row.cells[cellCnt- 3].className = Z._getCheckClassName(Z._dataset.selected());
 				}
 			}
 		} finally {
-			Z._dataset.rawRecno(oldRecno);
+			Z._dataset.recnoSilence(oldRecno);
 		}
 	},
 	

@@ -2353,8 +2353,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			h = allCnt * Z._rowHeight + Z.footSectionHt;
 		Z._setScrollBarMaxValue(h);
 		Z.noRecordDiv.style.display = (allCnt === 0 ?'block':'none');
-//		var context = Z._dataset.startSilenceMove();
-		var oldRecno = Z._dataset.rawRecno();
+		var oldRecno = Z._dataset.recnoSilence();
 		try {
 			Z._fillRow(true);
 			Z._fillRow(false);
@@ -2362,8 +2361,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._fillTotalSection();
 			}
 		} finally {
-//			Z._dataset.endSilenceMove(context);
-			Z._dataset.rawRecno(oldRecno);
+			Z._dataset.recnoSilence(oldRecno);
 		}
 		Z._refreshSeqColWidth();
 	},
@@ -2413,9 +2411,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 
 			Z.listvm.setCurrentRowno(i + start, true);
-//			recNo = Z._dataset.recno();
 			recNo = Z.listvm.getCurrentRecno();
-			Z._dataset.rawRecno(recNo);
+			Z._dataset.recnoSilence(recNo);
 			if (hasLeft) {
 				otr = fixedRows[i];
 				otr.jsletrecno = recNo;
