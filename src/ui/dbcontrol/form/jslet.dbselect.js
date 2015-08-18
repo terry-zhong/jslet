@@ -97,6 +97,9 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var jqEl = jQuery(Z.el);
 		jqEl.on('change', Z._doChanged);
 		jqEl.on('mousedown', Z._doMouseDown);
+		jqEl.focus(function(event) {
+			jqEl.trigger('editing', [Z._field]);
+		});
 		if(Z.el.multiple) {
 			jqEl.on('click', 'option', Z._doCheckLimitCount);
 		}
@@ -311,9 +314,6 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			} else {
 				jqEl.removeClass('jl-ctrl-required');
 			}
-		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
 		}
 		if(!metaName || metaName == 'tabIndex') {
 			Z.setTabIndex();

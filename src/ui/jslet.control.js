@@ -292,6 +292,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	_valueIndex: undefined,
 	
 	_enableInvalidTip: true,
+	
 	/**Inner use**/
 	_ctrlRecno: -1,
 	
@@ -378,7 +379,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 			return this._ctrlRecno;
 		}
 
-		jslet.Checker.test('DBControl.ctrlRecno', ctrlRecno).isGTEZero();
+		jslet.Checker.test('DBFieldControl.ctrlRecno', ctrlRecno).isGTEZero();
 		this._ctrlRecno = ctrlRecno;
 		this.doValueChanged();
 	},
@@ -432,7 +433,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 * @protected
 	 * Render invalid message and change the control to "invalid" style.
 	 * 
-	 *  @param {String} invalidMsg Invalid message, if it's null, clear the 'invalid' style. 
+	 *  @param {String} errObj error object: {code: xxx, message}, if it's null, clear the 'invalid' style. 
 	 */
 	renderInvalid: function (errObj) {
 		var Z = this;

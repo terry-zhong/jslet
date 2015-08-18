@@ -68,10 +68,11 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jqEl.on('click', 'input[type="radio"]', function(event){
 			var ctrl = this;
 			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
-				if(Z._dataset.errorRecno() < 0) {
-					event.delegateTarget.jslet.updateToDataset(ctrl);
-				}
+				event.delegateTarget.jslet.updateToDataset(ctrl);
 			}, 5)
+		});
+		jqEl.on('focus', 'input[type="radio"]', function (event) {
+			jqEl.trigger('editing', [Z._field]);
 		});
 		jqEl.addClass('form-control');//Bootstrap class
 		jqEl.css('height', 'auto');
@@ -101,9 +102,6 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				radioEle.tabIndex = tabIdx;
 			}
 		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
-		}
 	},
 	
 	/**
@@ -112,10 +110,6 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this;
 		if (Z._keep_silence_) {
-			return;
-		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
 		var value = Z.getValue(),

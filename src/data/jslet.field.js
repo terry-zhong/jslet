@@ -28,14 +28,6 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._scale = 0;
 	Z._unique = false;
 	
-	if(dataType == jslet.data.DataType.NUMBER) {
-		Z._alignment = 'right';
-	} else if(dataType == jslet.data.DataType.BOOLEAN) {
-		Z._alignment = 'center';
-	} else {
-		Z._alignment = 'left';
-	}
-	
 	Z._defaultExpr = null;
 	Z._defaultValue = null;
 	Z._label = null;
@@ -160,83 +152,6 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.tip', tip).isString();
 		Z._tip = tip;
 		Z._fireMetaChangedEvent('tip');
-		return this;
-	},
-	
-	/**
-	 * Get or set field tip.
-	 * 
-	 * @param {String or undefined} message Field message.
-	 * @return {String or this}
-	 */
-	message: function(message, valueIndex) {
-		var Z = this,
-			argLen = message === undefined && valueIndex === undefined ? 0: (valueIndex === undefined ? 1: 2);
-		var result = '', i, len;
-		switch(argLen) {
-		case 0:  //Get message without 'valueIndex'
-			if(!Z._message) {
-				return result;
-			}
-			if(jslet.isArray(Z._message)) {
-				len = Z._message.length;
-				for(i = 0; i < len; i++) {
-					if(i > 0) {
-						result += ', ';
-					}
-					result += jslet.locale.Dataset.value + i + ': ' + Z._message[i];
-				}
-				return result;
-			} else {
-				return Z._message;
-			}
-			break;
-		case 1:
-			if (jQuery.isNumeric(message)){ //Get message with 'valueIndex'
-				if(!Z._message) {
-					return result;
-				}
-				valueIndex = message;
-				if(jslet.isArray(Z._message)) {
-					if(valueIndex < Z._message.length) {
-						result = Z._message[valueIndex];
-					}
-				} else {
-					if(valueIndex === 0) {
-						result = Z._message;
-					}
-				}
-				return result;
-			} else { //Set message without 'valueIndex'
-				if(Z._message == message) {
-					return this;
-				}
-				Z._message = message;
-			}
-			break;
-		case 2:
-			if(!Z._message || !jslet.isArray(Z._message)) {
-				Z._message = [];
-			}
-			if(Z._message.length <= valueIndex) {
-				Z._message.length = valueIndex + 1;
-			}
-			Z._message[valueIndex] = message;
-			//Check whether the Z._mesage is an empty array, if it's empty, set Z._mesage = null
-			var isEmptyArr = true;
-			len = Z._message.length;
-			for (i = 0; i < len; i++) {
-				if(Z._message[i]) {
-					isEmptyArr = false;
-					break;
-				}
-			}
-			if(isEmptyArr) {
-				Z._message = null;
-			}			
-			break;
-		}
-		Z._fireMetaChangedEvent('message');
 		return this;
 	},
 	
@@ -384,7 +299,21 @@ jslet.data.Field.prototype = {
 	alignment: function (alignment) {
 		var Z = this;
 		if (alignment === undefined){
-			return Z._alignment;
+			if(Z._alignment) {
+				return Z._alignment;
+			}
+			
+			if(Z._lookup) {
+				return 'left';
+			}
+			if(Z._dataType == jslet.data.DataType.NUMBER) {
+				return 'right';
+			}
+			
+			if(Z._dataType == jslet.data.DataType.BOOLEAN) {
+				return 'center';
+			}
+			return 'left';
 		}
 		
 		jslet.Checker.test('Field.alignment', alignment).isString();
@@ -964,9 +893,6 @@ jslet.data.Field.prototype = {
 		
 		Z._lookup = lkFldObj;
 		lkFldObj.hostField(Z);
-		if (Z._alignment != 'left') {
-			Z._alignment = 'left';
-		}
 		Z._addRelation();
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();

@@ -167,9 +167,6 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 				item.tabIndex = tabIdx;
 			}
 		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
-		}
 	},
 	
 	/**
@@ -178,10 +175,6 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this;
 		if (Z._keep_silence_) {
-			return;
-		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
 		var value = Z.getValue(),

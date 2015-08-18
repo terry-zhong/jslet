@@ -70,6 +70,9 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		jqEl.on('click', Z._doClick);
+		jqEl.focus(function(event) {
+			jqEl.trigger('editing', [Z._field]);
+		});
 		jqEl.addClass('checkbox-inline');
 	}, // end bind
 
@@ -104,11 +107,6 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var disabled = fldObj.disabled() || fldObj.readOnly();
 			jslet.ui.setEditableStyle(Z.el, disabled, disabled, false, fldObj.required());
 			Z.setTabIndex();
-		}
-		if(metaName == 'message') {
-			if(Z._enableInvalidTip) {
-				Z.renderInvalid();
-			}
 		}
 		if(!metaName || metaName == 'tabIndex') {
 			Z.setTabIndex();

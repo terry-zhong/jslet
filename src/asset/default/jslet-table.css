@@ -303,7 +303,10 @@
     width: 16px;
 }
 
+.jl-table .jl-tbl-sequence .has-error,
 .jl-table .has-error .form-control {
 	background-color: #a94442!important;
 	color: white!important;
 }
+
+.jl-table .

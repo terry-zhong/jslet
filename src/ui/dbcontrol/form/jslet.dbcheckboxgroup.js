@@ -78,6 +78,9 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				event.delegateTarget.jslet.updateToDataset(ctrl);
 			}, 5)
 		});
+		jqEl.on('focus', 'input[type="checkbox"]', function (event) {
+			jqEl.trigger('editing', [Z._field]);
+		});
 		jqEl.addClass('form-control');//Bootstrap class
 		jqEl.css('height', 'auto');
 	},
@@ -103,9 +106,6 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				chkEle.tabIndex = tabIndex;
 			}
 		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
-		}
 	},
 	
 	/**
@@ -114,10 +114,6 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this;
 		if (Z._keep_silence_) {
-			return;
-		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
 		var checkboxs = jQuery(Z.el).find('input[type="checkbox"]'),

@@ -74,11 +74,16 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jQuery(Z.textCtrl.el).on('keydown', this.popupUp);
 		Z.addChildControl(Z.textCtrl);
 		
-		var dbbtn = jqEl.find('button')[0];
+		var jqBtn = jqEl.find('button');
 		if (this.buttonClick) {
-			jQuery(dbbtn).on('click', function(event){
-				Z.buttonClick(dbbtn);
+			
+			jqBtn.on('click', function(event){
+				Z.buttonClick(jqBtn[0]);
 			});
+			jqBtn.on('focus', function (event) {
+				jqEl.trigger('editing', [Z._field]);
+			});
+			
 		}
 	},
 
@@ -91,9 +96,12 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	
 	popupUp: function(event) {
 		if(event.keyCode == jslet.ui.KeyCode.DOWN) {
-			jslet(this).doBlur(event);
-			var el = jslet.ui.findJsletParent(this.parentNode);
-			el.jslet.buttonClick();
+			var Z = jslet(this);
+			if(Z.ctrlRecno() < 0) {
+				Z.doBlur(event);
+				var el = jslet.ui.findJsletParent(this.parentNode);
+				el.jslet.buttonClick();
+			}
 		}
 	},
 	

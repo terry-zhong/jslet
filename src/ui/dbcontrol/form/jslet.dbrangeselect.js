@@ -100,6 +100,9 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		jqEl.on('change', Z._doChanged);// end observe
+		jqEl.focus(function(event) {
+			jqEl.trigger('editing', [Z._field]);
+		});
 		if(Z.el.multiple) {
 			jqEl.on('click', 'option', function () {
 				Z._currOption = this;
@@ -172,9 +175,6 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.el.disabled = disabled;
 			jslet.ui.setEditableStyle(Z.el, disabled, disabled, true, fldObj.required());
 		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
-		}
 		if(!metaName || metaName == 'tabIndex') {
 			Z.setTabIndex();
 		}
@@ -186,10 +186,6 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doValueChanged: function() {
 		var Z = this;
 		if (Z._keep_silence_) {
-			return;
-		}
-		var fldObj = Z._dataset.getField(Z._field);
-		if(fldObj.message(Z._valueIndex)) { 
 			return;
 		}
 

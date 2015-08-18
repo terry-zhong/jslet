@@ -49,15 +49,14 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			childCnt, 
 			result = [], 
 			pId,
-			context = ds.startSilenceMove();
+			oldRecno = ds.recnoSilence();
 		try {
-			ds.recno(this.fixedRows);
+			ds.recnoSilence(this.fixedRows);
 			var level = 0, 
 				pnodes = [], 
 				node, pnode, tmpNode, currRec, state;
-			ds.first();
-			while (!ds.isEof()) {
-				recno = ds.recno();
+			for(var recno = 0, recCnt = ds.recordCount(); recno < recCnt; recno++) {
+				ds.recnoSilence(recno);
 				keyValue = ds.keyValue();
 				level = 0;
 				pnode = null;
@@ -84,7 +83,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				if(expandLevel >= 0 && level <= expandLevel) {
 					expanded = true;
 				} else { 
-					expanded = currRec._expanded_;
+					expanded = ds.expanded();
 				}
 				node = { parent: pnode, recno: recno, keyvalue: keyValue, expanded: expanded, state: state, isbold: 0, level: level };
 				pnodes.push(node);
@@ -99,14 +98,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 					result.push(node);
 				}
 				
-				ds.next();
-			} //end while
-			allRows = result;
-			this._setLastFlag(result);
-			this._refreshNeedShowRows();
+			} //end for recno
 		} finally {
-			ds.endSilenceMove(context);
+			ds.recnoSilence(oldRecno);
 		}
+		allRows = result;
+		this._setLastFlag(result);
+		this._refreshNeedShowRows();
 	};
 		
 	this._updateParentNodeBoldByChecked = function(node){
@@ -372,19 +370,31 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this.nextRow = function () {
+		if(!dataset.confirm()) {
+			return;
+		}
 		this.setCurrentRowno(currentRowno + 1, false, true);
 	};
 	
 	this.priorRow = function (num) {
+		if(!dataset.confirm()) {
+			return;
+		}
 		this.setCurrentRowno(currentRowno - 1, false, true);
 	};
 	
 	this.nextPage = function () {
+		if(!dataset.confirm()) {
+			return;
+		}
 		this.setVisibleStartRow(visibleStartRow + visibleCount);
 		this.setCurrentRowno(visibleStartRow);
 	};
 	
 	this.priorPage = function () {
+		if(!dataset.confirm()) {
+			return;
+		}
 		this.setVisibleStartRow(visibleStartRow - visibleCount);
 		this.setCurrentRowno(visibleStartRow);
 	};
@@ -414,11 +424,11 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
-		var context = dataset.startSilenceMove();
+		var oldRecno = dataset.recnoSilence();
 		try {
 			node.expanded = node.children ? true : false;
-			dataset.recno(node.recno);
-			dataset.getRecord()._expanded_ = node.expanded;
+			dataset.recnoSilence(node.recno);
+			dataset.expanded(node.expanded);
 			var p = node;
 			while (true) {
 				p = p.parent;
@@ -426,13 +436,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 					break;
 				}
 				if (!p.expanded) {
-					dataset.recno(p.recno);
-					dataset.getRecord()._expanded_ = true;
+					dataset.recnoSilence(p.recno);
+					dataset.expanded(true);
 					p.expanded = true;
 				}
 			}
 		} finally {
-			dataset.endSilenceMove(context);
+			dataset.recnoSilence(oldRecno);
 		}
 		this._refreshNeedShowRows();
 		if (callbackFn) {
@@ -448,13 +458,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
-		var context = dataset.startSilenceMove();
+		var oldRecno = dataset.recnoSilence();
 		try {
-			dataset.recno(node.recno);
-			dataset.getRecord()._expanded_ = false;
+			dataset.recnoSilence(node.recno);
+			dataset.expanded(false);
 			node.expanded = false;
 		} finally {
-			dataset.endSilenceMove(context);
+			dataset.recnoSilence(oldRecno);
 		}
 		
 		this._refreshNeedShowRows();
@@ -483,7 +493,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		var context = dataset.startSilenceMove();
 		try {
 			dataset.recno(node.recno);
-			dataset.getRecord()._expanded_ = state;
+			dataset.expanded(state);
 			node.expanded = state;
 		} finally {
 			dataset.endSilenceMove(context);

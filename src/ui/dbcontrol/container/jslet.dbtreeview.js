@@ -267,9 +267,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.resizeEventBus.subscribe(Z);
 	}, // end bind
 	
-		/**
-		 * @override
-		 */
+	/**
+	 * @override
+	*/
 	renderAll: function () {
 		var Z = this,
 			jqEl = jQuery(Z.el);
@@ -339,7 +339,6 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				}
 			}
 		});	
-		
 	},
 	
 	resize: function(){

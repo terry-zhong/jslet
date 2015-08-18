@@ -592,12 +592,6 @@ jslet.ui.FocusManager.prototype = {
 				if(ojslet.valueIndex) {
 					valueIndex = ojslet.valueIndex();
 				}
-				if(dsObj && fldName) {
-					var errMsg = dsObj.getField(fldName).message(valueIndex);
-					if(errMsg) {
-						return false;
-					}
-				}
 			}
 			if(!Z._onChangingFocus) {
 				return true;

@@ -122,6 +122,10 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		Z.doValueChanged();
+		if(Z._autoSelectAll) {
+			jslet.ui.textutil.selectText(Z.el);
+		}
+		jQuery(Z.el).trigger('editing', [Z._field]);
 	},
 
 	/**
@@ -154,11 +158,22 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		event = jQuery.event.fix( event || window.event );
 		var keyCode = event.which;
 		//When press 'enter', write data to dataset.
+		var Z = this.jslet;
 		if(keyCode == 13) {
-			var Z = this.jslet;
 			Z._enterProcessed = true;
 			Z.updateToDataset();
 		}
+		//Process 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown' key when it is editing. 
+		var isEditing = Z.ctrlRecno() >= 0 && Z._dataset.status() > 0;
+		if(isEditing && (keyCode == 38 || keyCode == 40 || keyCode == 33 || keyCode == 34)) {
+			Z._enterProcessed = true;
+			Z.updateToDataset();
+		}
+		var fldObj = Z._dataset.getField(Z._field);
+		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode == 8 || keyCode == 46)) {
+			Z._dataset.editRecord();
+		}
+
 	},
 
 	/**
@@ -177,6 +192,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (!Z._dataset.fieldValidator().checkInputChar(fldObj, String.fromCharCode(keyCode), existStr, cursorPos.begin)) {
 			event.preventDefault();
 		}
+		Z._dataset.editRecord();
 		//When press 'enter', write data to dataset.
 		if(keyCode == 13) {
 			if(!Z._enterProcessed) {
@@ -279,11 +295,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		
-		if(metaName == 'message') {
-			if(Z._enableInvalidTip) {
-				Z.renderInvalid();
-			}
-		}
 		if(!metaName || metaName == 'tabIndex') {
 			Z.setTabIndex();
 		}
@@ -301,7 +312,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		var errObj = Z.getFieldError();
 		if(errObj && errObj.message) {
-			Z.el.value = errObj.inputText;
+			Z.el.value = errObj.inputText || '';
 			Z.renderInvalid(errObj);
 			return;
 		} else {
@@ -352,24 +363,35 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(Z.oldValue == value) {
 			return true;
 		}
-		Z._dataset.editRecord();
-		if (this.editMask && !this.editMask.validateValue()) {
-			return false;
+		var ctrlRecno = Z.ctrlRecno();
+		if(ctrlRecno >= 0) {
+			var oldRecno = Z._dataset.recnoSilence();
+			Z._dataset.recnoSilence(Z.ctrlRecno());
 		}
-		if (Z._beforeUpdateToDataset) {
-			if (!Z._beforeUpdateToDataset.call(Z)) {
+		try {
+			Z._dataset.editRecord();
+			if (this.editMask && !this.editMask.validateValue()) {
 				return false;
 			}
-		}
-
-		Z._keep_silence_ = true;
-		try {
-			if (Z.editMask) {
-				value = Z.editMask.getValue();
+			if (Z._beforeUpdateToDataset) {
+				if (!Z._beforeUpdateToDataset.call(Z)) {
+					return false;
+				}
 			}
-			Z._dataset.setFieldText(Z._field, value, Z._valueIndex);
+	
+			Z._keep_silence_ = true;
+			try {
+				if (Z.editMask) {
+					value = Z.editMask.getValue();
+				}
+				Z._dataset.setFieldText(Z._field, value, Z._valueIndex);
+			} finally {
+				Z._keep_silence_ = false;
+			}
 		} finally {
-			Z._keep_silence_ = false;
+			if(ctrlRecno >= 0) {
+				Z._dataset.recnoSilence(oldRecno);
+			}
 		}
 		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		return true;

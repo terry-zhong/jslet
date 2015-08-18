@@ -514,7 +514,6 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 				lkFldObj.codeField(), inputText, lkFldObj.keyField());
 		if (value === null) {
 			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
-			fldObj.message(invalidMsg, valueIndex);
 			lkDs.first();
 			return undefined;
 		}
@@ -609,9 +608,6 @@ jslet.data.record2Json = function(records, excludeFields) {
 };
 
 jslet.data.getRecInfo = function(record) {
-	if(!record) {
-		throw new Error('Record can\'t be null!')
-	}
 	if(!record) {
 		return null;
 	}
@@ -988,13 +984,25 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 }
 
 jslet.emptyPromise = {
-	done: function(func) {
+	done: function(callBackFn) {
+		if(callBackFn) {
+			callBackFn();
+		}
+		return this;
 	},
 	
-	fail: function(func) {
+	fail: function(callBackFn) {
+		if(callBackFn) {
+			callBackFn();
+		}
+		return this;
 	},
 	
-	always: function(func) {
+	always: function(callBackFn) {
+		if(callBackFn) {
+			callBackFn();
+		}
+		return this;
 	}
 }
 

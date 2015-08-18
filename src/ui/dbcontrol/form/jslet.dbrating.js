@@ -198,9 +198,6 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!metaName || metaName == "required") {
 			Z._required = fldObj.required();
 		}
-		if(metaName == 'message') {
-			Z.renderInvalid();
-		}
 	},
 	
 	/**

@@ -110,9 +110,18 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.incValue();
 		});
 		
+		jQuery(upButton).on('focus', function () {
+			jqEl.trigger('editing', [Z._field]);
+		});
+		
 		jQuery(downButton).on('click', function () {
 			Z.decValue();
 		});
+		
+		jQuery(downButton).on('focus', function () {
+			jqEl.trigger('editing', [Z._field]);
+		});
+		
 	},
 	
 	_isDisabled: function() {

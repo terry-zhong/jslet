@@ -81,9 +81,10 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.el.innerHTML = content || '';
 			return;
 		}
-		if(subType  && subType == 'message' && 
+		if(subType  && subType == 'error' && 
 			(metaName && metaName == subType)) {
-			content = fldObj.message();
+			var errObj = Z.getFieldError();
+			var content = errObj && errObj.message;
 			Z.el.innerHTML = content || '';
 			return;
 		}
@@ -97,9 +98,9 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 			subType = this.fieldMeta();
 		
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent());
-		if(subType == 'message') {
-			if(!jqEl.hasClass('jl-lbl-message')) {
-				jqEl.addClass('jl-lbl-message');
+		if(subType == 'error') {
+			if(!jqEl.hasClass('jl-lbl-error')) {
+				jqEl.addClass('jl-lbl-error');
 			}
 		} else 
 		if(subType == 'tip') {
@@ -115,7 +116,7 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 });
 
 jslet.ui.DBLabel.REQUIREDCHAR = '*';
-jslet.ui.DBLabel.METANAMES = ['label', 'required', 'tip', 'message'];
+jslet.ui.DBLabel.METANAMES = ['label', 'required', 'tip', 'error'];
 jslet.ui.register('DBLabel', jslet.ui.DBLabel);
 jslet.ui.DBLabel.htmlTemplate = '<label></label>';
 
