@@ -156,18 +156,17 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		if (dsObj.recordCount() === 0) {
 			return {xLabels: [], yValues: []};
 		}
-		var context = dsObj.startSilenceMove();
-		var oldRecno = dsObj.recno(),
+		var oldRecno = dsObj.recnoSilence(),
 			xLabels = [],
 			yValues = [];
-			
+
 		try {
-			dsObj.first();
 			var isInit = false, valueFldName,
 				valueFldCnt = Z._valueFields.length,
 				valueArr,
 				legendLabels = [];
-			while(!dsObj.isEof()) {
+			for(var k = 0, recCnt = dsObj.recordCount(); k < recCnt; k++) {
+				dsObj.recnoSilence(k);
 				xLabels.push(dsObj.getFieldText(Z._categoryField));
 				for(var i = 0; i < valueFldCnt; i++) {
 					valueFldName = Z._valueFields[i];
@@ -181,11 +180,9 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 					valueArr.push(dsObj.getFieldValue(valueFldName));
 				}
 				isInit = true;
-				dsObj.next();
-			}
+			} //End for k
 		} finally {
-			dsObj.recno(oldRecno);
-			dsObj.endSilenceMove(context);
+			dsObj.recnoSilence(oldRecno);
 		}
 		return {xLabels: xLabels, yValues: yValues, legendLabels: legendLabels};
 	},
@@ -196,23 +193,20 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		if (dsObj.recordCount() === 0) {
 			return [];
 		}
-		var context = dsObj.startSilenceMove();
-		var oldRecno = dsObj.recno(),
+		var oldRecno = dsObj.recnoSilence(),
 			result = [];
 			
 		try {
-			dsObj.first();
 			var valueFldName = Z._valueFields[0],
 				label, value;
-			while(!dsObj.isEof()) {
+			for(var k = 0, recCnt = dsObj.recordCount(); k < recCnt; k++) {
+				dsObj.recnoSilence(k);
 				label = dsObj.getFieldText(Z._categoryField);
 				value = dsObj.getFieldValue(valueFldName);
 				result.push([label, value]);
-				dsObj.next();
 			}
 		} finally {
-			dsObj.recno(oldRecno);
-			dsObj.endSilenceMove(context);
+			dsObj.recnoSilence(oldRecno);
 		}
 		return result;
 	},

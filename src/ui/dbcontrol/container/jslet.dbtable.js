@@ -209,7 +209,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._currRow = null;
 		Z._currColNum = 0;
 		Z._editingField = null;
-		
+		Z._editorTabIndex = 1;
 		Z._rowHeightChanged = false;
 		$super(el, params);
 	},
@@ -531,6 +531,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._widthStyleId = jslet.nextId();
 		//Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
 		Z._initializeVm();
+		if(Z.el.tabIndex) {
+			Z._editorTabIndex = Z.el.tabIndex + 1;
+		}
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		var ti = jqEl.attr('tabindex');
@@ -3046,7 +3049,7 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
 			Z._editingField = editingField;
 		});
-		
+		(editCtrl.jslet).setTabIndex(++Z._editorTabIndex);
 		cellPanel.appendChild(editCtrl);
 	},
 	

@@ -1370,7 +1370,7 @@ jslet.data.Dataset.prototype = {
 		if (recno == Z._recno) {
 			return true;
 		}
-		if (!Z._silence && Z._status != jslet.data.DataSetStatus.BROWSE) {
+		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
 			if(!Z.confirm()) {
 				return false;
 			}
@@ -1907,7 +1907,7 @@ jslet.data.Dataset.prototype = {
 		}
 
 		//calc other fields' range to use context rule
-		if (!Z._silence && Z._contextRuleEnabled) {
+		if (Z._contextRuleEnabled) {
 			Z.calcContextRule();
 		}
 
@@ -2496,7 +2496,6 @@ jslet.data.Dataset.prototype = {
 					if(!firstInvalidField) {
 						firstInvalidField = fldName;
 					}
-					return;
 				}
 				if(fldObj.valueStyle() == jslet.data.FieldValueStyle.BETWEEN) {
 					var v1 = null, v2 = null;
@@ -2514,7 +2513,6 @@ jslet.data.Dataset.prototype = {
 							if(!firstInvalidField) {
 								firstInvalidField = fldName;
 							}
-							return;
 						}
 					}
 				}
@@ -2557,13 +2555,13 @@ jslet.data.Dataset.prototype = {
 	 */
 	confirm: function () {
 		var Z = this;
-		if (Z._silence || Z._status == jslet.data.DataSetStatus.BROWSE) {
+		if (Z._status == jslet.data.DataSetStatus.BROWSE) {
 			return true;
 		}
 		Z._innerValidateData();
-		var existErr = Z._confirmSubDataset();
+		var isValid = Z._confirmSubDataset();
 		var evt;
-		if (jslet.data.FieldError.existRecordError(Z.getRecord()) || !existErr) {
+		if (!isValid || jslet.data.FieldError.existRecordError(Z.getRecord())) {
 			
 			if (Z._autoShowError) {
 				jslet.showInfo(jslet.locale.Dataset.cannotConfirm, 2000);
@@ -2958,6 +2956,7 @@ jslet.data.Dataset.prototype = {
 				arrValue.push(value);
 			}
 		}
+		Z.setFieldError(fldName, null, valueIndex);
 		if (Z._onFieldChanged) {
 			var eventFunc = jslet.getFunction(Z._onFieldChanged);
 			if(eventFunc) {
@@ -2965,10 +2964,9 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		//calc other fields' range to use context rule
-		if (!Z._silence && Z._contextRuleEnabled) {
+		if (Z._contextRuleEnabled) {
 			Z.calcContextRule(fldName);
 		}	
-
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
@@ -3346,7 +3344,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	find: function (condition, fromCurrentPosition) {
 		var Z = this;
-		if (Z.recordCount() === 0) {
+		if (Z.recordCount() === 0 || !Z.confirm()) {
 			return false;
 		}
 		if (condition === null) {
@@ -4486,6 +4484,9 @@ jslet.data.Dataset.prototype = {
 	 * @return {String} Csv Text. 
 	 */
 	exportCsv: function(includeFieldLabel, dispValue, onlySelected, onlyFields) {
+		if(!this.confirm()) {
+			return null;
+		}
 		jslet.Checker.test('Dataset.exportCsv#onlyFields', onlyFields).isArray();
 		var Z= this, fldSeperator = ',', surround='"';
 		var context = Z.startSilenceMove();
@@ -4566,6 +4567,9 @@ jslet.data.Dataset.prototype = {
 	 * @param {String[]} onlyFields - specified the field name to export.
 	 */
 	exportCsvFile: function(fileName, includeFieldLabel, dispValue, onlySelected, onlyFields) {
+		if(!this.confirm()) {
+			return null;
+		}
 		jslet.Checker.test('Dataset.exportCsvFile#fileName', fileName).required().isString();
     	var str = this.exportCsv(includeFieldLabel, dispValue, onlySelected, onlyFields);
         var a = document.createElement('a');
@@ -4581,6 +4585,9 @@ jslet.data.Dataset.prototype = {
 	* 
 	*/ 
 	filteredDataList: function() { 
+		if(!this.confirm()) {
+			return null;
+		}
 		var Z= this, 
 			result = [], 
 			oldRecno = Z.recnoSilence(); 
@@ -4607,7 +4614,9 @@ jslet.data.Dataset.prototype = {
 	*/ 
 	iterate: function(callBackFn, startRecno, endRecno) { 
 		jslet.Checker.test('Dataset.iterate#callBackFn', callBackFn).required().isFunction(); 
-	
+		if(!this.confirm()) {
+			return null;
+		}
 		var Z= this, 
 			result = [], 
 			context = Z.startSilenceMove(); 
@@ -4693,8 +4702,12 @@ jslet.data.Dataset.prototype = {
 	 * You can use them to do your special processing like: use them in jquery template.
 	 */
 	textList: function() {
-		var Z = this,
-			oldRecno = Z.recno(), 
+		var Z = this;
+		if(!Z.confirm()) {
+			return null;
+		}
+		
+		var	oldRecno = Z.recno(), 
 			result = [],
 			fldCnt = Z._normalFields.length,
 			fldObj, fldName, textValue, textRec;
@@ -5091,15 +5104,13 @@ jslet.data.DataTransformer.prototype = {
 			return;
 		}
 		jslet.data.convertDateFieldValue(dsObj, submittedData);
-		var masterFldObj = dsObj.datasetField(), chgLogs, records;
+		var masterFldObj = dsObj.datasetField(), chgLogs;
 		if(!masterFldObj) {
 			chgLogs = dsObj._changeLog._changedRecords;
-			records = chgLogs;
 		} else {
 			var masterRec = masterFldObj.dataset().getRecord();
 			var masterRecInfo = jslet.data.getRecInfo(masterRec);
 			chgLogs = masterRecInfo.subLog? masterRecInfo.subLog[masterFldObj.name()]: null;
-			records = masterFldObj.getValue();
 		}
 
 		var newRec, oldRec, flag;
@@ -5109,11 +5120,11 @@ jslet.data.DataTransformer.prototype = {
 				console.warn('The return record exists null. Please check it.');
 				continue;
 			}
-			this._refreshRecord(dsObj, newRec, records, chgLogs);
+			this._refreshRecord(dsObj, newRec, chgLogs);
 		}
 	},
 		
-	_refreshRecord: function(dsObj, newRec, records, chgLogs) {
+	_refreshRecord: function(dsObj, newRec, chgLogs) {
 		var recState = newRec[jslet.global.changeStateField];
 		if(!recState) {
 			return;
@@ -5127,8 +5138,8 @@ jslet.data.DataTransformer.prototype = {
 			}
 			return;
 		}
-		records = records || [];
-		var oldRec, fldObj;
+		var oldRec, fldObj,
+			records = dsObj.dataList() || [];
 		for(var i = records.length - 1; i >= 0; i--) {
 			oldRec = records[i];
 			if(oldRec[jslet.global.changeStateField] != recState) {

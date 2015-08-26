@@ -424,6 +424,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
+		if(!dataset.confirm()) {
+			return;
+		}
 		var oldRecno = dataset.recnoSilence();
 		try {
 			node.expanded = node.children ? true : false;
@@ -458,6 +461,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
+		if(!dataset.confirm()) {
+			return;
+		}
 		var oldRecno = dataset.recnoSilence();
 		try {
 			dataset.recnoSilence(node.recno);
@@ -490,13 +496,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this._callbackFn = function (node, state) {
-		var context = dataset.startSilenceMove();
+		var oldRecno = dataset.recnoSilence();
 		try {
-			dataset.recno(node.recno);
+			dataset.recnoSilence(node.recno);
 			dataset.expanded(state);
 			node.expanded = state;
 		} finally {
-			dataset.endSilenceMove(context);
+			dataset.recnoSilence(oldRecno);
 		}
 	};
 	
@@ -505,6 +511,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			return;
 		}
 		
+		if(!dataset.confirm()) {
+			return;
+		}
 		var Z = this;
 		Z._iterateNode(allRows, function (node) {
 			Z._callbackFn(node, true); 
@@ -517,6 +526,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	
 	this.collapseAll = function (callbackFn) {
 		if (!isTree) {
+			return;
+		}
+		if(!dataset.confirm()) {
 			return;
 		}
 		var Z = this;
@@ -608,20 +620,20 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this._updateChildState = function(node, state){
-		var b = dataset.startSilenceMove(),
+		var oldRecno = dataset.recnoSilence(),
 			childNode;
 		try{
 			for(var i = 0, cnt = node.children.length; i < cnt; i++){
 				childNode = node.children[i];
 				childNode.state = state;
-				dataset.recno(childNode.recno);
+				dataset.recnoSilence(childNode.recno);
 				dataset.selected(state);
 				if (childNode.children && childNode.children.length > 0) {
 					this._updateChildState(childNode, state);
 				}
 			}
 		} finally {
-			dataset.endSilenceMove(b);
+			dataset.recnoSilence(oldRecno);
 		}
 	};
 	
@@ -651,12 +663,12 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		}
 		if (pNode.state != newState){
 			pNode.state = newState;
-			var b = dataset.startSilenceMove();
+			var oldRecno = dataset.recnoSilence();
 			try{
-				dataset.recno(pNode.recno);
+				dataset.recnoSilence(pNode.recno);
 				dataset.selected(newState);
 			}finally{
-				dataset.endSilenceMove(b);
+				dataset.recnoSilence(oldRecno);
 			}
 		}
 		this._updateParentState(pNode, newState);

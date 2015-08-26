@@ -506,6 +506,9 @@ jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConve
 
 jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText, valueIndex) {
+		if(!inputText) {
+			return null;
+		}
 		var value = '',
 			lkFldObj = fldObj.lookup(),
 			lkDs = lkFldObj.dataset();
@@ -514,6 +517,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 				lkFldObj.codeField(), inputText, lkFldObj.keyField());
 		if (value === null) {
 			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
+			fldObj.dataset().setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
 			lkDs.first();
 			return undefined;
 		}
