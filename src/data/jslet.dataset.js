@@ -105,6 +105,7 @@ jslet.data.Dataset = function (name) {
 	Z.selection = new jslet.data.DataSelection(Z);
 	Z._changeLog = new jslet.data.ChangeLog(Z);
 	Z._dataTransformer = new jslet.data.DataTransformer(Z);
+	Z._followedValue = null;
 	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
@@ -2013,12 +2014,20 @@ jslet.data.Dataset.prototype = {
 	 * Calculate default value.
 	 */
 	_calcDefaultValue: function () {
-		var Z = this, fldObj, expr, value, fname;
+		var Z = this, fldObj, expr, value, fldName;
 		for (var i = 0, fldcnt = Z._normalFields.length; i < fldcnt; i++) {
 			fldObj = Z._normalFields[i];
-			fname = fldObj.name();
+			fldName = fldObj.name();
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {
 				continue;
+			}
+			
+			if(fldObj.valueFollow() && Z._followedValue) {
+				var fValue = Z._followedValue[fldName];
+				if(fValue !== undefined) {
+					fldObj.setValue(fValue);
+					continue;
+				}
 			}
 			value = fldObj.defaultValue();
 			if (value === undefined || value === null || value === '') {
@@ -2045,7 +2054,7 @@ jslet.data.Dataset.prototype = {
 			} else if(valueStyle == jslet.data.FieldValueStyle.MULTIPLE) {
 				value = [value];
 			}
-			Z.setFieldValue(fname, value);		
+			Z.setFieldValue(fldName, value);		
 		}
 	},
 
@@ -2962,6 +2971,12 @@ jslet.data.Dataset.prototype = {
 			if(eventFunc) {
 				eventFunc.call(Z, fldName, value, valueIndex);
 			}
+		}
+		if(fldObj.valueFollow()) {
+			if(!Z._followedValue) {
+				Z._followedValue = {};
+			}
+			Z._followedValue[fldName] = value;
 		}
 		//calc other fields' range to use context rule
 		if (Z._contextRuleEnabled) {

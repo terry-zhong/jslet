@@ -70,7 +70,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._mergeSame = false;
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
-	
+	Z._valueFollow = false;
 	Z._aggraded = false; //optional value: sum, count, avg
 	Z._aggradedBy = null;
 	
@@ -1191,6 +1191,23 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.mergeSameBy', mergeSameBy).isString();
 		Z._mergeSameBy = jQuery.trim(mergeSameBy);
 	},
+	
+	/**
+	 * Get or set if the field is following the value which append before.
+	 * 
+	 * @param {Boolean or undefined} valueFollow true - the default value is same as the value which appended before, false -otherwise.
+	 * @return {Boolean or this}
+	 */
+	valueFollow: function(valueFollow) {
+		var Z = this;
+		if(valueFollow === undefined) {
+			return Z._valueFollow;
+		}
+		Z._valueFollow = valueFollow? true: false;
+		if(!Z._valueFollow && Z._dataset) {
+			Z._dataset._followedValue = null;
+		}
+	},
 
 	/**
 	 * Get or set the type of aggraded value.
@@ -1326,6 +1343,7 @@ jslet.data.Field.prototype = {
 		result.mergeSameBy(Z._mergeSameBy);
 		result.fixedValue(Z._fixedValue);
 		
+		result.valueFollow(Z._valueFollow);
 		result.aggraded(Z._aggraded);
 		result.aggradedBy(Z._aggradedBy);
 		
@@ -1444,6 +1462,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('mergeSameBy');
 	setPropValue('aggraded');
 
+	setPropValue('valueFollow');
 	setPropValue('aggradedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');
