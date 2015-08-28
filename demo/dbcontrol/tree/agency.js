@@ -6,7 +6,7 @@
 	//Generate very large test data: 5000 records 
 	function generateLargeData(){
 		var data = [], rec, code1, code2, m=1, id1, id2;
-		for(var i = 1; i <= 10; i++){
+		for(var i = 1; i <= 3; i++){
 			code1 = i;
 			if(i < 10)
 				code1 ='00' + i;
@@ -19,7 +19,7 @@
 			id1 = m++;
 			rec = {id: id1, code: code1, name: getRandomChar() + code1, iconcls: 'folderIcon'};
 			data.push(rec);
-			for(var j = 1; j < 11; j++){
+			for(var j = 1; j < 2; j++){
 				code2 = code1+ (j < 10 ? '0': '')+j;
 				id2 = m++;
 				rec = {id: id2, code: code2, name: getRandomChar() + code2, parentid: id1, iconcls: 'folderIcon'};

@@ -13,7 +13,8 @@
 	locale.isRtl = false;//false: direction = 'ltr', true: direction = 'rtl'
 	
 	locale.Common = {
-		jsonParseError: 'JSON格式错误，无法解析：{0}'		
+		jsonParseError: 'JSON格式错误，无法解析：{0}',
+		ConnectError: '连接超时或者无法连接服务器!'
 	};
 	
 	locale.Date = {

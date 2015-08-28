@@ -35,17 +35,7 @@
         }
 
         function apply() {
-            var arrInserted = dsEmployee.insertedRecords();
-            var arrUpdated = dsEmployee.updatedRecords();
-            var arrDeleted = dsEmployee.deletedRecords();
-            var s = 'The below data will be sent to server :\nInserted Data:\n';
-
-            s += jslet.data.record2Json(arrInserted) + '\n\n';
-            s += 'Updated Data: \n';
-            s += jslet.data.record2Json(arrUpdated) + '\n\n';
-            s += 'Deteted Data: \n';
-            s += jslet.data.record2Json(arrDeleted) + '\n';
-            alert(s);
+        	dsEmployee.submitUrl('xxx').submit();
         }
     </script>
 </head>

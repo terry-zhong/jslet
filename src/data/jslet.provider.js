@@ -65,7 +65,11 @@ jslet.data.DataProvider = function() {
 			if(data && data.errorCode) {
 				result = {errorCode: data.errorCode, errorMessage: data.errorMessage};
 			} else {
-				result = {errorCode: textStatus, errorMessage: errorThrown};
+				if(textStatus == 'error') {
+					errorCode = '0000';
+					errorMessage = jslet.locale.Common.ConnectError;
+				}
+				result = {errorCode: errorCode, errorMessage: errorMessage};
 			}
 			defer.reject(result, this);
 		})

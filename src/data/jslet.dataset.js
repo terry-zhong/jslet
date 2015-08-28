@@ -4145,27 +4145,35 @@ jslet.data.Dataset.prototype = {
 		if(!this._queryUrl) {
 			throw new Error('QueryUrl required! Use: yourDataset.queryUrl(yourUrl)');
 		}
-
-		var reqData = {};
-		if(Z._pageNo > 0) {
-			reqData.pageNo = Z._pageNo;
-			reqData.pageSize = Z._pageSize;
+		if(Z._querying) { //Avoid duplicate submitting
+			return;
 		}
-		var criteria = Z._queryCriteria;
-		if(criteria) {
-			if(jslet.isArray(criteria)) {
-				reqData.criteria = criteria;
-			} else {
-				reqData.simpleCriteria = criteria;
+		Z._querying = true;
+		try {
+			var reqData = {};
+			if(Z._pageNo > 0) {
+				reqData.pageNo = Z._pageNo;
+				reqData.pageSize = Z._pageSize;
 			}
+			var criteria = Z._queryCriteria;
+			if(criteria) {
+				if(jslet.isArray(criteria)) {
+					reqData.criteria = criteria;
+				} else {
+					reqData.simpleCriteria = criteria;
+				}
+			}
+			if(Z.csrfToken) {
+				reqData.csrfToken = Z.csrfToken;
+			}
+			var reqData = jslet.data.record2Json(reqData);
+			return Z._dataProvider.sendRequest(Z, Z._queryUrl, reqData)
+			.done(Z._doQuerySuccess)
+			.fail(Z._doApplyError)
+			.always(function(){Z._querying = false})
+		} catch(e) {
+			Z._querying = false
 		}
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
-		}
-		var reqData = jslet.data.record2Json(reqData);
-		return Z._dataProvider.sendRequest(Z, Z._queryUrl, reqData)
-		.done(Z._doQuerySuccess)
-		.fail(Z._doApplyError);
 	},
 
 	_setChangedState: function(flag, chgRecs, pendingRecs) {
@@ -4280,23 +4288,33 @@ jslet.data.Dataset.prototype = {
 		if(!Z._submitUrl) {
 			throw new Error('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
 		}
-
 		var changedRecs = Z._dataTransformer.getSubmittingChanged();
 		if (!changedRecs || changedRecs.length === 0) {
 			jslet.showInfo(jslet.locale.Dataset.noDataSubmit);
 			return jslet.emptyPromise;
 		}
-		var reqData = {main: changedRecs};
-		if(extraInfo) {
-			reqData.extraInfo = extraInfo;
+		if(Z._submitting) { //Avoid duplicate submitting
+			return;
 		}
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
+		Z._submitting = true;
+		try {
+			var reqData = {main: changedRecs};
+			if(extraInfo) {
+				reqData.extraInfo = extraInfo;
+			}
+			if(Z.csrfToken) {
+				reqData.csrfToken = Z.csrfToken;
+			}
+			reqData = jslet.data.record2Json(reqData, excludeFields);
+			return Z._dataProvider.sendRequest(Z, Z._submitUrl, reqData)
+			.done(Z._doSaveSuccess)
+			.fail(Z._doApplyError)
+			.always(function(){
+				Z._submitting = false;
+			});
+		} catch(e) {
+			Z._submitting = false
 		}
-		reqData = jslet.data.record2Json(reqData, excludeFields);
-		return Z._dataProvider.sendRequest(Z, Z._submitUrl, reqData)
-		.done(Z._doSaveSuccess)
-		.fail(Z._doApplyError);
 	},
 	
 	_doSubmitSelectedSuccess: function(result, dataset) {
@@ -4359,20 +4377,31 @@ jslet.data.Dataset.prototype = {
 		if(!url) {
 			throw new Error('Url required! Use: yourDataset.submitSelected(yourUrl)');
 		}
-		var changedRecs = Z._dataTransformer.getSubmittingSelected() || [];
-
-		Z._deleteOnSuccess_ = deleteOnSuccess;
-		var reqData = {main: changedRecs};
-		if(Z.csrfToken) {
-			reqData.csrfToken = Z.csrfToken;
+		if(Z._submitting) { //Avoid duplicate submitting
+			return;
 		}
-		if(extraInfo) {
-			reqData.extraInfo = extraInfo;
+		Z._submitting = true;
+		try {
+			var changedRecs = Z._dataTransformer.getSubmittingSelected() || [];
+	
+			Z._deleteOnSuccess_ = deleteOnSuccess;
+			var reqData = {main: changedRecs};
+			if(Z.csrfToken) {
+				reqData.csrfToken = Z.csrfToken;
+			}
+			if(extraInfo) {
+				reqData.extraInfo = extraInfo;
+			}
+			reqData = jslet.data.record2Json(reqData, excludeFields);
+			return Z._dataProvider.sendRequest(Z, url, reqData)
+			.done(Z._doSubmitSelectedSuccess)
+			.fail(Z._doApplyError)
+			.always(function(){
+				Z._submitting = false;
+			});
+		} catch(e) {
+			Z._submitting = false
 		}
-		reqData = jslet.data.record2Json(reqData, excludeFields);
-		return Z._dataProvider.sendRequest(Z, url, reqData)
-		.done(Z._doSubmitSelectedSuccess)
-		.fail(Z._doApplyError);
 	},
 
 	/**
