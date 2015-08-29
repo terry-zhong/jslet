@@ -13,27 +13,39 @@ jslet.ui.FindDialog = function (dataset, container) {
 	var _dataset = dataset;
 	var _currfield = null;
 	var _container = container;
+	var _findingField = null;
 	
 	function initialize() {
-		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, stopEventBubling: true, height: 64, width: 350 };
+		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, stopEventBubling: true, height: 58, width: 320 };
 		_dialog = jslet.ui.createControl(opt);
 		_dialog.onClosed(function(){
 			return 'hidden';
 		});
-		var content = '<table style="width:100%"><tr><td><input class="form-control jl-finddlg-value" /></td><td style="width:20%"><select class="form-control jl-finddlg-opt"><option>=</option><option title="Match First">=*</option><option>*=*</option><option>*=</option></select></td><td style="width:15%"><button class="btn jl-finddlg-find" style="width:100%">Find</button></td></tr></table>'
+		var content = '<div class="form-horizontal"><div class="form-group form-group-sm jl-nogap"><div class="col-sm-9 jl-nogap"><input class="form-control form-control-static jl-finddlg-value jl-nogap"/></div>' + 
+		'<div class="col-sm-2 jl-nogap"><select class="form-control form-control-static jl-finddlg-opt jl-nogap">' + 
+		'<option>=</option>' + 
+		'<option title="' + jslet.locale.findDialog.matchFirst + '">=*</option>' + 
+		'<option title="' + jslet.locale.findDialog.matchLast + '">*=</option>' + 
+		'<option title="' + jslet.locale.findDialog.matchAny + '">*=*</option></select></div>' +
+		'<div class="col-sm-1 btn-group btn-group-sm jl-nogap"><button class="btn jl-finddlg-find fa fa-search"></button></div></div>'
+			
 		_dialog.setContent(content);
 		var dlgEl = _dialog.el;
+		var jqOptions = jQuery(dlgEl).find('.jl-finddlg-opt');
+
 		var jqFindingValue = jQuery(dlgEl).find('.jl-finddlg-value');
 		jqFindingValue.on('keydown', function(event){
-			
-		});
-		var jqOptions = jQuery(dlgEl).find('.jl-finddlg-opt');
-		jqOptions.on('change', function(event){
-			
+			if(event.keyCode === 13) {
+				findData();
+			}
 		});
 		
 		var jqFind = jQuery(dlgEl).find('.jl-finddlg-find');
 		jqFind.on('click', function(event) {
+			fingData();
+		});
+
+		function findData() {
 			var matchType = jqOptions.val();
 			if(matchType == '=*') {
 				matchType = 'first';
@@ -45,28 +57,36 @@ jslet.ui.FindDialog = function (dataset, container) {
 				matchType = null;
 			}
 			_dataset.findByField(_findingField, jqFindingValue.val(), true, true, matchType);
-		});
-
+		}
 	}
-	initialize();
 	
 	this.show = function(findingField) {
 		if(_container) {
 			var pos = jQuery(_container).position();
 		}
 		_dialog.show(pos.left, pos.top);
-		if(findingField) {
-			_findingField = findingField;
-		}
-	},
+		this.findingField(findingField);
+	};
 	
 	this.hide = function() {
 		_dialog.hide();
-	},
+	};
 	
 	this.findingField = function(findingField) {
+		if(findingField === undefined) {
+			return _findingField;
+		}
 		_findingField = findingField;
-	}
+		if(_findingField) {
+			var fldObj = _dataset.getField(_findingField);
+			if(fldObj) {
+				_dialog.changeCaption(jslet.formatString(jslet.locale.findDialog.caption, [fldObj.label()]));
+			}
+		}
+	};
+	
+	initialize();
+	this.hide();
 };
 
 /**

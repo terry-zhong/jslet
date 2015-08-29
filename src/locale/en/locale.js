@@ -143,6 +143,13 @@
 		totalLabel: 'Total'
 	};
 	
+	locale.findDialog = {
+		caption: 'Find - {0}',
+		matchFirst: 'Match first',
+		matchLast: 'Match last',
+		matchAny: 'Match any'
+	};
+	
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

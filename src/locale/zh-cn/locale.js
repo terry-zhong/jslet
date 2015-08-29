@@ -143,6 +143,13 @@
 		totalLabel: '合计'
 	};	
 	
+	locale.findDialog = {
+		caption: '查找 - {0}',
+		matchFirst: '匹配开头',
+		matchLast: '匹配结尾',
+		matchAny: '任意匹配'
+	};
+			
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

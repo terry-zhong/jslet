@@ -529,7 +529,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.ui.textMeasurer.setElement();
 		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
-		//Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
+		Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
 		Z._initializeVm();
 		if(Z.el.tabIndex) {
 			Z._editorTabIndex = Z.el.tabIndex + 1;
@@ -593,12 +593,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			
-//			if(event.ctrlKey && keyCode == 70) { //ctrl + f
-//				Z._findDialog.show();
-//				event.preventDefault();
-//	       		event.stopImmediatePropagation();
-//				return false;
-//			}
+			if(event.ctrlKey && keyCode == 70) { //ctrl + f
+				Z._findDialog.show();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+				return false;
+			}
 			if(event.ctrlKey && keyCode == 67) { //ctrl + c
 				var selectedText = Z._dataset.selection.getSelectionText();
 				if(selectedText) {
@@ -1551,7 +1551,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return;
 			}
 			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
-				if(!Z._dataset.confirm()) {
+				if(Z._dataset.status()) {
 					return;
 				}
 			}
@@ -2908,6 +2908,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var fldCtrlCfg = fldObj.editControl();
 		fldCtrlCfg.dataset = Z._dataset;
 		fldCtrlCfg.field = fldName;
+		fldCtrlCfg.inTableCtrl = true;
 		var editCtrl = jslet.ui.createControl(fldCtrlCfg);
 		editCtrl = editCtrl.el;
 		editCtrl.id = jslet.nextId();
@@ -3049,7 +3050,6 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 		jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
 			Z._editingField = editingField;
 		});
-		(editCtrl.jslet).setTabIndex(++Z._editorTabIndex);
 		cellPanel.appendChild(editCtrl);
 	},
 	

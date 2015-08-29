@@ -158,39 +158,38 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		
 		var lkds = lkf.dataset(),
-			cnt = lkds.recordCount();
-		if(cnt === 0) {
+			lkCnt = lkds.recordCount();
+		if(lkCnt === 0) {
 			Z.el.innerHTML = jslet.locale.DBCheckBoxGroup.noOptions;
 			return;
 		}
 		Z._itemIds = [];
+		var template = ['<table cellpadding="0" cellspacing="0">'],
+			isNewRow = false;
+		var editFilter = lkf.editFilter();
+		Z._innerEditFilterExpr = null;
+		var editItemDisabled = lkf.editItemDisabled();
+		if(editFilter) {
+			Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
+		}
+		var disableOption = false,
+			itemId = jslet.nextId(), k = -1;
+		if(Z._hasSelectAllBox && lkCnt > 0) {
+			template.push('<tr>');
+			itemId = jslet.nextId();
+			template.push('<td style="white-space: nowrap; "><input type="checkbox" class="jl-selectall"');
+			template.push(' id="');
+			template.push(itemId);
+			template.push('"/><label for="');
+			template.push(itemId);
+			template.push('">');
+			template.push(jslet.locale.DBCheckBoxGroup.selectAll);
+			template.push('</label></td>');
+			k = 0;
+		}
+		var oldRecno = lkds.recnoSilence();
 		try {
-			var template = ['<table cellpadding="0" cellspacing="0">'],
-				isNewRow = false;
-			var editFilter = lkf.editFilter();
-			Z._innerEditFilterExpr = null;
-			var editItemDisabled = lkf.editItemDisabled();
-			if(editFilter) {
-				Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
-			}
-			var disableOption = false;
-			
-			var context = lkds.startSilenceMove(),
-				itemId = jslet.nextId(), k = -1;
-			if(Z._hasSelectAllBox && lkds.recordCount() > 0) {
-				template.push('<tr>');
-				itemId = jslet.nextId();
-				template.push('<td style="white-space: nowrap; "><input type="checkbox" class="jl-selectall"');
-				template.push(' id="');
-				template.push(itemId);
-				template.push('"/><label for="');
-				template.push(itemId);
-				template.push('">');
-				template.push(jslet.locale.DBCheckBoxGroup.selectAll);
-				template.push('</label></td>');
-				k = 0;
-			}
-			for (var i = 0; i < cnt; i++) {
+			for (var i = 0; i < lkCnt; i++) {
 				lkds.recnoSilence(i);
 				disableOption = false;
 				if(Z._innerEditFilterExpr && !Z._innerEditFilterExpr.eval()) {
@@ -220,13 +219,13 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				template.push('</label></td>');
 				isNewRow = (k % Z._columnCount === 0);
 			} // end for
-			if (cnt > 0) {
+			if (lkCnt > 0) {
 				template.push('</tr>');
 			}
 			template.push('</table>');
 			Z.el.innerHTML = template.join('');
 		} finally {
-			lkds.endSilenceMove(context);
+			lkds.recnoSilence(oldRecno);
 		}
 	}, // end renderOptions
 

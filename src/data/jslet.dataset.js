@@ -106,6 +106,8 @@ jslet.data.Dataset = function (name) {
 	Z._changeLog = new jslet.data.ChangeLog(Z);
 	Z._dataTransformer = new jslet.data.DataTransformer(Z);
 	Z._followedValue = null;
+	
+	Z._lastFindingValue = null;
 	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
@@ -2570,7 +2572,7 @@ jslet.data.Dataset.prototype = {
 		Z._innerValidateData();
 		var isValid = Z._confirmSubDataset();
 		var evt;
-		if (!isValid || jslet.data.FieldError.existRecordError(Z.getRecord())) {
+		if (jslet.data.FieldError.existRecordError(Z.getRecord()) || !isValid) {
 			
 			if (Z._autoShowError) {
 				jslet.showInfo(jslet.locale.Dataset.cannotConfirm, 2000);
@@ -2622,12 +2624,17 @@ jslet.data.Dataset.prototype = {
 				subDatasets.push(fldObj.subDataset());
 			}
 		}
-		var subDs;
+		var subDs, oldShowError;
 		for(var i = 0, len = subDatasets.length; i < len; i++) {
-			subDs = subDatasets[i];
-			if(!subDs.confirm()) {
-				console.warn('Error in [' + subDs.name() + '], can\'t confirm!');
-				return false;
+			oldShowError = subDs._autoShowError;
+			subDs._autoShowError = false;
+			try {
+				if(!subDs.confirm()) {
+					console.warn('Error in [' + subDs.name() + '], can\'t confirm!');
+					return false;
+				}
+			} finally {
+				subDs._autoShowError = oldShowError;
 			}
 		}
 		return true;
@@ -3449,7 +3456,10 @@ jslet.data.Dataset.prototype = {
 			var start = 0;
 			if(fromCurrentPosition) {
 				var currRec = Z.getRecord();
-				start = records.indexOf(currRec) + 1;
+				if(Z._lastFindingValue && Z._lastFindingValue === findingValue) {
+					start = records.indexOf(currRec) + 1;
+				}
+				Z._lastFindingValue = findingValue;
 			}
 			for(i = start; i < len; i++) {
 				dataRec = records[i];
@@ -3463,28 +3473,22 @@ jslet.data.Dataset.prototype = {
 					return true;
 				}
 			}
-			
+			return false;
 		}
 		if (Z.recordCount() === 0) {
 			return false;
 		}
 
-		if(!fromCurrentPosition) {
-			if(findingByText && byText) {
-				value = Z.getFieldText(fldName);
-			} else {
-				value = Z.getFieldValue(fldName);
-			}
-			if (matchValue(matchType, value, findingValue)) {
-				return true;
-			}
-		}
 		var foundRecno = -1, oldRecno = Z.recno();
 		try {
 			var cnt = Z.recordCount(),
 				start = 0;
 			if(fromCurrentPosition) {
-				start = Z.recno() + 1;
+				start = Z.recno();
+				if(Z._lastFindingValue && Z._lastFindingValue === findingValue) {
+					start =  Z.recno() + 1;
+				}
+				Z._lastFindingValue = findingValue;
 			}
 			for (i = start; i < cnt; i++) {
 				Z.recnoSilence(i);
