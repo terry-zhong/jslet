@@ -23,8 +23,8 @@ jslet.ui.FindDialog = function (dataset, container) {
 		});
 		var content = '<div class="form-horizontal"><div class="form-group form-group-sm jl-nogap"><div class="col-sm-9 jl-nogap"><input class="form-control form-control-static jl-finddlg-value jl-nogap"/></div>' + 
 		'<div class="col-sm-2 jl-nogap"><select class="form-control form-control-static jl-finddlg-opt jl-nogap">' + 
-		'<option>=</option>' + 
 		'<option title="' + jslet.locale.findDialog.matchFirst + '">=*</option>' + 
+		'<option>=</option>' + 
 		'<option title="' + jslet.locale.findDialog.matchLast + '">*=</option>' + 
 		'<option title="' + jslet.locale.findDialog.matchAny + '">*=*</option></select></div>' +
 		'<div class="col-sm-1 btn-group btn-group-sm jl-nogap"><button class="btn jl-finddlg-find fa fa-search"></button></div></div>'
@@ -42,7 +42,7 @@ jslet.ui.FindDialog = function (dataset, container) {
 		
 		var jqFind = jQuery(dlgEl).find('.jl-finddlg-find');
 		jqFind.on('click', function(event) {
-			fingData();
+			findData();
 		});
 
 		function findData() {
@@ -62,7 +62,7 @@ jslet.ui.FindDialog = function (dataset, container) {
 	
 	this.show = function(findingField) {
 		if(_container) {
-			var pos = jQuery(_container).position();
+			var pos = jQuery(_container).offset();
 		}
 		_dialog.show(pos.left, pos.top);
 		this.findingField(findingField);

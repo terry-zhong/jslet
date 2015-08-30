@@ -64,7 +64,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender';
+		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog';
 		
 		/**
 		 * {Integer} Fixed row count.
@@ -197,6 +197,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._defaultCellRender = null;
 
+		Z._hasFindDialog = true;
+		
 		//@private
 		Z._repairHeight = 0;
 		Z.contentHeight = 0;
@@ -451,6 +453,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onFillCell = onFillCell;
 	},
 	
+	hasFindDialog: function(hasFindDialog) {
+		var Z = this;
+		if(hasFindDialog === undefined) {
+			return Z._hasFindDialog;
+		}
+		Z._hasFindDialog = hasFindDialog? true: false;
+		if(Z._hasFindDialog && !Z._findDialog) {
+			Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
+		}
+	},
+	
 	columns: function(columns) {
 		if(columns === undefined) {
 			return this._columns;
@@ -529,7 +542,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.ui.textMeasurer.setElement();
 		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
-		Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
+		if(Z._hasFindDialog) {
+			Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
+		}
 		Z._initializeVm();
 		if(Z.el.tabIndex) {
 			Z._editorTabIndex = Z.el.tabIndex + 1;
@@ -594,6 +609,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var keyCode = event.which;
 			
 			if(event.ctrlKey && keyCode == 70) { //ctrl + f
+				if(!Z._hasFindDialog) {
+					return;
+				}
 				Z._findDialog.show();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
