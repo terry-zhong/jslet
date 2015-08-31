@@ -124,6 +124,26 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		
 	},
 	
+	/** 
+	 * @override
+	 */ 
+	setTabIndex: function(tabIdx) {
+		var Z = this;
+		if(Z.inTableCtrl()) {
+			return;
+		}
+		
+		if(tabIdx !== 0 && !tabIdx) {
+			fldObj = Z._dataset.getField(Z._field);
+			if(fldObj) {
+				tabIdx = fldObj.tabIndex();
+			}
+		}
+		if(tabIdx === 0 || tabIdx) {
+			Z.textCtrl.el.tabIndex = tabIdx;
+		}	
+	},
+	
 	_isDisabled: function() {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
@@ -272,6 +292,9 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			range = fldObj.dataRange();
 			jqEl.attr('aria-valuemin', range && (range.min || range.min === 0) ? range.min: '');
 			jqEl.attr('aria-valuemin', range && (range.max || range.max === 0) ? range.max: '');
+		}
+		if(!metaName || metaName == 'tabIndex') {
+			Z.setTabIndex();
 		}
 	},
 	

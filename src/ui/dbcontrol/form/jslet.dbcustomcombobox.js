@@ -137,16 +137,20 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/** 
 	 * @override
 	 */ 
-	setTabIndex: function() {
-		var Z = this,
+	setTabIndex: function(tabIdx) {
+		var Z = this;
+		if(Z.inTableCtrl()) {
+			return;
+		}
+		if(tabIdx !== 0 && !tabIdx) {
 			fldObj = Z._dataset.getField(Z._field);
-		if(fldObj) {
-			var tabIdx = fldObj.tabIndex();
-			if(tabIdx !== null) {
-				Z.el.tabIndex = -1;
-				Z.textCtrl.el.tabIndex = tabIdx;
+			if(fldObj) {
+				tabIdx = fldObj.tabIndex();
 			}
 		}
+		if(tabIdx === 0 || tabIdx) {
+			Z.textCtrl.el.tabIndex = tabIdx;
+		}	
 	},
 	
 	/**

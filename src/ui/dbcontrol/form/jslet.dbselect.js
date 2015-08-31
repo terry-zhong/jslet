@@ -337,7 +337,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.renderInvalid(null);
 		}
 		var value = Z.getValue();
-		if(!Z.el.multiple && value == Z.el.value) {
+		if(!Z.el.multiple && value === Z.el.value) {
 			return;
 		}
 		var optCnt = Z.el.options.length, 

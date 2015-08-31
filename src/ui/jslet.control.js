@@ -296,6 +296,8 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	/**Inner use**/
 	_ctrlRecno: -1,
 	
+	_inTableCtrl: false,
+	
 	field: function(fldName) {
 		if(fldName === undefined) {
 			return this._field;
@@ -355,14 +357,19 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
-	setTabIndex: function() {
-		var Z = this,
+	setTabIndex: function(tabIdx) {
+		var Z = this;
+		if(Z._inTableCtrl) {
+			return;
+		}
+		if(tabIdx !== 0 && !tabIdx) {
 			fldObj = Z._dataset.getField(Z._field);
-		if(fldObj) {
-			var tabIdx = fldObj.tabIndex();
-			if(tabIdx !== null) {
-				Z.el.tabIndex = tabIdx;
+			if(fldObj) {
+				tabIdx = fldObj.tabIndex();
 			}
+		}
+		if(tabIdx === 0 || tabIdx) {
+			Z.el.tabIndex = tabIdx;
 		}
 	},
 	
@@ -382,6 +389,13 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.Checker.test('DBFieldControl.ctrlRecno', ctrlRecno).isGTEZero();
 		this._ctrlRecno = ctrlRecno;
 		this.doValueChanged();
+	},
+	
+	inTableCtrl: function(inTable) {
+		if(inTable === undefined) {
+			return this._inTableCtrl;
+		}
+		this._inTableCtrl = inTable;
 	},
 	
 	getValue: function() {

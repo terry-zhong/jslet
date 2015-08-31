@@ -122,6 +122,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		Z.doValueChanged();
+		Z.oldValue = Z.el.value;
 		if(Z._autoSelectAll) {
 			jslet.ui.textutil.selectText(Z.el);
 		}
@@ -230,7 +231,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var ch, chs = [];
 		for(var i = 0, len = text.length; i < len; i++) {
 			ch = text[i];
-			if (Z._dataset.fieldValidator.checkInputChar(fldObj, ch)) {
+			if (Z._dataset.fieldValidator().checkInputChar(fldObj, ch)) {
 				chs.push(ch);
 			}
 		}

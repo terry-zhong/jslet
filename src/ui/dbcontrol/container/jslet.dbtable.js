@@ -612,6 +612,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				if(!Z._hasFindDialog) {
 					return;
 				}
+				if(!Z._findDialog.findingField()) {
+					var colCfg = Z.innerColumns[Z._currColNum];
+					if(colCfg.field) {
+						Z._findDialog.findingField(colCfg.field);
+					}
+				}
 				Z._findDialog.show();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
@@ -1569,7 +1575,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return;
 			}
 			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
-				if(Z._dataset.status()) {
+				if(!Z._dataset.confirm()) {
 					return;
 				}
 			}
@@ -2827,9 +2833,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z.listvm.refreshModel();
 			var recno = Z._dataset.recno(),
 				preRecno = evt.preRecno;
+			
 			Z._fillData();
-
-			Z.refreshControl(jslet.data.RefreshEvent.scrollEvent(recno, preRecno));
+			Z._keep_silence_ = true;
+			try {
+				Z.refreshControl(jslet.data.RefreshEvent.scrollEvent(recno, preRecno));
+			} finally {
+				Z._keep_silence_ = false;
+			}
 		} else if (evtType == jslet.data.RefreshEvent.DELETE) {
 			Z.listvm.refreshModel();
 			Z._fillData();

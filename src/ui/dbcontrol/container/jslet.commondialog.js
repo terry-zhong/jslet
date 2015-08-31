@@ -21,8 +21,8 @@ jslet.ui.FindDialog = function (dataset, container) {
 		_dialog.onClosed(function(){
 			return 'hidden';
 		});
-		var content = '<div class="form-horizontal"><div class="form-group form-group-sm jl-nogap"><div class="col-sm-9 jl-nogap"><input class="form-control form-control-static jl-finddlg-value jl-nogap"/></div>' + 
-		'<div class="col-sm-2 jl-nogap"><select class="form-control form-control-static jl-finddlg-opt jl-nogap">' + 
+		var content = '<div class="form-horizontal"><div class="form-group form-group-sm jl-nogap"><div class="col-sm-9 jl-nogap"><input class="form-control jl-finddlg-value jl-nogap"/></div>' + 
+		'<div class="col-sm-2 jl-nogap"><select class="form-control jl-finddlg-opt jl-nogap">' + 
 		'<option title="' + jslet.locale.findDialog.matchFirst + '">=*</option>' + 
 		'<option>=</option>' + 
 		'<option title="' + jslet.locale.findDialog.matchLast + '">*=</option>' + 
@@ -37,6 +37,9 @@ jslet.ui.FindDialog = function (dataset, container) {
 		jqFindingValue.on('keydown', function(event){
 			if(event.keyCode === 13) {
 				findData();
+	       		event.stopImmediatePropagation();
+				event.preventDefault();
+				return false;
 			}
 		});
 		

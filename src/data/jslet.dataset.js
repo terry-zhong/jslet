@@ -846,14 +846,16 @@ jslet.data.Dataset.prototype = {
 		var dsObj = jslet.temp.sortDataset;
 		
 		var indexFlds = dsObj._sortingFields,
-			strFields = [];
+			strFields = [],
+			fname, idxFldCfg;
 		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
-			fname = indexFlds[i].fieldName;
-			if(dsObj.getField(fname).getType() === jslet.data.DataType.STRING) {
+			idxFldCfg = indexFlds[i];
+			fname = idxFldCfg.fieldName;
+			if(idxFldCfg.useTextToSort || dsObj.getField(fname).getType() === jslet.data.DataType.STRING) {
 				strFields.push(fname);
 			}
 		}
-		var  v1, v2, fname, flag = 1, idxFldCfg;
+		var  v1, v2, flag = 1;
 		for (var i = 0, cnt = indexFlds.length; i < cnt; i++) {
 			idxFldCfg = indexFlds[i];
 			fname = idxFldCfg.fieldName;
@@ -871,11 +873,9 @@ jslet.data.Dataset.prototype = {
 				if(strFields.indexOf(fname) >= 0) {
 					v1 = v1.toLowerCase();
 					v2 = v2.toLowerCase();
-				}
-				if (v1 < v2) {
-					flag = -1;
+					flag = (v1.localeCompare(v2) < 0? -1: 1);
 				} else {
-					flag = 1;
+					flag = (v1 < v2 ? -1: 1);
 				}
 			} else if (v1 === null && v2 !== null) {
 				flag = -1;
@@ -884,7 +884,7 @@ jslet.data.Dataset.prototype = {
 					flag = 1;
 				}
 			}
-			return flag * indexFlds[i].order;
+			return flag * idxFldCfg.order;
 		} //end for
 		return 0;
 	},
@@ -2458,6 +2458,18 @@ jslet.data.Dataset.prototype = {
 		evt = jslet.data.RefreshEvent.scrollEvent(Z._recno);
 		Z.refreshControl(evt);
 		Z.refreshLookupHostDataset();
+		var detailFields = Z._subDatasetFields;
+		if(detailFields) {
+			var subFldObj, subDs;
+			for(var i = 0, len = detailFields.length; i < len; i++) {
+				subFldObj = detailFields[i];
+				subDs = subFldObj.subDataset();
+				if(subDs) {
+					subDs.refreshControl();
+				}
+			}
+		}
+		
 	},
 
 	/**
@@ -2626,6 +2638,7 @@ jslet.data.Dataset.prototype = {
 		}
 		var subDs, oldShowError;
 		for(var i = 0, len = subDatasets.length; i < len; i++) {
+			subDs = subDatasets[i];
 			oldShowError = subDs._autoShowError;
 			subDs._autoShowError = false;
 			try {
@@ -4662,9 +4675,6 @@ jslet.data.Dataset.prototype = {
 	*/ 
 	iterate: function(callBackFn, startRecno, endRecno) { 
 		jslet.Checker.test('Dataset.iterate#callBackFn', callBackFn).required().isFunction(); 
-		if(!this.confirm()) {
-			return null;
-		}
 		var Z= this, 
 			result = [], 
 			context = Z.startSilenceMove(); 
@@ -4727,8 +4737,6 @@ jslet.data.Dataset.prototype = {
 		var Z = this;
 		jslet.data.FieldValueCache.removeAllCache(Z);
 		jslet.data.FieldError.clearDatasetError(Z);
-		
-		jslet.data.FieldError.clearDatasetError(Z);
 
 		jslet.data.convertDateFieldValue(Z);
 		Z._changeLog.clear();
@@ -4774,6 +4782,80 @@ jslet.data.Dataset.prototype = {
 			return result;
 		} finally {
 			this.recnoSilence(oldRecno);
+		}
+	},
+	
+	/**
+	 * Export dataset snapshot. Dataset snapshot can be used for making a backup when inputing a lot of data. 
+	 * 
+	 * @return {Object} Dataset snapshot.
+	 */
+	exportSnapshot: function() {
+		var Z = this,
+			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), 
+				indexFields: Z.indexFields(), filter: Z.filter(), 
+				filtered: Z.filtered(), dataList: Z.dataList()};
+		var result = {master: mainDs};
+		var details = null, detail;
+		var detailFields = Z._subDatasetFields;
+		if(detailFields) {
+			var subFldObj, subDs;
+			for(var i = 0, len = detailFields.length; i < len; i++) {
+				subFldObj = detailFields[i];
+				subDs = subFldObj.subDataset();
+				if(subDs) {
+					if(!details) {
+						details = [];
+					}
+					detail = {name: subDs.name(), recno: subDs.recno(), status: subDs.status(), 
+						indexFields: subDs.indexFields(), filter: subDs.filter(), 
+						filtered: subDs.filtered()};
+					details.push(detail);
+				}
+			}
+		}
+		if(details) {
+			result.details = details;
+		}
+		
+		return result;
+	},
+	
+	/**
+	 * Import a dataset snapshot.
+	 * 
+	 * @param {Object} snapshot Dataset snapshot.
+	 */
+	importSnapshot: function(snapshot) {
+		jslet.Checker.test('Dataset.importSnapshot#snapshot', snapshot).required().isPlanObject();
+		var master = snapshot.master;
+		jslet.Checker.test('Dataset.importSnapshot#snapshot.master', master).required().isPlanObject();
+		var Z = this,
+			dsName = master.name;
+		if(dsName != Z._name) {
+			throw new Error('Snapshot does not match the current dataset name!');
+		}
+		Z._dataList = master.dataList;
+		Z.indexFields(master.indexFields);
+		Z.filter(master.filter);
+		Z.filtered(master.filtered);
+		Z.recno(master.recno);
+		Z.refreshControl();
+		var details = snapshot.details;
+		if(!details || details.length === 0) {
+			return;
+		}
+		var detail, subDs;
+		for(var i = 0, len = details.length; i < len; i++) {
+			detail = details[i];
+			subDs = jslet.data.getDataset(detail.name);
+			if(subDs) {
+				subDs.indexFields(detail.indexFields);
+				subDs.filter(detail.filter);
+				subDs.filtered(detail.filtered);
+				subDs.recno(detail.recno);
+				subDs.refreshControl();
+			}
 		}
 	},
 	
