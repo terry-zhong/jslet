@@ -27,10 +27,11 @@
 
 
 	<h4>Export Options</h4>
-        <input id="dispValue" type="radio" checked="checked" name="export" />Export field's display value&nbsp;<input type="radio" name="export" />Export fields's real value<br />
+        <input id="showDispValue" type="radio" checked="checked" name="export" />Export field's display value&nbsp;<input type="radio" name="export" />Export fields's real value<br />
         <input type="checkbox" id="selected" />Only selected records<br />
-		<input id="includeField" type="checkbox" checked="checked"/>With field name.
-
+		<input id="exportHeader" type="checkbox" checked="checked"/>With field name.<br />
+        <input id="includeFields" type="checkbox" checked="checked" />Include fields: workerid, name, gender <br />
+        <input id="excludeFields" type="checkbox" checked="checked" />Exclude fields: department, birthday 
 
 	<h4>Export Data</h4>
 		<p><button class="btn btn-primary" onclick="doExport()"> Export .CSV </button></p>
@@ -38,10 +39,24 @@
 
    <script type="text/javascript">
    		function doExport(){
-			var showDispValue = $("#dispValue")[0].checked;
+			var showDispValue = $("#showDispValue")[0].checked;
 			var onlySelected = $("#selected")[0].checked;
-			var includeField = $("#includeField")[0].checked;
-			$("#result")[0].value = dsEmployee.exportCsv(includeField, showDispValue, onlySelected);
+			var exportHeader = $("#exportHeader")[0].checked;
+			var hasIncludeFields = $("#includeFields")[0].checked;
+			var hasExcludeFields = $("#excludeFields")[0].checked;
+			var option = {
+				exportHeader: exportHeader,
+				exportDisplayValue: showDispValue,
+				onlySelected: onlySelected,
+				excludeFields: ['workerid', 'name', 'gender']
+			};
+			if(hasIncludeFields) {
+				option.includeFields = ['workerid', 'name', 'gender'];
+			}
+			if(hasExcludeFields) {
+				option.excludeFields = ['department', 'birthday'];
+			}
+			$("#result")[0].value = dsEmployee.exportCsv(option);
    		}
    </script>
    

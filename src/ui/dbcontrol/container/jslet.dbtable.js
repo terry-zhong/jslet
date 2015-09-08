@@ -2572,6 +2572,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				otr = fixedRows[i];
 				otr.jsletrecno = recNo;
 				otr.style.display = '';
+				if (Z._onFillRow) {
+					Z._onFillRow.call(Z, otr, Z._dataset);
+				}
 				cells = otr.childNodes;
 				clen = cells.length;
 				for (var j = 0; j < clen; j++) {
@@ -2663,6 +2666,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			cells = otr.childNodes;
 			recNo = otr.jsletrecno;
+			if (Z._onFillRow) {
+				Z._onFillRow.call(Z, otr, Z._dataset);
+			}
 			for (var j = 0, clen = cells.length; j < clen; j++) {
 				otd = cells[j];
 				if (otd.isSeqCol) {
@@ -2683,6 +2689,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		recNo = otr.jsletrecno;
+		if (Z._onFillRow) {
+			Z._onFillRow.call(Z, otr, Z._dataset);
+		}
 		// fill content table
 		cells = otr.childNodes;
 		for (var j = 0, clen = cells.length; j < clen; j++) {

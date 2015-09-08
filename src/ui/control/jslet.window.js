@@ -423,7 +423,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		});
 
 		jqEl.on('click', function(event){
-			if(Z._isModal || Z._stopEventBubling) {
+			if(Z._isModal || Z._stopEventBubbling) {
 				event.stopPropagation();
 				event.preventDefault();
 			}
@@ -1180,7 +1180,7 @@ jslet.ui.MessageBox = function () {
 		} else if (hasInput == 2) {
 				mh += 100;
 		}
-		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubling: true, height: mh, width: mw };
+		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true, height: mh, width: mw };
 		var owin = jslet.ui.createControl(opt);
 		var iconHtml = '';
 		if (iconClass) {

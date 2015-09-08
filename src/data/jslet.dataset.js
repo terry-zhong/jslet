@@ -2424,13 +2424,6 @@ jslet.data.Dataset.prototype = {
 		}
 		Z.dataList().splice(k, 1);
 		Z._refreshInnerRecno();
-//		if(Z.changedStatus() === jslet.data.DataSetStatus.INSERT) {
-//			Z.dataList().splice(k, 1);
-//			Z._refreshInnerRecno();
-//		} else {
-//			Z.restore();
-//			Z.changedStatus(jslet.data.DataSetStatus.DELETE);
-//		}
 		
 		var mfld = Z._datasetField;
 		if (mfld && mfld.dataset()) {
@@ -2452,11 +2445,6 @@ jslet.data.Dataset.prototype = {
 		Z.refreshControl(evt);
 		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
-		if (Z.isBof() && Z.isEof()) {
-			return;
-		}
-		evt = jslet.data.RefreshEvent.scrollEvent(Z._recno);
-		Z.refreshControl(evt);
 		Z.refreshLookupHostDataset();
 		var detailFields = Z._subDatasetFields;
 		if(detailFields) {
@@ -2469,6 +2457,11 @@ jslet.data.Dataset.prototype = {
 				}
 			}
 		}
+		if (Z.isBof() && Z.isEof()) {
+			return;
+		}
+		evt = jslet.data.RefreshEvent.scrollEvent(Z._recno);
+		Z.refreshControl(evt);
 		
 	},
 
@@ -2522,7 +2515,7 @@ jslet.data.Dataset.prototype = {
 				}
 				if(fldObj.valueStyle() == jslet.data.FieldValueStyle.BETWEEN) {
 					var v1 = null, v2 = null;
-					if(fldValue.length === 2) {
+					if(fldValue && fldValue.length === 2) {
 						v1 = fldValue[0];
 						v2 = fldValue[1];
 					}
@@ -2889,11 +2882,15 @@ jslet.data.Dataset.prototype = {
 			if(lkf) {
 				value = dataRec[subfldName];
 				lkds = lkf.dataset();
-				if (lkds.findByField(lkds.keyField(), value)) {
-					fldValue = lkds.getFieldValue(fldName.substr(k + 1));
+				if(value === undefined || value === null || value === '') {
+					fldValue = null;
 				} else {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
-								[lkds.name(),lkds.keyField(), value]));
+					if (lkds.findByField(lkds.keyField(), value)) {
+						fldValue = lkds.getFieldValue(fldName.substr(k + 1));
+					} else {
+						throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+									[lkds.name(),lkds.keyField(), value]));
+					}
 				}
 			} else {
 				fldValue = subDs.getFieldValue(fldName.substr(k + 1));
@@ -4536,19 +4533,49 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
-	 * Export data with CSV format
+	 * Export data with CSV format.
 	 * 
-	 * @param {String}includeFieldLabel - export with field labels, can be null  
-	 * @param {Boolean}dispValue - true: export display value of field, false: export actual value of field 
-	 * @param {Boolean}onlySelected - export selected records or not.
-	 * @param {String[]} onlyFields - specified the field name to export.
+	 * Export option pattern:
+	 * {exportHeader: true|false, //export with field labels
+	 *  exportDisplayValue: true|false, //true: export display value of field, false: export actual value of field
+	 *  onlySelected: true|false, //export selected records or not
+	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
+	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
+	 *  }
+	 *  
+	 * @param exportOption {PlanObject} export options
+	 * 
 	 * @return {String} Csv Text. 
 	 */
-	exportCsv: function(includeFieldLabel, dispValue, onlySelected, onlyFields) {
+	exportCsv: function(exportOption) {
 		if(!this.confirm()) {
 			return null;
 		}
-		jslet.Checker.test('Dataset.exportCsv#onlyFields', onlyFields).isArray();
+		var exportHeader = true,
+			exportDisplayValue = true,
+			onlySelected = false,
+			includeFields = null,
+			excludeFields = null;
+		
+		if(exportOption && jQuery.isPlainObject(exportOption)) {
+			if(exportOption.exportHeader !== undefined) {
+				exportHeader = exportOption.exportHeader? true: false;
+			}
+			if(exportOption.exportDisplayValue !== undefined) {
+				exportDisplayValue = exportOption.exportDisplayValue? true: false;
+			}
+			if(exportOption.onlySelected !== undefined) {
+				onlySelected = exportOption.onlySelected? true: false;
+			}
+			if(exportOption.includeFields !== undefined) {
+				includeFields = exportOption.includeFields;
+				jslet.Checker.test('Dataset.exportCsv#exportOption.includeFields', includeFields).isArray();
+			}
+			if(exportOption.excludeFields !== undefined) {
+				excludeFields = exportOption.excludeFields;
+				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
+			}
+		}
 		var Z= this, fldSeperator = ',', surround='"';
 		var context = Z.startSilenceMove();
 		try{
@@ -4556,18 +4583,33 @@ jslet.data.Dataset.prototype = {
 			var result = [], 
 				arrRec, 
 				fldCnt = Z._normalFields.length, 
-				fldObj, fldName, value, i;
-			if (includeFieldLabel) {
-				arrRec = [];
-				for(i = 0; i < fldCnt; i++) {
-					fldObj = Z._normalFields[i];
+				fldObj, fldName, value, i,
+				exportFields = [];
+			for(i = 0; i < fldCnt; i++) {
+				fldObj = Z._normalFields[i];
+				fldName = fldObj.name();
+				if(includeFields && includeFields.length > 0) {
+					if(includeFields.indexOf(fldName) < 0) {
+						continue;
+					}
+				} else {
 					if(!fldObj.visible()) {
 						continue;
 					}
-					fldName = fldObj.name();
-					if(onlyFields && onlyFields.length > 0 && onlyFields.indexOf(fldName) < 0) {
+				}
+				if(excludeFields && excludeFields.length > 0) {
+					if(excludeFields.indexOf(fldName) >= 0) {
 						continue;
 					}
+				} 
+				
+				exportFields.push(fldObj);
+			}
+			fldCnt = exportFields.length;
+			if (exportHeader) {
+				arrRec = [];
+				for(i = 0; i < fldCnt; i++) {
+					fldObj = exportFields[i];
 					fldName = fldObj.label() || fldObj.name();
 					fldName = surround + fldName + surround;
 					arrRec.push(fldName);
@@ -4581,15 +4623,9 @@ jslet.data.Dataset.prototype = {
 				}
 				arrRec = [];
 				for(i = 0; i < fldCnt; i++) {
-					fldObj = Z._normalFields[i];
-					if(!fldObj.visible()) {
-						continue;
-					}
+					fldObj = exportFields[i];
 					fldName = fldObj.name();
-					if(onlyFields && onlyFields.length > 0 && onlyFields.indexOf(fldName) < 0) {
-						continue;
-					}
-					if (dispValue) {
+					if (exportDisplayValue) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
 						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
@@ -4839,7 +4875,9 @@ jslet.data.Dataset.prototype = {
 		Z.indexFields(master.indexFields);
 		Z.filter(master.filter);
 		Z.filtered(master.filtered);
-		Z.recno(master.recno);
+		if(master.recno >= 0) {
+			Z.recno(master.recno);
+		}
 		Z.refreshControl();
 		var details = snapshot.details;
 		if(!details || details.length === 0) {
@@ -4853,7 +4891,9 @@ jslet.data.Dataset.prototype = {
 				subDs.indexFields(detail.indexFields);
 				subDs.filter(detail.filter);
 				subDs.filtered(detail.filtered);
-				subDs.recno(detail.recno);
+				if(detail.recno >= 0) {
+					subDs.recno(detail.recno);
+				}
 				subDs.refreshControl();
 			}
 		}
