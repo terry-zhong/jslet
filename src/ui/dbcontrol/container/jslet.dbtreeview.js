@@ -690,8 +690,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			oicon.style.display = 'none';
 		}
-				//Text
-		var text = Z.evaluator.eval() || '';
+		//Text
+		var text = Z.evaluator.eval() || '      ';
 		jslet.ui.textMeasurer.setElement(Z.el);
 		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length * 4;
 		totalWidth += width + 10;

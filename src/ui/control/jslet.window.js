@@ -29,117 +29,59 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,isCenter,stopEventBubling';
-		/**
-		 * {String} Window caption
-		 */
+		Z.allProperties = 'caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,sizeClass,isCenter,stopEventBubbling';
+
 		Z._caption = null;
 		
-		/**
-		 * {Boolean} Identify if user can change window size with dragging.
-		 */
 		Z._resizable = true;
 		
-		/**
-		 * {Boolean} Identify if window can be minimized or not.
-		 */
 		Z._minimizable = true;
 
-		/**
-		 * {Boolean} Identify if window can be maximized or not.
-		 */
 		Z._maximizable = true;
 		
-		/**
-		 * {Boolean} Identify if window can be closed or not.
-		 */
 		Z._closable = true;
 		
-		/**
-		 * Window caption icon style class.
-		 */
 		Z._iconClass = null;
 		
-		/**
-		 * {Integer} Window width
-		 */
 		Z._width = 0;
-		/**
-		 * {Integer} Window width
-		 */
+		
 		Z._height = 0;
-		/**
-		 * {Integer} Window height
-		 */
+		
 		Z._minWidth = 20;
-		/**
-		 * {Integer} Window maximized width
-		 */
-		/**
-		 * {Integer} Window minimized height
-		 */
+		
 		Z._minHeight = 30;
-		/**
-		 * {Integer} Window maximized width
-		 */
+		
 		Z._maxWidth = -1;
-		/**
-		 * {Integer} Window maximized height
-		 */
+
 		Z._maxHeight = -1;
 
-		/**
-		 * {Boolean} Identify if window is showing at center of offset parent or not.
-		 */
+		Z._sizeClass = null,
+		
 		Z._isCenter = false;
  
-		/**
-		 * {Event} Fired when user changes the window's size.
-		 * Pattern: 
-		 *   function(width, height){}
-		 *   //width: Integer Window width
-		 *   //height: Integer Window height
-		 */
 		Z._onSizeChanged = null;
 		
-		/**
-		 * {Event} Fired when user changes the window's position.
-		 * Pattern: 
-		 *   function(left, top){}
-		 *   //left: Integer Window position left
-		 *   //top: Integer Window position top 
-		 */
 		Z._onPositionChanged = null;
 		
-		/**
-		 * {Event} Fired when uses activates window.
-		 * Pattern: 
-		 *	function(windObj){}
-		 *	//windObj: jslet.ui.Window Window Object
-		 */
 		Z._onActive = null;
 		
-		/**
-		 * {Event} Fired when uses closes window.
-		 * Pattern: 
-		 *	function(windObj){}
-		 *	//windObj: jslet.ui.Window Window Object
-		 *	//return: String If return value equals 'hidden', then hide window instead of closing.
-		 */
 		Z._onClosed = null;
 
-		/**
-		 * @private
-		 */
-		Z._stopEventBubling = false;
+		Z._stopEventBubbling = false;
 		
 		//@private
-		Z.isModal = false;
-		//@private
-		Z.state = null; //min,max
+		Z._isModal = false;
+		
+		Z._state = null; 
 		$super(el, params);
 	},
 
+	/**
+	 * Get or set window caption.
+	 * 
+	 * @param {String or undefined} window caption.
+	 * @return {String or this}
+	 */
 	caption: function(caption) {
 		if(caption === undefined) {
 			return this._caption;
@@ -148,6 +90,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._caption = caption;
 	},
 	
+	/**
+	 * Get or set the icon class of window header.
+	 * 
+	 * @param {String or undefined} iconClass the icon of window header.
+	 * @return {String or this}
+	 */
 	iconClass: function(iconClass) {
 		if(iconClass === undefined) {
 			return this._iconClass;
@@ -156,6 +104,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._iconClass = iconClass;
 	},
 	
+	/**
+	 * Identify whether the window can be resized or not.
+	 * 
+	 * @param {Boolean or undefined} resizable true - window can be resized, false otherwise.
+	 * @return {Boolean or this}
+	 */
 	resizable: function(resizable) {
 		if(resizable === undefined) {
 			return this._resizable;
@@ -163,6 +117,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._resizable = resizable? true: false;
 	},
 	
+	/**
+	 * Identify whether the window can be minimized or not.
+	 * 
+	 * @param {Boolean or undefined} minimizable true - window can be minimized, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	minimizable: function(minimizable) {
 		if(minimizable === undefined) {
 			return this._minimizable;
@@ -170,6 +130,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._minimizable = minimizable? true: false;
 	},
 	
+	/**
+	 * Identify whether the window can be maximized or not.
+	 * 
+	 * @param {Boolean or undefined} maximizable true - window can be maximized, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	maximizable: function(maximizable) {
 		if(maximizable === undefined) {
 			return this._maximizable;
@@ -177,6 +143,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._maximizable = maximizable? true: false;
 	},
 	
+	/**
+	 * Identify whether the window can be closed or not.
+	 * 
+	 * @param {Boolean or undefined} closable true - window can be closed, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	closable: function(closable) {
 		if(closable === undefined) {
 			return this._closable;
@@ -184,6 +156,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._closable = closable? true: false;
 	},
 	
+	/**
+	 * Identify whether the window is shown in center of container.
+	 * 
+	 * @param {Boolean or undefined} isCenter true - window is shown in center of container, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	isCenter: function(isCenter) {
 		if(isCenter === undefined) {
 			return this._isCenter;
@@ -191,13 +169,25 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._isCenter = isCenter? true: false;
 	},
 	
-	stopEventBubling: function(stopEventBubling) {
-		if(stopEventBubling === undefined) {
-			return this._stopEventBubling;
+	/**
+	 * Identify whether stopping the event bubble.
+	 * 
+	 * @param {Boolean or undefined} stopEventBubbling true - stop event bubbling, false - otherwise.
+	 * @return {Boolean or this}
+	 */
+	stopEventBubbling: function(stopEventBubbling) {
+		if(stopEventBubbling === undefined) {
+			return this._stopEventBubbling;
 		}
-		this._stopEventBubling = stopEventBubling? true: false;
+		this._stopEventBubbling = stopEventBubbling? true: false;
 	},
 	
+	/**
+	 * Get or set window width.
+	 * 
+	 * @param {Integer or undefined} width window width.
+	 * @return {Integer or this}
+	 */
 	width: function(width) {
 		if(width === undefined) {
 			return this._width;
@@ -206,6 +196,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._width = width;
 	},
 
+	/**
+	 * Get or set window height.
+	 * 
+	 * @param {Integer or undefined} height window height.
+	 * @return {Integer or this}
+	 */
 	height: function(height) {
 		if(height === undefined) {
 			return this._height;
@@ -214,6 +210,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._height = height;
 	},
 
+	/**
+	 * Get or set window minimum width.
+	 * 
+	 * @param {Integer or undefined} minWidth window minimum width.
+	 * @return {Integer or this}
+	 */
 	minWidth: function(minWidth) {
 		if(minWidth === undefined) {
 			return this._minWidth;
@@ -222,6 +224,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._minWidth = minWidth;
 	},
 
+	/**
+	 * Get or set window minimum height.
+	 * 
+	 * @param {Integer or undefined} minHeight window minimum height.
+	 * @return {Integer or this}
+	 */
 	minHeight: function(minHeight) {
 		if(minHeight === undefined) {
 			return this._minHeight;
@@ -230,6 +238,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._minHeight = minHeight;
 	},
 
+	/**
+	 * Get or set window maximum width.
+	 * 
+	 * @param {Integer or undefined} maxWidth window maximum width.
+	 * @return {Integer or this}
+	 */
 	maxWidth: function(maxWidth) {
 		if(maxWidth === undefined) {
 			return this._maxWidth;
@@ -238,6 +252,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._maxWidth = maxWidth;
 	},
 
+	/**
+	 * Get or set window maximum height.
+	 * 
+	 * @param {Integer or undefined} maxHeight window maximum height.
+	 * @return {Integer or this}
+	 */
 	maxHeight: function(maxHeight) {
 		if(maxHeight === undefined) {
 			return this._maxHeight;
@@ -246,6 +266,31 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._maxHeight = maxHeight;
 	},
 
+	/**
+	 * Get or set window size class name, sizeClass contains: width, height, minWidth, minHeight, maxWidth, maxHeight
+	 * 
+	 * @param {String or undefined} sizeClass window size class name.
+	 * @return {String or this}
+	 */
+	sizeClass: function(sizeClass) {
+		var Z = this;
+		if(sizeClass === undefined) {
+			return Z.sizeClass;
+		}
+		jslet.Checker.test('Window.sizeClass', sizeClass).isString();
+		Z.sizeClass = sizeClass;
+	},
+	
+	/**
+	 * Set or get window size changed event handler.
+	 * Pattern:
+	 *   function(width, height){}
+	 *   //width: Integer Window width
+	 *   //height: Integer Window height
+	 * 
+	 * @param {Function or undefined} onSizeChanged window size changed event handler
+	 * @return {Function or this}
+	 */
 	onSizeChanged: function(onSizeChanged) {
 		if(onSizeChanged === undefined) {
 			return this._onSizeChanged;
@@ -254,6 +299,17 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._onSizeChanged = onSizeChanged;
 	},
 	
+	/**
+	 * Set or get window position changed event handler.
+	 * Fired when user changes the window's position.
+	 * Pattern: 
+	 *   function(left, top){}
+	 *   //left: Integer Window position left
+	 *   //top: Integer Window position top 
+	 * 
+	 * @param {Function or undefined} onPositionChanged window position changed event handler
+	 * @return {Function or this}
+	 */
 	onPositionChanged: function(onPositionChanged) {
 		if(onPositionChanged === undefined) {
 			return this._onPositionChanged;
@@ -262,6 +318,15 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._onPositionChanged = onPositionChanged;
 	},
 
+	/**
+	 * Set or get window activated event handler.
+	 * Fired when the window is active.
+	 *	function(windObj){}
+	 *	//windObj: jslet.ui.Window Window Object
+	 * 
+	 * @param {Function or undefined} onActive window activated event handler
+	 * @return {Function or this}
+	 */
 	onActive: function(onActive) {
 		if(onActive === undefined) {
 			return this._onActive;
@@ -270,6 +335,18 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		this._onActive = onActive;
 	},
 	
+	
+	/**
+	 * Set or get window closed event handler.
+	 * Fired when uses closes window.
+	 * Pattern: 
+	 *	function(windObj){}
+	 *	//windObj: jslet.ui.Window Window Object
+	 *	//return: String If return value equals 'hidden', then hide window instead of closing.
+	 * 
+	 * @param {Function or undefined} onClosed window closed event handler
+	 * @return {Function or this}
+	 */
 	onClosed: function(onClosed) {
 		if(onClosed === undefined) {
 			return this._onClosed;
@@ -346,7 +423,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		});
 
 		jqEl.on('click', function(event){
-			if(Z.isModal || Z._stopEventBubling) {
+			if(Z._isModal || Z._stopEventBubling) {
 				event.stopPropagation();
 				event.preventDefault();
 			}
@@ -377,7 +454,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		
 		jqHeader.on('mousedown',function (event) {
 			Z.activate();
-			if (Z.state == 'max') {
+			if (Z._state == 'max') {
 				return;
 			}
 			Z.cursor = null;
@@ -390,7 +467,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			if (!Z._maximizable) {
 				return;
 			}
-			if (Z.state != 'max') {
+			if (Z._state != 'max') {
 				Z.maximize();
 			} else {
 				Z.restore();
@@ -470,7 +547,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z._minimizable) {
 			var jqMin = jqEl.find('.jl-win-min');
 			jqMin.click(function (event) {
-				if (Z.state == 'max') {
+				if (Z._state == 'max') {
 					var btnMax = jqEl.find('.jl-win-restore')[0];
 					if (btnMax) {
 						btnMax.className = 'jl-win-max';
@@ -486,7 +563,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			var jqMax = jqEl.find('.jl-win-max'),
 				btnMax = jqMax[0];
 			jqMax.click(function (event) {
-				if (Z.state != 'max') {
+				if (Z._state != 'max') {
 					btnMax.className = 'jl-win-restore';
 					Z.maximize();
 				} else {
@@ -540,7 +617,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	showModal: function (left, top) {
 		var Z = this;
-		Z.isModal = true;
+		Z._isModal = true;
 		if (!Z.overlay) {
 			Z.overlay = new jslet.ui.OverlayPanel(Z.el.parentNode);
 		}
@@ -604,15 +681,15 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	minimize: function () {
 		var Z = this;
-		if (Z.state == 'min') {
+		if (Z._state == 'min') {
 			Z.restore();
 			return;
 		}
-		if (Z.state == 'max') {
+		if (Z._state == 'max') {
 			Z.restore();
 		}
 		Z.changeSize(null, Z._headerHeight + 8, true);
-		Z.state = 'min';
+		Z._state = 'min';
 	},
 
 	/**
@@ -625,7 +702,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var height = offsetP.height(); // -12;
 		Z.setPosition(0, 0, true);
 		Z.changeSize(width, height, true);
-		Z.state = 'max';
+		Z._state = 'max';
 	},
 
 	/**
@@ -635,7 +712,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.setPosition(Z.left, Z.top, true);
 		Z.changeSize(Z._width, Z._height, true);
-		Z.state = null;
+		Z._state = null;
 	},
 
 	/**
@@ -790,7 +867,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		for (var i = 0, cnt = p.childNodes.length; i < cnt; i++) {
 			node = p.childNodes[i];
 			if (node.nodeType != 1 || node == Z.el) {
-				if (!Z.isModal) {
+				if (!Z._isModal) {
 					jqEl.addClass('jl-window-active');
 				}
 				continue;
@@ -800,7 +877,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				if (maxIndex < node.style.zIndex) {
 					maxIndex = node.style.zIndex;
 				}
-				if (!Z.isModal) {
+				if (!Z._isModal) {
 					jqNode.removeClass('jl-window-active');
 				}
 			}
@@ -901,7 +978,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (!jqSrcEl.hasClass('jl-window')) {
 			return;
 		}
-		if (!srcEl.jslet._resizable || srcEl.jslet.state) {
+		if (!srcEl.jslet._resizable || srcEl.jslet._state) {
 			srcEl.jslet.cursor = null;
 			srcEl.style.cursor = 'default';
 			return;

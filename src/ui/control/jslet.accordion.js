@@ -37,17 +37,9 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.el = el;
 		Z.allProperties = 'selectedIndex,onChanged,items';
-		/**
-		 * {Integer} 
-		 */
+
 		Z._selectedIndex = 0;
 		
-		/**
-		 * {Event handler} Fire when user change accordion panel.
-		 * Pattern: 
-		 *	function(index){}
-		 *	//index: Integer
-		 */
 		Z._onChanged = null;
 		
 		/**
@@ -58,6 +50,12 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 		$super(el, params);
 	},
 
+	/**
+	 * Selected index.
+	 * 
+	 * @param {Integer or undefined} index selected index.
+	 * @return {this or Integer}
+	 */
 	selectedIndex: function(index) {
 		if(index === undefined) {
 			return this._selectedIndex;
@@ -66,6 +64,15 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 		this._selectedIndex = index;
 	},
 	
+	/**
+	 * Fired when user changes accordion panel.
+	 * Pattern: 
+	 *	function(index){}
+	 *	//index: Integer
+	 *
+	 * @param {Function or undefined} onChanged Accordion panel changed event handler.
+	 * @return {this or Function}
+	 */
 	onChanged: function(onChanged) {
 		if(onChanged === undefined) {
 			return this._onChanged;
@@ -74,6 +81,14 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 		this._onChanged = onChanged;
 	},
 	
+	/**
+	 * Accordion items.
+	 * Pattern:
+	 * [{caption:'item1'},...]
+	 * 
+	 * @param {PlanObject[] or undefined} items
+	 * @return {this or PlanObject[]} 
+	 */
 	items: function(items) {
 		if(items === undefined) {
 			return this._items;

@@ -58,141 +58,64 @@ jslet.ui.TableHead = function(){
 };
 
 jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
-		/**
-		 * @override
-		 */
+	/**
+	 * @override
+	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
 		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog';
 		
-		/**
-		 * {Integer} Fixed row count.
-		 */
 		Z._fixedRows = 0;
-		/**
-		 * {Integer} Fixed column count.
-		 */
+
 		Z._fixedCols = 0;
-		/**
-		 * {Boolean} Identify if there is sequence column in DBTable.
-		 */
+
 		Z._hasSeqCol = true;
 		
 		Z._reverseSeqCol = false;
 	
 		Z._seqColHeader = null;
-		/**
-		 * {Boolean} Identify if there is select column in DBTable.
-		 */
+
 		Z._hasSelectCol = false;
 		
-		/**
-		 * {Boolean} Identify if table cell has border
-		 */
 		Z._noborder = false;
 		
-		/**
-		 * {Boolean} Identify if DBTable is readonly.
-		 */
 		Z._readOnly = true;
-		/**
-		 * {Boolean} Identify if there is table header in DBTable.
-		 */
+
 		Z._hideHead = false;
-		/**
-		 * {Boolean} Identify if DBTable disable user to click header to sort.
-		 */
+		
+		Z._onlySpecifiedCol = false;
+		
 		Z._disableHeadSort = false;
 		
 		Z._aggraded = true;
 		
 		Z._autoClearSelection = true;
 		
-		/**
-		 * {String} one or more fields' name concatenated with ','
-		 * @see jslet.data.Dataset.select(selected, selectBy).
-		 */
 		Z._selectBy = null;
-		/**
-		 * {Integer} Row height.
-		 */
+
 		Z._rowHeight = 25;
-		/**
-		 * {Integer} Row height of table header.
-		 */
+
 		Z._headRowHeight = 25;
-		/**
-		 * {String} Display table as tree style, only one field name allowed. If this property is set, the dataset must be a tree style dataset, 
-		 *  means dataset.parentField() and dataset.levelField() can not be empty.
-		 * Only one field allowed.
-		 */
+
 		Z._treeField = null;
-		/**
-		 * {jslet.ui.TableColumn[]} Array of jslet.ui.TableColumn
-		 */
+
 		Z._columns = null;
 		
-		/**
-		 * {Event} Fired when user clicks table row.
-		 *  Pattern: 
-		 *function(event}{}
-		 *  //event: Js mouse event
-		 */
 		Z._onRowClick = null;
-		/**
-		 * {Event} Fired when user double clicks table row.
-		 * Pattern: 
-		 *function(event}{}
-		 *  //event: Js mouse event
-		 */
+
 		Z._onRowDblClick = null;
 		
 		Z._onCellClick;
 		
-		/**
-		 * {Event} Fired when user click table header to sort data. You can use it to sort data instead of default, like sending request to server to sort data.  
-		 * Pattern: 
-		 *   function(indexFlds}{}
-		 *   //indexFlds: String, format: fieldName desc/asce(default), fieldName,..., desc - descending order, asce - ascending order, like: "field1 desc,field2,field3"
-		 */
 		Z._onCustomSort = null; 
 		
-		/**
-		 * {Event} Fired when user selects one row.
-		 * Pattern: 
-		 *   function(selected}{}
-		 *   //selected: Boolean
-		 *   //return: true - allow user to select this row, false - otherwise.
-		 */
 		Z._onSelect = null;
-		/**
-		 * {Event} Fired when user click select all by clicking "Select Column" header.
-		 * Pattern: 
-		 *   function(dataset, Selected}{}
-		 *   //dataset: jslet.data.Dataset
-		 *   //Selected: Boolean
-		 *   //return: true - allow user to select, false - otherwise.
-		 */
+
 		Z._onSelectAll = null;
 		
-		/**
-		 * {Event} Fired when fill row, user can use this to customize each row style like background color, font color
-		 * Pattern:
-		 *   function(otr, dataset){)
-		 *   //otr: Html element: TR
-		 *   //dataset: jslet.data.Dataset
-		 */
 		Z._onFillRow = null;
 		
-		/**
-		 * {Event} Fired when fill cell, user can use this to customize each cell style like background color, font color
-		 * Pattern:
-		 *   function(otd, dataset, fieldName){)
-		 *   //otd: Html element: TD
-		 *   //dataset: jslet.data.Dataset
-		 *   //fieldName: String
-		 */
 		Z._onFillCell = null;		
 
 		Z._defaultCellRender = null;
@@ -244,6 +167,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._fixedCols = parseInt(cols);
 	},
 	
+	/**
+	 * Get or set row height of table row.
+	 * 
+	 * @param {Integer or undefined} rowHeight table row height.
+	 * @return {Integer or this}
+	 */
 	rowHeight: function(rowHeight) {
 		if(rowHeight === undefined) {
 			return this._rowHeight;
@@ -253,6 +182,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._rowHeightChanged = true;
 	},
 	
+	/**
+	 * Get or set row height of table header.
+	 * 
+	 * @param {Integer or undefined} headRowHeight table header row height.
+	 * @return {Integer or this}
+	 */
 	headRowHeight: function(headRowHeight) {
 		if(headRowHeight === undefined) {
 			return this._headRowHeight;
@@ -261,6 +196,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._headRowHeight = parseInt(headRowHeight);
 	},
 	
+	/**
+	 * Identify whether there is sequence column in DBTable.
+	 * 
+	 * @param {Boolean or undefined} hasSeqCol true(default) - has sequence column, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	hasSeqCol: function(hasSeqCol) {
 		if(hasSeqCol === undefined) {
 			return this._hasSeqCol;
@@ -268,6 +209,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._hasSeqCol = hasSeqCol ? true: false;
 	},
 
+	/**
+	 * Identify whether the sequence number is reverse.
+	 * 
+	 * @param {Boolean or undefined} reverseSeqCol true - the sequence number is reverse, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	reverseSeqCol: function(reverseSeqCol) {
 		if(reverseSeqCol === undefined) {
 			return this._reverseSeqCol;
@@ -275,6 +222,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._reverseSeqCol = reverseSeqCol ? true: false;
 	},
 		
+	/**
+	 * Get or set sequence column header.
+	 * 
+	 * @param {String or undefined} seqColHeader sequence column header.
+	 * @return {String or this}
+	 */
 	seqColHeader: function(seqColHeader) {
 		if(seqColHeader === undefined) {
 			return this._seqColHeader;
@@ -282,7 +235,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._seqColHeader = seqColHeader;
 	},
 		
-	
+	/**
+	 * Identify whether there is "select" column in DBTable.
+	 * 
+	 * @param {Boolean or undefined} hasSelectCol true(default) - has "select" column, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	hasSelectCol: function(hasSelectCol) {
 		if(hasSelectCol === undefined) {
 			return this._hasSelectCol;
@@ -290,6 +248,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._hasSelectCol = hasSelectCol ? true: false;
 	},
 	
+	/**
+	 * Identify the table has border or not.
+	 * 
+	 * @param {Boolean or undefined} noborder true - the table without border, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	noborder: function(noborder) {
 		if(noborder === undefined) {
 			return this._noborder;
@@ -297,6 +261,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._noborder = noborder ? true: false;
 	},
 	
+	/**
+	 * Identify the table is read only or not.
+	 * 
+	 * @param {Boolean or undefined} readOnly true(default) - the table is read only, false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	readOnly: function(readOnly) {
 		var Z = this;
 		if(readOnly === undefined) {
@@ -308,6 +278,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
+	/**
+	 * Identify the table is hidden or not.
+	 * 
+	 * @param {Boolean or undefined} hideHead true - the table header is hidden, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	hideHead: function(hideHead) {
 		if(hideHead === undefined) {
 			return this._hideHead;
@@ -315,6 +291,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._hideHead = hideHead ? true: false;
 	},
 	
+	/**
+	 * Identify the table has aggraded row or not.
+	 * 
+	 * @param {Boolean or undefined} aggraded true - the table has aggraded row, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	aggraded: function(aggraded) {
 		if(aggraded === undefined) {
 			return this._aggraded;
@@ -322,6 +304,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._aggraded = aggraded ? true: false;
 	},
 
+	/**
+	 * Identify whether automatically clear selection when selecting table cells.
+	 * 
+	 * @param {Boolean or undefined} autoClearSelection true(default) - automatically clear selection, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	autoClearSelection: function(autoClearSelection) {
 		if(autoClearSelection === undefined) {
 			return this._autoClearSelection;
@@ -329,6 +317,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._autoClearSelection = autoClearSelection ? true: false;
 	},
 	
+	/**
+	 * Identify disable table head sorting or not.
+	 * 
+	 * @param {Boolean or undefined} disableHeadSort true - disable table header sorting, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	disableHeadSort: function(disableHeadSort) {
 		if(disableHeadSort === undefined) {
 			return this._disableHeadSort;
@@ -336,6 +330,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._disableHeadSort = disableHeadSort ? true: false;
 	},
 	
+	/**
+	 * Identify show the specified columns or not.
+	 * 
+	 * @param {Boolean or undefined} onlySpecifiedCol true - only showing the specified columns, false(default) - otherwise.
+	 * @return {Boolean or this}
+	 */
 	onlySpecifiedCol: function(onlySpecifiedCol) {
 		if(onlySpecifiedCol === undefined) {
 			return this._onlySpecifiedCol;
@@ -343,6 +343,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onlySpecifiedCol = onlySpecifiedCol ? true: false;
 	},
 	
+	/**
+	 * Specified field names for selecting group records, multiple field names are separated with ','
+	 * @see jslet.data.Dataset.select(selected, selectBy).
+	 * 
+	 * <pre><code>
+	 * tbl.selectBy('code,gender');
+	 * </code></pre>
+	 * 
+	 * @param {String or undefined} selectBy group selecting field names.
+	 * @return {String or this}
+	 */
 	selectBy: function(selectBy) {
 		if(selectBy === undefined) {
 			return this._selectBy;
@@ -351,14 +362,36 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._selectBy = selectBy;
 	},
 	
+	/**
+	 * Display table as tree style. If this property is set, the dataset must be a tree style dataset, 
+	 *  means dataset.parentField() and dataset.levelField() can not be empty.
+	 * Only one field name allowed.
+	 * 
+	 * <pre><code>
+	 * tbl.treeField('code');
+	 * </code></pre>
+	 * 
+	 * @param {String or undefined} treeField the field name which will show as tree style.
+	 * @return {String or this}
+	 */
 	treeField: function(treeField) {
 		if(treeField === undefined) {
 			return this._treeField;
 		}
-			jslet.Checker.test('DBTable.treeField', treeField).isString();
+		jslet.Checker.test('DBTable.treeField', treeField).isString();
 		this._treeField = treeField;
 	},
 
+	/**
+	 * Default cell render, it must be a child class of @see jslet.ui.CellRender 
+	 * <pre><code>
+	 * 	var cellRender = jslet.Class.create(jslet.ui.CellRender, {
+	 *		createHeader: function(cellPanel, colCfg) { },
+	 *		createCell: function (cellPanel, colCfg) { },
+	 *		refreshCell: function (cellPanel, colCfg, recNo) { }
+	 * });
+	 * </code></pre>  
+	 */
 	defaultCellRender: function(defaultCellRender) {
 		if(defaultCellRender === undefined) {
 			return this._defaultCellRender;
@@ -388,6 +421,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
+	/**
+	 * Fired when table row clicked.
+	 *  Pattern: 
+	 *	function(event}{}
+	 *  	//event: Js mouse event
+	 *  
+	 * @param {Function or undefined} onRowClick table row clicked event handler.
+	 * @return {this or Function}
+	 */
 	onRowClick: function(onRowClick) {
 		if(onRowClick === undefined) {
 			return this._onRowClick;
@@ -396,6 +438,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onRowClick = onRowClick;
 	},
 	
+	/**
+	 * Fired when table row double clicked.
+	 *  Pattern: 
+	 *	function(event}{}
+	 *  	//event: Js mouse event
+	 *  
+	 * @param {Function or undefined} onRowDblClick table row double clicked event handler.
+	 * @return {this or Function}
+	 */
 	onRowDblClick: function(onRowDblClick) {
 		if(onRowDblClick === undefined) {
 			return this._onRowDblClick;
@@ -404,6 +455,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onRowDblClick = onRowDblClick;
 	},
 	
+	/**
+	 * Fired when table cell clicked.
+	 *  Pattern: 
+	 *	function(event}{}
+	 *  	//event: Js mouse event
+	 *  
+	 * @param {Function or undefined} onCellClick table cell clicked event handler.
+	 * @return {this or Function}
+	 */
 	onCellClick: function(onCellClick) {
 		if(onCellClick === undefined) {
 			return this._onCellClick;
@@ -412,7 +472,16 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onCellClick = onCellClick;
 	},
 	
-	
+	/**
+	 * Fired when table row is selected(select column is checked).
+	 *  Pattern: 
+	 *   function(selected}{}
+	 *   //selected: Boolean
+	 *   //return: true - allow user to select this row, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelect table row selected event handler.
+	 * @return {this or Function}
+	 */
 	onSelect: function(onSelect) {
 		if(onSelect === undefined) {
 			return this._onSelect;
@@ -421,6 +490,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onSelect = onSelect;
 	},
 	
+	/**
+	 * Fired when all table rows are selected.
+	 *  Pattern: 
+	 *   function(dataset, Selected}{}
+	 *   //dataset: jslet.data.Dataset
+	 *   //Selected: Boolean
+	 *   //return: true - allow user to select, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelectAll All table row selected event handler.
+	 * @return {this or Function}
+	 */
 	onSelectAll: function(onSelectAll) {
 		if(onSelectAll === undefined) {
 			return this._onSelectAll;
@@ -429,6 +509,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onSelectAll = onSelectAll;
 	},
 	
+	/**
+	 * Fired when user click table header to sort data. You can use it to sort data instead of default, like sending request to server to sort data.  
+	 * Pattern: 
+	 *   function(indexFlds}{}
+	 *   //indexFlds: String, format: fieldName desc/asce(default), fieldName,..., desc - descending order, asce - ascending order, like: "field1 desc,field2,field3"
+	 *   
+	 * @param {Function or undefined} onCustomSort Customized sorting event handler.
+	 * @return {this or Function}
+	 */
 	onCustomSort: function(onCustomSort) {
 		if(onCustomSort === undefined) {
 			return this._onCustomSort;
@@ -437,6 +526,16 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onCustomSort = onCustomSort;
 	},
 	
+	/**
+	 * Fired when fill row, user can use this to customize each row style like background color, font color
+	 * Pattern:
+	 *   function(otr, dataset){)
+	 *   //otr: Html element: TR
+	 *   //dataset: jslet.data.Dataset
+	 *   
+	 * @param {Function or undefined} onFillRow Table row filled event handler.
+	 * @return {this or Function}
+	 */
 	onFillRow: function(onFillRow) {
 		if(onFillRow === undefined) {
 			return this._onFillRow;
@@ -445,6 +544,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onFillRow = onFillRow;
 	},
 	
+	/**
+	 * Fired when fill cell, user can use this to customize each cell style like background color, font color
+	 * Pattern:
+	 *   function(otd, dataset, fieldName){)
+	 *   //otd: Html element: TD
+	 *   //dataset: jslet.data.Dataset
+	 *   //fieldName: String
+	 *   
+	 * @param {Function or undefined} onFillCell Table cell filled event handler.
+	 * @return {this or Function}
+	 */
 	onFillCell: function(onFillCell) {
 		if(onFillCell === undefined) {
 			return this._onFillCell;
@@ -453,6 +563,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this._onFillCell = onFillCell;
 	},
 	
+	/**
+	 * Identify has finding dialog or not.
+	 * 
+	 * @param {Boolean or undefined} hasFindDialog true(default) - show finding dialog when press 'Ctrl + F', false - otherwise.
+	 * @return {Boolean or this}
+	 */
 	hasFindDialog: function(hasFindDialog) {
 		var Z = this;
 		if(hasFindDialog === undefined) {
@@ -463,7 +579,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
 		}
 	},
-	
+
+	/**
+	 * Table columns configurations, array of jslet.ui.TableColumn.
+	 * 
+	 * @param {jslet.ui.TableColumn[] or undefined} columns Table columns configurations.
+	 * @return {jslet.ui.TableColumn[] or undefined}
+	 */
 	columns: function(columns) {
 		if(columns === undefined) {
 			return this._columns;
@@ -3015,11 +3137,15 @@ jslet.ui.register('DBTable', jslet.ui.DBTable);
 jslet.ui.DBTable.htmlTemplate = '<div></div>';
 
 jslet.ui.CellRender = jslet.Class.create({
-	createCell: function (otd, colCfg) {
+	createHeader: function(cellPanel, colCfg) {
+		
+	},
+	
+	createCell: function (cellPanel, colCfg) {
 	
 	},
 	
-	refreshCell: function (otd, colCfg) {
+	refreshCell: function (cellPanel, colCfg, recNo) {
 	
 	}
 });

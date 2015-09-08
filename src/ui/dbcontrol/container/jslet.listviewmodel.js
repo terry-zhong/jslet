@@ -54,7 +54,9 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			ds.recnoSilence(this.fixedRows);
 			var level = 0, 
 				pnodes = [], 
-				node, pnode, tmpNode, currRec, state;
+				node, pnode, 
+				tmpNode, tmpKeyValue,
+				currRec, state;
 			for(var recno = 0, recCnt = ds.recordCount(); recno < recCnt; recno++) {
 				ds.recnoSilence(recno);
 				keyValue = ds.keyValue();
@@ -63,7 +65,11 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				pId = ds.parentValue();
 				for(var m = pnodes.length - 1; m>=0; m--) {
 					tmpNode = pnodes[m];
-					if (tmpNode.keyvalue == pId) {
+					tmpKeyValue = tmpNode.keyvalue; 
+					if (tmpKeyValue !== null && 
+						tmpKeyValue !== undefined && 
+						tmpKeyValue !== '' && 
+						tmpKeyValue == pId) {
 						level = tmpNode.level + 1;
 						pnode = tmpNode;
 						break;

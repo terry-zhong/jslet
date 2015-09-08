@@ -31,27 +31,13 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.el = el;
 		Z.allProperties = 'value,onDateSelected,minDate,maxDate';
-		/**
-		 * {Date} Calendar value
-		 */
+
 		Z._value = null;
 		
-		/**
-		 * {Event Handler}  Fired when user select a date.
-		 * Pattern: 
-		 *	function(value){}
-		 *	//value: Date
-		 */
 		Z._onDateSelected = null;
 		
-		/**
-		 * {Date} minDate Minimized date of calendar range 
-		 */
 		Z._minDate = null;
 
-		/**
-		 * {Date} maxDate Maximized date of calendar range 
-		 */
 		Z._maxDate = null;
 		
 		Z._currYear = 0;
@@ -61,6 +47,12 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		$super(el, params);
 	},
 
+	/**
+	 * Calendar value.
+	 * 
+	 * @param {Date or undefined} value calendar value.
+	 * @param {Date or undefined}
+	 */
 	value: function(value) {
 		if(value === undefined) {
 			return this._value;
@@ -69,6 +61,12 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		this._value = value;
 	},
 	
+	/**
+	 * Set or get minimum date of calendar range.
+	 * 
+	 * @param {Date or undefined} minDate minimum date of calendar range 
+	 * @return {this or Date}
+	 */
 	minDate: function(minDate) {
 		if(minDate === undefined) {
 			return this._minDate;
@@ -77,6 +75,12 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		this._minDate = minDate;
 	},
 	
+	/**
+	 * Set or get maximum date of calendar range.
+	 * 
+	 * @param {Date or undefined} maxDate maximum date of calendar range 
+	 * @return {this or Date}
+	 */
 	maxDate: function(maxDate) {
 		if(maxDate === undefined) {
 			return this._maxDate;
@@ -85,6 +89,15 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		this._maxDate = maxDate;
 	},
 		
+	/**
+	 * Fired when user select a date.
+	 * Pattern: 
+	 *	function(value){}
+	 *	//value: Date
+	 *
+	 * @param {Function or undefined} onDateSelected Date selected event handler.
+	 * @return {this or Function}
+	 */
 	onDateSelected: function(onDateSelected) {
 		if(onDateSelected === undefined) {
 			return this._onDateSelected;

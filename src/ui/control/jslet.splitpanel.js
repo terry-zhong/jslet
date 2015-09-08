@@ -39,31 +39,13 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.el = el;
 		Z.allProperties = 'direction,floatIndex,onExpanded,onSize';//{size:100, align:-1/0/1,minSize:10}
-		/**
-		 * {String} Split direction, optional value: hori, vert
-		 * Default value is 'hori'
-		 */
+
 		Z._direction = 'hori';
-		/**
-		 * {Integer} Float panel index, only one panel can be a floating panel
-		 */
+
 		Z._floatIndex = 1;
 		
-		/**
-		 * {Event} Fired when user expand/collapse one panel.
-		 *  Pattern: 
-		 *	function(panelIndex){} 
-		 *	//panelIndex: Integer
-		 */
 		Z._onExpanded = null;
 		
-		/**
-		 * {Event} Fired after user change size of one panel.
-		 *  Pattern: 
-		 *	function(panelIndex, newSize){} 
-		 *	//panelIndex: Integer
-		 *	//newSize: Integer
-		 */
 		Z._onSize = null;
 		
 		Z.panels = null; //Array, panel configuration
@@ -73,6 +55,12 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		$super(el, params);
 	},
 
+	/**
+	 * Get or set float panel index, only one panel can be a floating panel.
+	 * 
+	 * @param {Integer or undefined} index float panel index.
+	 * @return {this or Integer}
+	 */
 	floatIndex: function(index) {
 		if(index === undefined) {
 			return this._floatIndex;
@@ -81,6 +69,13 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		this._floatIndex = index;
 	},
 	
+	/**
+	 * Get or set Split direction, optional value: hori, vert
+	 * Default value is 'hori'
+	 * 
+	 * @param {String or undefined} direction optional value: hori, vert.
+	 * @return {this or String}
+	 */
 	direction: function(direction) {
 		if(direction === undefined) {
 			return this._direction;
@@ -92,6 +87,15 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		this._direction = direction;
 	},
 	
+	/**
+	 * Fired when user expand/collapse one panel.
+	 *  Pattern: 
+	 *	function(panelIndex){} 
+	 *	//panelIndex: Integer
+	 *
+	 * @param {Function or undefined} onExpanded expanded event handler.
+	 * @return {this or Function}
+	 */
 	onExpanded: function(onExpanded) {
 		if(onExpanded === undefined) {
 			return this._onExpanded;
@@ -100,6 +104,16 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		this._onExpanded = onExpanded;
 	},
 	
+	/**
+	 * Fired after user change size of one panel.
+	 *  Pattern: 
+	 *	function(panelIndex, newSize){} 
+	 *	//panelIndex: Integer
+	 *	//newSize: Integer
+	 *
+	 * @param {Function or undefined} onExpanded resize event handler.
+	 * @return {this or Function}
+	 */
 	onSize: function(onSize) {
 		if(onSize === undefined) {
 			return this._onSize;

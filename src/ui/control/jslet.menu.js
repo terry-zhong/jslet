@@ -82,33 +82,22 @@ jslet.ui.MenuBar = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.el = el;
 		Z.allProperties = 'onItemClick,items';
-		/**
-		 * {Event} MenuItem click event handler
-		 * Pattern: function(menuId){}
-		 *   //menuId: String
-		 */
+
 		Z._onItemClick = null;
 		
-		/**
-		 * {Array}Menu items configuration
-		 * menu item's properties: 
-		 * id, //{String} Menu id
-		 * name, //{String} Menu name 
-		 * onClick, //{Event} Item click event, 
-		 *   Pattern: function(event){}
-		 *   
-		 * disabled, //{Boolean} Menu item is disabled or not
-		 * iconClass,  //{String} Icon style class 
-		 * disabledIconClass, //{String} Icon disabled style class
-		 * itemType, //{String} Menu item type, optional value: null, radio, check
-		 * checked, //{Boolean} Menu item is checked or not,  only work when itemType equals 'radio' or 'check'
-		 * group, //{String} Group name, only work when itemType equals 'radio'
-		 * items, //{Array} Sub menu items
-		 */
 		Z._items = null;
 		$super(el, params);
 	},
 
+	/**
+	 * Get or set menuItem click event handler
+	 * Pattern: 
+	 * function(menuId){}
+	 *   //menuId: String
+	 * 
+	 * @param {Function or undefined} onItemClick menuItem click event handler
+	 * @param {this or Function}
+	 */
 	onItemClick: function(onItemClick) {
 		if(onItemClick === undefined) {
 			return this._onItemClick;
@@ -117,6 +106,26 @@ jslet.ui.MenuBar = jslet.Class.create(jslet.ui.Control, {
 		this._onItemClick = onItemClick;
 	},
 	
+	/**
+	 * Get or set menu items configuration.
+	 * 
+	 * menu item's properties: 
+	 * id, //{String} Menu id
+	 * name, //{String} Menu name 
+	 * onClick, //{Event} Item click event, 
+	 *   Pattern: function(event){}
+	 *   
+	 * disabled, //{Boolean} Menu item is disabled or not
+	 * iconClass,  //{String} Icon style class 
+	 * disabledIconClass, //{String} Icon disabled style class
+	 * itemType, //{String} Menu item type, optional value: null, radio, check
+	 * checked, //{Boolean} Menu item is checked or not,  only work when itemType equals 'radio' or 'check'
+	 * group, //{String} Group name, only work when itemType equals 'radio'
+	 * items, //{Array} Sub menu items
+	 * 
+	 * @param {PlanObject[] or undefined} items menu items.
+	 * @param {this or PlanObject[]}
+	 */
 	items: function(items) {
 		if(items === undefined) {
 			return this._items;
@@ -233,11 +242,6 @@ jslet.ui.MenuBar = jslet.Class.create(jslet.ui.Control, {
 		});
 		
 		var template = [];
-/*		template.push('<span>');
-		template.push(itemCfg.name);
-		template.push('</span>');
-		*/
-		
 		template.push('<a class="jl-focusable-item" href="javascript:void(0)">');
 		template.push(itemCfg.name);
 		template.push('</a>');
@@ -316,6 +320,15 @@ jslet.ui.Menu = jslet.Class.create(jslet.ui.Control, {
 		Z._activeSubMenu = null;
 	},
 
+	/**
+	 * Get or set menuItem click event handler
+	 * Pattern: 
+	 * function(menuId){}
+	 *   //menuId: String
+	 * 
+	 * @param {Function or undefined} onItemClick menuItem click event handler
+	 * @param {this or Function}
+	 */
 	onItemClick: function(onItemClick) {
 		if(onItemClick === undefined) {
 			return this._onItemClick;
@@ -324,6 +337,26 @@ jslet.ui.Menu = jslet.Class.create(jslet.ui.Control, {
 		this._onItemClick = onItemClick;
 	},
 	
+	/**
+	 * Get or set menu items configuration.
+	 * 
+	 * menu item's properties: 
+	 * id, //{String} Menu id
+	 * name, //{String} Menu name 
+	 * onClick, //{Event} Item click event, 
+	 *   Pattern: function(event){}
+	 *   
+	 * disabled, //{Boolean} Menu item is disabled or not
+	 * iconClass,  //{String} Icon style class 
+	 * disabledIconClass, //{String} Icon disabled style class
+	 * itemType, //{String} Menu item type, optional value: null, radio, check
+	 * checked, //{Boolean} Menu item is checked or not,  only work when itemType equals 'radio' or 'check'
+	 * group, //{String} Group name, only work when itemType equals 'radio'
+	 * items, //{Array} Sub menu items
+	 * 
+	 * @param {PlanObject[] or undefined} items menu items.
+	 * @param {this or PlanObject[]}
+	 */
 	items: function(items) {
 		if(items === undefined) {
 			return this._items;
@@ -614,9 +647,6 @@ jslet.ui.Menu = jslet.Class.create(jslet.ui.Control, {
 		});
 
 		var template = [];
-		//template.push('<a href="javascript:;" onClick="javascript:this.blur();" class="');
-		//template.push(itemCfg.disabled ? 'jl-menu-disabled' : 'jl-menu-enabled');
-		//template.push('">');
 		template.push('<span class="jl-menu-icon-placeholder ');
 		if ((isCheckBox || isRadioBox) && !itemCfg.checked) {
 			//Empty 

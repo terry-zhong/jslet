@@ -32,19 +32,20 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		Z.el = el;
 		Z.allProperties = 'caption,collapsed';
-		/**
-		 * {String} Fieldset caption
-		 */
+
 		Z._caption = null; 
 		
-		/**
-		 * {Boolean} Fieldset is collapsed or not
-		 */
 		Z._collapsed = false;
 		
 		$super(el, params);
 	},
 
+	/**
+	 * Set or get caption of fieldset.
+	 * 
+	 * @param {String or undefined} caption caption of fieldset. 
+	 * @return {this or String}
+	 */
 	caption: function(caption) {
 		if(caption === undefined) {
 			return this._caption;
@@ -53,6 +54,12 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 		this._caption = caption;
 	},
 
+	/**
+	 * Identify fieldset is collapsed or not.
+	 * 
+	 * @param {Boolean or undefined} collapsed true - fieldset is collapsed, false(default) - otherwise. 
+	 * @return {this or Boolean}
+	 */
 	collapsed: function(collapsed) {
 		if(collapsed === undefined) {
 			return this._collapsed;

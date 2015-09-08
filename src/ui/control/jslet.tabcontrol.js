@@ -39,58 +39,20 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		Z.el = el;
 		Z.allProperties = 'selectedIndex,newable,closable,items,onAddTabItem,onSelectedChanged,onRemoveTabItem,onCreateContextMenu';
 		
-		/**
-		 * {Integer} Selected tab item index.
-		 */
 		Z._selectedIndex = 0;
 		
-		/**
-		 * Identify if user can add tab item on fly. 
-		 */
 		Z._newable = true;
 		
-		/**
-		 * Identify if user can close tab item on fly
-		 */
 		Z._closable = true;
 		
-		/**
-		 * {Event} Fire when user toggle tab item.
-		 * Pattern: 
-		 *   function(oldIndex, newIndex){}
-		 *   //oldIndex: Integer
-		 *   //newIndex: Integer
-		 */
 		Z._onSelectedChanged = null;
 		
-		/**
-		 * Fire after add a new tab item.
-		 * Pattern: 
-		 *   function(){}
-		 */
 		Z._onAddTabItem = null;
 		
-		/**
-		 * Fire after remove a tab item.
-		 * Pattern: 
-		 *  function(tabIndex, selected){}
-		 *  //tabIndex: Integer
-		 *  //selected: Boolean Identify if the removing item is active
-		 *  //return: Boolean, false - cancel removing tab item, true - remove tab item. 
-		 */
 		Z._onRemoveTabItem = null;
 		
-		/**
-		 * (Event) Fire before show context menu
-		 * Pattern: 
-		 *   function(menuItems){}
-		 *   //menuItems: Array of MenuItem, @see menu item configuration in jslet.menu.js.
-		 */
 		Z._onCreateContextMenu = null;
 		
-		/**
-		 * {Array of jslet.ui.TabItem} Tab item configuration.
-		 */
 		Z._items = [];
 		
 		Z._itemsWidth = [];
@@ -105,6 +67,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		$super(el, params);
 	},
 
+	/**
+	 * Get or set selected tab item index.
+	 * 
+	 * @param {Integer or undefined} index selected tabItem index.
+	 * @param {this or Integer}
+	 */
 	selectedIndex: function(index) {
 		if(index === undefined) {
 			return this._selectedIndex;
@@ -117,6 +85,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		}
 	},
 	
+	/**
+	 * Identify if user can add tab item on fly.
+	 * 
+	 * @param {Boolean or undefined} newable true(default) - user can add tab item on fly, false - otherwise.
+	 * @return {this or Boolean} 
+	 */
 	newable: function(newable) {
 		if(newable === undefined) {
 			return this._newable;
@@ -124,6 +98,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._newable = newable? true: false;
 	},
 	
+	/**
+	 * Identify if user can close tab item on fly.
+	 * 
+	 * @param {Boolean or undefined} closable true(default) - user can close tab item on fly, false - otherwise.
+	 * @return {this or Boolean} 
+	 */
 	closable: function(closable) {
 		if(closable === undefined) {
 			return this._closable;
@@ -131,6 +111,14 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._closable = closable? true: false;
 	},
 	
+	/**
+	 * Fired after add a new tab item.
+	 * Pattern: 
+	 *   function(){}
+	 *   
+	 * @param {Function or undefined} onAddTabItem tab item added event handler.
+	 * @return {this or Function} 
+	 */
 	onAddTabItem: function(onAddTabItem) {
 		if(onAddTabItem === undefined) {
 			return this._onAddTabItem;
@@ -139,6 +127,16 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._onAddTabItem = onAddTabItem;
 	},
 	
+	/**
+	 * Fired when user toggle tab item.
+	 * Pattern: 
+	 *   function(oldIndex, newIndex){}
+	 *   //oldIndex: Integer
+	 *   //newIndex: Integer
+	 *   
+	 * @param {Function or undefined} onSelectedChanged tab item selected event handler.
+	 * @return {this or Function} 
+	 */
 	onSelectedChanged: function(onSelectedChanged) {
 		if(onSelectedChanged === undefined) {
 			return this._onSelectedChanged;
@@ -147,6 +145,17 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._onSelectedChanged = onSelectedChanged;
 	},
 
+	/**
+	 * Fired after remove a tab item.
+	 * Pattern: 
+	 *  function(tabIndex, selected){}
+	 *  //tabIndex: Integer
+	 *  //selected: Boolean Identify if the removing item is active
+	 *  //return: Boolean, false - cancel removing tab item, true - remove tab item. 
+	 *   
+	 * @param {Function or undefined} onRemoveTabItem tab item removed event handler.
+	 * @return {this or Function} 
+	 */
 	onRemoveTabItem: function(onRemoveTabItem) {
 		if(onRemoveTabItem === undefined) {
 			return this._onRemoveTabItem;
@@ -155,6 +164,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._onRemoveTabItem = onRemoveTabItem;
 	},
 
+	/**
+	 * Fired before show context menu
+	 * Pattern: 
+	 *   function(menuItems){}
+	 *   //menuItems: Array of MenuItem, @see menu item configuration in jslet.menu.js.
+	 *   
+	 * @param {Function or undefined} onCreateContextMenu creating context menu event handler.
+	 * @return {this or Function} 
+	 */
 	onCreateContextMenu: function(onCreateContextMenu) {
 		if(onCreateContextMenu === undefined) {
 			return this._onCreateContextMenu;
@@ -163,6 +181,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		this._onCreateContextMenu = onCreateContextMenu;
 	},
 	 
+	/**
+	 * Get or set tab item configuration.
+	 * 
+	 * @param {jslet.ui.TabItem[] or undefined} items tab items.
+	 * @return {this or jslet.ui.TabItem[]}
+	 */
 	items: function(items) {
 		if(items === undefined) {
 			return this._items;
