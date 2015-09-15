@@ -212,6 +212,16 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	},
 	
 	/**
+	 * Select text.
+	 * 
+	 * @param {Integer} start (Optional) start of cursor position
+	 * @param {Integer} end (Optional) end of cursor position
+	 */
+	selectText: function(start, end){
+		jslet.ui.textutil.selectText(this.el, start, end);
+	},
+	
+	/**
 	 * Input a text into text control at current cursor position.
 	 * 
 	 * @param {String} text the text need to be input.

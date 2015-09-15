@@ -156,8 +156,8 @@ jslet.data.RefreshEvent = {
 		return {eventType: jslet.data.RefreshEvent.ERROR, message: errMessage};
 	},
 	
-	lookupEvent: function(fieldName) {
-		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName};
+	lookupEvent: function(fieldName, recno) {
+		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName, recno: recno};
 	},
 	
 	aggradedEvent: function() {
@@ -437,7 +437,7 @@ jslet.data.FieldValueConverter.className = 'jslet.data.FieldValueConverter';
 
 jslet.data.NumberValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
 	textToValue: function(fldObj, inputText) {
-		var value = 0;
+		var value = null;
 		if (inputText) {
 			if (fldObj.scale() === 0) {
 				value = parseInt(inputText);

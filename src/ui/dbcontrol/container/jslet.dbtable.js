@@ -674,7 +674,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		var ti = jqEl.attr('tabindex');
-		if (!ti) {
+		if (Z._readOnly && !ti) {
 			jqEl.attr('tabindex', 0);
 		}
 

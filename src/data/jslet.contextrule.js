@@ -892,9 +892,11 @@ jslet.data.ContextRuleEngine.prototype = {
 			ruleObj = matchedRules[i];
 			fldName = ruleObj.field();
 			fldObj = this._dataset.getField(fldName);
-			this._syncMatchedRuleMeta(fldObj, ruleObj.meta());
-			this._syncMatchedRuleLookup(fldObj, ruleObj.lookup());
-			this._syncMatchedRuleValue(fldObj, ruleObj.value());
+			if(fldObj) {
+				this._syncMatchedRuleMeta(fldObj, ruleObj.meta());
+				this._syncMatchedRuleLookup(fldObj, ruleObj.lookup());
+				this._syncMatchedRuleValue(fldObj, ruleObj.value());
+			}
 		}
 	},
 	
@@ -928,7 +930,7 @@ jslet.data.ContextRuleEngine.prototype = {
 		var lkDsObj = fieldLookup.dataset();
 		lkDsObj.autoRefreshHostDataset(true);
 		var ruleFilter = ruleLookup.filter();
-		if(ruleFilter != undefined) {
+		if(ruleFilter !== undefined) {
 			for(var fldName in this._ruleEnv) {
 				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
 			}
@@ -936,7 +938,7 @@ jslet.data.ContextRuleEngine.prototype = {
 			lkDsObj.filtered(true);
 		}
 		var ruleFilter = ruleLookup.fixedFilter();
-		if(ruleFilter != undefined) {
+		if(ruleFilter !== undefined) {
 			for(var fldName in this._ruleEnv) {
 				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
 			}

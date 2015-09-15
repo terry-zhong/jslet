@@ -108,6 +108,7 @@ jslet.data.Dataset = function (name) {
 	Z._followedValue = null;
 	
 	Z._lastFindingValue = null;
+	Z._inContextRule = false;
 	this.name(name);
 };
 jslet.data.Dataset.className = 'jslet.data.Dataset';
@@ -3805,14 +3806,21 @@ jslet.data.Dataset.prototype = {
 	 * @private
 	 */
 	calcContextRule: function (changedField) {
-		if(this.recordCount() === 0) {
+		var Z = this;
+		if(Z.recordCount() === 0) {
 			return;
 		}
-		if(this._contextRuleEngine) {
-			if(!changedField) {
-				this._contextRuleEngine.evalStatus();
+		
+		if(Z._contextRuleEngine) {
+			Z._inContextRule = true;
+			try {
+				if(!changedField) {
+					Z._contextRuleEngine.evalStatus();
+				}
+				Z._contextRuleEngine.evalRule(changedField);
+			} finally {
+				Z._inContextRule = false;
 			}
-			this._contextRuleEngine.evalRule(changedField);
 		}
 	},
 
@@ -4270,6 +4278,17 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
+	 * Identify dataset has changed records.
+	 */
+	hasChangedData: function() {
+		var Z = this;
+		if(!Z.confirm()) {
+			return true;
+		}
+		return Z._dataTransformer.hasChangedData();
+	},
+	
+	/**
 	 * Submit changed data to server. 
 	 * If server side save data successfully and return the changed data, Jslet can refresh the local data automatically.
 	 * 
@@ -4483,6 +4502,22 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
+	 * Refresh lookup field.
+	 * 
+	 * @param {String} fldName field name.
+	 * @param {Integer} recno (Optional) if recno >=0, only refresh the current record control specified by 'recno', otherwise refresh whole field. 
+	 */
+	refreshLookupField: function(fldName, recno) {
+		var lookupEvt;
+		if(recno === undefined) {
+			lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName);
+		} else {
+			lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName, recno);
+		}
+		this.refreshControl(lookupEvt);
+	},
+	
+	/**
 	 * @private 
 	 */
 	refreshControl: function (updateEvt) {
@@ -4526,8 +4561,13 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	handleLookupDatasetChanged: function(fldName) {
-		jslet.data.FieldValueCache.clearAll(this, fldName);
-		this.refreshControl(jslet.data.RefreshEvent.lookupEvent(fldName));
+		var Z = this;
+		if(Z._inContextRule) {
+			Z.refreshLookupField(fldName, Z.recno());
+		} else {
+			jslet.data.FieldValueCache.clearAll(Z, fldName);
+			Z.refreshLookupField(fldName);
+		}
 		//Don't use the following code, is will cause DBAutoComplete control issues.
 		//this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
 	},
@@ -4828,9 +4868,16 @@ jslet.data.Dataset.prototype = {
 	 */
 	exportSnapshot: function() {
 		var Z = this,
-			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), 
-				indexFields: Z.indexFields(), filter: Z.filter(), 
-				filtered: Z.filtered(), dataList: Z.dataList()};
+			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), dataList: Z.dataList()};
+		var indexFields = Z.indexFields();
+		if(indexFields) {
+			mainDs.indexFields = indexFields;
+		}
+		var filter = Z.filter();
+		if(filter) {
+			mainDs.filter = filter;
+			mainDs.filtered = Z.filtered();
+		}
 		var result = {master: mainDs};
 		var details = null, detail;
 		var detailFields = Z._subDatasetFields;
@@ -4843,9 +4890,16 @@ jslet.data.Dataset.prototype = {
 					if(!details) {
 						details = [];
 					}
-					detail = {name: subDs.name(), recno: subDs.recno(), status: subDs.status(), 
-						indexFields: subDs.indexFields(), filter: subDs.filter(), 
-						filtered: subDs.filtered()};
+					detail = {name: subDs.name(), recno: subDs.recno(), status: subDs.status()};
+					indexFields = subDs.indexFields();
+					if(indexFields) {
+						subDs.indexFields = indexFields;
+					}
+					filter = subDs.filter();
+					if(filter) {
+						subDs.filter = filter;
+						subDs.filtered = subDs.filtered();
+					}
 					details.push(detail);
 				}
 			}
@@ -4872,11 +4926,20 @@ jslet.data.Dataset.prototype = {
 			throw new Error('Snapshot does not match the current dataset name!');
 		}
 		Z._dataList = master.dataList;
-		Z.indexFields(master.indexFields);
-		Z.filter(master.filter);
-		Z.filtered(master.filtered);
+		if(master.indexFields !== undefined) {
+			Z.indexFields(master.indexFields);
+		}
+		if(master.filter != undefined) {
+			Z.filter(master.filter);
+			Z.filtered(master.filtered);
+		}
 		if(master.recno >= 0) {
-			Z.recno(master.recno);
+			Z._silence++;
+			try {
+				Z.recno(master.recno);
+			} finally {
+				Z._silence--;
+			}
 		}
 		Z.refreshControl();
 		var details = snapshot.details;
@@ -4888,11 +4951,20 @@ jslet.data.Dataset.prototype = {
 			detail = details[i];
 			subDs = jslet.data.getDataset(detail.name);
 			if(subDs) {
-				subDs.indexFields(detail.indexFields);
-				subDs.filter(detail.filter);
-				subDs.filtered(detail.filtered);
+				if(detail.indexFields !== undefined) {
+					subDs.indexFields(detail.indexFields);
+				}
+				if(detail.filter !== undefined) {
+					subDs.filter(detail.filter);
+					subDs.filtered(detail.filtered);
+				}
 				if(detail.recno >= 0) {
-					subDs.recno(detail.recno);
+					subDs._silence++;
+					try {
+						subDs.recno(detail.recno);
+					} finally {
+						subDs._silence--;
+					}
 				}
 				subDs.refreshControl();
 			}
@@ -5182,6 +5254,14 @@ jslet.data.DataTransformer = function(dataset) {
 }
 
 jslet.data.DataTransformer.prototype = {
+		
+	hasChangedData: function() {
+		var chgRecList = this._dataset._changeLog._changedRecords;
+		if(!chgRecList || chgRecList.length === 0) {
+			return false;
+		}
+		return true;
+	},
 	
 	getSubmittingChanged: function() {
 		var chgRecList = this._dataset._changeLog._changedRecords;

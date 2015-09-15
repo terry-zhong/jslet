@@ -39,8 +39,8 @@ jslet.ui.OverlayPanel = function (container, color) {
 	}
 	odiv.style.left = '0px';
 	odiv.style.top = '0px';
-	odiv.style.width =  width + 'px';
-	odiv.style.height =  height + 'px';
+	odiv.style.bottom = '0px';
+	odiv.style.right = '0px';
 	if (!container) {
 		document.body.appendChild(odiv);
 	} else {
