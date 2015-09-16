@@ -308,14 +308,14 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = Z.lookupDs();
 
-		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12" style="padding-left:1px;padding-right:1px">',
+		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
 		                '<input class="form-control" type="text" size="20"></input></div></div>',
 			'<div class="jl-combopnl-content',
 			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
 			'"></div>',
-			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default" >',
+			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default btn-sm" >',
 			jslet.locale.MessageBox.cancel,
-			'</button><button type="button" class="jl-combopnl-footer-ok btn btn-default" >',
+			'</button><button class="jl-combopnl-footer-ok btn btn-default btn-sm" >',
 			jslet.locale.MessageBox.ok,
 			'</button></div>'];
 

@@ -127,7 +127,7 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 			} else {
 				caption = 'caption' + index;
 			}
-			return '<button class="btn btn-default jl-accordion-head" jsletindex = "' + index + '">' + caption + '</button>';
+			return '<button class="btn btn-default jl-accordion-head btn-sm" jsletindex = "' + index + '">' + caption + '</button>';
 		});
 
 		var jqCaptions = jqEl.find('>.jl-accordion-head');
