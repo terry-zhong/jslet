@@ -211,7 +211,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		//Lookup data changed
 		if(evtType == jslet.data.RefreshEvent.UPDATELOOKUP && evt.fieldName == Z._field) {
-			if(evt.recno || evt.recno === 0) {
+			if(Z._ctrlRecno >= 0 && (evt.recno || evt.recno === 0)) {
 				if(Z._ctrlRecno === evt.recno) {
 					Z.doLookupChanged();
 				}

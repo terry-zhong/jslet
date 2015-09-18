@@ -106,6 +106,7 @@ jslet.data.Field.prototype = {
 		Z._dataset = dataset;
 		Z._clearFieldCache();
 		Z._addRelation();
+		return this;
 	},
 	
 	/**
@@ -135,6 +136,7 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.label', label).isString();
 		Z._label = label;
 		Z._fireMetaChangedEvent('label');
+		Z._fireGlobalMetaChangedEvent('label');
 		return this;
 	},
 
@@ -152,6 +154,7 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.tip', tip).isString();
 		Z._tip = tip;
 		Z._fireMetaChangedEvent('tip');
+		Z._fireGlobalMetaChangedEvent('tip');
 		return this;
 	},
 	
@@ -213,6 +216,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.displayOrder', displayOrder).isNumber();
 		Z._displayOrder = parseInt(displayOrder);
+		Z._fireGlobalMetaChangedEvent('displayOrder');
 		return this;
 	},
 
@@ -230,6 +234,7 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.tabIndex', tabIndex).isNumber();
 		Z._tabIndex = parseInt(tabIndex);
 		Z._fireMetaChangedEvent('tabIndex');
+		Z._fireGlobalMetaChangedEvent('tabIndex');
 		return this;
 	},
 	
@@ -247,6 +252,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.length', len).isGTEZero();
 		Z._length = parseInt(len);
+		Z._fireGlobalMetaChangedEvent('length');
 		return this;
 	},
 	
@@ -287,6 +293,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.scale', scale).isGTEZero();
 		Z._scale = parseInt(scale);
+		Z._fireGlobalMetaChangedEvent('scale');
 		return this;
 	},
 
@@ -319,6 +326,7 @@ jslet.data.Field.prototype = {
 		jslet.Checker.test('Field.alignment', alignment).isString();
 		Z._alignment = jQuery.trim(alignment);
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('alignment');
 		return this;
 	},
 
@@ -338,6 +346,7 @@ jslet.data.Field.prototype = {
 		Z._nullText = nullText;
 		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('nullText');
 		return this;
 	},
 
@@ -359,6 +368,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.displayWidth', displayWidth).isGTEZero();
 		Z._displayWidth = parseInt(displayWidth);
+		Z._fireGlobalMetaChangedEvent('displayWidth');
 		return this;
 	},
 	
@@ -376,6 +386,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.defaultExpr', defaultExpr).isString();
 		Z._defaultExpr = defaultExpr;
+		Z._fireGlobalMetaChangedEvent('defaultExpr');
 		return this;
 	},
 
@@ -401,13 +412,14 @@ jslet.data.Field.prototype = {
 			}
 		}
 		
-		jslet.Checker.test('Field.format', format).isString();
+		jslet.Checker.test('Field.displayFormat', format).isString();
 		Z._displayFormat = jQuery.trim(format);
 		Z._dateFormat = null;
 		Z._dateChar = null;
 		Z._dateRegular = null;
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('displayFormat');
 		return this;
 	},
 
@@ -429,6 +441,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.defaultValue', Z.dftValue).isDataType(Z._dateType);
 		Z._defaultValue = dftValue;
+		Z._fireGlobalMetaChangedEvent('defaultValue');
 		return this;
 	},
 
@@ -444,6 +457,7 @@ jslet.data.Field.prototype = {
 			return Z._unique;
 		}
 		Z._unique = unique ? true: false;
+		Z._fireGlobalMetaChangedEvent('unique');
 		return this;
 	},
 	
@@ -460,6 +474,7 @@ jslet.data.Field.prototype = {
 		}
 		Z._required = required ? true: false;
 		Z._fireMetaChangedEvent('required');
+		Z._fireGlobalMetaChangedEvent('required');
 		return this;
 	},
 	
@@ -484,6 +499,7 @@ jslet.data.Field.prototype = {
 		Z._editMask = mask;
 		Z._clearFieldCache();		
 		Z._fireMetaChangedEvent('editMask');
+		Z._fireGlobalMetaChangedEvent('required');
 		return this;
 	},
 	
@@ -580,6 +596,7 @@ jslet.data.Field.prototype = {
 			dataset.addInnerFormulaField(Z._fieldName, Z._formula);		
 			Z._fireColumnUpdatedEvent();
 		}
+		Z._fireGlobalMetaChangedEvent('formula');
 		return this;
 	},
 
@@ -605,6 +622,7 @@ jslet.data.Field.prototype = {
 		}
 		Z._visible = visible ? true: false;
 		Z._fireMetaChangedEvent('visible');
+		Z._fireGlobalMetaChangedEvent('visible');
 		return this;
 	},
 
@@ -621,6 +639,7 @@ jslet.data.Field.prototype = {
 		}
 		Z._disabled = disabled ? true: false;
 		Z._fireMetaChangedEvent('disabled');
+		Z._fireGlobalMetaChangedEvent('disabled');
 		return this;
 	},
 
@@ -646,6 +665,7 @@ jslet.data.Field.prototype = {
 		
 		Z._readOnly = readOnly? true: false;
 		Z._fireMetaChangedEvent('readOnly');
+		Z._fireGlobalMetaChangedEvent('readOnly');
 		return this;
 	},
 	
@@ -664,6 +684,16 @@ jslet.data.Field.prototype = {
 	
 	fieldDisabled: function() {
 		return this._disabled;
+	},
+	
+	_fireGlobalMetaChangedEvent: function(metaName) {
+		var ds = this.dataset();
+		if (ds) {
+			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
+			if(handler) {
+				handler.call(this, ds, this._fieldName, metaName)
+			}
+		}
 	},
 	
 	_fireMetaChangedEvent: function(metaName, changeAllRows) {
@@ -699,6 +729,7 @@ jslet.data.Field.prototype = {
 		if (Z._dataType == jslet.data.DataType.NUMBER && ds && ds.unitConvertFactor() != 1) {
 			Z._fireColumnUpdatedEvent();
 		}
+		Z._fireGlobalMetaChangedEvent('unitConverted');
 		return this;
 	},
 
@@ -727,6 +758,7 @@ jslet.data.Field.prototype = {
 		Z._valueStyle = mvalueStyle;
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('valueStyle');
 		return this;
 	},
 
@@ -747,6 +779,7 @@ jslet.data.Field.prototype = {
 			count = 0;
 		}
 		Z._valueCountLimit = parseInt(count);
+		Z._fireGlobalMetaChangedEvent('valueCountLimit');
 		return this;
 	},
 
@@ -777,6 +810,7 @@ jslet.data.Field.prototype = {
 		}
 		 
 		Z._displayControl = (typeof (Z._fieldName) == 'string') ? { type: dispCtrl } : dispCtrl;
+		Z._fireGlobalMetaChangedEvent('displayControl');
 		return this;
 	},
 
@@ -825,6 +859,8 @@ jslet.data.Field.prototype = {
 		}
 		Z._editControl = editCtrl;
 		Z._fireMetaChangedEvent('editControl');
+		Z._fireGlobalMetaChangedEvent('editControl');
+		return this;
 	},
 
 	/**
@@ -874,7 +910,6 @@ jslet.data.Field.prototype = {
 			lkDsName = Z._getDatasetName(Z._lookup._dataset);
 		}
 		jslet.data.datasetRelationManager.removeRelation(hostDs, hostField, lkDsName);
-		
 	},
 		
 	/**
@@ -964,6 +999,7 @@ jslet.data.Field.prototype = {
 		Z._innerUrlExpr = null;
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('urlExpr');
 		return this;
 	},
 
@@ -977,6 +1013,8 @@ jslet.data.Field.prototype = {
 		Z._urlTarget = jQuery.trim(target);
 		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('urlTarget');
+		return this;
 	},
 
 	calcUrl: function () {
@@ -1003,6 +1041,8 @@ jslet.data.Field.prototype = {
 			return Z._antiXss;
 		}
 		Z._antiXss = isXss ? true: false;
+		Z._fireGlobalMetaChangedEvent('antiXss');
+		return this;
 	},
 
 	/**
@@ -1039,6 +1079,7 @@ jslet.data.Field.prototype = {
 			}
 		}
 		Z._dataRange = range;
+		Z._fireGlobalMetaChangedEvent('dataRange');
 		return this;
 	},
 
@@ -1066,6 +1107,7 @@ jslet.data.Field.prototype = {
 		} else {
 			Z._regularExpr = { expr: expr, message: message };
 		}
+		Z._fireGlobalMetaChangedEvent('regularExpr');
 		return this;
 	},
 	
@@ -1083,6 +1125,7 @@ jslet.data.Field.prototype = {
 		Z._customValueConverter = converter;
 		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('customValueConverter');
 		return this;
 	},
 
@@ -1105,6 +1148,7 @@ jslet.data.Field.prototype = {
 			jslet.Checker.test('Field.customValidator', validator).isFunction();
 		}
 		Z._customValidator = validator;
+		Z._fireGlobalMetaChangedEvent('customValidator');
 		return this;
 	},
 	
@@ -1132,9 +1176,12 @@ jslet.data.Field.prototype = {
 				}
 				return chars;
 			}
+			return null;
 		}
 		
 		Z._validChars = chars;
+		Z._fireGlobalMetaChangedEvent('validChars');
+		return this;
 	},
 	
 	/**
@@ -1174,6 +1221,8 @@ jslet.data.Field.prototype = {
 			return Z._mergeSame;
 		}
 		Z._mergeSame = mergeSame ? true: false;
+		Z._fireGlobalMetaChangedEvent('mergeSame');
+		return this;
 	},
 
 	/**
@@ -1190,6 +1239,8 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.mergeSameBy', mergeSameBy).isString();
 		Z._mergeSameBy = jQuery.trim(mergeSameBy);
+		Z._fireGlobalMetaChangedEvent('mergeSameBy');
+		return this;
 	},
 	
 	/**
@@ -1207,6 +1258,8 @@ jslet.data.Field.prototype = {
 		if(!Z._valueFollow && Z._dataset) {
 			Z._dataset._followedValue = null;
 		}
+		Z._fireGlobalMetaChangedEvent('valueFollow');
+		return this;
 	},
 
 	/**
@@ -1222,6 +1275,7 @@ jslet.data.Field.prototype = {
 		}
 		
 		Z._aggraded = aggraded? true: false;
+		Z._fireGlobalMetaChangedEvent('aggraded');
 		return this;
 	},
 
@@ -1240,6 +1294,8 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.aggradedBy', aggradedBy).isString();
 		Z._aggradedBy = jQuery.trim(aggradedBy);
+		Z._fireGlobalMetaChangedEvent('aggradedBy');
+		return this;
 	},
 
 	crossSource: function(crossSource) {
@@ -1249,6 +1305,7 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.crossSource', crossSource).isClass(jslet.data.CrossFieldSource.className);
 		Z._crossSource = crossSource;
+		return this;
 	},
 	
 	/**
@@ -1264,6 +1321,8 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.fixedValue', fixedValue).isString();
 		Z._fixedValue = jQuery.trim(fixedValue);
+		Z._fireGlobalMetaChangedEvent('fixedValue');
+		return this;
 	},
 	
 	getValue: function(valueIndex) {

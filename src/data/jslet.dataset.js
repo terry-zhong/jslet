@@ -2990,6 +2990,11 @@ jslet.data.Dataset.prototype = {
 				eventFunc.call(Z, fldName, value, valueIndex);
 			}
 		}
+		var globalHandler = jslet.data.globalDataHandler.fieldMetaChanged();
+		if(globalHandler) {
+			globalHandler.call(Z, Z, fldName, value, valueIndex);
+		}
+
 		if(fldObj.valueFollow()) {
 			if(!Z._followedValue) {
 				Z._followedValue = {};
@@ -4483,6 +4488,9 @@ jslet.data.Dataset.prototype = {
 				if (el.focus) {
 					try {
 						el.focus();
+						if(ctrl.selectText) {
+							ctrl.selectText();
+						}
 						return;
 					} catch (e) {
 						console.warn('Can\' focus into a disabled control!');

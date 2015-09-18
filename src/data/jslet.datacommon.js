@@ -1223,3 +1223,75 @@ jslet.data.DataSelection.prototype = {
 		}
 	}
 }
+
+jslet.data.GlobalDataHandler = function() {
+	var Z = this;
+	Z._datasetMetaChanged = null;
+	Z._fieldMetaChanged = null;
+	Z._fieldValueChanged = null;
+}
+
+jslet.data.GlobalDataHandler.prototype = {
+	/**
+	 * Fired when dataset meta is changed.
+	 *  Pattern: 
+	 *	function(dataset, metaName}{}
+	 *  	//dataset:{jslet.data.Dataset} Dataset Object
+	 *  	//metaName: {String} dataset's meta name
+	 *  
+	 * @param {Function or undefined} datasetMetaChanged dataset meta changed event handler.
+	 * @return {this or Function}
+	 */
+	datasetMetaChanged: function(datasetMetaChanged) {
+		var Z = this;
+		if(datasetMetaChanged === undefined) {
+			return Z._datasetMetaChanged;
+		}
+		jslet.Checker.test('globalDataHandler.datasetMetaChanged', datasetMetaChanged).isFunction();
+		Z._datasetMetaChanged = datasetMetaChanged;
+	},
+	
+	/**
+	 * Fired when field meta is changed.
+	 *  Pattern: 
+	 *	function(dataset, fieldName, metaName}{}
+	 *  	//dataset:{jslet.data.Dataset} Dataset Object
+	 *  	//fieldName: {String} field name
+	 *  	//metaName: {String} dataset's meta name
+	 *  
+	 * @param {Function or undefined} fieldMetaChanged dataset meta changed event handler.
+	 * @return {this or Function}
+	 */
+	fieldMetaChanged: function(fieldMetaChanged) {
+		var Z = this;
+		if(fieldMetaChanged === undefined) {
+			return Z._fieldMetaChanged;
+		}
+		jslet.Checker.test('globalDataHandler.fieldMetaChanged', fieldMetaChanged).isFunction();
+		Z._fieldMetaChanged = fieldMetaChanged;
+	},
+	
+	/**
+	 * Fired when field value is changed.
+	 *  Pattern: 
+	 *	function(dataset, metaName}{}
+	 *  	//dataset:{jslet.data.Dataset} Dataset Object
+	 *  	//fieldName: {String} field name
+	 *  	//fieldValue: {Object} field value
+	 *  	//valueIndex: {Integer} value index
+	 *  
+	 * @param {Function or undefined} fieldValueChanged field value changed event handler.
+	 * @return {this or Function}
+	 */
+	fieldValueChanged: function(fieldValueChanged) {
+		var Z = this;
+		if(fieldValueChanged === undefined) {
+			return Z._fieldValueChanged;
+		}
+		jslet.Checker.test('globalDataHandler.fieldValueChanged', fieldValueChanged).isFunction();
+		Z._fieldValueChanged = fieldValueChanged;
+	}
+	
+}
+
+jslet.data.globalDataHandler = new jslet.data.GlobalDataHandler();
