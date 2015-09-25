@@ -1190,7 +1190,28 @@ jslet.ui.MessageBox = function () {
 			} else {
 				iconHtml += iconClass;
 			}
-			iconHtml += '"></div>';
+			iconHtml += '"><i class="fa ';
+			switch (iconClass) {
+	            case 'info':
+	            	iconHtml += 'fa-info';
+	                break;
+	            case 'error':
+	            	iconHtml += 'fa-times';
+	                break;
+	            case 'success':
+	            	iconHtml += 'fa-check';
+	                break;
+	            case 'warning':
+	            	iconHtml += 'fa-exclamation';
+	                break;
+	            case 'question':
+	            	iconHtml += 'fa-question';
+	                break;
+	            default :
+	            	iconHtml += 'fa-info';
+                 	break;
+	        }
+			iconHtml += '"></i></div>';
 		}
 
 		var btnHtml = [], btnName, left, k = 0, i;
@@ -1198,7 +1219,7 @@ jslet.ui.MessageBox = function () {
 			for (i = btnCount - 1; i >=0; i--) {
 				btnName = buttons[i];
 				left = (k++) * (btnWidth + 10);
-				btnHtml.push('<button class="jl-msg-button" ');
+				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
 				btnHtml.push(' data-jsletname="');
 				btnHtml.push(btnName);
 				btnHtml.push('" style="left: ');
@@ -1211,7 +1232,7 @@ jslet.ui.MessageBox = function () {
 			for (i = 0; i < btnCount; i++) {
 				btnName = buttons[i];
 				left = i * (btnWidth + 10);
-				btnHtml.push('<button class="jl-msg-button" ');
+				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
 				btnHtml.push('" data-jsletname="');
 				btnHtml.push(btnName);
 				btnHtml.push('" style="left: ');
@@ -1241,7 +1262,7 @@ jslet.ui.MessageBox = function () {
 				inputHtml.push('></textarea>');
 			}
 		}
-		var html = ['<div class="jl-msg-container">', iconHtml, '<div class="jl-msg-message">',
+		var html = ['<div class="jl-msg-container">', iconHtml, '<div class="' + (hasInput? 'jl-msg-message-noicon': 'jl-msg-message') + '">',
 					message, inputHtml.join(''), '</div>', '</div>',
 					'<div class="jl-msg-tool"><div style="position:relative;width:', toolWidth, 'px;margin:0px auto;">', btnHtml.join(''), '</div></div>'
 		];
@@ -1287,7 +1308,8 @@ jslet.ui.MessageBox = function () {
 		if (jslet.locale.isRtl) {
 			k = btnCount - 1;
 		}
-		toolBar.childNodes[k].focus();
+		var toolBtn = toolBar.childNodes[k];
+		toolBtn && toolBtn.focus();
 		return owin;
 	};
 };
@@ -1320,12 +1342,20 @@ jslet.ui.MessageBox.alert = function (message, caption, callbackFn, timeout) {
  * jslet.ui.MessageBox.alert('You have made a mistake!', 'Error');
  * </code></pre>
  */
-jslet.ui.MessageBox.error = function (message, caption, callbackFn) {
+jslet.ui.MessageBox.error = function (message, caption, callbackFn, timeout) {
 	var omsgBox = new jslet.ui.MessageBox();
 	if (!caption) {
 		caption = jslet.locale.MessageBox.error;
 	}
-	omsgBox.show(message, caption, 'error', ['ok'], callbackFn);
+	var owin = omsgBox.show(message, caption, 'error', ['ok'], callbackFn);
+	if(timeout) {
+		timeout = parseInt(timeout);
+		if(timeout !== NaN) {
+			window.setTimeout(function() {
+				owin.close()
+			}, timeout);
+		}
+	}
 };
 
 /**

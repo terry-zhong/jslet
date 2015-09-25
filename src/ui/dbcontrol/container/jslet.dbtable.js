@@ -3072,6 +3072,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var editCtrl = jslet.ui.createControl(fldCtrlCfg);
 		editCtrl = editCtrl.el;
 		editCtrl.id = jslet.nextId();
+		jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
+			Z._editingField = editingField;
+		});
 		return editCtrl;
 	}, // end editControl
 
@@ -3211,9 +3214,6 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			fldObj = Z._dataset.getField(fldName);
 		
 		var editCtrl = Z._createEditControl(colCfg);
-		jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
-			Z._editingField = editingField;
-		});
 		cellPanel.appendChild(editCtrl);
 	},
 	

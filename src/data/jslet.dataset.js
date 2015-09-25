@@ -2581,9 +2581,9 @@ jslet.data.Dataset.prototype = {
 		if (jslet.data.FieldError.existRecordError(Z.getRecord()) || !isValid) {
 			
 			if (Z._autoShowError) {
-				jslet.showInfo(jslet.locale.Dataset.cannotConfirm, 2000);
+				jslet.showError(jslet.locale.Dataset.cannotConfirm, 2000);
 			} else {
-				console.info(jslet.locale.Dataset.cannotConfirm);
+				console.warn(jslet.locale.Dataset.cannotConfirm);
 			}
 			evt = jslet.data.RefreshEvent.updateRecordEvent();
 			Z.refreshControl(evt);
@@ -5317,7 +5317,7 @@ jslet.data.DataTransformer.prototype = {
 					if(submitAllSubData === undefined) {
 						submitAllSubData = !subDsObj._onlyChangedSubmitted;
 					}
-					var allList = fldObj.getValue();
+					var allList = chgRec[fldName];
 					if(!submitAllSubData) { //add deleted record
 						var subChgList = subLog? subLog[fldName]: null;
 						if(subChgList) {

@@ -927,8 +927,10 @@ jslet.data.Field.prototype = {
 		Z._removeRelation();
 		
 		Z._lookup = lkFldObj;
-		lkFldObj.hostField(Z);
-		Z._addRelation();
+		if(lkFldObj) {
+			lkFldObj.hostField(Z);
+			Z._addRelation();
+		}
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
 		return this;

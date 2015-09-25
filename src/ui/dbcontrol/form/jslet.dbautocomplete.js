@@ -32,7 +32,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		if (!Z.allProperties) {
-			Z.allProperties = 'dataset,field,lookupField,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField';
+			Z.allProperties = 'dataset,field,lookupField,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField,filterFields';
 		}
 		
 		Z._lookupField = null;
@@ -42,6 +42,10 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		Z._minDelay = 0;
 		
 		Z._beforePopup = null;
+		
+		Z._filterFields = null;
+		
+		Z._defaultFilterFields = null;
 		
 		Z._onGetFilterField = null;
 		
@@ -125,6 +129,20 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	},
 	
 	/**
+	 * Get or set filter fields, more than one fields are separated with ','.
+	 * 
+	 * @param {String} filterFields filter fields.
+	 * @return {this or String}
+	 */
+	filterFields: function(filterFields) {
+		if(filterFields === undefined) {
+			return Z._filterFields;
+		}
+		jslet.Checker.test('DBAutoComplete.filterFields', filterFields).isString();
+		Z._filterFields = filterFields;
+	},
+	
+	/**
 	 * {Function} Get filter field event handler, you can use this to customize the display result.
 	 * Pattern: 
 	 *   function(dataset, inputValue){}
@@ -203,6 +221,9 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		event = jQuery.event.fix( event || window.event );
 
 		var keyCode = event.which, Z = this.jslet;
+		if(keyCode >= 112 && keyCode <= 123) { //F1-F12
+			return;
+		}
 		if ((keyCode == 38 || keyCode == 40) && Z.contentPanel && Z.contentPanel.isPop) {
 			var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
 			lkf = fldObj.lookup(),
@@ -264,9 +285,70 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		
 		Z._timeoutHandler = setTimeout(function () {
 			Z._populate(Z.el.value); 
-			}, delayTime);
+		}, delayTime);
 	},
 
+	_getDefaultFilterFields: function(lookupFldObj) {
+		var Z = this;
+		if(Z._defaultFilterFields) {
+			return Z._defaultFilterFields;
+		}
+		var codeFld = lookupFldObj.codeField(),
+			nameFld = lookupFldObj.nameField(),
+			lkDs = lookupFldObj.dataset(),
+			codeFldObj = lkDs.getField(codeFld),
+			nameFldObj = lkDs.getField(nameFld),
+			arrFields = [];
+		if(codeFldObj && codeFldObj.visible()) {
+			arrFields.push(codeFld);
+		}
+		if(codeFld != nameFld && nameFldObj && nameFldObj.visible()) {
+			arrFields.push(nameFld);
+		}
+		Z._defaultFilterFields = arrFields;
+		return arrFields;
+	},
+	
+	_getFilterFields: function(lkFldObj, inputValue) {
+		var Z = this;
+		var filterFlds = null;
+		
+		var eventFunc = jslet.getFunction(Z._onGetFilterField);
+		if (eventFunc) {
+			filterFlds = eventFunc.call(Z, lkFldObj.dataset(), inputValue);
+			jslet.Checker.test('DBAutoComplete.onGetFilterField#return', filterFlds).isString();
+		}
+		filterFlds = filterFlds || Z._filterFields;
+		var arrFields;
+		if (filterFlds) {
+			arrFields = filterFlds.split(',');
+		} else {
+			arrFields = Z._getDefaultFilterFields(lkFldObj);
+		}
+		if(arrFields.length === 0) {
+			throw new Error('Not specified [filter fields]!');
+		}
+		var filterValue = inputValue;
+		if (Z._matchMode == 'start') {
+			filterValue = filterValue + '%';
+		} else {
+			if (Z._matchMode == 'end') {
+				filterValue = '%' + filterValue;
+			} else {
+				filterValue = '%' + filterValue + '%';
+			}
+		}
+		var fldName, result = '';
+		for(var i = 0, len = arrFields.length; i < len; i++) {
+			fldName = arrFields[i];
+			if(i > 0) {
+				result += ' || '
+			}
+			result += 'like([' + fldName + '],"' + filterValue + '")';
+		}
+		return result;
+	},
+	
 	_populate: function (inputValue) {
 		var Z = this;
 		if (Z._minChars > 0 && inputValue && inputValue.length < Z._minChars) {
@@ -284,32 +366,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		if (eventFunc) {
 			eventFunc.call(Z, lkds, inputValue);
 		} else if (inputValue) {
-			var fldName;
-			
-			var eventFunc = jslet.getFunction(Z._onGetFilterField);
-			if (eventFunc) {
-				fldName = eventFunc.call(Z, lkds, inputValue);
-			}			
-			if (!fldName) {
-				fldName = lkf.codeField();
-			}
-			var s = inputValue;
-			if (Z._matchMode == 'start') {
-				s = s + '%';
-			} else {
-				if (Z._matchMode == 'end') {
-					s = '%' + s;
-				} else {
-					s = '%' + s + '%';
-				}
-			}
-			lkds.filter('like([' + fldName + '],"' + s + '")');
+			var filter = Z._getFilterFields(lkf, inputValue);
+			lkds.filter(filter);
 			lkds.filtered(true);
 		} else {
 			lkds.filter(null);
 		}
-		
-		//Clear field value of 'lookupField'
+		//Clear field value which specified by 'lookupField'.
 		if(Z._lookupField) {
 			Z._dataset.getRecord()[Z._lookupField] = null;
 		}

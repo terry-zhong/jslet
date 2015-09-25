@@ -355,19 +355,24 @@
 
 /* jslet.MessageBox */
 .jl-msg-container {
-    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 .jl-msg-icon {
-    width: 50px;
-    height: 35px;
-    background-attachment: scroll;
-    background-clip: border-box;
-    background-color: transparent;
-    background-origin: padding-box;
-    background-repeat: no-repeat;
-    float: left;
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    float:left;
     margin-left: 5px;
+    font-size: 18px;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 2px;
+    color: white;
 }
 
 .jl-rtl .jl-msg-icon {
@@ -377,15 +382,21 @@
 }
 
 .jl-msg-icon-info {
-    background-image: url(images/mb/icon-info.gif);
+    /*background-image: url(images/mb/icon-info.gif);*/
+    background-color: rgb(91, 192, 222);
+    border-color: rgb(91, 192, 222);
 }
 
 .jl-msg-icon-error {
-    background-image: url(images/mb/icon-error.gif);
+    /* background-image: url(images/mb/icon-error.gif); */
+    background-color: rgb(217, 83, 79);
+    border-color: rgb(217, 83, 79);
 }
 
 .jl-msg-icon-question {
-    background-image: url(images/mb/icon-question.gif);
+   /* background-image: url(images/mb/icon-question.gif);*/
+    background-color: rgb(91, 192, 222);
+    border-color: rgb(91, 192, 222);
 }
 
 .jl-rtl .jl-msg-icon-question {
@@ -393,13 +404,18 @@
 }
 
 .jl-msg-icon-warning {
-    background-image: url(images/mb/icon-warning.gif);
+    /* background-image: url(images/mb/icon-warning.gif); */
+    background-color: rgb(240, 173, 78);
+    border-color: rgb(240, 173, 78);
 }
 
 .jl-msg-message {
-    padding: 8px;
+    padding-left: 40px;
 }
 
+.jl-msg-message-noicon {
+    padding-left: 10px;
+}
 .jl-msg-tool {
     position: absolute;
     bottom: 8px;

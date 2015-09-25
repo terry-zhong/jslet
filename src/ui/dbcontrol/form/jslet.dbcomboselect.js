@@ -266,7 +266,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 					totalChars += fldObj.displayWidth();
 				}
 			}
-			var totalWidth = totalChars * (jslet.global.defaultCharWidth || 12) + 60;
+			var totalWidth = totalChars * (jslet.global.defaultCharWidth || 12) + 40;
 			Z.popupWidth = totalWidth;
 			if(Z.popupWidth < 150) {
 				Z.popupWidth = 150;
@@ -419,22 +419,34 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if (eventFunc) {
 			findFldName = eventFunc.call(findValue);
 		}
-		
+		var findFldNames = null;
 		if(!findFldName) {
-			var lkFldObj = Z.fieldObject.lookup();
-			findFldName = lkFldObj.nameField();
+			var lkFldObj = Z.fieldObject.lookup(),
+				codeFldName = lkFldObj.codeField(),
+				nameFldName = lkFldObj.nameField();
+			 
+			findFldNames = [];
+			codeFldName && findFldNames.push(codeFldName);
+			nameFldName && codeFldName != nameFldName && findFldNames.push(nameFldName);
+		} else {
+			findFldNames = findFldName.split(',');
 		}
-		if(!findFldName) {
+		if(!findFldNames || findFldNames.length === 0) {
 			console.warn('Search field NOT specified! Can\'t search data!')
 			return;
 		}
-		var lkds = Z.lookupDs(), 
+		var lkds = Z.lookupDs(), fldObj;
+		for(var i = 0, len = findFldNames.length; i < len; i++) {
+			findFldName = findFldNames[i];
 			fldObj = lkds.getField(findFldName);
-		if(!fldObj) {
-			console.warn('Field Name: ' + findFldName + ' NOT exist!');
-			return;
+			if(!fldObj) {
+				console.warn('Field Name: ' + findFldName + ' NOT exist!');
+				return;
+			}
+			if(lkds.find('like([' + findFldName + '],"%' + findValue + '%")')) {
+				break;
+			}
 		}
-		lkds.find('like([' + findFldName + '],"%' + findValue + '%")');
 	},
 
 	_confirmSelect: function () {

@@ -1051,9 +1051,14 @@ jslet.getRemainingString = function(wholeStr, cuttingStr) {
 /**
 * Show error message.
 *  
-* @param e - error object or error message
+* @param {Error object or String} e - error object or error message
+* @param {Function} callBackFn - call back function, pattern:
+* 	function() {
+* 	
+* 	}
+* @param {Integer} timeout - timeout for close this dialog. 
 */
-jslet.showError = function (e) {
+jslet.showError = function (e, callBackFn, timeout) {
 	var msg;
 	if (typeof (e) == 'string') {
 		msg = e;
@@ -1061,7 +1066,7 @@ jslet.showError = function (e) {
 		msg = e.message;
 	}
 	if (jslet.ui && jslet.ui.MessageBox) {
-		jslet.ui.MessageBox.error(msg);
+		jslet.ui.MessageBox.error(msg, null, callBackFn);
 	} else {
 		alert(msg);
 	}
@@ -1070,9 +1075,14 @@ jslet.showError = function (e) {
 /**
 * Show Info message.
 * 
-* @param e - error object or error message
+* @param {Error object or String} e - error object or error message
+* @param {Function} callBackFn - call back function, pattern:
+* 	function() {
+* 	
+* 	}
+* @param {Integer} timeout - timeout for close this dialog. 
 */
-jslet.showInfo = function (e, timeout) {
+jslet.showInfo = function (e, callBackFn, timeout) {
 	var msg;
 	if (typeof (e) == 'string') {
 		msg = e;
@@ -1080,7 +1090,7 @@ jslet.showInfo = function (e, timeout) {
 		msg = e.message;
 	}
 	if (jslet.ui && jslet.ui.MessageBox) {
-		jslet.ui.MessageBox.alert(msg, jslet.locale.MessageBox.Info, null, timeout);
+		jslet.ui.MessageBox.alert(msg, jslet.locale.MessageBox.Info, callBackFn, timeout);
 	} else {
 		alert(msg);
 	}

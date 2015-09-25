@@ -244,7 +244,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			Z._keyField = Z._dataset.keyField();
 		}
 		var ti = jqEl.attr('tabindex');
-		if (!ti) {
+		if (Z._readOnly && !ti) {
 			jqEl.attr('tabindex', 0);
 		}
 		jqEl.keydown(function(event){
