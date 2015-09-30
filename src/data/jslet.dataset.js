@@ -656,7 +656,12 @@ jslet.data.Dataset.prototype = {
 		addFormulaField(fldObj);
 		return Z;
 	},
-
+	
+	refreshDisplayOrder: function() {
+		this._fields.sort(jslet.data.displayOrderComparator);
+		this._cacheNormalFields();
+	},
+	
 	moveField: function(fromFldName, toFldName) {
 		var Z = this,
 			fromFldObj = Z.getField(fromFldName),
@@ -1983,15 +1988,18 @@ jslet.data.Dataset.prototype = {
 		Z.selection.removeAll();
 		Z.disableControls();
 		try{
-			var keyField = Z.keyField(), rec,
+			var keyField = Z.keyField(), rec, found,
 				keyValue;
 			for(var i = 0, len = records.length; i < len; i++) {
 				rec = records[i];
-				keyValue = rec[keyField];
-				if(!keyValue) {
-					throw new Error('batchAppend: Key Value required!');
+				found = false;
+				if(keyField) {
+					keyValue = rec[keyField];
+					if(keyValue && Z.findByKey(keyValue)) {
+						found = true;
+					}
 				}
-				if(Z.findByKey(keyValue)) {
+				if(found) {
 					if(replaceExists) {
 						Z.editRecord();
 						Z.cloneRecord(rec, Z.getRecord());
@@ -2581,7 +2589,7 @@ jslet.data.Dataset.prototype = {
 		if (jslet.data.FieldError.existRecordError(Z.getRecord()) || !isValid) {
 			
 			if (Z._autoShowError) {
-				jslet.showError(jslet.locale.Dataset.cannotConfirm, 2000);
+				jslet.showError(jslet.locale.Dataset.cannotConfirm, null, 2000);
 			} else {
 				console.warn(jslet.locale.Dataset.cannotConfirm);
 			}
@@ -2819,7 +2827,6 @@ jslet.data.Dataset.prototype = {
 		}
 		return jslet.data.FieldError.get(currRec, fldName, valueIndex);
 	},
-	
 	
 	setFieldError: function(fldName, errorMsg, valueIndex, inputText) {
 		var Z = this;
@@ -4684,7 +4691,7 @@ jslet.data.Dataset.prototype = {
 					} else {
 						value = Z.getFieldValue(fldName);
 					}
-					if (!value) {
+					if (!value && value !== 0) {
 						value = '';
 					} else {
 						value += '';
