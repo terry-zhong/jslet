@@ -739,6 +739,33 @@ jslet.data.FieldError = {
 		fldErrObj[valueIndex+""] = errMsgObj;
 	},
 	
+	putDetailError: function(record, fldName, errorCount) {
+		var recInfo = jslet.data.getRecInfo(record), 
+		errObj = recInfo.error;
+		if(!errObj) {
+			errObj = {};
+			recInfo.error = errObj;
+		}
+		var fldErrObj = errObj[fldName];
+		if(!fldErrObj) {
+			fldErrObj = {};
+			errObj[fldName] = fldErrObj;
+		}
+		if(!valueIndex) {
+			valueIndex = 0;
+		}
+		var errMsgObj = fldErrObj[valueIndex+""];
+		if(!errMsgObj) {
+			errMsgObj = {errorCount: 0};
+			fldErrObj[valueIndex+""] = errMsgObj;
+		}
+		errMsgObj.errorCount += errorCount;
+		if(errMsgObj.errorCount <= 0) {
+			jslet.data.FieldError.clear(record, fldName);
+		}
+		
+	},
+	
 	get: function(record, fldName, valueIndex) {
 		var recInfo = jslet.data.getRecInfo(record), 
 			errObj = recInfo.error;
@@ -796,8 +823,11 @@ jslet.data.FieldError = {
 	},
 	
 	existRecordError: function(record) {
-		var recInfo = jslet.data.getRecInfo(record), 
-		errObj = recInfo.error;
+		var recInfo = jslet.data.getRecInfo(record);
+		if(!recInfo) {
+			return false;
+		}
+		var errObj = recInfo.error;
 		if(errObj) {
 			for(var fldName in errObj) {
 				if(errObj[fldName]) {
@@ -826,7 +856,9 @@ jslet.data.FieldError = {
 	
 	clearRecordError: function(record) {
 		var recInfo = jslet.data.getRecInfo(record);
-		delete recInfo['error'];
+		if(recInfo) {
+			delete recInfo['error'];
+		}
 	},
 	
 	clearDatasetError: function(dataset) {
@@ -955,24 +987,28 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 		return;
 	}
 
-	var dateFlds = [], i,
+	var dateFlds = [], subFlds = [],
 		fields = Z.getNormalFields(),
-		cnt = fields.length, fldObj;
-	for (i = 0; i < cnt; i++) {
+		fldObj;
+	for (var i = 0, len = fields.length; i < len; i++) {
 		fldObj = fields[i];
 		if (fldObj.getType() == jslet.data.DataType.DATE) {
 			dateFlds.push(fldObj.name());
 		}
+		if (fldObj.getType() == jslet.data.DataType.DETAIL) {
+			subFlds.push(fldObj);
+		}
 	}
-	if (dateFlds.length === 0) {
+	if (dateFlds.length === 0 && subFlds.length === 0) {
 		return;
 	}
 
-	var rec, fname, value,
-		recCnt = records.length;
-	for (i = 0; i < recCnt; i++) {
+	var rec, fname, value
+		fcnt = dateFlds.length,
+		subCnt = subFlds.length;
+	for (var i = 0, recCnt = records.length; i < recCnt; i++) {
 		rec = records[i];
-		for (var j = 0, fcnt = dateFlds.length; j < fcnt; j++) {
+		for (var j = 0; j < fcnt; j++) {
 			fname = dateFlds[j];
 			value = rec[fname];
 			if (!jslet.isDate(value)) {
@@ -984,7 +1020,13 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 				}
 			} //end if
 		} //end for j
+		for(var j = 0; j < subCnt; j++) {
+			fldObj = subFlds[i];
+			fname = fldObj.name();
+			jslet.data.convertDateFieldValue(fldObj.subDataset(), rec[fname]);
+		}
 	} //end for i
+	
 }
 
 jslet.emptyPromise = {

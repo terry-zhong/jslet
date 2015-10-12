@@ -64,7 +64,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog';
+		Z.allProperties = 'dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog,hasFilterDialog';
 		
 		Z._fixedRows = 0;
 
@@ -122,6 +122,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._hasFindDialog = true;
 		
+		Z._hasFilterDialog = false;
 		//@private
 		Z._repairHeight = 0;
 		Z.contentHeight = 0;
@@ -581,6 +582,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	/**
+	 * Identify has filter dialog or not.
+	 * 
+	 * @param {Boolean or undefined} hasFilterDialog true(default) - show filter dialog when creating table, false - otherwise.
+	 * @return {Boolean or this}
+	 */
+	hasFilterDialog: function(hasFilterDialog) {
+		var Z = this;
+		if(hasFilterDialog === undefined) {
+			return Z._hasFilterDialog;
+		}
+		Z._hasFilterDialog = hasFilterDialog? true: false;
+	},
+
+	
+	/**
 	 * Table columns configurations, array of jslet.ui.TableColumn.
 	 * 
 	 * @param {jslet.ui.TableColumn[] or undefined} columns Table columns configurations.
@@ -700,6 +716,26 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         	}
         });
         
+        jqEl.on('click', 'button.jl-tbl-filter', function(event) {
+    		if (!Z._filterPanel) {
+    			Z._filterPanel = new jslet.ui.DBTableFilterPanel(Z);
+    		}
+    		var btnEle = event.currentTarget,
+    			jqFilterBtn = jQuery(btnEle);
+    		jslet.ui.PopupPanel.excludedElement = btnEle;
+    		var r = jqFilterBtn.offset(), h = jqFilterBtn.outerHeight(), x = r.left, y = r.top + h;
+    		if (jslet.locale.isRtl){
+    			x = x + jqFilterBtn.outerWidth();
+    		}
+    		Z._filterPanel.showPopup(x, y, 0, h);
+
+        	
+        	
+        	
+       		event.preventDefault();
+       		event.stopImmediatePropagation();
+        });
+        
         jqEl.on('click', 'td.jl-tbl-cell', function(event){
         	if(!Z.readOnly) {
         		return;
@@ -707,7 +743,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         	var otd = event.currentTarget;
         	var colCfg = otd.jsletColCfg;
         	if(colCfg) {
-        		if(colCfg.isSeq) { //If the cell is sequence cell, process row selection.
+        		if(colCfg.isSeqCol) { //If the cell is sequence cell, process row selection.
         			Z._processRowSelection(event.ctrlKey, event.shiftKey, event.altKey);
         		} else {
 	        		var colNum = colCfg.colNum;
@@ -891,6 +927,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._showCurrentRow();
 		Z._oldHeight = jQuery(Z.el).height();
 		Z._updateSortFlag(true);
+		if(!Z._readOnly) {
+			Z._dataset.batchEditMode(true);
+		}
 	}, // end renderAll
 
 	_doBeforeSelect: function(hasCtrlKey, hasShiftKey, hasAltKey) {
@@ -1027,12 +1066,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._sysColumns = [];
 		//prepare system columns
 		if (Z._hasSeqCol){
-			cobj = {label:'&nbsp;',width: Z.seqColWidth, disableHeadSort:true,isSeq:true, 
+			cobj = {label:'&nbsp;',width: Z.seqColWidth, disableHeadSort:true,isSeqCol:true, 
 					cellRender:jslet.ui.DBTable.sequenceCellRender, widthCssName: Z._widthStyleId + '-s0'};
 			Z._sysColumns.push(cobj);
 		}
 		if (Z._hasSelectCol){
-			cobj = {label:'<input type="checkbox" />', width: Z.selectColWidth, disableHeadSort:true,isSelect:true, 
+			cobj = {label:'<input type="checkbox" />', width: Z.selectColWidth, disableHeadSort:true,isSelectCol:true, 
 					cellRender:jslet.ui.DBTable.selectCellRender, widthCssName: Z._widthStyleId + '-s1'};
 			Z._sysColumns.push(cobj);
 		}
@@ -2005,7 +2044,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					sh = '<span class="jl-lbl-required">*</span>' + sh;
 				}
 			} 
-			ochild.innerHTML = ['<span id="',
+			ochild.innerHTML = [
+			    Z._hasFilterDialog ? '<button class="jl-tbl-filter"><i class="fa fa-filter"></i></button>': '',
+			    '<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',
 				((!Z._disableHeadSort && !cobj.disableHeadSort) ? '<span class="jl-focusable-item" draggable="true">' + sh +'</span>': sh),
@@ -2111,7 +2152,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	_doSplitHookUp: function (event) {
 		event = jQuery.event.fix( event || window.event );
 		var ohook = event.target.lastChild;
-		if (ohook.className != 'jl-tbl-splitter-hook') {
+		if (!ohook || ohook.className != 'jl-tbl-splitter-hook') {
 			return;
 		}
 		var tblContainer = jslet.ui.findFirstParent(ohook, function (el) {
@@ -2638,7 +2679,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	refreshCurrentRow: function () {
 		var Z = this,
-			hasLeft = Z._fixedCols > 0,
+			hasLeft = Z._fixedCols > 0 || Z._hasSeqCol || Z._hasSelectCol,
 			fixedBody = null, contentBody, idx,
 			recno = Z._dataset.recno();
 
@@ -2657,7 +2698,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			idx = Z.listvm.recnoToRowno(Z._dataset.recno()) - Z.listvm.getVisibleStartRow();
 		}
 
-		var otr, cells, otd, recNo;
+		var otr, cells, otd, recNo, colCfg;
 
 		if (hasLeft) {
 			otr = fixedBody.rows[idx];
@@ -2671,11 +2712,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			for (var j = 0, clen = cells.length; j < clen; j++) {
 				otd = cells[j];
-				if (otd.isSeqCol) {
+				colCfg = otd.jsletColCfg;
+				if (colCfg && colCfg.isSeqCol) {
 					otd.firstChild.innerHTML = recno + 1;
+					if(Z._dataset.existRecordError(recno)) {
+						jQuery(otd).addClass('has-error');
+					} else {
+						jQuery(otd).removeClass('has-error');
+					}
 					continue;
 				}
-				if (otd.isSelectCol) {
+				if (colCfg && colCfg.isSelectCol) {
 					ocheck = otd.firstChild;
 					ocheck.checked = Z._dataset.selected();
 					continue;
@@ -3090,9 +3137,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		Z.height = newHeight;
-		Z._calcAndSetContentHeight();
-		Z._renderBody(true);
-		Z._fillData();
+		Z.renderAll();
 	},
 	
 	/**
@@ -3248,11 +3293,11 @@ jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		} else {
 			text = recno + 1;
 		}
-//		if(this._dataset.existRecordError(recno)) {
-//			jqDiv.addClass('has-error');
-//		} else {
-//			jqDiv.removeClass('has-error');
-//		}
+		if(this._dataset.existRecordError(recno)) {
+			jqDiv.parent().addClass('has-error');
+		} else {
+			jqDiv.parent().removeClass('has-error');
+		}
 		cellPanel.title = text;
 		jqDiv.html(text);
 	}
@@ -3505,3 +3550,122 @@ jslet.ui.Splitter = function () {
 		this.isDragging = false;
 	};
 };
+
+jslet.ui.DBTableFilterPanel = function(jqFilterBtn, fldName) {
+	var Z = this;
+	Z.popupWidth = 200;
+	Z.popupHeight = 200;
+	Z.fieldName = fldName;
+	
+	Z.popup = new jslet.ui.PopupPanel();
+	Z.popup.onHidePopup = function() {
+		Z.jqFilterBtn.focus();
+	};
+	
+}
+
+jslet.ui.DBTableFilterPanel.prototype = {
+	
+	showPopup: function (left, top, ajustX, ajustY) {
+		var Z = this;
+		if (!Z.panel) {
+			Z.panel = Z._create();
+		}
+		Z.popup.setContent(Z.panel, '100%', '100%');
+		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
+		jQuery(Z.panel).find(".jl-combopnl-head input").focus();
+	},
+
+	closePopup: function () {
+		var Z = this;
+		Z.popup.hide();
+		var dispCtrl = Z.otree ? Z.otree : Z.otable;
+		if(dispCtrl) {
+			dispCtrl.dataset().removeLinkedControl(dispCtrl);
+		}
+	},
+	
+	_create: function () {
+		var Z = this;
+		if (!Z.panel) {
+			Z.panel = document.createElement('div');
+		}
+return Z.panel;
+		//process variable
+		var fldObj = Z.dataset.getField(Z.field),
+			lkfld = fldObj.lookup(),
+			pfld = lkfld.parentField(),
+			showType = Z.showStyle.toLowerCase(),
+			lkds = Z.lookupDs();
+
+		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
+		                '<input class="form-control" type="text" size="20"></input></div></div>',
+			'<div class="jl-combopnl-content',
+			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
+			'"></div>',
+			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default btn-sm" >',
+			jslet.locale.MessageBox.cancel,
+			'</button><button class="jl-combopnl-footer-ok btn btn-default btn-sm" >',
+			jslet.locale.MessageBox.ok,
+			'</button></div>'];
+
+		Z.panel.innerHTML = template.join('');
+		var jqPanel = jQuery(Z.panel),
+			jqPh = jqPanel.find('.jl-combopnl-head');
+		jqPanel.on('keydown', function(event){
+			if(event.keyCode === 27) {
+				Z.closePopup();
+			}
+		});
+		Z.searchBoxEle = jqPh.find('input')[0];
+		jQuery(Z.searchBoxEle).on('keydown', jQuery.proxy(Z._findData, Z));
+		
+		var jqContent = jqPanel.find('.jl-combopnl-content');
+		if (Z.isMultiple()) {
+			jqContent.addClass('jl-combopnl-content-nofooter').removeClass('jl-combopnl-content-nofooter');
+			var pnlFoot = jqPanel.find('.jl-combopnl-footer')[0];
+			pnlFoot.style.display = 'block';
+			var jqFoot = jQuery(pnlFoot);
+			jqFoot.find('.jl-combopnl-footer-cancel').click(jQuery.proxy(Z.closePopup, Z));
+			jqFoot.find('.jl-combopnl-footer-ok').click(jQuery.proxy(Z._confirmSelect, Z));
+		} else {
+			jqContent.addClass('jl-combopnl-content-nofooter');
+		}
+
+		var contentPanel = jqContent[0];
+
+		//create popup content
+		if (showType == 'tree') {
+			var treeparam = { 
+				type: 'DBTreeView', 
+				dataset: lkds, 
+				readOnly: false, 
+				displayFields: lkfld.displayFields(), 
+				hasCheckBox: Z.isMultiple()
+			};
+
+			if (!Z.isMultiple()) {
+				treeparam.onItemDblClick = jQuery.proxy(Z._confirmSelect, Z);
+			}
+			treeparam.correlateCheck = Z.comboSelectObj.correlateCheck();
+			window.setTimeout(function(){
+				Z.otree = jslet.ui.createControl(treeparam, contentPanel, '100%', '100%');
+			}, 1);
+		} else {
+			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, hasFindDialog: false };
+			if (!Z.isMultiple()) {
+				tableparam.onRowDblClick = jQuery.proxy(Z._confirmSelect, Z);
+			}
+			window.setTimeout(function(){
+				Z.otable = jslet.ui.createControl(tableparam, contentPanel, '100%', '100%');
+			}, 1);
+		}
+		return Z.panel;
+	},
+
+	destroy: function(){
+		Z.popup = null;
+		Z.panel = null;
+	}
+};
+

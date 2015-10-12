@@ -303,10 +303,24 @@
     width: 16px;
 }
 
-.jl-table .jl-tbl-sequence .has-error,
+.jl-table .jl-tbl-sequence.has-error,
 .jl-table .has-error .form-control {
 	background-color: #a94442!important;
 	color: white!important;
 }
 
-.jl-table .
+.jl-table .jl-tbl-filter {
+	border:0;
+	position:absolute;
+	left:0;
+	background-color:transparent;
+	color:#ddd	
+}
+
+.jl-table .jl-tbl-filter:hover {
+	color: #000;
+}
+
+.jl-table .jl-tbl-filter:focus{
+	color: green;
+}
