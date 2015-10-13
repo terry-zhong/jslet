@@ -1274,6 +1274,25 @@ jslet.data.GlobalDataHandler = function() {
 }
 
 jslet.data.GlobalDataHandler.prototype = {
+		
+	/**
+	 * Fired when dataset created.
+	 *  Pattern: 
+	 *	function(dataset}{}
+	 *  	//dataset:{jslet.data.Dataset} Dataset Object
+	 *  
+	 * @param {Function or undefined} datasetCreated dataset created event handler.
+	 * @return {this or Function}
+	 */
+	datasetCreated: function(datasetCreated) {
+		var Z = this;
+		if(datasetCreated === undefined) {
+			return Z._datasetCreated;
+		}
+		jslet.Checker.test('globalDataHandler.datasetCreated', datasetCreated).isFunction();
+		Z._datasetCreated = datasetCreated;
+	},
+	
 	/**
 	 * Fired when dataset meta is changed.
 	 *  Pattern: 

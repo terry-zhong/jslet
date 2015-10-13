@@ -4319,10 +4319,17 @@ jslet.data.Dataset.prototype = {
 	 */
 	hasChangedData: function() {
 		var Z = this;
-		if(!Z.confirm()) {
-			return true;
+		Z.confirm();
+		var dataList = Z.dataList(), record, recInfo;
+		if(!dataList) {
+			return false;
 		}
-		return Z._dataTransformer.hasChangedData();
+		for(var i = 0, len = dataList.length; i < len; i++) {
+			record = dataList[i];
+			recInfo = jslet.data.getRecInfo(record);
+			return recInfo && recInfo.status && recInfo.status !== jslet.data.DataSetStatus.BROWSE;
+		}
+		return false;
 	},
 	
 	/**
@@ -5176,7 +5183,10 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setPropValue('onFieldChange');
 		setPropValue('onCheckSelectable');
 		setPropValue('contextRules');
-		
+	}
+	var globalHandler = jslet.data.globalDataHandler.datasetCreated();
+	if(globalHandler) {
+		globalHandler(dsObj);
 	}
 	return dsObj;
 };

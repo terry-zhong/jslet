@@ -927,9 +927,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._showCurrentRow();
 		Z._oldHeight = jQuery(Z.el).height();
 		Z._updateSortFlag(true);
-		if(!Z._readOnly) {
-			Z._dataset.batchEditMode(true);
-		}
 	}, // end renderAll
 
 	_doBeforeSelect: function(hasCtrlKey, hasShiftKey, hasAltKey) {
