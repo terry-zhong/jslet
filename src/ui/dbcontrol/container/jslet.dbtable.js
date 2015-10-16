@@ -700,9 +700,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
             var originalEvent = event.originalEvent;
             var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
 			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
-				if(!Z._dataset.confirm()) {
-					return;
-				}
+				Z._dataset.confirm();
 			}
             Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
        		event.preventDefault();
@@ -1398,7 +1396,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		colObj.width += deltaW;
 		if(colObj.field) {
-			Z._dataset.getField(colObj.field).displayWidth(Math.round(colObj.width/Z.charWidth))
+			Z._dataset.designMode(true);
+			try {
+				Z._dataset.getField(colObj.field).displayWidth(Math.round(colObj.width/Z.charWidth));
+			} finally {
+				Z._dataset.designMode(false);
+			}
 		}
 		if(Z._changeColWidthCssRule(colObj.widthCssName, colObj.width)) {
 			Z._changeContentWidth(deltaW);
@@ -1733,9 +1736,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return;
 			}
 			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
-				if(!Z._dataset.confirm()) {
-					return;
-				}
+				Z._dataset.confirm();
 			}
 			var num = Math.round(this.scrollTop / Z._rowHeight);// + Z._fixedRows;
 			if (num != Z.listvm.getVisibleStartRow()) {
@@ -1882,7 +1883,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			srcFldName = srcColCfg.field,
 			destFldName = destColCfg.field;
 		if(srcFldName && destFldName) {
-			Z._dataset.moveField(srcFldName, destFldName);
+			Z._dataset.designMode(true);
+			try {
+				Z._dataset.moveField(srcFldName, destFldName);
+			} finally {
+				Z._dataset.designMode(false);
+			}
 		}
 		var headRows = Z.rightHeadTbl.createTHead().rows;
 		Z._changeColNum(headRows[headRows.length - 1], srcStart, srcEnd, destStart, destEnd);
@@ -2192,9 +2198,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_doSort: function (sortField, isMultiSort) {
 		var Z = this;
-		if(!Z._dataset.confirm()) {
-			return;
-		} 
+		Z._dataset.confirm();
 		Z._dataset.disableControls();
 		try {
 			if (!Z._onCustomSort) {
@@ -2327,8 +2331,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		var Z = otable.jslet;
 		var dataset = Z.dataset();
-		if(dataset.status() && (this.jsletrecno == dataset.recno() || !dataset.confirm())) {
-			return;
+		if(dataset.status() && (this.jsletrecno == dataset.recno())) {
+			dataset.confirm();
 		}
 
 		var rowno = Z.listvm.recnoToRowno(this.jsletrecno);
@@ -2964,12 +2968,18 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_doMetaChanged: function(metaName, fldName) {
 		var Z = this;
+		if(!fldName) {
+			Z.renderAll();
+			return;
+		}
 		if(metaName == 'label' && !Z._hideHead) {
 			Z._refreshHeadCell(fldName);
+			return;
 		}
 		
 		if(metaName == 'required' && !Z._readOnly && !Z._hideHead) {
 			Z._refreshHeadCell(fldName);
+			return;
 		}
 
 		if(metaName == 'visible') {
@@ -3354,7 +3364,7 @@ jslet.ui.BoolCellRender = jslet.Class.create(jslet.ui.DefaultCellRender, {
 		var Z = this,
 			fldName = colCfg.field, 
 			fldObj = Z._dataset.getField(fldName);
-		if (fldObj.trueValue() == Z._dataset.getFieldValueByRecno(recNo, fldName)) {
+		if (Z._dataset.getFieldValueByRecno(recNo, fldName)) {
 			jqDiv.addClass('jl-tbl-checked');
 			jqDiv.removeClass('jl-tbl-unchecked');
 		}

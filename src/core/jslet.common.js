@@ -1099,7 +1099,7 @@ jslet.showInfo = function (e, callBackFn, timeout) {
 jslet.Clipboard = function() {
 	var clipboard = document.getElementById('jsletClipboard');
 	if(!clipboard) {
-		jQuery('<textarea id="jsletClipboard" style="position:absolute;top:-1000px"></textarea>').appendTo(document.body);
+		jQuery('<textarea id="jsletClipboard" style="position:absolute;top:-1000px" tabindex="-1"></textarea>').appendTo(document.body);
 	
 	    window.addEventListener('copy', function (event) {
 	        var text = jQuery('#jsletClipboard').val();

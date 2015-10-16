@@ -376,31 +376,23 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 	
 	this.nextRow = function () {
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		this.setCurrentRowno(currentRowno + 1, false, true);
 	};
 	
 	this.priorRow = function (num) {
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		this.setCurrentRowno(currentRowno - 1, false, true);
 	};
 	
 	this.nextPage = function () {
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		this.setVisibleStartRow(visibleStartRow + visibleCount);
 		this.setCurrentRowno(visibleStartRow);
 	};
 	
 	this.priorPage = function () {
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		this.setVisibleStartRow(visibleStartRow - visibleCount);
 		this.setCurrentRowno(visibleStartRow);
 	};
@@ -430,9 +422,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		var oldRecno = dataset.recnoSilence();
 		try {
 			node.expanded = node.children ? true : false;
@@ -467,9 +457,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (node === null) {
 			return;
 		}
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		var oldRecno = dataset.recnoSilence();
 		try {
 			dataset.recnoSilence(node.recno);
@@ -517,9 +505,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			return;
 		}
 		
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		var Z = this;
 		Z._iterateNode(allRows, function (node) {
 			Z._callbackFn(node, true); 
@@ -534,9 +520,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (!isTree) {
 			return;
 		}
-		if(!dataset.confirm()) {
-			return;
-		}
+		dataset.confirm();
 		var Z = this;
 		Z._iterateNode(allRows, function (node) {
 			Z._callbackFn(node, false); 

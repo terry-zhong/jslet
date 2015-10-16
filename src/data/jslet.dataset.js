@@ -96,6 +96,8 @@ jslet.data.Dataset = function (name) {
 	
 	Z._datasetListener = null; //
 	
+	Z._designMode = false;
+	
 	Z._autoShowError = true;
 	Z._autoRefreshHostDataset = false;
 	Z._readOnly = false;
@@ -350,6 +352,21 @@ jslet.data.Dataset.prototype = {
 	 */
 	pageCount: function() {
 		return this._pageCount;
+	},
+	
+	/**
+	 * Identify whether dataset is in desin mode.
+	 * 
+	 * @param {boolean} designMode.
+	 * @return {boolean or this}
+	 */
+	designMode: function(designMode) {
+		if (designMode === undefined) {
+			return this._designMode;
+		}
+		
+		this._designMode = designMode ? true: false;
+		return this;
 	},
 	
 	/**
@@ -683,20 +700,32 @@ jslet.data.Dataset.prototype = {
 			fromOrder = fromFldObj.displayOrder(),
 			toOrder = toFldObj.displayOrder(),
 			fromIndex = fields.indexOf(fromFldObj),
-			toIndex = fields.indexOf(toFldObj);
-		fromFldObj.displayOrder(toFldObj.displayOrder());
-		if(fromIndex < toIndex) {
-			for(var i = fromIndex + 1; i <= toIndex; i++) {
-				fldObj = fields[i];
-				fldObj.diplayOrder(fldObj.displayOrder() - 1);
+			toIndex = fields.indexOf(toFldObj),
+			oldDesignMode = Z.designMode();
+		Z.designMode(false);
+		try {
+			fromFldObj.displayOrder(toFldObj.displayOrder());
+			if(fromIndex < toIndex) {
+				for(var i = fromIndex + 1; i <= toIndex; i++) {
+					fldObj = fields[i];
+					fldObj.displayOrder(fldObj.displayOrder() - 1);
+				}
+			} else {
+				for(var i = toIndex; i < fromIndex; i++) {
+					fldObj = fields[i];
+					fldObj.displayOrder(fldObj.displayOrder() + 1);
+				}
 			}
-		} else {
-			for(var i = toIndex; i < fromIndex; i++) {
-				fldObj = fields[i];
-				fldObj.diplayOrder(fldObj.displayOrder() + 1);
+		} finally {
+			Z.designMode(oldDesignMode);
+		}
+		Z.refreshDisplayOrder();
+		if(Z.designMode()) {
+			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
+			if(handler) {
+				handler.call(this, Z, null, 'displayOrder');
 			}
 		}
-		Z._fields.sort(jslet.data.displayOrderComparator);
 	},
 	
 	/**
@@ -806,42 +835,6 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		return null;
-	},
-	
-	moveField: function(srcFieldName, destFieldName) {
-		var Z = this,
-			srcFldObj = Z.getField(srcFieldName),
-			destFldObj = Z.getField(destFieldName),
-			srcDispOrder = srcFldObj.displayOrder(),
-			destDispOrder = destFldObj.displayOrder(),
-			fields,
-			srcPFldObj = srcFldObj.parent(),
-			destPFldObj = destFldObj.parent();
-		
-		if(srcPFldObj != destPFldObj) {
-			return;
-		}
-		if(srcPFldObj) {
-			fields = srcPFldObj.children();
-		} else {
-			fields = Z._fields;
-		}
-		var start, end, fldObj, step;
-		if(srcDispOrder > destDispOrder) {
-			start = destDispOrder; 
-			end = srcDispOrder;
-			step = 1;
-		} else {
-			start = srcDispOrder + 1; 
-			end = destDispOrder + 1;
-			step = -1;
-		}
-		srcFldObj.displayOrder(destFldObj.displayOrder());
-		for(i = start; i < end; i++) {
-			fldObj = fields[i];
-			fldObj.displayOrder(fldObj.displayOrder() + step);
-		}
-		fields.sort(jslet.data.displayOrderComparator);
 	},
 	
 	/**
@@ -1381,11 +1374,7 @@ jslet.data.Dataset.prototype = {
 		if (recno == Z._recno) {
 			return true;
 		}
-		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			if(!Z.confirm()) {
-				return false;
-			}
-		}
+		Z.confirm();
 		Z._gotoRecno(recno);
 		Z._bof = Z._eof = false;
 		return true;
@@ -1494,12 +1483,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	_moveCursor: function (recno) {
 		var Z = this;
-		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			if(!Z.confirm()) {
-				return;
-			}
-		}
-
+		Z.confirm();
 		Z._gotoRecno(recno);
 	},
 
@@ -1511,11 +1495,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	moveToRecord: function (recordObj) {
 		var Z = this;
-		if (Z._status != jslet.data.DataSetStatus.BROWSE) {
-			if(!Z.confirm()) {
-				return;
-			}
-		}
+		Z.confirm();
 		if (!Z.hasRecord() || !recordObj) {
 			return false;
 		}
@@ -1645,17 +1625,6 @@ jslet.data.Dataset.prototype = {
 
 	/**
 	 * @private
-	 * Check dataset status and confirm dataset 
-	 */
-	_checkStatusAndConfirm: function () {
-		if (this._status != jslet.data.DataSetStatus.BROWSE) {
-			return this.confirm();
-		}
-		return true;
-	},
-
-	/**
-	 * @private
 	 * Check dataset status and cancel dataset 
 	 */
 	checkStatusByCancel: function () {
@@ -1767,9 +1736,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	insertRecord: function () {
 		var Z = this;
-		if(!Z._checkStatusAndConfirm()) {
-			return;
-		}
+		Z.confirm();
 
 		Z.innerInsert();
 	},
@@ -1779,9 +1746,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	appendRecord: function () {
 		var Z = this;
-		if(!Z._checkStatusAndConfirm()) {
-			return;
-		}
+		Z.confirm();
 
 		Z._silence++;
 		try {
@@ -1858,9 +1823,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	innerInsert: function (beforeInsertFn) {
 		var Z = this;
-		if(!Z._checkStatusAndConfirm()) {
-			return;
-		}
+		Z.confirm();
 
 		Z.selection.removeAll();
 		var mfld = Z._datasetField, mds = null;
@@ -1983,9 +1946,7 @@ jslet.data.Dataset.prototype = {
 	batchAppendRecords: function(records, replaceExists) {
 		jslet.Checker.test('dataset.records', records).required().isArray();
 		var Z = this;
-		if(!Z._checkStatusAndConfirm()) {
-			return;
-		}
+		Z.confirm();
 		
 		Z.selection.removeAll();
 		Z.disableControls();
@@ -2590,6 +2551,19 @@ jslet.data.Dataset.prototype = {
 		return jslet.data.FieldError.existRecordError(this.getRecord(recno));
 	},
 	
+	checkAndShowError: function() {
+		var Z = this;
+		if(Z.existDatasetError()) {
+			if (Z._autoShowError) {
+				jslet.showError(jslet.locale.Dataset.cannotConfirm, null, 2000);
+			} else {
+				console.warn(jslet.locale.Dataset.cannotConfirm);
+			}
+			return true;
+		}
+		return false;
+	},
+	
 	existDatasetError: function() {
 		var Z = this, isError = false,
 			dataList = Z.dataList();
@@ -2650,7 +2624,7 @@ jslet.data.Dataset.prototype = {
 			masterDs.refreshControl(evt);
 		}
 
-		return true;
+		return !hasError;
 	},
 
 	/*
@@ -2903,7 +2877,7 @@ jslet.data.Dataset.prototype = {
 			subfldName, fldValue = null,
 			fldObj = Z.getField(fldName),
 			value, lkds;
-		if (k > 0) {
+		if (k > 0) { //field chain
 			subfldName = fldName.substr(0, k);
 			fldObj = Z.getField(subfldName);
 			var lkf = fldObj.lookup(),
@@ -2929,7 +2903,7 @@ jslet.data.Dataset.prototype = {
 				fldValue = subDs.getFieldValue(fldName.substr(k + 1));
 			}
 			
-		} else {
+		} else { //single field
 			if (!fldObj) {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
@@ -2949,6 +2923,9 @@ jslet.data.Dataset.prototype = {
 		}
 
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
+				return fldValue === fldObj.trueValue();
+			}
 			return fldValue;
 		}
 		return jslet.getArrayValue(fldValue, valueIndex);
@@ -2994,8 +2971,16 @@ jslet.data.Dataset.prototype = {
 			if(value && fldObj.getType() === jslet.data.DataType.NUMBER && !jslet.isArray(value)) {
 				value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
 			}
-			
-			currRec[fldName] = value;
+			var realValue = value;
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
+				if(value) {
+					realValue = fldObj.trueValue();
+				} else {
+					realValue = fldObj.falseValue();
+				}
+			}
+
+			currRec[fldName] = realValue;
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
 				return this;
 			}
@@ -3414,9 +3399,10 @@ jslet.data.Dataset.prototype = {
 	 */
 	find: function (condition, fromCurrentPosition) {
 		var Z = this;
-		if (Z.recordCount() === 0 || !Z.confirm()) {
+		if (Z.recordCount() === 0) {
 			return false;
 		}
+		Z.confirm();
 		if (condition === null) {
 			Z._findCondition = null;
 			Z._innerFindCondition = null;
@@ -3470,9 +3456,7 @@ jslet.data.Dataset.prototype = {
 		if(!fldObj) {
 			throw new Error('Field name: ' + fldName + ' NOT Found!');
 		}
-		if(!Z.confirm()) {
-			return false;
-		}
+		Z.confirm();
 		
 		function matchValue(matchType, value, findingValue) {
 			if(!matchType) {
@@ -3789,7 +3773,7 @@ jslet.data.Dataset.prototype = {
 			return this._contextRules;
 		}
 		if(jslet.isString(rules)) {
-			rules = jslet.JSON.parse(rules);
+			rules = rules? jslet.JSON.parse(rules): null;
 		}
 		jslet.Checker.test('Dataset.contextRules', rules).isArray();
 		if(!rules || rules.length === 0) {
@@ -4131,9 +4115,17 @@ jslet.data.Dataset.prototype = {
 	 * var criteria = {name:'Bob', age:25};
 	 * dsEmployee.query(condition);
 	 * </code></pre>
-	 * @param {Object} condition Condition should be a JSON object.
+	 * @param {Plan Object or jslet.data.Dataset} criteria Condition should be a JSON object or criteria dataset.
 	 */
 	query: function (criteria) {
+		if(criteria && criteria instanceof jslet.data.Dataset) {
+			var criteriaDataset = criteria;
+			criteriaDataset.confirm();
+			if(criteriaDataset.checkAndShowError()) {
+				return jslet.emptyPromise;
+			}
+			criteria = criteriaDataset.getRecord();
+		}
 		this._queryCriteria = criteria;
 		return this.requery();
 	},
@@ -4358,12 +4350,7 @@ jslet.data.Dataset.prototype = {
 	submit: function(extraInfo, excludeFields) {
 		var Z = this;
 		Z.confirm();
-		if(Z.existDatasetError()) {
-			if (Z._autoShowError) {
-				jslet.showError(jslet.locale.Dataset.cannotConfirm, null, 2000);
-			} else {
-				console.warn(jslet.locale.Dataset.cannotConfirm);
-			}
+		if(Z.checkAndShowError()) {
 			return jslet.emptyPromise;
 		}
 		Z._checkDataProvider();
@@ -4453,7 +4440,8 @@ jslet.data.Dataset.prototype = {
 	 */
 	submitSelected: function (url, deleteOnSuccess, extraInfo, excludeFields) {
 		var Z = this;
-		if(!Z.confirm()) {
+		Z.confirm();
+		if(Z.checkAndShowError()) {
 			return jslet.emptyPromise;
 		}
 		Z._checkDataProvider();
@@ -4641,9 +4629,12 @@ jslet.data.Dataset.prototype = {
 	 * @return {String} Csv Text. 
 	 */
 	exportCsv: function(exportOption) {
-		if(!this.confirm()) {
-			return null;
+		var Z = this;
+		Z.confirm();
+		if(Z.existDatasetError()) {
+			console.warn(jslet.locale.Dataset.cannotConfirm);
 		}
+
 		var exportHeader = true,
 			exportDisplayValue = true,
 			onlySelected = false,
@@ -4669,7 +4660,7 @@ jslet.data.Dataset.prototype = {
 				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
 			}
 		}
-		var Z= this, fldSeperator = ',', surround='"';
+		var fldSeperator = ',', surround='"';
 		var context = Z.startSilenceMove();
 		try{
 			Z.first();
@@ -4757,9 +4748,6 @@ jslet.data.Dataset.prototype = {
 	 * @param {String[]} onlyFields - specified the field name to export.
 	 */
 	exportCsvFile: function(fileName, includeFieldLabel, dispValue, onlySelected, onlyFields) {
-		if(!this.confirm()) {
-			return null;
-		}
 		jslet.Checker.test('Dataset.exportCsvFile#fileName', fileName).required().isString();
     	var str = this.exportCsv(includeFieldLabel, dispValue, onlySelected, onlyFields);
         var a = document.createElement('a');
@@ -4775,12 +4763,10 @@ jslet.data.Dataset.prototype = {
 	* 
 	*/ 
 	filteredDataList: function() { 
-		if(!this.confirm()) {
-			return null;
-		}
 		var Z= this, 
 			result = [], 
 			oldRecno = Z.recnoSilence(); 
+		Z.confirm();
 		try { 
 			for(var i = 0, len = Z.recordCount(); i < len; i++) {
 				Z.recnoSilence(i); 
@@ -4889,9 +4875,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	textList: function() {
 		var Z = this;
-		if(!Z.confirm()) {
-			return null;
-		}
+		Z.confirm();
 		
 		var	oldRecno = Z.recno(), 
 			result = [],
@@ -5132,21 +5116,30 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	}
 	
 	function setPropValue(propName) {
-		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		var propValue = dsCfg[propName];
+		if(propValue === undefined) {
+			propValue = dsCfg[propName.toLowerCase()];
+		}
 		if (propValue !== undefined) {
 			dsObj[propName](propValue);
 		}
 	}
 	
 	function setIntPropValue(propName) {
-		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		var propValue = dsCfg[propName];
+		if(propValue === undefined) {
+			propValue = dsCfg[propName.toLowerCase()];
+		}
 		if (propValue !== undefined) {
 			dsObj[propName](parseInt(propValue));
 		}
 	}
 	
 	function setBooleanPropValue(propName) {
-		var propValue = dsCfg[propName] || dsCfg[propName.toLowerCase()];
+		var propValue = dsCfg[propName];
+		if(propValue === undefined) {
+			propValue = dsCfg[propName.toLowerCase()];
+		}
 		if (propValue !== undefined) {
 			if(jslet.isString(propValue)) {
 				if(propValue) {
@@ -5156,7 +5149,6 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 			dsObj[propName](propValue? true: false);
 		}
 	}
-	
 	
 	if(dsCfg) {
 		setPropValue('keyField');

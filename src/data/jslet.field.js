@@ -216,9 +216,6 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.displayOrder', displayOrder).isNumber();
 		Z._displayOrder = parseInt(displayOrder);
-		if(Z._dataset) {
-			Z._dataset.refreshDisplayOrder();
-		}
 		Z._fireGlobalMetaChangedEvent('displayOrder');
 		return this;
 	},
@@ -691,7 +688,7 @@ jslet.data.Field.prototype = {
 	
 	_fireGlobalMetaChangedEvent: function(metaName) {
 		var ds = this.dataset();
-		if (ds) {
+		if (ds && ds.designMode()) {
 			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
 			if(handler) {
 				handler.call(this, ds, this._fieldName, metaName)
