@@ -52,7 +52,9 @@
 			betwwenInvalid: '最小值不得大于最大值',
 			value: '值',
 			nullText: '(空)',
-			noDataSubmit: '无数据可提交!'
+			noDataSubmit: '无数据可提交!',
+			trueText: '是',
+			falseText: ''
 	};
 
 	locale.DBControl = {

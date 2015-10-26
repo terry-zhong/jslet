@@ -24,6 +24,7 @@ jslet.ui.TableColumn = function () {
 	Z.colNum = null;  //Integer, column number
 	Z.label = null;   //String, column header label
 	Z.title = null;   //String, column header title
+	Z.displayOrder = null; //Integer, display order
 	Z.width = null;   //Integer, column display width
 	Z.colSpan = null; //Integer, column span
 	Z.disableHeadSort = false; //Boolean, true - user sort this column by click column header
@@ -613,6 +614,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.Checker.test('DBTable.Column.field', colObj.field).isString();
 			jslet.Checker.test('DBTable.Column.label', colObj.label).isString();
 			jslet.Checker.test('DBTable.Column.colNum', colObj.colNum).isGTEZero();
+			jslet.Checker.test('DBTable.Column.displayOrder', colObj.displayOrder).isNumber();
 			jslet.Checker.test('DBTable.Column.width', colObj.width).isGTZero();
 			jslet.Checker.test('DBTable.Column.colSpan', colObj.colSpan).isGTZero();
 			colObj.disableHeadSort = colObj.disableHeadSort ? true: false;
@@ -1078,16 +1080,22 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		//prepare data columns
 		var tmpColumns = [];
-		if (!Z._onlySpecifiedCol) {
-			if (Z._columns){
-				for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
-					cobj = Z._columns[i];
-					if (!cobj.field){
-						tmpColumns.push(cobj);
-						cobj.disableHeadSort = true;
+		if (Z._columns) {
+			for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
+				cobj = Z._columns[i];
+				if (!cobj.field){
+					cobj.disableHeadSort = true;
+				} else {
+					var fldObj = Z._dataset.getField(cobj.field);
+					if(!fldObj) {
+						throw new Error('Not found Field: ' + cobj.field);
 					}
+					cobj.displayOrder = fldObj.displayOrder();
 				}
+				tmpColumns.push(cobj);
 			}
+		}
+		if (!Z._onlySpecifiedCol) {
 			
 			function getColumnObj(fldName) {
 				if (Z._columns){
@@ -1110,6 +1118,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					if(!cobj) {
 						cobj = new jslet.ui.TableColumn();
 						cobj.field = fldObj.name();
+						cobj.displayOrder = fldObj.displayOrder();
 					}
 					tmpColumns.push(cobj);
 				} // end if visible
@@ -1140,20 +1149,20 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						if (isUnique){
 							cobj = new jslet.ui.TableColumn();
 							cobj.field = fldName;
+							cobj.displayOrder = fldObj.displayOrder();
 							tmpColumns.push(cobj);
 						}
 					}
 				} //end for i
 			} //end if Z.columns
-		} else{
-			for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
-				cobj = Z._columns[i];
-				if (!cobj.field){
-					cobj.disableHeadSort = true;
-				}
-				tmpColumns.push(cobj);
-			}
 		}
+		
+		tmpColumns.sort(function(cobj1, cobj2) {
+			var ord1 = cobj1.displayOrder || 0;
+			var ord2 = cobj2.displayOrder || 0;
+			return ord1 === ord2? 0: (ord1 < ord2? -1: 1);
+		});
+		
 		Z.innerHeads = [];
 		Z.innerColumns = [];
 		var ohead, fldName, label, context = {lastColNum: 0, depth: 0};
@@ -1210,7 +1219,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var ohead, childCnt = 0;
 		for(var i = 0, len = heads.length; i < len; i++ ){
 			ohead = heads[i];
-			ohead.rowSpan = Z.maxHeadRows - level;
+			ohead.rowSpan = Z.maxHeadRows - ohead.level;
 			if (ohead.subHeads){
 				ohead.colSpan = Z._calcHeadSpan(ohead.subHeads);
 				childCnt += ohead.colSpan;
@@ -1227,8 +1236,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!fldObj.visible()) {
 			return false;
 		}
+		var level = 0;
 		if (!parentHeadObj){
-			level = 0;
 			heads = Z.innerHeads;
 		} else {
 			level = parentHeadObj.level + 1;
@@ -2331,7 +2340,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		var Z = otable.jslet;
 		var dataset = Z.dataset();
-		if(dataset.status() && (this.jsletrecno == dataset.recno())) {
+		if(dataset.status() && (this.jsletrecno !== dataset.recno())) {
 			dataset.confirm();
 		}
 

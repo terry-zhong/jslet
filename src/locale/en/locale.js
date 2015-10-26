@@ -52,7 +52,9 @@
 		betwwenInvalid: 'Min value should not be great than max value',
 		value: 'Value',
 		nullText: '(Empty)',
-		noDataSubmit: 'No data to submit!'
+		noDataSubmit: 'No data to submit!',
+		trueText: 'Yes',
+		falseText: ''		
 	};
 	
 	locale.DBControl = {

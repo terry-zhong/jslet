@@ -500,7 +500,7 @@ jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConve
 	},
 	
 	valueToText: function(fldObj, value, isEditing) {
-		return value ? 'true': 'false';
+		return value ? fldObj.trueText(): fldObj.falseText();
 	}
 });
 

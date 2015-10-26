@@ -67,6 +67,8 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._children = null; //child field object
 	Z._trueValue = true;
 	Z._falseValue = false;
+	Z._trueText = null;
+	Z._falseText = null;
 	Z._mergeSame = false;
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
@@ -1194,7 +1196,6 @@ jslet.data.Field.prototype = {
 		if (value === undefined) {
 			return Z._trueValue;
 		}
-		jslet.Checker.test('Field.trueValue', value).required();
 		Z._trueValue = value;
 		return this;		
 	},
@@ -1208,6 +1209,30 @@ jslet.data.Field.prototype = {
 			return Z._falseValue;
 		}
 		Z._falseValue = value;
+		return this;		
+	},
+	
+	/**
+	 * Use for Boolean field, display text for 'true'
+	 */
+	trueText: function(trueText) {
+		var Z = this;
+		if (trueText === undefined) {
+			return Z._trueText || jslet.locale.Dataset.trueText;
+		}
+		Z._trueText = trueText;
+		return this;		
+	},
+	
+	/**
+	 * Use for Boolean field, display text for 'false'
+	 */
+	falseText: function(falseText) {
+		var Z = this;
+		if (falseText === undefined) {
+			return Z._falseText || jslet.locale.Dataset.falseText;
+		}
+		Z._falseText = falseText;
 		return this;		
 	},
 	
@@ -1407,7 +1432,12 @@ jslet.data.Field.prototype = {
 		result.valueFollow(Z._valueFollow);
 		result.aggraded(Z._aggraded);
 		result.aggradedBy(Z._aggradedBy);
-		
+
+		result.trueValue(Z._trueValue);
+		result.falseValue(Z._falseValue);
+		result.trueText(Z._trueText);
+		result.falseText(Z._falseText);
+
 		return result;
 	},
 	
@@ -1530,6 +1560,11 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('antiXss');
 	setPropValue('validChars');
 	
+	setPropValue('trueValue');
+	setPropValue('falseValue');
+	setPropValue('trueText');
+	setPropValue('falseText');
+
 	var regularExpr = cfg.regularExpr;
 	var regularMessage = cfg.regularMessage;
 	if(regularExpr) {
