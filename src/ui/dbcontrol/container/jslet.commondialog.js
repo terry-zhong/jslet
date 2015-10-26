@@ -8,16 +8,16 @@
 /**
  * Find dialog for DBTable and DBTreeView control
  */
-jslet.ui.FindDialog = function (dataset, container) {
+jslet.ui.FindDialog = function (dbContainer) {
 	var _dialog;
-	var _dataset = dataset;
+	var _dataset = dbContainer.dataset();
+	var _containerEl = dbContainer.el;
 	var _currfield = null;
-	var _container = container;
 	var _findingField = null;
 	
 	function initialize() {
 		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, stopEventBubbling: true, height: 58, width: 320 };
-		_dialog = jslet.ui.createControl(opt);
+		_dialog = jslet.ui.createControl(opt, _containerEl);
 		_dialog.onClosed(function(){
 			return 'hidden';
 		});
@@ -63,12 +63,10 @@ jslet.ui.FindDialog = function (dataset, container) {
 		}
 	}
 	
-	this.show = function(findingField) {
-		if(_container) {
-			var pos = jQuery(_container).offset();
-		}
-		_dialog.show(pos.left, pos.top);
-		this.findingField(findingField);
+	this.show = function(left, top) {
+		left = left || 0;
+		top = top || 0;
+		_dialog.show(left, top);
 	};
 	
 	this.hide = function() {
