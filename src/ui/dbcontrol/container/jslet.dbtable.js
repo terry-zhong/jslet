@@ -577,9 +577,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return Z._hasFindDialog;
 		}
 		Z._hasFindDialog = hasFindDialog? true: false;
-		if(Z._hasFindDialog && !Z._findDialog) {
-			Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
-		}
 	},
 
 	/**
@@ -682,9 +679,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.ui.textMeasurer.setElement();
 		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
-		if(Z._hasFindDialog) {
-			Z._findDialog = new jslet.ui.FindDialog(Z._dataset, Z.el);
-		}
 		Z._initializeVm();
 		if(Z.el.tabIndex) {
 			Z._editorTabIndex = Z.el.tabIndex + 1;
@@ -770,13 +764,16 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				if(!Z._hasFindDialog) {
 					return;
 				}
+				if(!Z._findDialog) {
+					Z._findDialog = new jslet.ui.FindDialog(Z);
+				}
 				if(!Z._findDialog.findingField()) {
 					var colCfg = Z.innerColumns[Z._currColNum];
 					if(colCfg.field) {
 						Z._findDialog.findingField(colCfg.field);
 					}
 				}
-				Z._findDialog.show();
+				Z._findDialog.show(0, Z.headSectionHt);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
