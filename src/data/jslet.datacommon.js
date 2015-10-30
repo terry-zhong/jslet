@@ -995,7 +995,7 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 		if (fldObj.getType() == jslet.data.DataType.DATE) {
 			dateFlds.push(fldObj.name());
 		}
-		if (fldObj.getType() == jslet.data.DataType.DETAIL) {
+		if (fldObj.getType() == jslet.data.DataType.DATASET) {
 			subFlds.push(fldObj);
 		}
 	}
@@ -1003,7 +1003,7 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 		return;
 	}
 
-	var rec, fname, value
+	var rec, fname, value,
 		fcnt = dateFlds.length,
 		subCnt = subFlds.length;
 	for (var i = 0, recCnt = records.length; i < recCnt; i++) {
@@ -1021,7 +1021,7 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 			} //end if
 		} //end for j
 		for(var j = 0; j < subCnt; j++) {
-			fldObj = subFlds[i];
+			fldObj = subFlds[j];
 			fname = fldObj.name();
 			jslet.data.convertDateFieldValue(fldObj.subDataset(), rec[fname]);
 		}

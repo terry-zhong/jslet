@@ -1101,7 +1101,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				if (Z._columns){
 					for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
 						cobj = Z._columns[i];
-						if (!cobj.field && cobj.field == fldName){
+						if (cobj.field && cobj.field == fldName){
 							return cobj;
 						}
 					}
@@ -1119,8 +1119,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						cobj = new jslet.ui.TableColumn();
 						cobj.field = fldObj.name();
 						cobj.displayOrder = fldObj.displayOrder();
+						tmpColumns.push(cobj);
 					}
-					tmpColumns.push(cobj);
 				} // end if visible
 			} // end for
 			if (Z._columns){

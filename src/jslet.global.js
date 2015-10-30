@@ -37,10 +37,27 @@ jslet.global = {
 /**
  * Global server error handler
  * 
- * @errCode {String} error code
- * @errMsg {String} error message
+ * @param {String} errCode, error code
+ * @param {String} errMsg,  error message
+ * 
  * @return {Boolean} Identify if handler catch this error, if catched, the rest handler will not process it.
  */
 jslet.global.serverErrorHandler = function(errCode, errMsg) {
 	return false;
 }
+
+/**
+ * Global event handler for jQuery.ajax, you can set settings here.
+ * 
+ * @param {Plan Object} settings jQuery.ajax settings.
+ * 
+ * @return {Plan Object} jQuery.ajax settings, @see http://api.jquery.com/jQuery.ajax/.
+ * 			Attension: 
+ * 			the following attributes can not be set: type, contentType, mimeType, dataType, data, context.
+ */
+jslet.global.beforeSubmit = function(settings) {
+	
+	return settings;
+}
+
+

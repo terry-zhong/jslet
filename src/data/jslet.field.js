@@ -1482,7 +1482,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 		dtype = jslet.data.DataType.STRING;
 	}
 
-	var fldObj = new jslet.data.Field(cfg.name, dtype);
+	var fldObj = new jslet.data.Field(cfg.shortName || cfg.name, dtype);
 
 	if(fieldConfig.dsName) {
 		fldObj._dsName = fieldConfig.dsName;

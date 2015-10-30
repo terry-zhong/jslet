@@ -4218,7 +4218,8 @@ jslet.data.Dataset.prototype = {
 				reqData.csrfToken = Z.csrfToken;
 			}
 			var reqData = jslet.data.record2Json(reqData);
-			return Z._dataProvider.sendRequest(Z, Z._queryUrl, reqData)
+			var url = Z._queryUrl;
+			return Z._dataProvider.sendRequest(Z, url, reqData)
 			.done(Z._doQuerySuccess)
 			.fail(Z._doApplyError)
 			.always(function(){Z._querying = false})
@@ -4376,7 +4377,8 @@ jslet.data.Dataset.prototype = {
 				reqData.csrfToken = Z.csrfToken;
 			}
 			reqData = jslet.data.record2Json(reqData, excludeFields);
-			return Z._dataProvider.sendRequest(Z, Z._submitUrl, reqData)
+			var url = Z._submitUrl;
+			return Z._dataProvider.sendRequest(Z, url, reqData)
 			.done(Z._doSaveSuccess)
 			.fail(Z._doApplyError)
 			.always(function(){

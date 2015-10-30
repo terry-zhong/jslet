@@ -29,20 +29,24 @@ jslet.data.DataProvider = function() {
 	 * @param reqData String the request data which need to send to server.
 	 */
 	this.sendRequest = function(dataset, url, reqData) {
-		var headers = {};
-		if(dataset.csrfToken) {
-			headers.csrfToken = dataset.csrfToken;
+		var settings;
+		if(jslet.global.beforeSubmit) {
+			settings = jslet.global.beforeSubmit({url: url});
 		}
-		var settings = {
-			async : true, 
-			type: 'POST', 
-			contentType: 'application/json', 
-			mimeType: 'application/json',
-			dataType: 'json',
-			headers: headers,
-			data : reqData,
-			context: dataset
-		};
+		if(!settings) {
+			settings = {}
+		}
+		settings.type = 'POST';
+		settings.contentType = 'application/json';
+		settings.mimeType = 'application/json';
+		settings.dataType = 'json';
+		settings.data = reqData;
+		settings.context = dataset;
+		if(dataset.csrfToken) {
+			var headers = settings.headers || {};
+			headers.csrfToken = dataset.csrfToken;
+			settings.headers = headers;
+		}
 		
 		var defer = jQuery.Deferred();
 		jQuery.ajax(url, settings)
