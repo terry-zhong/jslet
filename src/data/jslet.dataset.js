@@ -1899,24 +1899,22 @@ jslet.data.Dataset.prototype = {
 	 */
 	insertDataset: function (srcDataset) {
 		var Z = this;
-		Z.filtered(false);
-		var k, records = Z.dataList();
-		if (this.recordCount() > 0) {
-			k = records.indexOf(this.getRecord()) + 1;
-		} else {
-			k = records.length;
-		}
-
-		var context = srcDataset.startSilenceMove(true), rec;
+		var oldFiltered = Z.filtered();
+		var thisContext = Z.startSilenceMove(true);
+		var srcContext = srcDataset.startSilenceMove(true), rec;
 		try {
+			Z.filtered(false);
 			srcDataset.first();
 			while (!srcDataset.isEof()) {
-				rec = srcDataset.getRecord();
-				records.splice(k++, 0, rec);
+				Z.insertRecord();
+				Z.cloneRecord(srcDataset.getRecord(), Z.getRecord());
+				Z.confirm();
 				srcDataset.next();
 			}
 		} finally {
-			srcDataset.endSilenceMove(context);
+			srcDataset.endSilenceMove(srcContext);
+			Z.filtered(oldFiltered);
+			Z.endSilenceMove(thisContext);
 		}
 	},
 
@@ -4908,7 +4906,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	exportSnapshot: function() {
 		var Z = this,
-			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), dataList: Z.dataList()};
+			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), dataList: Z.dataList(), changedRecords: Z._changeLog._changedRecords};
 		var indexFields = Z.indexFields();
 		if(indexFields) {
 			mainDs.indexFields = indexFields;
@@ -4966,6 +4964,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error('Snapshot does not match the current dataset name!');
 		}
 		Z._dataList = master.dataList;
+		Z._changeLog._changedRecords = master.changedRecords;
 		if(master.indexFields !== undefined) {
 			Z.indexFields(master.indexFields);
 		}
