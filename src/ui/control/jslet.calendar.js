@@ -120,7 +120,7 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-calendar')) {
-			jqEl.addClass('jl-calendar jl-border-box jl-round4');
+			jqEl.addClass('jl-calendar panel panel-default');
 		}
 		var template = ['<div class="jl-cal-header">',
 			'<a class="jl-cal-btn jl-cal-yprev" title="', jslet.locale.Calendar.yearPrev,

@@ -7,7 +7,7 @@
 
 /*--------DBTable ClassName------------ */
 .jl-table {
-    border: 1px solid #a4bed4;
+    border: 1px solid rgb(180, 192, 200);
     outline: none;
 	overflow: hidden;
 	height: 200px;
@@ -56,7 +56,7 @@
 .jl-scrollbar-col {
 	width: 17px;
 	border: 0;
-	border-left: 1px solid #a4bed4;	
+	border-left: 1px solid rgb(180, 192, 200);	
 }
 
 .jl-tbl-noborder .jl-scrollbar-col {
@@ -101,8 +101,8 @@
 }
 
 .jl-tbl-data td, .jl-tbl-data th {
-    border-right: 1px solid #a4bed4;
-    border-bottom: 1px solid #a4bed4;
+    border-right: 1px solid rgb(180, 192, 200);
+    border-bottom: 1px solid rgb(180, 192, 200);
     vertical-align: middle;
 }
 
@@ -126,7 +126,7 @@
 
 .jl-tbl-border-bottom {
 	border: 0;
-    border-bottom: 1px solid #a4bed4;
+    border-bottom: 1px solid rgb(180, 192, 200);
 }
 
 .jl-tbl-col-over {
@@ -140,7 +140,7 @@
 
 .jl-tbl-border-top {
 	border: 0;
-	border-top: 1px solid #a4bed4;
+	border-top: 1px solid rgb(180, 192, 200);
 }
 
 .jl-table .jl-tbl-select-check {
@@ -151,12 +151,8 @@
 .jl-tbl-header-cell, .jl-scrollbar-width, .jl-tbl-vscroll-head {
     background-color: #F1F5FB;
 	box-shadow: 0 1px 1px #fff inset;
-	background-color: #e5f1ff;
-	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#eaf3ff),color-stop(50%,#e5f1ff),color-stop(100%,#d6e8ff));
-	background-image: -webkit-linear-gradient(top,#eaf3ff 0,#e5f1ff 50%,#d6e8ff 100%);
-	background-image: -moz-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
-	background-image: -ms-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
-	background-image: -o-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
+	background-color: #f5f5f5;
+	background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);
 	background-position: 0 1px;
 	background-repeat: repeat-x; 
 }
@@ -171,11 +167,11 @@
 }
 
 .jl-tbl-current {
-    background-color: #EDF5FC !important;
+    background-color: #eee !important;
 }
 
 .jl-tbl-row-hover {
-	background-color: #EDF5FC !important;
+	background-color: #f5f5f5 !important;
 }
 	
 .jl-tbl-cell-div, .jl-tbl-footer-div, .jl-tbl-header-div {

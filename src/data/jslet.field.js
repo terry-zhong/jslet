@@ -1515,7 +1515,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 		if (subds) {
 			fldObj.subDataset(subds);
 		} else {
-			console.warn('Warning: subDataset NOT set when field data type is Dataset');
+			throw new Error('subDataset NOT set when field data type is Dataset');
 		}
 		fldObj.visible(false);
 		return fldObj;

@@ -8,29 +8,29 @@
  .jl-menubar {
 	overflow: hidden;
 	padding: 0;
-	border: 1px solid #99bbe8;
+	border: 1px solid rgb(173, 173, 173);
 	cursor: default;
+	color:black;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	position: relative;
-	/*height: 22px;*/
  }
 
 .jl-menubar-item {
    text-decoration: none;
-   /*background-color: #e6ecf0;
-   border: 1px solid #e6ecf0;*/
    text-align: left;
    display: block;
    padding-left: 5px;
    padding-right: 5px;
-   /*height: 18px;
-   letter-spacing: 1px*/;
    position: relative;
    float: left;
    cursor: pointer;
 }
 
+.jl-menubar-item a {
+	color: black;
+	text-decoration:none;
+}
 .jl-menubar-item a:hover,.jl-menubar-item a:active {
    text-decoration: none;
 }
@@ -42,11 +42,8 @@
 
 .jl-menubar-item-hover {
    text-decoration: none;
-   /*background: transparent url('images/menu/hover.png');*/
-   background-repeat: repeat-x;
-   background-color: #4281f4;
-   /*border: 1px solid #e5c365;*/
-   color: white;
+   background-color: rgb(230, 230, 230);
+   color: black;
    
    -webkit-border-radius: 2px;
    -moz-border-radius: 2px;
@@ -56,7 +53,7 @@
 }
 
 .jl-menubar-item-hover  a {
-   color: white;
+   color: black;
 }
 
 /*======css for popup menu ===========*/
@@ -95,7 +92,6 @@
 }
 
 .jl-menu-item {
-   text-decoration: none;
    background-color: #fff;
    border:1px solid #fff;
    text-align: left;
@@ -116,6 +112,9 @@
    -o-border-radius: 2px;
    border-radius: 2px;
 }
+.jl-menu-item  a {
+   text-decoration: none;
+}
 
 .jl-rtl .jl-menu-item {
    text-align: right;
@@ -127,11 +126,10 @@
 
 .jl-menu-item-hover {
    text-decoration: none;
-/*   background: transparent url('images/menu/hover.png');*/
    background-repeat: repeat-x;
-   background-color: #4281f4;
+   background-color: rgb(230, 230, 230);
    border: 1px solid #e5c365;
-   color: white;
+   color: black;
 }
 
 .jl-menu-disabled a {
@@ -143,7 +141,7 @@
 }
 
 .jl-menu-item-hover a {
-    color: white; !important
+    color: black; !important
 }
 
 .jl-menu-icon-placeholder {

@@ -70,6 +70,7 @@ jslet.data.Dataset = function (name) {
 	Z._codeField = null;
 	Z._nameField = null;
 	Z._parentField = null;
+	Z._levelOrderField = null;
 	Z._selectField = null;
 	
 	Z._contextRules = null;
@@ -194,18 +195,21 @@ jslet.data.Dataset.prototype = {
 			codeFldName = Z._codeField,
 			nameFldName = Z._nameField,
 			parentFldName = Z._parentField,
+			levelOrderField = Z._levelOrderField,
 			selectFldName = Z._selectField;
 		if (fieldNames) {
 			keyFldName = keyFldName && fieldNames.indexOf(keyFldName) >= 0 ? keyFldName: null;
 			codeFldName = codeFldName && fieldNames.indexOf(codeFldName) >= 0 ? codeFldName: null;
 			nameFldName = nameFldName && fieldNames.indexOf(nameFldName) >= 0 ? nameFldName: null;
 			parentFldName = parentFldName && fieldNames.indexOf(parentFldName) >= 0 ? parentFldName: null;
+			levelOrderField = levelOrderField && fieldNames.indexOf(levelOrderField) >= 0 ? levelOrderField: null;
 			selectFldName = selectFldName && fieldNames.indexOf(selectFldName) >= 0 ? selectFldName: null;
 		}
 		result._keyField = keyFldName;
 		result._codeField = codeFldName;
 		result._nameField = nameFldName;
 		result._parentField = parentFldName;
+		result._levelOrderField = levelOrderField;
 		result._selectField = selectFldName;
 
 		result._contextRules = Z._contextRules;
@@ -3688,6 +3692,16 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 	
+	levelOrderField: function(fldName) {
+		if (fldName === undefined) {
+			return this._levelOrderField;
+		}
+		
+		jslet.Checker.test('Dataset.levelOrderField', fldName).isString();
+		this._levelOrderField = jQuery.trim(fldName);
+		return this;
+	},
+	
 	/**
 	 * Set or get 'select' field name. "Select field" is a field to store the selected state of a record. 
 	 * 
@@ -5156,6 +5170,7 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setPropValue('codeField');
 		setPropValue('nameField');
 		setPropValue('parentField');
+		setPropValue('levelOrderField');
 		setPropValue('selectField');
 		setPropValue('recordClass');
 

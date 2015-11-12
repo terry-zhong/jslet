@@ -53,7 +53,7 @@
 	margin-bottom: 0;
     padding: 0;
     position: relative;
-    border: 1px solid #8db2e3;
+    border: 1px solid rgb(180, 192, 200);
     -moz-border-top-left-radius: 3px;
     -moz-border-top-right-radius: 3px;
     -webkit-border-top-left-radius: 3px;
@@ -69,34 +69,31 @@
     color: #416aa3;
     
     margin: 0;
-    padding: 5px 10px;
+    padding: 5px 8px;
     text-align: center;
     white-space: nowrap;
     -moz-border-radius-topleft: 3px;
     -moz-border-radius-topright: 3px;
     -webkit-border-top-left-radius: 3px;
     -webkit-border-top-right-radius: 3px;
-    /*border-bottom: 1px solid rgba(0,0,0,0);*/
 }
 
 .jl-tab-list li.jl-tab-selected {
-    border: 1px solid #8db2e3;
+    border: 1px solid rgb(180, 192, 200);
     border-bottom: none!important;
 }
 
 .jl-tab-list li.jl-tab-disabled {
-    /*border: 1px solid #8db2e3;*/
+    /*border: 1px solid rgb(180, 192, 200);*/
 
 }
 
 .jl-tab-list li.jl-tab-selected a.jl-tab-inner {
-    color: #416aa3;
 	background-color: #fff;
-	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#e5f1ff),color-stop(100%,#fff));
-	background-image: -webkit-linear-gradient(#e5f1ff,#fff);
-	background-image: -moz-linear-gradient(#e5f1ff,#fff);
-	background-image: -ms-linear-gradient(top,#e5f1ff,#fff);
-	background-image: -o-linear-gradient(top,#e5f1ff,#fff);
+}
+
+.jl-tab-list li a:hover.jl-tab-inner {
+	background-color:#eee!important;
 }
 
 .jl-tab-list li.jl-tab-disabled a.jl-tab-inner {
@@ -112,20 +109,15 @@
 }
 
 .jl-tab-close-loc {
-    padding-right: 13px;
+    padding-right: 3px!important;
 }
 
 .jl-tab-close {
-    position: absolute;
-    font-size: 10px;
-    display: block;
-    padding: 0;
-    width: 15px;
-    height: 15px;
-    top: 4px;
-    right: 0;
+    float: right;
     color:#666;
 	text-decoration: none!important;
+	font-size: 18px!important;
+	margin-left: 10px;
 }
 
 .jl-tab-list li a.jl-tab-close {
@@ -185,7 +177,7 @@
     overflow: hidden;
 	min-height: 100px;
     width: 100%;
-    border: 1px solid #8db2e3;
+    border: 1px solid rgb(180, 192, 200);
 }
 .jl-tab-new {
     font-weight: bold;
@@ -255,7 +247,7 @@
 /*Split-Panel */
 .jl-splitpanel {
 	position: relative;
-	border: 1px solid #99bbe8;
+	border: 1px solid rgb(180, 192, 200);
 	padding: 1px;
 }
 
@@ -280,7 +272,7 @@
 .jl-sp-splitter-hori {
 	width: 5px;
 	height: 100%;
-	background-color: #dfe8f6;
+	background-color: #eee;
 	cursor: e-resize;
 	float: left;
 	position: relative;
@@ -289,7 +281,7 @@
 .jl-sp-splitter-vert {
 	height: 5px;
 	width: 100%;
-	background-color: #dfe8f6;
+	background-color: #eee;
 	cursor: s-resize;
 	position: relative;
 }

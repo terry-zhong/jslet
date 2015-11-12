@@ -274,12 +274,13 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				cnt = Z._items.length;
 			for (var i = 0; i < cnt; i++) {
 				oitem = Z._items[i];
-				Z.addTabItem(oitem, true);
+				Z._renderTabItem(oitem);
 			}
 		}
 		Z._calcItemsWidth();
 		Z._ready = true;
 		Z._chgSelectedIndex(Z._selectedIndex);
+		Z._createContextMenu();
 	},
 
 	addItem: function (itemCfg) {
@@ -466,22 +467,18 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	
 	_createHeader: function (parent, itemCfg) {
 		var Z = this,
-			tmpl = ['<a href="javascript:;" class="jl-tab-inner" onclick="javascript:this.blur();"><span class="jl-tab-title '],
-			canClose = Z._closable && itemCfg.closable;
-		if (canClose) {
-			tmpl.push('jl-tab-close-loc ');
-		}
+			canClose = Z._closable && itemCfg.closable,
+			tmpl = ['<a href="javascript:;" class="jl-tab-inner' + (canClose? ' jl-tab-close-loc': '')
+			        + '" onclick="javascript:this.blur();"><span class="jl-tab-title '];
 
 		tmpl.push('">');
 		tmpl.push(itemCfg.header);
 		tmpl.push('</span>');
+		tmpl.push('<span href="javascript:;" class="close jl-tab-close' + (!canClose || itemCfg.disabled? ' jl-hidden': '') + '">x</span>');
 		tmpl.push('</a>');
-		if (canClose) {
-			tmpl.push('<a href="javascript:;" class="jl-tab-close glyphicon glyphicon-remove"></a>');
-		}
 		var oli = document.createElement('li');
 		if(itemCfg.disabled) {
-			jQuery(oli).addClass('jl-tab-disabled');	
+			jQuery(oli).addClass('jl-tab-disabled');
 		}
 		oli.innerHTML = tmpl.join('');
 
@@ -512,7 +509,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 
 	_doCloseBtnClick: function (event) {
-		var oli = this.parentNode,
+		var oli = this.parentNode.parentNode,
 			nodes = oli.parentNode.childNodes,
 			index = -1;
 		for (var i = 0; i < nodes.length; i++) {
@@ -571,20 +568,24 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 * @param {Boolean} notRefreshRightIdx Improve performance purpose. If you need add a lot of tab item, you can set this parameter to true. 
 	 */
 	addTabItem: function (newItemCfg, notRefreshRightIdx) {
-		var Z = this,
-			jqEl = jQuery(Z.el),
-			oul = jqEl.find('.jl-tab-list')[0];
+		var Z = this;
 		Z._items.push(newItemCfg);
-		Z._createHeader(oul, newItemCfg);
-
-		var panelContainer = jqEl.find('.jl-tab-items')[0];
-		Z._createBody(panelContainer, newItemCfg);
+		Z._renderTabItem(newItemCfg);
 		if(!notRefreshRightIdx) {
 			Z._calcItemsWidth();
 			Z._chgSelectedIndex(Z._selectedIndex + 1);
 		}
 	},
 
+	_renderTabItem: function(itemCfg) {
+		var Z = this,
+			jqEl = jQuery(Z.el),
+			oul = jqEl.find('.jl-tab-list')[0],
+			panelContainer = jqEl.find('.jl-tab-items')[0];
+		Z._createHeader(oul, itemCfg);
+		Z._createBody(panelContainer, itemCfg);
+	},
+	
 	/**
 	 * Remove tab item with tabIndex
 	 * 
@@ -647,20 +648,22 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 */
 	close: function () {
 		var Z = this,
-			k = Z._selectedIndex;
-		if (k >= 0 && Z._items[k].closable) {
-			Z.removeTabItem(k);
+			currIdx = Z._selectedIndex,
+			oitem = Z._items[currIdx];
+		if (oitem && currIdx >= 0 && oitem.closable && !oitem.disabled) {
+			Z.removeTabItem(currIdx);
+			Z._calcItemsWidth();
 		}
-		Z._calcItemsWidth();
 	},
 
 	/**
 	 * Close all closable tab item except current active tab item.
 	 */
 	closeOther: function () {
-		var Z = this;
+		var Z = this, oitem;
 		for (var i = Z._items.length - 1; i >= 0; i--) {
-			if (Z._items[i].closable) {
+			oitem = Z._items[i];
+			if (oitem.closable && !oitem.disabled) {
 				if (Z._selectedIndex == i) {
 					continue;
 				}

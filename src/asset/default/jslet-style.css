@@ -35,14 +35,7 @@
 .jl-bgcolor {
     background-color: #F1F5FB;
 	box-shadow: 0 1px 1px #fff inset;
-	background-color: #e5f1ff;
-	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#eaf3ff),color-stop(50%,#e5f1ff),color-stop(100%,#d6e8ff));
-	background-image: -webkit-linear-gradient(top,#eaf3ff 0,#e5f1ff 50%,#d6e8ff 100%);
-	background-image: -moz-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
-	background-image: -ms-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
-	background-image: -o-linear-gradient(top,#eaf3ff 0,#e5f1ff 60%,#d6e8ff 100%);
-	background-position: 0 1px;
-	background-repeat: repeat-x;	
+	background-color: #f5f5f5;
 }
 /* Common css */
 .jl-popup-panel {
@@ -448,6 +441,10 @@ a.jl-pb-button-disabled:hover {
     display: block;
     background-color: white;
     padding: 10px;
+  	border-radius: 6px;
+  	outline: 0;
+  	-webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+          box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
 }
 
 .jl-overlay {

@@ -29,7 +29,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,sizeClass,isCenter,stopEventBubbling';
+		Z.allProperties = 'caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,sizeClass,isCenter,isSmallHeader,stopEventBubbling';
 
 		Z._caption = null;
 		
@@ -379,7 +379,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		}
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-window')) {
-			jqEl.addClass('jl-window jl-border-box jl-unselectable jl-bgcolor jl-round5');
+			jqEl.addClass('panel panel-default jl-window');
 		}
 		if (!Z._width) {
 			Z._width = parseInt(Z.el.style.width);
@@ -397,22 +397,16 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		Z.el.style.height = Z._height + 'px';
 
 		var template = [
-		'<div class="jl-win-header jl-unselectable" style="position:relative;width: 100%;cursor:move">',
-			Z._iconClass ? '<div class="jl-win-header-icon ' + Z._iconClass + '"></div>' : '',
+		'<div class="panel-heading jl-win-header jl-win-header-sm" style="cursor:move">',
+			Z._iconClass ? '<span class="jl-win-header-icon ' + Z._iconClass + '"></span>' : '',
 
-			'<div class="jl-win-title jl-unselectable">', Z._caption ? Z._caption : '', '</div>',
-			'<div class="jl-win-tool jl-unselectable">'];
-		if (!jslet.locale.isRtl){
-			template.push(Z._minimizable ? '<a href="javascript:;" class="jl-win-min" onfocus="this.blur();"></a>' : '');
-			template.push(Z._maximizable ? '<a href="javascript:;" class="jl-win-max" onfocus="this.blur();"></a>' : '');
-			template.push(Z._closable ? '<a href="javascript:;" class="jl-win-close" onfocus="this.blur();"></a>' : '');
-		}else{
-			template.push(Z._closable ? '<a href="javascript:;" class="jl-win-close" onfocus="this.blur();"></a>' : '');
-			template.push(Z._maximizable ? '<a href="javascript:;" class="jl-win-max" onfocus="this.blur();"></a>' : '');
-			template.push(Z._minimizable ? '<a href="javascript:;" class="jl-win-min" onfocus="this.blur();"></a>' : '');
-		}
-		template.push('</div></div>');
-		template.push('<div class="jl-win-body jl-unselectable" title="" style="width: 100%;cursor:default"></div>');
+			'<span class="panel-title jl-win-caption">', Z._caption ? Z._caption : '', '</span>',
+			'<span class="jl-win-tool jl-unselectable">'];
+			template.push(Z._closable ? '<button class="close jl-win-close" onfocus="this.blur();">x</button>' : '');
+			template.push(Z._maximizable ? '<button class="close jl-win-max" onfocus="this.blur();">□</button>' : '');
+			template.push(Z._minimizable ? '<button class="close jl-win-min" onfocus="this.blur();">-</button>' : '');
+		template.push('</span></div>');
+		template.push('<div class="panel-body jl-win-body" title="" style="cursor:default"></div>');
 
 		jqEl.html(template.join(''));
 		jqEl.on('mousemove', Z._doWinMouseMove);
@@ -431,7 +425,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		
 		var jqHeader = jqEl.find('.jl-win-header'),
 			header = jqHeader[0];
-		Z._headerHeight = jqHeader.height();
+		Z._headerHeight = jqHeader.outerHeight();
 		var bodyDiv = jqEl.find('.jl-win-body')[0],
 			bh = Z._height - Z._headerHeight - 12;
 		if (bh < 0) {
@@ -547,12 +541,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z._minimizable) {
 			var jqMin = jqEl.find('.jl-win-min');
 			jqMin.click(function (event) {
-				if (Z._state == 'max') {
-					var btnMax = jqEl.find('.jl-win-restore')[0];
-					if (btnMax) {
-						btnMax.className = 'jl-win-max';
-					}
-				}
+//				if (Z._state == 'max') {
+//					var btnMax = jqEl.find('.jl-win-restore')[0];
+//					if (btnMax) {
+//						btnMax.className = 'jl-win-max';
+//					}
+//				}
 				Z.minimize();
 				event = jQuery.event.fix( event || window.event );
 				event.stopPropagation();
@@ -564,10 +558,10 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				btnMax = jqMax[0];
 			jqMax.click(function (event) {
 				if (Z._state != 'max') {
-					btnMax.className = 'jl-win-restore';
+					btnMax.innerHTML = '■'
 					Z.maximize();
 				} else {
-					btnMax.className = 'jl-win-max';
+					btnMax.innerHTML = '□'
 					Z.restore();
 				}
 				event = jQuery.event.fix( event || window.event );
@@ -600,12 +594,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		Z.el.style.top = Z.top + 'px';
 		Z.el.style.display = 'block';
 
-		if (Z.hasShadow) {
-			Z._createShadow();
-			Z.shadow.style.top = Z.top + 'px';
-			Z.shadow.style.left = Z.left + 'px';
-			Z.shadow.style.display = 'block';
-		}
 		Z.activate();
 	},
 
@@ -624,9 +612,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		jslet.ui.GlobalZIndex += 10;
 		var k = jslet.ui.GlobalZIndex;
 		Z.el.style.zIndex = k;
-		if (Z.shadow) {
-			Z.shadow.style.zIndex = k - 1; 
-		}
 		Z.show(left, top);
 		Z.overlay.setZIndex(k - 2);
 		Z.overlay.show();
@@ -638,9 +623,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	hide: function () {
 		var Z = this;
 		Z.el.style.display = 'none';
-		if (Z.shadow) {
-			Z.shadow.style.display = 'none';
-		}
 		if (Z.overlay) {
 			Z.overlay.hide();
 		}
@@ -663,10 +645,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 		var pnode = Z.el.parentNode;
-		if (Z.shadow) {
-			pnode.removeChild(Z.shadow);
-			Z.shadow = null;
-		}
 		pnode.removeChild(Z.el);
 		if (Z.overlay) {
 			Z.overlay.destroy();
@@ -756,10 +734,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		}
 		Z.el.style.left = left + 'px';
 		Z.el.style.top = top + 'px';
-		if (Z.shadow) {
-			Z.shadow.style.top = top + 'px';
-			Z.shadow.style.left = left + 'px';
-		}
 	},
 
 	/**
@@ -789,10 +763,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		}
 		Z.el.style.width = width + 'px';
 		Z.el.style.height = height + 'px';
-		if (Z.shadow) {
-			Z.shadow.style.width = width + 3 + 'px';
-			Z.shadow.style.height = height + 3 + 'px';
-		}
 
 		var jqEl = jQuery(Z.el);
 		var bodyDiv = jqEl.find('.jl-win-body')[0];
@@ -809,7 +779,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 * @return {Html Element}
 	 */
 	getCaptionDiv: function () {
-		return jQuery(this.el).find('.jl-win-title')[0];
+		return jQuery(this.el).find('.jl-win-caption')[0];
 	},
 
 	/**
@@ -819,7 +789,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	changeCaption: function (caption) {
 		this.caption = caption;
-		var captionDiv = jQuery(this.el).find('.jl-win-title');
+		var captionDiv = jQuery(this.el).find('.jl-win-caption');
 		captionDiv.html(caption);
 	},
 
@@ -868,7 +838,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			node = p.childNodes[i];
 			if (node.nodeType != 1 || node == Z.el) {
 				if (!Z._isModal) {
-					jqEl.addClass('jl-window-active');
+					jqEl.find('.jl-win-header').addClass('jl-window-active');
 				}
 				continue;
 			}
@@ -878,7 +848,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 					maxIndex = node.style.zIndex;
 				}
 				if (!Z._isModal) {
-					jqNode.removeClass('jl-window-active');
+					jqNode.find('.jl-win-header').removeClass('jl-window-active');
 				}
 			}
 		}
@@ -894,9 +864,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	setZIndex: function (zIndex) {
 		this.el.style.zIndex = zIndex;
-		if (this.shadow) {
-			this.shadow.style.zIndex = zIndex - 1;
-		}
 	},
 
 	_checkSize: function (width, height) {
@@ -1076,20 +1043,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		Z.tracker = null;
 	},
 
-	_createShadow: function () {
-		var Z = this;
-		if (Z.shadow) {
-			return;
-		}
-		Z.shadow = document.createElement('div');
-		jQuery(Z.shadow).addClass('jl-win-shadow');
-		Z.shadow.style.zIndex = Z.el.style.zIndex - 1;
-		Z.shadow.style.width = Z._width + 3 + 'px';
-		Z.shadow.style.height = Z._height + 3 + 'px';
-
-		Z.el.parentNode.appendChild(Z.shadow);
-	},
-	
 	/**
 	 * @override
 	 */
@@ -1108,7 +1061,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			Z.trackerMask.onmousedown = null;
 		}
 		Z.trackerMask = null;
-		Z.shadow = null;
 		Z.el._doDragCancel = null;
 		Z.el._doDragEnd = null;
 		Z.el._doDragging = null;
@@ -1218,7 +1170,7 @@ jslet.ui.MessageBox = function () {
 		if (jslet.locale.isRtl){
 			for (i = btnCount - 1; i >=0; i--) {
 				btnName = buttons[i];
-				left = (k++) * (btnWidth + 10);
+				left = (k++) * (btnWidth + 10) - 10;
 				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
 				btnHtml.push(' data-jsletname="');
 				btnHtml.push(btnName);
@@ -1231,7 +1183,7 @@ jslet.ui.MessageBox = function () {
 		} else {
 			for (i = 0; i < btnCount; i++) {
 				btnName = buttons[i];
-				left = i * (btnWidth + 10);
+				left = i * (btnWidth + 10) - 10;
 				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
 				btnHtml.push('" data-jsletname="');
 				btnHtml.push(btnName);
