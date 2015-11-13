@@ -221,6 +221,9 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			return this._minWidth;
 		}
 		jslet.Checker.test('Window.minWidth', minWidth).isGTZero();
+		if(minWidth < 20) {
+			minWidth = 20;
+		}
 		this._minWidth = minWidth;
 	},
 
@@ -235,6 +238,9 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			return this._minHeight;
 		}
 		jslet.Checker.test('Window.minHeight', minHeight).isGTZero();
+		if(minHeight < 30) {
+			minHeight = 30;
+		}
 		this._minHeight = minHeight;
 	},
 
@@ -371,12 +377,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			Z._minimizable = false;
 			Z._maximizable = false;
 		}
-		if (Z._minWidth < 20) {
-			Z._minWidth = 20;
-		}
-		if (Z.minHeight < 30) {
-			Z.minheight = 30;
-		}
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-window')) {
 			jqEl.addClass('panel panel-default jl-window');
@@ -406,7 +406,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			template.push(Z._maximizable ? '<button class="close jl-win-max" onfocus="this.blur();">□</button>' : '');
 			template.push(Z._minimizable ? '<button class="close jl-win-min" onfocus="this.blur();">-</button>' : '');
 		template.push('</span></div>');
-		template.push('<div class="panel-body jl-win-body" title="" style="cursor:default"></div>');
+		template.push('<div class="panel-body jl-win-body"></div>');
 
 		jqEl.html(template.join(''));
 		jqEl.on('mousemove', Z._doWinMouseMove);

@@ -2312,7 +2312,21 @@ jslet.data.Dataset.prototype = {
 			Z.endSilenceMove(context);
 		}
 	},
-
+	
+	/** 
+	* Iterate the child records of current record, and run the specified callback function. 
+	* Example: 
+	* 
+	* dataset.iterateChildren(function(){
+	* 	var fldValue = this.getFieldValue('xxx');
+	* 	this.setFieldValue('xxx', fldValue);
+	* }); 
+	* 
+	*/ 
+	iterateChildren: function() {
+		
+	},
+	
 	/**
 	 * Update record and send dataset to update status.
 	 * You can use cancel() or confirm() method to return browse status.

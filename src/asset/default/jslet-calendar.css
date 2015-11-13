@@ -24,7 +24,7 @@
 .jl-cal-header {
     height: 26px;
     text-align: center;
-    background-color: rgb(247, 247, 249);
+    background-color: rgb(245, 245, 245);
     position: absolute;
     top: 0px;
     width: 100%;
@@ -103,7 +103,7 @@
 }
 
 .jl-cal-body thead {
-    background-color: rgb(247, 247, 249);
+    background-color: rgb(245, 245, 245);
 }
 
 .jl-cal-body th, .jl-cal-body td {
@@ -122,7 +122,7 @@
 }
 
 .jl-cal-body a:hover {
-    background-color: rgb(247, 247, 249);
+    background-color: rgb(245, 245, 245);
 }
 
 .jl-cal-weekend {
@@ -134,7 +134,7 @@
     vertical-align: middle;
     text-align: center;
     height: 25px;
-    background-color: rgb(247, 247, 249);
+    background-color: rgb(245, 245, 245);
     position: absolute;
     bottom: 0px;
 }
@@ -157,5 +157,5 @@
 }
 
 .jl-cal-disable a:hover {
-    background-color: rgb(247, 247, 249);!important
+    background-color: rgb(245, 245, 245);!important
 }

@@ -221,7 +221,8 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		event = jQuery.event.fix( event || window.event );
 
 		var keyCode = event.which, Z = this.jslet;
-		if(keyCode >= 112 && keyCode <= 123) { //F1-F12
+		if(keyCode >= 112 && keyCode <= 123 || keyCode == 16 || keyCode == 17 || keyCode == 18 || //F1-F12, ctrl, shift, alt
+				keyCode == 20 || keyCode == 45 || keyCode == 35 || keyCode == 36 || keyCode == 34 || keyCode == 33) { //CapsLock, Insert, Home, End, PageUp, PageDown 
 			return;
 		}
 		if ((keyCode == 38 || keyCode == 40) && Z.contentPanel && Z.contentPanel.isPop) {
