@@ -98,7 +98,10 @@ jslet.data.DatasetEvent = {
 	AFTERCANCEL: 'afterCancel',
 	
 	BEFORESELECT: 'beforeSelect',
-	AFTERSELECT: 'afterSelect'
+	AFTERSELECT: 'afterSelect',
+	
+	BEFORESELECTALL: 'beforeSelectAll',
+	AFTERSELECTALL: 'afterSelectAll'
 };
 
 jslet.data.DataSetStatus = {BROWSE:0, INSERT: 1, UPDATE: 2, DELETE: 3};
@@ -474,7 +477,8 @@ jslet.data.DateValueConverter = jslet.Class.create(jslet.data.FieldValueConverte
 	
 	valueToText: function(fldObj, value, isEditing) {
 		if (!(value instanceof Date)) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name()]));
+			//Invalid value: [{1}] for DATE field: [{0}]!
+			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name(), value]));
 		}
 
 		return value ? jslet.formatDate(value, fldObj.displayFormat()): '';

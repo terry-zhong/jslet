@@ -780,7 +780,8 @@ jslet.Checker = {
 	
 	required: function() {
 		if(this.varValue === null || this.varValue === undefined || this.varValue === '') {
-			throw new Error('[' + this.varName + '] is Required!');
+			//[{0}] is Required!
+			throw new Error(jslet.formatString(jslet.locale.Checker.required, [this.varName]));
 		}
 		return this;
 	},
@@ -792,7 +793,8 @@ jslet.Checker = {
 		   this.varValue !== 0 && 
 		   this.varValue !== true && 
 		   this.varValue !== false) {
-			throw new Error('[' + this.varName + '] must be a boolean value!');
+			//[{0}] must be a Boolean value!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredBooleanValue, [this.varName]));
 		}
 		return this;
 	},
@@ -802,7 +804,8 @@ jslet.Checker = {
 			this.varValue !== undefined &&
 			this.varValue !== false &&
 			!jslet.isString(this.varValue)) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be a String!');
+			//[{0}: {1}] must be a String value!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredStringValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -812,7 +815,8 @@ jslet.Checker = {
 			this.varValue !== undefined &&
 			this.varValue !== false &&
 			!jslet.isDate(this.varValue)) {
-			throw new Error('[' + this.varName + '] must be a Date!');
+			//[{0}: {1}] must be a Date value!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredDateValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -822,7 +826,8 @@ jslet.Checker = {
 			this.varValue !== undefined && 
 			this.varValue !== false &&
 			!jQuery.isNumeric(this.varValue)) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be a Numberic!');
+			//[{0}: {1}] must be a Numberic value!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredNumbericValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -830,28 +835,33 @@ jslet.Checker = {
 	isGTZero: function() {
 		this.isNumber();
 		if(this.varValue <= 0) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than zero!');
+			//[{0}: {1}] must be great than zero!
+			throw new Error(jslet.formatString(jslet.locale.Checker.greatThanZero, [this.varName, this.varValue]));
 		}
 	},
 	
 	isGTEZero: function() {
 		this.isNumber();
 		if(this.varValue < 0) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than or equal zero!');
+			//[{0}: {1}] must be great than or equal zero!
+			throw new Error(jslet.formatString(jslet.locale.Checker.greatThanEqualZero, [this.varName, this.varValue]));
 		}
 	},
+	
 	between: function(minValue, maxValue) {
 		var checkMin = minValue !== null && minValue !== undefined;
 		var checkMax = maxValue !== null && maxValue !== undefined;
 		if(checkMin && checkMax && (this.varValue < minValue || this.varValue > maxValue)) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be between [' + 
-					minValue + '] and [' + maxValue + ']!');
+			//[{0} : {1}] must be between [{2}] and [{3}]!
+			throw new Error(jslet.formatString(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue, maxValue]));
 		}
 		if(!checkMin && checkMax && this.varValue > maxValue) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be less than [' + maxValue + ']!');
+			//[{0} : {1}] must be less than [{2}]!
+			throw new Error(jslet.formatString(jslet.locale.Checker.lessThanMaxValue, [this.varName, this.varValue, maxValue]));
 		}
 		if(checkMin && !checkMax && this.varValue < minValue) {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be great than [' + minValue + ']!');
+			//[{0} : {1}] must be great than [{2}]!
+			throw new Error(jslet.formatString(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue]));
 		}
 	},
 	
@@ -860,7 +870,8 @@ jslet.Checker = {
 			this.varValue !== undefined &&
 			this.varValue !== false &&
 			!jslet.isArray(this.varValue)) {
-			throw new Error('[' + this.varName + '] must be an Array!');
+			//[{0}: {1}] must be an Array!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredArrayValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -870,7 +881,8 @@ jslet.Checker = {
 			this.varValue !== undefined &&
 			this.varValue !== false &&
 			jQuery.type(this.varValue) !== "object") {
-			throw new Error('[' + this.varName + '] must be a Object!');
+			//[{0}: {1}] must be an Object!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredObjectValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -880,7 +892,8 @@ jslet.Checker = {
 				this.varValue !== undefined &&
 				this.varValue !== false &&
 				!jQuery.isPlainObject(this.varValue)) {
-				throw new Error('[' + this.varName + '] must be a plan object!');
+			//[{0}: {1}] must be a plan Object!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredPlanObjectValue, [this.varName, this.varValue]));
 		}
 		return this;
 				
@@ -890,9 +903,9 @@ jslet.Checker = {
 		if(this.varValue !== null && 
 			this.varValue !== undefined &&
 			this.varValue !== false &&
-//			(typeof this.varValue == 'function') ){
 			!jQuery.isFunction(this.varValue)) {
-			throw new Error('[' + this.varName + '] must be a Function!');
+			//[{0}: {1}] must be a Function!
+			throw new Error(jslet.formatString(jslet.locale.Checker.requiredFunctionValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -902,8 +915,9 @@ jslet.Checker = {
 		if(this.varValue !== null && 
 			this.varValue !== undefined &&
 			this.varValue !== false &&
-			this.varValue.className != className)   {
-			throw new Error('[' + this.varName + '] must be instance of [' + className+ ']!');
+			this.varValue.className != className) {
+			//[{0}: {1}] must be instance of [{2}]!
+			throw new Error(jslet.formatString(jslet.locale.Checker.instanceOfClass, [this.varName, this.varValue, className]));
 		}
 		return this;
 	},
@@ -925,8 +939,9 @@ jslet.Checker = {
 		if(this.varValue !== null && 
 			this.varValue !== undefined &&
 			this.varValue !== false &&
-			arrlist.indexOf(this.varValue) < 0)   {
-			throw new Error('[' + this.varName + ':' + this.varValue + '] must be one of [' + arrlist.join(',') + ']!');
+			arrlist.indexOf(this.varValue) < 0) {
+			//[{0}: {1}] must be one of [{2}]!
+			throw new Error(jslet.formatString(jslet.locale.Checker.inArray, [this.varName, this.varValue, arrlist.join(',')]));
 		}
 		return this;
 	}

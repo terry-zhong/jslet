@@ -1645,7 +1645,8 @@ jslet.data.Dataset.prototype = {
 	insertChild: function (parentId) {
 		var Z = this;
 		if (!Z._parentField || !Z.keyField()) {
-			throw new Error('parentField and keyField not set,use insertRecord() instead!');
+			//Dataset properties: [parentField] and [keyField] not set, use insertRecord() instead!
+			throw new Error(jslet.locale.Dataset.parentFieldNotSet);
 		}
 
 		if (!Z.hasRecord()) {
@@ -1691,7 +1692,8 @@ jslet.data.Dataset.prototype = {
 	insertSibling: function () {
 		var Z = this;
 		if (!Z._parentField || !Z._keyField) {
-			throw new Error('parentField and keyField not set,use insertRecord() instead!');
+			//Dataset properties: [parentField] and [keyField] not set, use insertRecord() instead!
+			throw new Error(jslet.locale.Dataset.parentFieldNotSet);
 		}
 
 		if (!Z.hasRecord()) {
@@ -2160,7 +2162,8 @@ jslet.data.Dataset.prototype = {
 					if(fldObj.getType() === jslet.data.DataType.NUMBER) {
 						value = Z.getFieldValue(fldName) || 0;
 						if(jslet.isString(value)) {
-							throw new Error('Field: ' + fldName + ' requires Number value!');
+							//Invalid value: [{1}] for NUMBER field: [{0}]!
+							throw new Error(jslet.formatString(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, value]));
 						}
 						aggradedValueObj.sum = aggradedValueObj.sum + value;
 					}
@@ -2323,8 +2326,36 @@ jslet.data.Dataset.prototype = {
 	* }); 
 	* 
 	*/ 
-	iterateChildren: function() {
-		
+	iterateChildren: function(callBackFn) {
+		var Z = this;
+		if (!Z._parentField) {
+			return;
+		}
+		var context = Z.startSilenceMove();
+		var preKeyValue = Z.keyValue();
+		var arrPValues = [];
+		try {
+			Z.next();
+			var keyValue, pValue, isExist;
+			while (!Z.isEof()) {
+				pValue = Z.parentValue();
+				isExist = (arrPValues.indexOf(pValue) >= 0);
+				if(pValue === preKeyValue && !isExist) {
+					arrPValues.push(preKeyValue);
+					isExist = true;
+				}
+				if (!isExist) {
+					return;
+				}
+				if(callBackFn) {
+					callBackFn.call(Z);
+				}
+				preKeyValue = Z.keyValue();
+				Z.next();
+			}
+		} finally {
+			Z.endSilenceMove(context);
+		}
 	},
 	
 	/**
@@ -2345,7 +2376,7 @@ jslet.data.Dataset.prototype = {
 			Z._aborted = false;
 			try {
 				Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREUPDATE);
-				if (Z._aborted) {
+				if (Z._aborted) { 
 					return;
 				}
 			} finally {
@@ -2633,7 +2664,8 @@ jslet.data.Dataset.prototype = {
 			var masterDs = masterFld.dataset();
 			var masterFldName = masterFld.name();
 			if(hasError) {
-				masterDs.addFieldError(masterFldName, 'Detail Dataset Error');
+				//'Detail Dataset: {0} has error data!'
+				masterDs.addFieldError(masterFldName, jslet.format(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
 			} else {
 				masterDs.addFieldError(masterFldName, null);
 			}
@@ -2663,7 +2695,8 @@ jslet.data.Dataset.prototype = {
 			subDs = subDatasets[i];
 			subDs.confirm();
 			if(subDs.existDatasetError()) {
-				Z.addFieldError(subFields[i], 'Detail Dataset Error');
+				//'Detail Dataset: {0} has error data!'
+				Z.addFieldError(subFields[i], jslet.format(jslet.locale.Dataset.detailDsHasError, [subDs.name()]));
 			} else {
 				Z.addFieldError(subFields[i], null);
 			}
@@ -2690,8 +2723,6 @@ jslet.data.Dataset.prototype = {
 		} finally {
 			Z._aborted = false;
 		}
-//		var rec = Z.getRecord();
-//		jslet.data.FieldError.clearRecordError(rec);
 		 Z._cancelSubDataset();
 		 var evt, 
 			k = Z._recno,
@@ -2716,16 +2747,13 @@ jslet.data.Dataset.prototype = {
 			if (Z._filteredRecnoArray) {
 				k = Z._filteredRecnoArray[Z._recno];
 			}
-//			jslet.data.FieldValueCache.removeCache(Z._modiObject);
 			records[k] = Z._modiObject;
 			Z._modiObject = null;	
 		}
 
 		Z.calcAggradedValue();		
 		Z.status(jslet.data.DataSetStatus.BROWSE);
-//		Z.changedStatus(jslet.data.DataSetStatus.BROWSE);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
-//		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
@@ -2985,7 +3013,12 @@ jslet.data.Dataset.prototype = {
 		var currRec = Z.getRecord();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
 			if(value && fldObj.getType() === jslet.data.DataType.NUMBER && !jslet.isArray(value)) {
+				var oldValue = value;
 				value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
+				if(window.isNaN(value)) {
+					//Invalid value: [{1}] for NUMBER field: [{0}]!
+					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, oldValue]));
+				}
 			}
 			var realValue = value;
 			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
@@ -3470,7 +3503,7 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 			fldObj = Z.getField(fldName);
 		if(!fldObj) {
-			throw new Error('Field name: ' + fldName + ' NOT Found!');
+			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
 		Z.confirm();
 		
@@ -3759,7 +3792,6 @@ jslet.data.Dataset.prototype = {
 			if (valueCnt === 0) {
 				if (!Z.findByField(srcField, values[0])) {
 					return null;
-					//throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,[Z._name, srcField, values[0]]));
 				}
 				if (isExpr) {
 					return Z._innerConvertDestFields.eval();
@@ -3942,6 +3974,14 @@ jslet.data.Dataset.prototype = {
 		if (Z.recordCount() === 0) {
 			return;
 		}
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORESELECTALL);
+			if (Z._aborted) {
+				return Z;
+			}
+		} finally {
+			Z._aborted = false;
+		}
 
 		jslet.Checker.test('Dataset.selectAll#onSelectAll', onSelectAll).isFunction();
 		var oldRecno = Z.recno();
@@ -3960,6 +4000,7 @@ jslet.data.Dataset.prototype = {
 		} finally {
 			Z.recnoSilence(oldRecno);
 		}
+		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECTALL);
 		if (!noRefresh) {
 			var evt = jslet.data.RefreshEvent.selectAllEvent(selected);
 			Z.refreshControl(evt);
@@ -4220,7 +4261,8 @@ jslet.data.Dataset.prototype = {
 		Z._checkDataProvider();
 
 		if(!this._queryUrl) {
-			throw new Error('QueryUrl required! Use: yourDataset.queryUrl(yourUrl)');
+			//QueryUrl required! Use: yourDataset.queryUrl(yourUrl)
+			throw new Error(jslet.locale.Dataset.queryUrlRequired);
 		}
 		if(Z._querying) { //Avoid duplicate submitting
 			return;
@@ -4383,7 +4425,8 @@ jslet.data.Dataset.prototype = {
 		Z._checkDataProvider();
 
 		if(!Z._submitUrl) {
-			throw new Error('SubmitUrl required! Use: yourDataset.submitUrl(yourUrl)');
+			//Dataset\'s submitUrl required! Use: yourDataset.submitUrl(yourUrl)
+			throw new Error(jslet.locale.Dataset.submitUrlRequired);
 		}
 		var changedRecs = Z._dataTransformer.getSubmittingChanged();
 		if (!changedRecs || changedRecs.length === 0) {
@@ -4473,9 +4516,7 @@ jslet.data.Dataset.prototype = {
 			return jslet.emptyPromise;
 		}
 		Z._checkDataProvider();
-		if(!url) {
-			throw new Error('Url required! Use: yourDataset.submitSelected(yourUrl)');
-		}
+		jslet.Checker.test('Dataset.submitSelected#url', url).required().isString();
 		if(Z._submitting) { //Avoid duplicate submitting
 			return;
 		}
@@ -4554,7 +4595,8 @@ jslet.data.Dataset.prototype = {
 						}
 						return;
 					} catch (e) {
-						console.warn('Can\' focus into a disabled control!');
+						//Can\'t focus on this control, maybe it\'s disabled!
+						console.warn(jslet.locale.Dataset.cannotFocusControl);
 					}
 				}
 			} //end if
@@ -4989,7 +5031,8 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 			dsName = master.name;
 		if(dsName != Z._name) {
-			throw new Error('Snapshot does not match the current dataset name!');
+			//Snapshot name: [{0}] does not match the current dataset name: [{1}], cannot import snapshot!
+			throw new Error(jslet.format(jslet.locale.Dataset.cannotImportSnapshot, [dsName, Z._name]));
 		}
 		Z._dataList = master.dataList;
 		Z._changeLog._changedRecords = master.changedRecords;
@@ -5448,7 +5491,8 @@ jslet.data.DataTransformer.prototype = {
 		for(var i = 0, len = submittedData.length; i < len; i++) {
 			newRec = submittedData[i];
 			if(!newRec) {
-				console.warn('The return record exists null. Please check it.');
+				//'The return record exists null. Please check it.'
+				console.warn(jslet.locale.Dataset.serverReturnNullRecord);
 				continue;
 			}
 			this._refreshRecord(dsObj, newRec, chgLogs);

@@ -21,8 +21,35 @@
 		format: 'MM/dd/yyyy'	
 	};
 	
+	locale.Checker = {
+		required: '[{0}] is Required!',
+		requiredBooleanValue: '[{0}] must be a Boolean value!',
+		requiredStringValue: '[{0} : {1}] must be a String value!',
+		requiredDateValue: '[{0} : {1}] must be a Date value!',
+		requiredNumbericValue: '[{0} : {1}] must be a Numberic value!',
+		greatThanZero: '[{0} : {1}] must be great than zero!',
+		greatThanEqualZero: '[{0} : {1}] must be great than or equal zero!',
+		betweenValue: '[{0} : {1}] must be between [{2}] and [{3}]!',
+		lessThanMaxValue: '[{0} : {1}] must be less than [{2}]!',
+		greatThanMinValue: '[{0} : {1}] must be great than [{2}]!',
+		requiredArrayValue: '[{0} : {1}] must be an Array!',
+		requiredObjectValue: '[{0} : {1}] must be an Object!',
+		requiredPlanObjectValue: '[{0} : {1}] must be a plan Object!',
+		requiredFunctionValue: '[{0} : {1}] must be a Function!',
+		instanceOfClass: '[{0} : {1}] must be instance of [{2}]',
+		inArray: '[{0}: {1}] must be one of [{2}]!'
+	};
+	
 	locale.Dataset = {
-		invalidDateFieldValue: 'Invalid value for date field: {0}!',
+		invalidDateFieldValue: 'Invalid value: [{1}] for DATE field: [{0}]!',
+		invalidNumberFieldValue: 'Invalid value: [{1}] for NUMBER field: [{0}]!',
+		parentFieldNotSet: 'Dataset properties: [parentField] and [keyField] not set, use insertRecord() instead!',
+		detailDsHasError: 'Detail Dataset: {0} has error data!',
+		queryUrlRequired: 'Dataset\'s queryUrl required! Use: yourDataset.queryUrl(yourUrl)',
+		submitUrlRequired: 'Dataset\'s submitUrl required! Use: yourDataset.submitUrl(yourUrl)',
+		cannotFocusControl: 'Can\'t focus on this control, maybe it\'s disabled!',
+		cannotImportSnapshot: 'Snapshot name: [{0}] does not match the current dataset name: [{1}], cannot import snapshot!',
+		serverReturnNullRecord: 'The return record from server exists null. Please check it.',
 		fieldNotFound:  'Undefined field: {0}!',
 		valueNotFound: ' Not find the value!',
 		lookupNotFound: 'Field: {0} not set the lookup setting, you can not use the field chain!',
@@ -33,7 +60,6 @@
 		invalidLookupField: 'Invalid lookup field: {0}!',
 		invalidContextRule: 'Invalid context rule in field: [{0}]!',
 		fieldValueRequired: '[{0}] is required!',
-		//invalidFieldTranslate: 'Properties: displayValueField and inputValueField required in field:{0}!',
 		translateListenerRequired: 'Event listener: translateListener required!',
 		minMaxValueError: 'Min value must less than and equal to max value in Field: [{0}]!',
 		invalidDate: 'Invalid date!',
