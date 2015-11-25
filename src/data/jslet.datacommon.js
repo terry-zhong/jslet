@@ -826,7 +826,7 @@ jslet.data.FieldError = {
 		return false;
 	},
 	
-	existRecordError: function(record) {
+	existRecordError: function(record, checkingFields) {
 		var recInfo = jslet.data.getRecInfo(record);
 		if(!recInfo) {
 			return false;
@@ -834,6 +834,9 @@ jslet.data.FieldError = {
 		var errObj = recInfo.error;
 		if(errObj) {
 			for(var fldName in errObj) {
+				if(checkingFields && checkingFields.indexOf(fldName) < 0) {
+					continue;
+				}
 				if(errObj[fldName]) {
 					return true;
 				}

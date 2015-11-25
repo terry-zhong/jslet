@@ -2594,13 +2594,18 @@ jslet.data.Dataset.prototype = {
 		jslet.data.putDetailError.put(this.getRecord(), fldName, errorCount);
 	},
 	
-	existRecordError: function(recno) {
-		return jslet.data.FieldError.existRecordError(this.getRecord(recno));
+	existRecordError: function(recno, checkingFields) {
+		return jslet.data.FieldError.existRecordError(this.getRecord(recno), checkingFields);
 	},
 	
-	checkAndShowError: function() {
+	/**
+	 * Check show error message if the dataset exists error data.
+	 * 
+	 * @param {String[]} checkingFields - checking field names.
+	 */
+	checkAndShowError: function(checkingFields) {
 		var Z = this;
-		if(Z.existDatasetError()) {
+		if(Z.existDatasetError(checkingFields)) {
 			if (Z._autoShowError) {
 				jslet.showError(jslet.locale.Dataset.cannotConfirm, null, 2000);
 			} else {
@@ -2611,14 +2616,19 @@ jslet.data.Dataset.prototype = {
 		return false;
 	},
 	
-	existDatasetError: function() {
+	/**
+	 * Check if the dataset exists error data.
+	 * 
+	 * @param {String[]} checkingFields - checking field names.
+	 */
+	existDatasetError: function(checkingFields) {
 		var Z = this, isError = false,
 			dataList = Z.dataList();
 		if(!dataList) {
 			return false;
 		}
 		for(var i = 0, len = dataList.length; i < len; i++) {
-			isError = jslet.data.FieldError.existRecordError(dataList[i]);
+			isError = jslet.data.FieldError.existRecordError(dataList[i], checkingFields);
 			if(isError) {
 				return true;
 			}

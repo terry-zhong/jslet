@@ -320,3 +320,7 @@
 .jl-table .jl-tbl-filter:focus{
 	color: green;
 }
+
+.jl-finddlg .jl-win-body {
+	padding:5px!important;
+}
