@@ -16,20 +16,17 @@ jslet.ui.FindDialog = function (dbContainer) {
 	var _findingField = null;
 	
 	function initialize() {
-		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, stopEventBubbling: true, height: 85, width: 320 };
+		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, stopEventBubbling: true};
 		_dialog = jslet.ui.createControl(opt, _containerEl);
 		_dialog.onClosed(function(){
 			return 'hidden';
 		});
-		var content = '<div class="form-horizontal"><div class="form-group form-group-sm jl-nogap"><div class="col-sm-9 jl-nogap"><input class="form-control jl-finddlg-value jl-nogap"/></div>' + 
-		'<div class="col-sm-2 jl-nogap"><select class="form-control jl-finddlg-opt jl-nogap">' + 
-		'<option title="' + jslet.locale.findDialog.matchFirst + '">=*</option>' + 
-		'<option>=</option>' + 
-		'<option title="' + jslet.locale.findDialog.matchLast + '">*=</option>' + 
-		'<option title="' + jslet.locale.findDialog.matchAny + '">*=*</option></select></div>' +
-		'<div class="col-sm-1 btn-group btn-group-sm jl-nogap"><button class="btn jl-finddlg-find fa fa-search"></button></div></div>'
 			
+		var content = '<div class="input-group" style="width:200px"><input class="form-control jl-finddlg-value form-control"/>' + 
+		'<div class="input-group-btn"><button class="btn btn-default jl-finddlg-find"><i class="fa fa-search" /></button></div></div>';
+		
 		_dialog.setContent(content);
+		
 		var dlgEl = _dialog.el;
 		var jqOptions = jQuery(dlgEl).find('.jl-finddlg-opt');
 
@@ -49,17 +46,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 		});
 
 		function findData() {
-			var matchType = jqOptions.val();
-			if(matchType == '=*') {
-				matchType = 'first';
-			} else if(matchType == '*=') {
-				matchType = 'last';
-			} else if(matchType == '*=*') {
-				matchType = 'any';
-			} else {
-				matchType = null;
-			}
-			_dataset.findByField(_findingField, jqFindingValue.val(), true, true, matchType);
+			_dataset.findByField(_findingField, jqFindingValue.val(), true, true, 'any');
 		}
 	}
 	

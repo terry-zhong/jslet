@@ -69,7 +69,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 
 		Z._stopEventBubbling = false;
 		
-		//@private
 		Z._isModal = false;
 		
 		Z._state = null; 
@@ -381,25 +380,19 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (!jqEl.hasClass('jl-window')) {
 			jqEl.addClass('panel panel-default jl-window');
 		}
-		if (!Z._width) {
-			Z._width = parseInt(Z.el.style.width);
+		if(Z._sizeClass) {
+			jqEl.addClass(Z._sizeClass);
 		}
-		if (!Z._height) {
-			Z._height = parseInt(Z.el.style.height);
+		if (Z._width) {
+			jqEl.width(Z._width);
 		}
-		if (!Z._width) {
-			Z._width = 300;
+		if (Z._height) {
+			jqEl.height(Z._height);
 		}
-		if (!Z._height) {
-			Z._height = 300;
-		}
-		Z.el.style.width = Z._width + 'px';
-		Z.el.style.height = Z._height + 'px';
 
 		var template = [
 		'<div class="panel-heading jl-win-header jl-win-header-sm" style="cursor:move">',
 			Z._iconClass ? '<span class="jl-win-header-icon ' + Z._iconClass + '"></span>' : '',
-
 			'<span class="panel-title jl-win-caption">', Z._caption ? Z._caption : '', '</span>',
 			'<span class="jl-win-tool jl-unselectable">'];
 			template.push(Z._closable ? '<button class="close jl-win-close" onfocus="this.blur();">x</button>' : '');
@@ -423,16 +416,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			}
 		});
 		
+		if (Z._height) {
+			Z._changeBodyHeight();
+		}
 		var jqHeader = jqEl.find('.jl-win-header'),
 			header = jqHeader[0];
-		Z._headerHeight = jqHeader.outerHeight();
-		var bodyDiv = jqEl.find('.jl-win-body')[0],
-			bh = Z._height - Z._headerHeight - 12;
-		if (bh < 0) {
-			bh = 0;
-		}
-		bodyDiv.style.height = bh + 'px';
-		jqBody = jQuery(bodyDiv);
+		var jqBody = jqEl.find('.jl-win-body');
 		jqBody.on('mouseenter',function (event) {
 			window.setTimeout(function(){
 				if (jslet.temp_dragging) {
@@ -541,12 +530,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z._minimizable) {
 			var jqMin = jqEl.find('.jl-win-min');
 			jqMin.click(function (event) {
-//				if (Z._state == 'max') {
-//					var btnMax = jqEl.find('.jl-win-restore')[0];
-//					if (btnMax) {
-//						btnMax.className = 'jl-win-max';
-//					}
-//				}
 				Z.minimize();
 				event = jQuery.event.fix( event || window.event );
 				event.stopPropagation();
@@ -578,14 +561,15 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 * @param {Integer} top Position top.
 	 */
 	show: function (left, top) {
-		var Z = this;
+		var Z = this,
+			jqEl = jQuery(Z.el);
 		if (Z._isCenter) {
-			var offsetP = jQuery(Z.el).offsetParent()[0],
+			var offsetP = jqEl.offsetParent()[0],
 				jqOffsetP = jQuery(offsetP),
 				pw = jqOffsetP.width(),
 				ph = jqOffsetP.height();
-			left = offsetP.scrollLeft + Math.round((pw - Z._width) / 2);
-			top = offsetP.scrollTop + Math.round((ph - Z._height) / 2);
+			left = offsetP.scrollLeft + Math.round((pw - jqEl.outerWidth()) / 2);
+			top = offsetP.scrollTop + Math.round((ph - jqEl.outerHeight()) / 2);
 		}
 
 		Z.top = top ? top : 0;
@@ -666,7 +650,10 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z._state == 'max') {
 			Z.restore();
 		}
-		Z.changeSize(null, Z._headerHeight + 8, true);
+		var jqEl = jQuery(Z.el);
+		Z._tempHeight = jqEl.height();
+		Z._tempWidth = jqEl.width();
+		Z.changeSize(Z._tempWidth, Z._getHeaerHeight() + 2);
 		Z._state = 'min';
 	},
 
@@ -676,10 +663,15 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	maximize: function () {
 		var Z = this;
 		var offsetP = jQuery(Z.el).offsetParent();
-		var width = offsetP.width(); // -12;
-		var height = offsetP.height(); // -12;
+		var width = offsetP.innerWidth(); // -12;
+		var height = offsetP.innerHeight(); // -12;
 		Z.setPosition(0, 0, true);
-		Z.changeSize(width, height, true);
+		if (Z._state !== 'min') {
+			var jqEl = jQuery(Z.el);
+			Z._tempHeight = jqEl.height();
+			Z._tempWidth = jqEl.width();
+		}
+		Z.changeSize(width, height);
 		Z._state = 'max';
 	},
 
@@ -689,7 +681,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	restore: function () {
 		var Z = this;
 		Z.setPosition(Z.left, Z.top, true);
-		Z.changeSize(Z._width, Z._height, true);
+		Z.changeSize(Z._tempWidth, Z._tempHeight);
 		Z._state = null;
 	},
 
@@ -744,41 +736,38 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 * @param {Boolean} notUpdateSize True - Only change html element size, 
 	 *		not change the inner size of Window object, it is usually use for moving action
 	 */
-	changeSize: function (width, height, notUpdateSize) {
+	changeSize: function (width, height) {
 		var Z = this;
-		if (!width) {
-			width = Z._width;
-		}
-		if (!height) {
-			height = Z._height;
-		}
-
 		if (Z._onSizeChanged) {
 			Z._onSizeChanged.call(Z, width, height);
 		}
 
-		if (!notUpdateSize) {
-			Z._width = width;
-			Z._height = height;
-		}
-		Z.el.style.width = width + 'px';
-		Z.el.style.height = height + 'px';
-
 		var jqEl = jQuery(Z.el);
-		var bodyDiv = jqEl.find('.jl-win-body')[0];
-		var bh = height - Z._headerHeight - 12;
-		if (bh < 0) {
-			bh = 0;
-		}
-		bodyDiv.style.height = bh + 'px';
+		jqEl.width(width);
+		jqEl.height(height);
+		Z._changeBodyHeight();
 	},
 
+	_getHeaerHeight: function() {
+		var Z = this,
+			jqEl = jQuery(Z.el),
+			jqHeader = jqEl.find('.jl-win-header');
+		return jqHeader.outerHeight();
+	},
+	
+	_changeBodyHeight: function() {
+		var Z = this,
+			jqEl = jQuery(Z.el),
+			jqBody = jqEl.find('.jl-win-body');
+		jqBody.outerHeight(jqEl.innerHeight() - Z._getHeaerHeight());
+	},
+	
 	/**
 	 * Get window caption element. You can use it to customize window caption.
 	 * 
 	 * @return {Html Element}
 	 */
-	getCaptionDiv: function () {
+	getCaptionPanel: function () {
 		return jQuery(this.el).find('.jl-win-caption')[0];
 	},
 
@@ -798,7 +787,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 * 
 	 * @return {Html Element}
 	 */
-	getContentDiv: function () {
+	getContentPanel: function () {
 		return jQuery(this.el).find('.jl-win-body')[0];
 	},
 
@@ -845,7 +834,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			jqNode = jQuery(node);
 			if (jqNode.hasClass('jl-window')) {
 				if (maxIndex < node.style.zIndex) {
-					maxIndex = node.style.zIndex;
+					maxIndex = parseInt(node.style.zIndex);
 				}
 				if (!Z._isModal) {
 					jqNode.find('.jl-win-header').removeClass('jl-window-active');
@@ -853,7 +842,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 		if (Z.el.style.zIndex < maxIndex || maxIndex === 0) {
-			Z.setZIndex(maxIndex + 3);
+			Z.setZIndex(maxIndex + 2);
 		}
 	},
 
@@ -887,44 +876,48 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (!Z.tracker || !Z.cursor) {
 			return;
 		}
-		var w = Z.el.offsetWidth, h = Z.el.offsetHeight, top = null, left = null;
+		var jqEl = jQuery(Z.el), 
+			w = jqEl.width(), 
+			h = jqEl.height(), 
+			top = null, left = null;
 
 		if (Z.cursor == 'nw') {
-			w = Z._width - deltaX;
-			h = Z._height - deltaY;
+			w = w - deltaX;
+			h = h - deltaY;
 			top = Z.top + deltaY;
 			left = Z.left + deltaX;
 		} else if (Z.cursor == 'n') {
-			h = Z._height - deltaY;
+			h = h - deltaY;
 			top = Z.top + deltaY;
 		} else if (Z.cursor == 'ne') {
-			h = Z._height - deltaY;
-			w = Z._width + deltaX;
+			h = h - deltaY;
+			w = w + deltaX;
 			top = Z.top + deltaY;
 		} else if (Z.cursor == 'e') {
-			w = Z._width + deltaX;
+			w = w + deltaX;
 		} else if (Z.cursor == 'se') {
-			w = Z._width + deltaX;
-			h = Z._height + deltaY;
+			w = w + deltaX;
+			h = h + deltaY;
 		} else if (Z.cursor == 's'){
-			h = Z._height + deltaY;
+			h = h + deltaY;
 		} else if (Z.cursor == 'sw') {
-			h = Z._height + deltaY;
-			w = Z._width - deltaX;
+			h = h + deltaY;
+			w = w - deltaX;
 			left = Z.left + deltaX;
 		} else if (Z.cursor == 'w') {
-			w = Z._width - deltaX;
+			w = w - deltaX;
 			left = Z.left + deltaX;
 		}
 
 		if (!Z._checkSize(w, h)) {
 			return;
 		}
+		var jqTracker = jQuery(Z.tracker);
 		if (w) {
-			Z.tracker.style.width = w + 'px';
+			jqTracker.width(w);
 		}
 		if (h) {
-			Z.tracker.style.height = h + 'px';
+			jqTracker.height(h);
 		}
 		if (top) {
 			Z.tracker.style.top = top + 'px';
@@ -1024,13 +1017,18 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z.tracker) {
 			return;
 		}
+		var jqEl = jQuery(Z.el), 
+			w = jqEl.width(), 
+			h = jqEl.height();
+		
 		Z.tracker = document.createElement('div');
-		jQuery(Z.tracker).addClass('jl-win-tracker');
+		var jqTracker = jQuery(Z.tracker);
+		jqTracker.addClass('jl-win-tracker');
 		Z.tracker.style.top = Z.top + 'px';
 		Z.tracker.style.left = Z.left + 'px';
 		Z.tracker.style.zIndex = 99999;
-		Z.tracker.style.width = Z._width + 'px';
-		Z.tracker.style.height = Z._height + 'px';
+		jqTracker.width(w);
+		jqTracker.height(h);
 		Z.tracker.style.display = 'block';
 		Z.el.parentNode.appendChild(Z.tracker);
 	},
@@ -1106,33 +1104,8 @@ jslet.ui.MessageBox = function () {
 	 * 
 	 */
 	this.show = function (message, caption, iconClass, buttons, callbackFn, hasInput, defaultValue, validateFn) {
-		jslet.ui.textMeasurer.setElement(document.body);
-		var arrMsg = message.split('\n'),
-			msgLen = arrMsg.length;
-		var mh = jslet.ui.textMeasurer.getHeight(message),
-			mw = 0;
-		for(var i = 0; i < msgLen; i++) {
-			mw = Math.max(mw, jslet.ui.textMeasurer.getWidth(message[i]));
-		}
-		mh = mh * arrMsg.length + 100;
-		jslet.ui.textMeasurer.setElement();
-		if (mw < 200) {
-			mw = 200;
-		}
-		message = message.replace('\n', '<br />');
-		var btnWidth = parseInt(jslet.ui.getCssValue('jl-msg-button', 'width'));
-		var btnCount = buttons.length;
-		var toolWidth = (btnWidth + 10) * btnCount - 10;
-		if (mw < toolWidth) {
-			mw = toolWidth;
-		}
-		mw += 100;
-		if (hasInput == 1)  {
-			mh += 25;
-		} else if (hasInput == 2) {
-				mh += 100;
-		}
-		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true, height: mh, width: mw };
+
+		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true};
 		var owin = jslet.ui.createControl(opt);
 		var iconHtml = '';
 		if (iconClass) {
@@ -1166,30 +1139,25 @@ jslet.ui.MessageBox = function () {
 			iconHtml += '"></i></div>';
 		}
 
-		var btnHtml = [], btnName, left, k = 0, i;
+		var btnCount = buttons.length;
+		var btnHtml = [], btnName;
 		if (jslet.locale.isRtl){
-			for (i = btnCount - 1; i >=0; i--) {
+			for (var i = btnCount - 1; i >=0; i--) {
 				btnName = buttons[i];
-				left = (k++) * (btnWidth + 10) - 10;
-				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
+				btnHtml.push('<button class="jl-msg-button btn btn-default btn-xs" ');
 				btnHtml.push(' data-jsletname="');
 				btnHtml.push(btnName);
-				btnHtml.push('" style="left: ');
-				btnHtml.push(left);
-				btnHtml.push('px">');
+				btnHtml.push('">');
 				btnHtml.push(jslet.locale.MessageBox[btnName]);
 				btnHtml.push('</button>');
 			}
 		} else {
-			for (i = 0; i < btnCount; i++) {
+			for (var i = 0; i < btnCount; i++) {
 				btnName = buttons[i];
-				left = i * (btnWidth + 10) - 10;
-				btnHtml.push('<button class="jl-msg-button btn btn-default btn-sm" ');
+				btnHtml.push('<button class="jl-msg-button btn btn-default btn-xs" ');
 				btnHtml.push('" data-jsletname="');
 				btnHtml.push(btnName);
-				btnHtml.push('" style="left: ');
-				btnHtml.push(left);
-				btnHtml.push('px">');
+				btnHtml.push('">');
 				btnHtml.push(jslet.locale.MessageBox[btnName]);
 				btnHtml.push('</button>');
 			}
@@ -1214,9 +1182,10 @@ jslet.ui.MessageBox = function () {
 				inputHtml.push('></textarea>');
 			}
 		}
+		message = message.replace('\n', '<br />');
 		var html = ['<div class="jl-msg-container">', iconHtml, '<div class="' + (hasInput? 'jl-msg-message-noicon': 'jl-msg-message') + '">',
 					message, inputHtml.join(''), '</div>', '</div>',
-					'<div class="jl-msg-tool"><div style="position:relative;width:', toolWidth, 'px;margin:0px auto;">', btnHtml.join(''), '</div></div>'
+					'<div class="jl-msg-tool"><div>', btnHtml.join(''), '</div></div>'
 		];
 
 		owin.setContent(html.join(''));
@@ -1229,7 +1198,7 @@ jslet.ui.MessageBox = function () {
 			inputCtrl = jqEl.find('.jl-msg-container textarea')[0];
 		}
 		var obtn;
-		for (i = 0; i < btnCount; i++) {
+		for (var i = 0; i < btnCount; i++) {
 			obtn = toolBar.childNodes[i];
 			obtn.onclick = function () {
 				btnName = jQuery(this).attr('data-jsletname');
@@ -1256,7 +1225,7 @@ jslet.ui.MessageBox = function () {
 		
 		owin.showModal();
 		owin.setZIndex(99981);
-		k = 0;
+		var k = 0;
 		if (jslet.locale.isRtl) {
 			k = btnCount - 1;
 		}

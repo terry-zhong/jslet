@@ -208,31 +208,6 @@
   left: 2px;
 }
 
-/*
-.jl-combosel-btn {
-    background-image: url('images/customcombobox/combodlg.png');
-    background-repeat: no-repeat;
-}
-
-.jl-combosel-btn-disabled {
-    background-position: -18px 0;
-}
-
-.jl-datepick-btn {
-    background-image: url('images/customcombobox/date-btn.gif');
-    background-repeat: no-repeat;    
-    background-position: 0 0;
-}
-
-.jl-datepick-btn-disabled {
-    background-position: -18px 0;
-}
-*/
-/* Popup panel style */
-.jl-combopnl {
-    /*    border:1px solid black;     padding:10px;     position:relative */
-}
-
 .jl-combopnl-head {
 	height:35px;
 	position:absolute;
@@ -495,20 +470,6 @@ a.jl-pb-button-disabled:hover {
     padding-right: 5px;
 }
 
-/*DBRadioGroup*/
-.jl-radiogroup, .jl-checkboxgroup {
-	overflow:hidden;
-}
-
-.jl-radiogroup table, .jl-checkboxgroup table{
-	border: 0!important;
-}
-
-.jl-radiogroup td, .jl-checkboxgroup td {
-	padding-right: 8px;
-	border: 0!important;
-}
-
 .jl-waitingbox-icon {
     background-color: transparent;
     background-image: url(images/waiting/waiting.gif);
@@ -529,6 +490,23 @@ a.jl-pb-button-disabled:hover {
     float: right;
 }
 
+/*DBRadioGroup*/
+.jl-radiogroup, .jl-checkboxgroup {
+	overflow:hidden;
+	padding:0 3px;
+}
+
+.jl-radiogroup table, .jl-checkboxgroup table{
+	border: 0!important;
+	width:100%;
+}
+
+.jl-radiogroup td, .jl-checkboxgroup td {
+	padding-right: 8px;
+	border: 0!important;
+	vertical-align:middle;
+}
+
 /*tip panel */
 .jl-tip-panel {
     background-color: #ffffce;
@@ -543,18 +521,6 @@ a.jl-pb-button-disabled:hover {
     -webkit-border-radius: 5px;
     font-size: smaller; 
     display: none;
-}
-
-.jl-invalid {
-    border-bottom-color: red;/*rgb(204, 51, 0);*/
-    border-right-color: rgb(238, 238, 238);/*rgb(204, 51, 0);*/
-    border-width: 1px;
-	/**/background-image: url(images/invalid/wave.png);
-    background-position: bottom;
-    background-repeat: repeat-x;
-    padding: 2px;
-    border-right-width: 2px;
-    padding-right: 1px;
 }
 
 .jl-timepicker {

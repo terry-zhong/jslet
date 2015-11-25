@@ -20,10 +20,14 @@
 }
 
 .jl-window-active {
-	color:blue!important;
+	background-color: rgb(45, 108, 162)!important;
+	background-image:linear-gradient(to bottom,#e5e5e5 0,#d8d8d8 100%)!important;
 }
 	
 .jl-win-header {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .jl-win-header-sm {
@@ -60,7 +64,6 @@
 	left: 0;
 }
 
-
 .jl-win-close {
 	margin-left:6px;
 }
@@ -73,7 +76,11 @@
 }
 
 .jl-win-body {
+	position:relative;
 	cursor:default;
+  	overflow: auto;
+  	top:auto;
+  	bottom: 0px;
 }
 
 .jl-win-tracker {
