@@ -2318,9 +2318,16 @@ jslet.data.Dataset.prototype = {
 	
 	/** 
 	* Iterate the child records of current record, and run the specified callback function. 
+	* Callback function pattern:
+	* 	//@param {Boolean} isDirectChild - true - is direct child, false - otherwise.
+	* 	//@return {Boolean} identify continue iterating or not, true - break iterating, false -continue iterating.
+	*   //
+	* 	function(isDirectChild) {
+	* 		return false;
+	* 	}
 	* Example: 
 	* 
-	* dataset.iterateChildren(function(){
+	* dataset.iterateChildren(function(isDirectChild){
 	* 	var fldValue = this.getFieldValue('xxx');
 	* 	this.setFieldValue('xxx', fldValue);
 	* }); 
@@ -2332,7 +2339,7 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		var context = Z.startSilenceMove();
-		var preKeyValue = Z.keyValue();
+		var rootValue = preKeyValue = Z.keyValue();
 		var arrPValues = [];
 		try {
 			Z.next();
@@ -2340,7 +2347,7 @@ jslet.data.Dataset.prototype = {
 			while (!Z.isEof()) {
 				pValue = Z.parentValue();
 				isExist = (arrPValues.indexOf(pValue) >= 0);
-				if(pValue === preKeyValue && !isExist) {
+				if(jslet.compareValue(pValue, preKeyValue) === 0 && !isExist) {
 					arrPValues.push(preKeyValue);
 					isExist = true;
 				}
@@ -2348,7 +2355,10 @@ jslet.data.Dataset.prototype = {
 					return;
 				}
 				if(callBackFn) {
-					callBackFn.call(Z);
+					var breakIterator = callBackFn.call(Z, jslet.compareValue(pValue, rootValue) === 0);
+					if(breakIterator) {
+						break;
+					}
 				}
 				preKeyValue = Z.keyValue();
 				Z.next();
@@ -3519,7 +3529,7 @@ jslet.data.Dataset.prototype = {
 		
 		function matchValue(matchType, value, findingValue) {
 			if(!matchType) {
-				return value == findingValue;
+				return jslet.compareValue(value, findingValue) === 0;
 			}
 			if(matchType == 'first') {
 				return jslet.like(value, findingValue + '%');
@@ -3618,12 +3628,13 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
-	 * Find record and return specified field value
+	 * Find record and return the specified field value
 	 * 
 	 * @param {String} fldName - field name
 	 * @param {Object} findingValue - finding field value
 	 * @param {String} returnFieldName - return value field name
-	 * @return {Object} 
+	 * 
+	 * @return {Object} field value.
 	 */
 	lookup: function (fldName, findingValue, returnFieldName) {
 		if (this.findByField(fldName, findingValue)) {
@@ -3633,6 +3644,14 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
+	/**
+	 * Find record with key value and return the specified field value.
+	 * 
+	 * @param {Object} keyValue - key value
+	 * @param {String} returnFieldName - return value field name
+	 * 
+	 * @return {Object} field value.
+	 */
 	lookupByKey: function(keyValue, returnFldName) {
 		if (this.findByKey(keyValue)) {
 			return this.getFieldValue(returnFldName);
@@ -3641,6 +3660,48 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 	
+	/**
+	 * Check the field value of 'fldName' is in the children of 'parentValue' or not.
+	 * 
+	 * @param {String} fldname - field name which is checking, this field must connect a 'tree-style' dataset;
+	 * @param {Object} parentValue - the value which is used to check;
+	 * @param {Boolean} onlyDirectChildren - true - only the direct children to be used to check, false - otherwise.
+	 * 
+	 * @return {Boolean} true - the field value of current record is one of the children of the 'parentValue', false -otherwise.
+	 */
+	inchildren: function(fldName, parentValue, onlyDirectChildren) {
+		jslet.Checker.test('inchildren#fldName', fldName).required().isString();
+		jslet.Checker.test('inchildren#parentValue', parentValue).required();
+		var Z = this,
+			fldObj = Z.getField(fldName);
+		if(!fldObj) {
+			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+		}
+		var lookup = fldObj.lookup();
+		if(!lookup) {
+			throw new Error(jslet.formatString(jslet.locale.Dataset.lookupFieldExpected, [fldName]));
+		}
+		var lkds = lookup.dataset();
+		jslet.Checker.test('inchildren#lookupDataset', lkds).required();
+		jslet.Checker.test('inchildren#lookupDataset.parentField', lkds.parentField()).required();
+		if(!lkds.findByKey(parentValue)) {
+			return false;
+		}
+		var fldValue = Z.getFieldValue(fldName);
+		var found = false;
+		lkds.iterateChildren(function(isDirectChild) {
+			var breakIterator = false;
+			if(!onlyDirectChildren || (onlyDirectChildren && isDirectChild)) {
+				if(jslet.compareValue(lkds.keyValue(), fldValue) === 0) {
+					breakIterator = true;
+					found = true;
+				}
+			}
+			return breakIterator;
+		});
+		return found;
+	},
+
 	/**
 	 * Copy dataset's data. Example:
 	 * <pre><code>

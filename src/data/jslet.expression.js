@@ -52,6 +52,7 @@ jslet.Expression.prototype = {
 			fldName = stag[0];
 
 			if (!fldName || fldName.endsWith('(')) {
+				console.log(fldName);
 				continue;
 			}
 
@@ -135,9 +136,18 @@ jslet.Expression.prototype = {
 	 * @param {Object} dataRec Data record object, this argument is used in parsedExpr 
 	 * @return {Object} The value of Expression.
 	 */
-	eval: function() {
+	eval: function(dataRec) {
 		var context = this.context;
 		context.mainds = this._dataset;
+		context.dataRec = dataRec;
+		//Customized functions for expression evaluation
+		var like = jslet.like;
+		var between = jslet.between;
+		var inlist = jslet.inlist;
+		var inchildren = function(fldName, parentValue, onlyDirectChild) {
+			return context.mainds.inchildren(fldName, parentValue, onlyDirectChild);
+		};
+		
 		return eval(this._parsedExpr);
 	},
 	
@@ -149,7 +159,6 @@ jslet.Expression.prototype = {
 		this._expr = null;
 		this.context = null;
 	}
-
 	
 };
 

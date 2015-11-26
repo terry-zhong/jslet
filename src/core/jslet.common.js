@@ -596,7 +596,7 @@ jslet._convertToJsPattern = function(pattern, escapeChar) {
  *  @param {String} pattern sql pattern, syntax like SQL
  *  @return {Boolean} True if matched, false otherwise
  */
-jslet.like = like = window.like = function(testValue, pattern, escapeChar) {
+jslet.like = function(testValue, pattern, escapeChar) {
 	if (!testValue || !pattern) {
 		return false;
 	}
@@ -625,7 +625,7 @@ jslet.like = like = window.like = function(testValue, pattern, escapeChar) {
  * @param {Object} maxValue maximum value
  * @return {Boolean} True if matched, false otherwise
  */
-jslet.between = between = window.between = function(testValue, minValue, maxValue) {
+jslet.between = function(testValue, minValue, maxValue) {
 	if (arguments.length != 3) {
 		return false;
 	}
@@ -642,7 +642,7 @@ jslet.between = between = window.between = function(testValue, minValue, maxValu
  * @param {Object} valueList - one or more arguments
  * @return {Boolean} True if matched, false otherwise
  */
-jslet.inlist = inlist = window.inlist = function(testValue, valueList) {
+jslet.inlist = function(testValue, valueList) {
 	var cnt = arguments.length;
 	if (cnt <= 2) {
 		return false;
@@ -694,6 +694,50 @@ jslet.setTimeout = function(obj, func, time) {
         func.call(obj);
     };
     setTimeout(jslet.delayFunc, time);
+};
+
+/**
+ * Compare two values.
+ * 
+ *  @param {Object} value1 - value1
+ *  @param {Object} value2 - value2
+ *  @param {Boolean} ignoreCase - identify ignoring case sensitive or not if values are string value 
+ *  
+ *  @return {Integer} 0 - value1 = value2, -1 - value1 < value2, 1 - value1 > value2
+ */
+jslet.compareValue = function(value1, value2, caseSensitive) {
+	value1 = (value1 === undefined? null: value1);
+	value2 = (value2 === undefined? null: value2);
+	if(value1 === value2) {
+		return 0;
+	}
+	if(value1 === null && value2 !== null) {
+		return -1;
+	}
+	if(value2 === null && value1 !== null) {
+		return 1;
+	}
+	var isStr1 = jslet.isString(value1),
+		isStr2 = jslet.isString(value2);
+	if(!isStr1 && !isStr2) {
+		if(jslet.isDate(value1)) {
+			value1 = value1.getTime();
+			value2 = value2.getTime();
+		}
+		return value1 == value2? 0: (value1 < value2? -1: 1);
+	}
+	//compare string value
+	if(!isStr1) {
+		value1 = value1 + '';
+	}
+	if(!isStr2) {
+		value2 = value2 + '';
+	}
+	if(!caseSensitive) {
+		value1 = value1.toLowerCase();
+		value2 = value2.toLowerCase();
+	}
+	return value1.localeCompare(value2);
 };
 
 /**
