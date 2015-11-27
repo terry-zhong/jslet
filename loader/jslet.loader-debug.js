@@ -107,10 +107,11 @@ var _initialModules = [
 	{ name: 'dbrangeselect', src: '../src/ui/dbcontrol/form/jslet.dbrangeselect.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dbrating', src: '../src/ui/dbcontrol/form/jslet.dbrating.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dbselect', src: '../src/ui/dbcontrol/form/jslet.dbselect.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
+	{ name: 'dblist', src: '../src/ui/dbcontrol/form/jslet.dblist.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dbspinedit', src: '../src/ui/dbcontrol/form/jslet.dbspinedit.js', deps: ['dbtext'], baseOnLoader: true },
 	{ name: 'dbtext', src: '../src/ui/dbcontrol/form/jslet.dbtext.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	
-	{ name: 'formcontrols', deps: ['dbplace','dbautocomplete','dbbetweenedit','dbcheckbox','dbcheckboxgroup','dbcomboselect','dbdatepicker','dbtimepicker','dbdatalabel','dbhtml','dbimage','dblabel','dblookuplabel','dbradiogroup','dbrangeselect','dbrating','dbselect','dbspinedit','dbtext'], baseOnLoader: true },
+	{ name: 'formcontrols', deps: ['dbplace','dbautocomplete','dbbetweenedit','dbcheckbox','dbcheckboxgroup','dbcomboselect','dbdatepicker','dbtimepicker','dbdatalabel','dbhtml','dbimage','dblabel','dblookuplabel','dbradiogroup','dbrangeselect','dbrating','dbselect','dblist','dbspinedit','dbtext'], baseOnLoader: true },
 	
 	{ name: 'listviewmodel', src: '../src/ui/dbcontrol/container/jslet.listviewmodel.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dbtable', src: '../src/ui/dbcontrol/container/jslet.dbtable.js', deps: ['jslet-table','listviewmodel'], baseOnLoader: true },

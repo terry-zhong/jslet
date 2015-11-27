@@ -65,7 +65,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'styleClass,dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog,hasFilterDialog';
+		Z.allProperties = 'styleClass,dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,beforeSelect,beforeSelectAll,afterSelect,afterSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog,hasFilterDialog';
 		
 		Z._fixedRows = 0;
 
@@ -114,6 +114,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._onSelect = null;
 
 		Z._onSelectAll = null;
+		
+		Z._beforeSelect = null;
+		
+		Z._afterSelect = null;
+		
+		Z._beforeSelectAll = null;
+		
+		Z._afterSelectAll = null;
 		
 		Z._onFillRow = null;
 		
@@ -509,6 +517,78 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jslet.Checker.test('DBTable.onSelectAll', onSelectAll).isFunction();
 		this._onSelectAll = onSelectAll;
+	},
+	
+	/**
+	 * Fired when table row is selecting(select column is checked).
+	 *  Pattern: 
+	 *   function(selected}{}
+	 *   //selected: Boolean
+	 *   //return: true - allow user to select this row, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelect table row selected event handler.
+	 * @return {this or Function}
+	 */
+	beforeSelect: function(beforeSelect) {
+		if(beforeSelect === undefined) {
+			return this._beforeSelect;
+		}
+		jslet.Checker.test('DBTable.beforeSelect', beforeSelect).isFunction();
+		this._beforeSelect = beforeSelect;
+	},
+	
+	/**
+	 * Fired when table row is selected(select column is checked).
+	 *  Pattern: 
+	 *   function(selected}{}
+	 *   //selected: Boolean
+	 *   //return: true - allow user to select this row, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelect table row selected event handler.
+	 * @return {this or Function}
+	 */
+	afterSelect: function(afterSelect) {
+		if(afterSelect === undefined) {
+			return this._afterSelect;
+		}
+		jslet.Checker.test('DBTable.afterSelect', afterSelect).isFunction();
+		this._afterSelect = afterSelect;
+	},
+	
+	/**
+	 * Fired when all table rows are selecting(select column is checked).
+	 *  Pattern: 
+	 *   function(selected}{}
+	 *   //selected: Boolean
+	 *   //return: true - allow user to select this row, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelect table row selected event handler.
+	 * @return {this or Function}
+	 */
+	beforeSelectAll: function(beforeSelectAll) {
+		if(beforeSelectAll === undefined) {
+			return this._beforeSelectAll;
+		}
+		jslet.Checker.test('DBTable.beforeSelectAll', beforeSelectAll).isFunction();
+		this._beforeSelectAll = beforeSelectAll;
+	},
+	
+	/**
+	 * Fired when all table rows are selected(select column is checked).
+	 *  Pattern: 
+	 *   function(selected}{}
+	 *   //selected: Boolean
+	 *   //return: true - allow user to select this row, false - otherwise.
+	 *  
+	 * @param {Function or undefined} onSelect table row selected event handler.
+	 * @return {this or Function}
+	 */
+	afterSelectAll: function(afterSelectAll) {
+		if(afterSelectAll === undefined) {
+			return this._afterSelectAll;
+		}
+		jslet.Checker.test('DBTable.afterSelectAll', afterSelectAll).isFunction();
+		this._afterSelectAll = afterSelectAll;
 	},
 	
 	/**
@@ -2306,8 +2386,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					return;
 				}
 			}
-
+			if(oJslet._beforeSelect) {
+				oJslet._beforeSelect.call(oJslet);
+			}
 			oJslet._dataset.select(ocheck.checked ? 1 : 0, oJslet._selectBy);
+			if(oJslet._afterSelect) {
+				oJslet._afterSelect.call(oJslet);
+			}
 		}
 	}, // end _doSelectBoxClick
 
@@ -3323,7 +3408,13 @@ jslet.ui.SelectCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		ocheckbox.type = 'checkbox';
 		var Z = this;
 		jQuery(ocheckbox).addClass('jl-tbl-select-check jl-tbl-select-all').on('click', function (event) {
+			if(Z._beforeSelectAll) {
+				Z._beforeSelectAll.call(Z);
+			}
 			Z._dataset.selectAll(this.checked ? 1 : 0, Z._onSelectAll);
+			if(Z._afterSelectAll) {
+				Z._afterSelectAll.call(Z);
+			}
 		});
 		cellPanel.appendChild(ocheckbox);
 	},
