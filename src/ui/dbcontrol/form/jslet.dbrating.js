@@ -33,7 +33,7 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,itemCount,splitCountitemWidth';
+		Z.allProperties = 'styleClass,dataset,field,itemCount,splitCountitemWidth';
 		/**
 		 * {Integer} Rate item count, In other words, the count of 'Star' sign.
 		 */

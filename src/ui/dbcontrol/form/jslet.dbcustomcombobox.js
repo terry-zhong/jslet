@@ -14,7 +14,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,textReadOnly';
+		Z.allProperties = 'styleClass,dataset,field,textReadOnly';
 		Z._textReadOnly = false;
 		Z.enableInvalidTip = false;
 

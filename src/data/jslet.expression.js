@@ -144,10 +144,12 @@ jslet.Expression.prototype = {
 		var like = jslet.like;
 		var between = jslet.between;
 		var inlist = jslet.inlist;
-		var inchildren = function(fldName, parentValue, onlyDirectChild) {
-			return context.mainds.inchildren(fldName, parentValue, onlyDirectChild);
+		var inChildren = inchildren = function(fldName, parentValue, onlyDirectChild) {
+			return context.mainds.inChildren(fldName, parentValue, onlyDirectChild);
 		};
-		
+		var inChildrenAndSelf = inchildrenandself = function(fldName, parentValue, onlyDirectChild) {
+			return context.mainds.inChildrenAndSelf(fldName, parentValue, onlyDirectChild);
+		}; 
 		return eval(this._parsedExpr);
 	},
 	

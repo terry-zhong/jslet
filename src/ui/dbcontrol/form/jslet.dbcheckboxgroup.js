@@ -33,7 +33,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,columnCount,hasSelectAllBox';
+		Z.allProperties = 'styleClass,dataset,field,columnCount,hasSelectAllBox';
 		/**
 		 * {Integer} Column count
 		 */

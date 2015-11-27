@@ -34,7 +34,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,columnCount,rowHeight,fields';
+		Z.allProperties = 'styleClass,dataset,columnCount,rowHeight,fields';
 		
 		/**
 		 * {Integer} Column count

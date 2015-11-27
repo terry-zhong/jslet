@@ -31,7 +31,7 @@ jslet.ui.FieldSet = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'caption,collapsed';
+		Z.allProperties = 'styleClass,caption,collapsed';
 
 		Z._caption = null; 
 		

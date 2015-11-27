@@ -31,7 +31,7 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	initialize: function ($super, el, params) {
-		this.allProperties = 'dataset,field';
+		this.allProperties = 'styleClass,dataset,field';
 		this.editControl = null;
 		$super(el, params);
 	},

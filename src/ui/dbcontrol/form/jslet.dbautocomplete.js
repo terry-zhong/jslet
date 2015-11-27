@@ -32,7 +32,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		if (!Z.allProperties) {
-			Z.allProperties = 'dataset,field,lookupField,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField,filterFields';
+			Z.allProperties = 'styleClass,dataset,field,lookupField,minChars,minDelay,displayTemplate,matchMode,beforePopup,onGetFilterField,filterFields';
 		}
 		
 		Z._lookupField = null;

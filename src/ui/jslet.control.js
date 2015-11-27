@@ -22,11 +22,12 @@ jslet.ui.Control = jslet.Class.create({
 	 * it would be a JSON string or plan object, like: '{prop1: value1, prop2: value2}';
 	 */
 	initialize: function (el, ctrlParams) {
-		this.el = el;
+		var Z = this;
+		Z.el = el;
 
-		this.allProperties = null;
+		Z.allProperties = null;
 		ctrlParams = jslet.ui._evalParams(ctrlParams);
-		if (this.isValidTemplateTag	&& !this.isValidTemplateTag(this.el)) {
+		if (Z.isValidTemplateTag	&& !Z.isValidTemplateTag(Z.el)) {
 			var ctrlClass = jslet.ui.getControlClass(ctrlParams.type), template;
 			if (ctrlClass) {
 				template = ctrlClass.htmlTemplate;
@@ -35,14 +36,26 @@ jslet.ui.Control = jslet.Class.create({
 			}
 			throw new Error(jslet.formatString(jslet.locale.DBControl.invalidHtmlTag, template));
 		}
-
-		this._childControls = null;
-		this.setParams(ctrlParams);
-		this.checkRequiredProperty();
-		this.el.jslet = this;
-		this.beforeBind();
-		this.bind();
-		this.afterBind();
+		Z._styleClass = null;
+		
+		Z.styleClass = function(styleClass) {
+			if(styleClass === undefined) {
+				return Z._styleClass;
+			}
+			Z._styleClass = styleClass;
+		};
+		
+		Z._childControls = null;
+		Z.setParams(ctrlParams);
+		Z.checkRequiredProperty();
+		Z.el.jslet = this;
+		Z.beforeBind();
+		Z.bind();
+		var jqEl = jQuery(Z.el);
+		if(Z._styleClass) {
+			jqEl.addClass(Z._styleClass);
+		}
+		Z.afterBind();
 	},
 
 	beforeBind: function() {
@@ -65,10 +78,11 @@ jslet.ui.Control = jslet.Class.create({
 			return;
 		}
 		var ctrlType = ctrlParams.type;
+		this.styleClass(ctrlParams.styleClass);
 		
 		for(var name in ctrlParams) {
 			var prop = this[name];
-			if(name == 'type') {
+			if(name == 'type' || name == 'styleClass') {
 				continue;
 			}
 			if(prop && prop.call) {

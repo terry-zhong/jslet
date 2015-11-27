@@ -81,7 +81,7 @@ jslet.ui.MenuBar = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'onItemClick,items';
+		Z.allProperties = 'styleClass,onItemClick,items';
 
 		Z._onItemClick = null;
 		

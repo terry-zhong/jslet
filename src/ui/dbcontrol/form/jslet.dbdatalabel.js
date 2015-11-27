@@ -33,7 +33,7 @@ jslet.ui.DBDataLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	initialize: function ($super, el, params) {
-		this.allProperties = 'dataset,field';
+		this.allProperties = 'styleClass,dataset,field';
 		$super(el, params);
 	},
 

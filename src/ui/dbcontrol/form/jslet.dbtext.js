@@ -33,7 +33,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,beforeUpdateToDataset,enableInvalidTip,onKeyDown,autoSelectAll';
+		Z.allProperties = 'styleClass,dataset,field,beforeUpdateToDataset,enableInvalidTip,onKeyDown,autoSelectAll';
 
 		/**
 		 * @protected

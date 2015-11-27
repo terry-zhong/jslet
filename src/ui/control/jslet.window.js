@@ -29,7 +29,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,winClass,isCenter,isSmallHeader,stopEventBubbling';
+		Z.allProperties = 'styleClass,caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,isCenter,isSmallHeader,stopEventBubbling';
 
 		Z._caption = null;
 		
@@ -55,8 +55,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 
 		Z._maxHeight = -1;
 
-		Z._winClass = null,
-		
 		Z._isCenter = false;
  
 		Z._onSizeChanged = null;
@@ -272,21 +270,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	},
 
 	/**
-	 * Get or set window size class name, winClass contains: width, height, minWidth, minHeight, maxWidth, maxHeight
-	 * 
-	 * @param {String or undefined} winClass window size class name.
-	 * @return {String or this}
-	 */
-	winClass: function(winClass) {
-		var Z = this;
-		if(winClass === undefined) {
-			return Z._winClass;
-		}
-		jslet.Checker.test('Window.winClass', winClass).isString();
-		Z._winClass = winClass;
-	},
-	
-	/**
 	 * Set or get window size changed event handler.
 	 * Pattern:
 	 *   function(width, height){}
@@ -379,9 +362,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-window')) {
 			jqEl.addClass('panel panel-default jl-window');
-		}
-		if(Z._winClass) {
-			jqEl.addClass(Z._winClass);
 		}
 		if (Z._width) {
 			jqEl.width(Z._width);

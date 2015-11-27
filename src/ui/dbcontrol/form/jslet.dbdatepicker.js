@@ -32,7 +32,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,textReadOnly,popupWidth, popupHeight';
+		Z.allProperties = 'styleClass,dataset,field,textReadOnly,popupWidth, popupHeight';
 		
 		/**
 		 * {Integer} Popup panel width

@@ -38,7 +38,7 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.isCheckBox = true;
-		Z.allProperties = 'dataset,field,beforeClick';
+		Z.allProperties = 'styleClass,dataset,field,beforeClick';
 		Z._beforeClick = null;
 		
 		Z._skipRefresh = false;

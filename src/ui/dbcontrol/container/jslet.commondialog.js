@@ -17,7 +17,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 	
 	function initialize() {
 		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, 
-				stopEventBubbling: true, winClass: 'jl-finddlg'};
+				stopEventBubbling: true, styleClass: 'jl-finddlg'};
 		_dialog = jslet.ui.createControl(opt, _containerEl);
 		_dialog.onClosed(function(){
 			return 'hidden';

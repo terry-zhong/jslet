@@ -34,7 +34,7 @@ jslet.ui.DBError = jslet.Class.create(jslet.ui.DBControl, {
 	 * @override
 	 */
 	initialize: function ($super, el, params) {
-		this.allProperties = 'dataset';
+		this.allProperties = 'styleClass,dataset';
 		$super(el, params);
 	},
 

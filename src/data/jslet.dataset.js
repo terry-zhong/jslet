@@ -3661,7 +3661,7 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
-	 * Check the field value of 'fldName' is in the children of 'parentValue' or not.
+	 * Check if the field value of 'fldName' is the parent value or one of the children of 'parentValue'.
 	 * 
 	 * @param {String} fldname - field name which is checking, this field must connect a 'tree-style' dataset;
 	 * @param {Object} parentValue - the value which is used to check;
@@ -3669,7 +3669,26 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * @return {Boolean} true - the field value of current record is one of the children of the 'parentValue', false -otherwise.
 	 */
-	inchildren: function(fldName, parentValue, onlyDirectChildren) {
+	inChildrenAndSelf: function(fldName, parentValue, onlyDirectChildren) {
+		jslet.Checker.test('inchildren#fldName', fldName).required().isString();
+		jslet.Checker.test('inchildren#parentValue', parentValue).required();
+		var fldValue = Z.getFieldValue(fldName);
+		if(jslet.compareValue(fldValue, parentValue)) {
+			return true;
+		}
+		return inchildren(fldName, parentValue, onlyDirectChildren);
+	},
+	
+	/**
+	 * Check the field value of 'fldName' is one of the children of 'parentValue' or not.
+	 * 
+	 * @param {String} fldname - field name which is checking, this field must connect a 'tree-style' dataset;
+	 * @param {Object} parentValue - the value which is used to check;
+	 * @param {Boolean} onlyDirectChildren - true - only the direct children to be used to check, false - otherwise.
+	 * 
+	 * @return {Boolean} true - the field value of current record is one of the children of the 'parentValue', false -otherwise.
+	 */
+	inChildren: function(fldName, parentValue, onlyDirectChildren) {
 		jslet.Checker.test('inchildren#fldName', fldName).required().isString();
 		jslet.Checker.test('inchildren#parentValue', parentValue).required();
 		var Z = this,

@@ -32,7 +32,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,step';
+		Z.allProperties = 'styleClass,dataset,field,step';
 		/**
 		 * {Integer} Step value.
 		 */

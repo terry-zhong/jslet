@@ -34,7 +34,7 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,lookupField,returnField,lookupValue';
+		Z.allProperties = 'styleClass,dataset,lookupField,returnField,lookupValue';
 		Z.requiredProperties = 'lookupValue,lookupField,returnField';
 
 		/**

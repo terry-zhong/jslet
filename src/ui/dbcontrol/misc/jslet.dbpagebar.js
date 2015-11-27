@@ -39,7 +39,7 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,showPageSize,showGotoButton,pageSizeList';
+		Z.allProperties = 'styleClass,dataset,showPageSize,showGotoButton,pageSizeList';
 		/**
 		 * {Boolean} Identify if the "Page Size" part shows or not
 		 */

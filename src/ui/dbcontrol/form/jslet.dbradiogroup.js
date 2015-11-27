@@ -33,7 +33,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,columnCount';
+		Z.allProperties = 'styleClass,dataset,field,columnCount';
 		/**
 		 * {Integer} Column count
 		 */

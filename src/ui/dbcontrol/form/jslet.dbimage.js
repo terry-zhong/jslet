@@ -34,7 +34,7 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,locked,baseUrl,altField';
+		Z.allProperties = 'styleClass,dataset,field,locked,baseUrl,altField';
 		/**
 		 * Stop refreshing image when move dataset's cursor.
 		 */

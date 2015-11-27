@@ -15,7 +15,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	*/
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,columnCount,labelCols,onlySpecifiedFields,fields';
+		Z.allProperties = 'styleClass,dataset,columnCount,labelCols,onlySpecifiedFields,fields';
 		
 		/**
 		 * {Integer} Column count

@@ -32,7 +32,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,groupField,lookupDataset';
+		Z.allProperties = 'styleClass,dataset,field,groupField,lookupDataset';
 		/**
 		 * {String} Group field name, you can use this to group options.
 		 * Detail to see html optgroup element.

@@ -33,7 +33,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,field,beginItem,endItem,step';
+		Z.allProperties = 'styleClass,dataset,field,beginItem,endItem,step';
 		if (!Z.requiredProperties) {
 			Z.requiredProperties = 'field,beginItem,endItem,step';
 		}

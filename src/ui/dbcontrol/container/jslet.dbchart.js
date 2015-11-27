@@ -35,7 +35,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'dataset,chartType,chartTitle,categoryField,valueFields,legendPos';
+		Z.allProperties = 'styleClass,dataset,chartType,chartTitle,categoryField,valueFields,legendPos';
 		Z.requiredProperties = 'valueFields,categoryField';
 		
 		/**

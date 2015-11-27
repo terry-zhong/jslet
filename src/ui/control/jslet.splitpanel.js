@@ -38,7 +38,7 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'direction,floatIndex,onExpanded,onSize';//{size:100, align:-1/0/1,minSize:10}
+		Z.allProperties = 'styleClass,direction,floatIndex,onExpanded,onSize';//{size:100, align:-1/0/1,minSize:10}
 
 		Z._direction = 'hori';
 

@@ -36,7 +36,7 @@ jslet.ui.Accordion = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'selectedIndex,onChanged,items';
+		Z.allProperties = 'styleClass,selectedIndex,onChanged,items';
 
 		Z._selectedIndex = 0;
 		

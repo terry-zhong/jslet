@@ -30,7 +30,7 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'value,onDateSelected,minDate,maxDate';
+		Z.allProperties = 'styleClass,value,onDateSelected,minDate,maxDate';
 
 		Z._value = null;
 		
