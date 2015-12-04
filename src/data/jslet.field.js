@@ -1372,7 +1372,8 @@ jslet.data.Field.prototype = {
 		var Z = this;
 		jslet.Checker.test('Field.clone#fldName', fldName).required().isString();
 		var result = new jslet.data.Field(fldName, Z._dataType);
-		result.dataset(newDataset ? newDataset : this.dataset());
+		newDataset = newDataset || this.dataset();
+		result.dataset(newDataset);
 		result.length(Z._length);
 		result.scale(Z._scale);
 		result.alignment(Z._alignment);
@@ -1396,9 +1397,11 @@ jslet.data.Field.prototype = {
 		result.disabled(Z._disabled);
 		result.unitConverted(Z._underted);
 		if (Z._lookup) {
-			result.lookup(Z._lookup.clone());
+			result.lookup(Z._lookup.clone(newDataset.name()));
 		}
-		
+		if(Z._subDataset) {
+			result.subDataset(Z._subDataset);
+		}
 		result.displayControl(Z._displayControl);
 		result.editControl(Z._editControl);
 		result.urlExpr(Z._urlExpr);
@@ -1437,7 +1440,7 @@ jslet.data.Field.prototype = {
 		result.falseValue(Z._falseValue);
 		result.trueText(Z._trueText);
 		result.falseText(Z._falseText);
-
+		result._addRelation();
 		return result;
 	},
 	
@@ -1739,9 +1742,10 @@ jslet.data.FieldLookup.className = 'jslet.data.FieldLookup';
 jslet.data.FieldLookup.prototype = {
 	className: jslet.data.FieldLookup.className,
 	
-	clone: function(){
+	clone: function(hostDsName){
 		var Z = this, 
 			result = new jslet.data.FieldLookup();
+		result._hostDatasetName = hostDsName;
 		result.dataset(Z._dataset);
 		result.keyField(Z._keyField);
 		result.codeField(Z._codeField);

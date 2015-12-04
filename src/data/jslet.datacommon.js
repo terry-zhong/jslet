@@ -952,6 +952,9 @@ jslet.data.DatasetRelationManager = function() {
 	};
 	
 	this.refreshLookupHostDataset = function(lookupDsName) {
+		if(!lookupDsName) {
+			return;
+		}
 		var relation, hostDataset;
 		for(var i = 0, len = relations.length; i < len; i++) {
 			relation = relations[i];
@@ -968,6 +971,9 @@ jslet.data.DatasetRelationManager = function() {
 	};
 	
 	this.getHostFieldObject = function(lookupOrDetailDsName) {
+		if(!lookupOrDetailDsName) {
+			return;
+		}
 		var relation, hostDataset;
 		for(var i = 0, len = relations.length; i < len; i++) {
 			relation = relations[i];
