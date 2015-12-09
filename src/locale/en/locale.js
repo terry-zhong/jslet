@@ -22,6 +22,9 @@
 	};
 	
 	locale.Checker = {
+		fieldNameRequired: 'Property：name when defining field object！',
+		invalidDatasetField: 'Invalid dataset field configuration: [{0}], property: subDataset required!',
+		invalidProxyField: 'Invalid proxy field configuration: [{0}], property: proxyDataset or proxyField!',
 		required: '[{0}] is Required!',
 		requiredBooleanValue: '[{0}] must be a Boolean value!',
 		requiredStringValue: '[{0} : {1}] must be a String value!',
@@ -173,11 +176,31 @@
 	
 	locale.findDialog = {
 		caption: 'Find - {0}',
-		matchFirst: 'Match first',
-		matchLast: 'Match last',
-		matchAny: 'Match any'
+		placeholder: 'Press <Enter> for finding...'
 	};
 	
+	locale.advancedFilter = {
+		and: 'And',
+		or: 'Or',
+		between: 'Between',
+		likeany: 'Like Any',
+		likefirst: 'Like First',
+		likelast: 'Like Last',
+		select: 'Select',
+		selfchildren0: 'Self & all children',
+		children0: 'All children',
+		selfchildren1: 'Self & direct children',
+		children1: 'Direct children',
+		
+		lParenthesis: 'Left Parenthesis',
+		field: 'Field Name',
+		dataType: 'Data Type',
+		operator: 'Operator',
+		value: 'Value',
+		rParenthesis: 'Right Parenthesis',
+		logicalOpr: 'Logical Operator'
+	};
+		
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

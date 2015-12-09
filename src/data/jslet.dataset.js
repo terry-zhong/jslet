@@ -2291,6 +2291,34 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
+	 * Check wheather the current record has child records or not
+	 * 
+	 * @return {Boolean}
+	 */
+	hasParent: function() {
+		var Z = this,
+			pFldName = Z.parentField();
+		if(!pFldName || Z.recno() === 0) {
+			return false;
+		}
+		var recno = Z.recno() - 1;
+		for(var k = recno; k >= 0; k--) {
+			var pKeyValue = Z.getFieldValue(pFldName),
+				prevRec = this.getRelativeRecord(k - recno),
+				keyValue = this.getFieldValueByRecord(prevRec, Z.keyField());
+			
+			if(jslet.compareValue(pKeyValue, keyValue) === 0) {
+				return true;
+			}
+			var prePKeyValue = this.getFieldValueByRecord(prevRec, Z.parentField());
+			if(jslet.compareValue(pKeyValue, prePKeyValue) !== 0) {
+				return false;
+			}
+		}
+		return false;
+	},
+	
+	/**
 	 * Check the current record has child records or not
 	 * 
 	 * @return {Boolean}

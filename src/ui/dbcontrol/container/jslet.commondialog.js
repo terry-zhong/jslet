@@ -23,13 +23,13 @@ jslet.ui.FindDialog = function (dbContainer) {
 			return 'hidden';
 		});
 			
-		var content = '<div class="input-group" style="width:200px"><input class="form-control jl-finddlg-value form-control"/>' + 
+		var content = '<div class="input-group input-group-sm" style="width:200px"><input class="form-control jl-finddlg-value" placeholder="' + 
+		jslet.locale.findDialog.placeholder + '"/>' + 
 		'<div class="input-group-btn"><button class="btn btn-default jl-finddlg-find"><i class="fa fa-search" /></button></div></div>';
 		
 		_dialog.setContent(content);
 		
 		var dlgEl = _dialog.el;
-		var jqOptions = jQuery(dlgEl).find('.jl-finddlg-opt');
 
 		var jqFindingValue = jQuery(dlgEl).find('.jl-finddlg-value');
 		jqFindingValue.on('keydown', function(event){
@@ -70,6 +70,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 			var fldObj = _dataset.getField(_findingField);
 			if(fldObj) {
 				_dialog.changeCaption(jslet.formatString(jslet.locale.findDialog.caption, [fldObj.label()]));
+				jQuery(_dialog.el).find('.jl-finddlg-value').val('');
 			}
 		}
 	};

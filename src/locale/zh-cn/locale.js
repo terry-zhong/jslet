@@ -42,6 +42,9 @@
 		
 	
 	locale.Dataset = {
+		fieldNameRequired: '定义字段时，缺失属性：name！',
+		invalidDatasetField: '无效的数据集字段配置：[{0}]，缺失subDataset属性!',
+		invalidProxyField: '无效的代理字段配置：[{0}]，缺失proxyDataset或者proxyField属性!',
 		invalidDateFieldValue: '字段: [{0}]是日期字段, 但值：[{1}]不是日期型!',
 		invalidNumberFieldValue: '字段: [{0}]是数字型字段, 但值：[{1}]不是数字型!',
 		parentFieldNotSet: '数据集没有设置[parentField]和[keyField]属性, 请用insertRecord()!',
@@ -175,11 +178,31 @@
 	
 	locale.findDialog = {
 		caption: '查找 - {0}',
-		matchFirst: '匹配开头',
-		matchLast: '匹配结尾',
-		matchAny: '任意匹配'
+		placeholder: '<回车>查找...'
 	};
 			
+	locale.advancedFilter = {
+		and: '并且',
+		or: '或者',
+		between: '在...之间',
+		likeany: '匹配任意',
+		likefirst: '匹配开始',
+		likelast: '匹配结尾',
+		select: '选择',
+		selfchildren0: '本级及所有下级',
+		children0: '所有下级',
+		selfchildren1: '本级及直接下级',
+		children1: '所有直接下级',
+		
+		lParenthesis: '左括号',
+		field: '字段名',
+		dataType: '数据类型',
+		operator: '操作符',
+		value: '值',
+		rParenthesis: '右括号',
+		logicalOpr: '逻辑符'
+	};
+	
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

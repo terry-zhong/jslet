@@ -24,6 +24,11 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._tabIndex = null;
 	Z._fieldName = fieldName;
 	Z._dataType = dataType;
+	
+	Z._proxyDataset = null;
+	Z._proxyField = null;
+	Z._proxyFldObj = null;
+	
 	Z._length = 0;
 	Z._scale = 0;
 	Z._unique = false;
@@ -204,6 +209,46 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
+	proxyDataset: function(proxyDataset) {
+		var Z = this;
+		if (proxyDataset === undefined) {
+			return Z._proxyDataset;
+		}
+		jslet.Checker.test('Field.proxyDataset', proxyDataset).required();
+		Z._proxyDataset = proxyDataset;
+		Z._proxyFldObj = null;
+		return this;
+	},
+	
+	proxyField: function(proxyField) {
+		var Z = this;
+		if (proxyField === undefined) {
+			return Z._proxyField;
+		}
+		jslet.Checker.test('Field.proxyField', proxyField).required().isString();
+		Z._proxyField = proxyField;
+		Z._proxyFldObj = null;
+		return this;
+	},
+	
+	_getProxyFldObj: function() {
+		if(Z._proxyFldObj) {
+			return Z._proxyFldObj;
+		}
+		var proxyDs = jslet.data.getDataset(Z._proxyDataset);
+		jslet.Checker.test('Field.proxyDataset', proxyDs).required().isClass(jslet.data.Dataset.className);
+		var proxyFldObj = proxyDs.getField(Z._proxyField);
+		jslet.Checker.test('Field.proxyField', proxyFld).required().isClass(jslet.data.Field.className);
+		Z._proxyFldObj = proxyFldObj;
+		return proxyFldObj;
+	},
+	
+	_getProxyPropValue: function(propName) {
+		var Z = this,
+			fldObj = Z._getProxyFldObj();
+		return fldObj[propName].call(fldObj);
+	},
+	
 	/**
 	 * Get or set field display order.
 	 * Dataset uses this property to resolve field order.
@@ -250,6 +295,9 @@ jslet.data.Field.prototype = {
 	length: function (len) {
 		var Z = this;
 		if (len === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('length');
+			}
 			return Z._length;
 		}
 		jslet.Checker.test('Field.length', len).isGTEZero();
@@ -266,6 +314,9 @@ jslet.data.Field.prototype = {
 	 */
 	getEditLength: function () {
 		var Z = this;
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('getEditLength');
+		}
 		if (Z._lookup) {
 			var codeFld = Z._lookup.codeField();
 			var lkds = Z._lookup.dataset();
@@ -291,6 +342,9 @@ jslet.data.Field.prototype = {
 	scale: function (scale) {
 		var Z = this;
 		if (scale === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('scale');
+			}
 			return Z._scale;
 		}
 		jslet.Checker.test('Field.scale', scale).isGTEZero();
@@ -308,6 +362,9 @@ jslet.data.Field.prototype = {
 	alignment: function (alignment) {
 		var Z = this;
 		if (alignment === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('alignment');
+			}
 			if(Z._alignment) {
 				return Z._alignment;
 			}
@@ -341,6 +398,9 @@ jslet.data.Field.prototype = {
 	nullText: function (nullText) {
 		var Z = this;
 		if (nullText === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('nullText');
+			}
 			return Z._nullText;
 		}
 		jslet.Checker.test('Field.nullText', nullText).isString();
@@ -362,6 +422,9 @@ jslet.data.Field.prototype = {
 	displayWidth: function (displayWidth) {
 		var Z = this;
 		if (displayWidth === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('displayWidth');
+			}
 			if (Z._displayWidth <= 0) {
 				return Z._length > 0 ? Z._length : 12;
 			} else {
@@ -384,6 +447,9 @@ jslet.data.Field.prototype = {
 	defaultExpr: function (defaultExpr) {
 		var Z = this;
 		if (defaultExpr === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('defaultExpr');
+			}
 			return Z._defaultExpr;
 		}
 		jslet.Checker.test('Field.defaultExpr', defaultExpr).isString();
@@ -403,6 +469,9 @@ jslet.data.Field.prototype = {
 	displayFormat: function (format) {
 		var Z = this;
 		if (format === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('displayFormat');
+			}
 			if (Z._displayFormat) {
 				return Z._displayFormat;
 			} else {
@@ -439,6 +508,9 @@ jslet.data.Field.prototype = {
 	defaultValue: function (dftValue) {
 		var Z = this;
 		if (dftValue === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('defaultValue');
+			}
 			return Z._defaultValue;
 		}
 		jslet.Checker.test('Field.defaultValue', Z.dftValue).isDataType(Z._dateType);
@@ -456,6 +528,9 @@ jslet.data.Field.prototype = {
 	unique: function (unique) {
 		var Z = this;
 		if (unique === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('unique');
+			}
 			return Z._unique;
 		}
 		Z._unique = unique ? true: false;
@@ -472,6 +547,9 @@ jslet.data.Field.prototype = {
 	required: function (required) {
 		var Z = this;
 		if (required === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('required');
+			}
 			return Z._required;
 		}
 		Z._required = required ? true: false;
@@ -489,6 +567,9 @@ jslet.data.Field.prototype = {
 	editMask: function (mask) {
 		var Z = this;
 		if (mask === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('editMask');
+			}
 			return Z._editMask;
 		}
 		if(mask) {
@@ -507,6 +588,9 @@ jslet.data.Field.prototype = {
 	
 	dateFormat: function(){
 		var Z = this;
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('dateFormat');
+		}
 		if (Z._dateFormat) {
 			return Z._dateFormat;
 		}
@@ -530,6 +614,9 @@ jslet.data.Field.prototype = {
 	
 	dateSeparator: function(){
 		var Z = this;
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('dateSeparator');
+		}
 		if (Z._dateChar) {
 			return Z._dateChar;
 		}
@@ -548,6 +635,9 @@ jslet.data.Field.prototype = {
 	
 	dateRegular: function(){
 		var Z = this;
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('dateRegular');
+		}
 		if (Z._dateRegular) {
 			return Z._dateRegular;
 		}
@@ -586,6 +676,9 @@ jslet.data.Field.prototype = {
 	formula: function (formula) {
 		var Z = this;
 		if (formula === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('formula');
+			}
 			return Z._formula;
 		}
 		
@@ -637,6 +730,9 @@ jslet.data.Field.prototype = {
 	disabled: function (disabled) {
 		var Z = this;
 		if (disabled === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('disabled');
+			}
 			return Z._disabled;
 		}
 		Z._disabled = disabled ? true: false;
@@ -654,6 +750,9 @@ jslet.data.Field.prototype = {
 	readOnly: function (readOnly) {
 		var Z = this;
 		if (readOnly === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('readOnly');
+			}
 			if (Z._dataType == jslet.data.DataType.DATASET) {
 				return true;
 			}
@@ -673,6 +772,9 @@ jslet.data.Field.prototype = {
 	
 	fieldReadOnly: function() {
 		var Z = this;
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('fieldReadOnly');
+		}
 		if (Z._dataType == jslet.data.DataType.DATASET) {
 			return true;
 		}
@@ -685,6 +787,9 @@ jslet.data.Field.prototype = {
 	},
 	
 	fieldDisabled: function() {
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			return Z._getProxyPropValue('fieldDisabled');
+		}
 		return this._disabled;
 	},
 	
@@ -723,6 +828,9 @@ jslet.data.Field.prototype = {
 	unitConverted: function (unitConverted) {
 		var Z = this;
 		if (unitConverted === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('unitConverted');
+			}
 			return Z._dataType == jslet.data.DataType.NUMBER? Z._unitConverted:false;
 		}
 		Z._unitConverted = unitConverted ? true : false;
@@ -744,6 +852,9 @@ jslet.data.Field.prototype = {
 	valueStyle: function (mvalueStyle) {
 		var Z = this;
 		if (mvalueStyle === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('valueStyle');
+			}
 			if(Z._dataType == jslet.data.DataType.DATASET ||  
 					Z._children && Z._children.length > 0) 
 				return jslet.data.FieldValueStyle.NORMAL;
@@ -773,6 +884,9 @@ jslet.data.Field.prototype = {
 	valueCountLimit: function (count) {
 		var Z = this;
 		if (count === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('valueCountLimit');
+			}
 			return Z._valueCountLimit;
 		}
 		if(count) {
@@ -803,6 +917,9 @@ jslet.data.Field.prototype = {
 	displayControl: function (dispCtrl) {
 		var Z = this;
 		if (dispCtrl === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('displayControl');
+			}
 			if (Z._dataType == jslet.data.DataType.BOOLEAN && !Z._displayControl) {
 				return {
 					type: 'dbcheckbox'
@@ -834,6 +951,9 @@ jslet.data.Field.prototype = {
 	editControl: function (editCtrl) {
 		var Z = this;
 		if (editCtrl=== undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('editControl');
+			}
 			if (Z._editControl) {
 				return Z._editControl;
 			}
@@ -923,6 +1043,9 @@ jslet.data.Field.prototype = {
 	lookup: function (lkFldObj) {
 		var Z = this;
 		if (lkFldObj === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('lookup');
+			}
 			return Z._lookup;
 		}
 		jslet.Checker.test('Field.lookup', lkFldObj).isClass(jslet.data.FieldLookup.className);		
@@ -995,6 +1118,9 @@ jslet.data.Field.prototype = {
 	urlExpr: function (urlExpr) {
 		var Z = this;
 		if (urlExpr === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('urlExpr');
+			}
 			return Z._urlExpr;
 		}
 
@@ -1010,6 +1136,9 @@ jslet.data.Field.prototype = {
 	urlTarget: function (target) {
 		var Z = this;
 		if (target === undefined){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('urlTarget');
+			}
 			return !Z._urlTarget ? jslet.data.Field.URLTARGETBLANK : Z._urlTarget;
 		}
 
@@ -1042,6 +1171,9 @@ jslet.data.Field.prototype = {
 	antiXss: function(isXss){
 		var Z = this;
 		if (isXss === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('antiXss');
+			}
 			return Z._antiXss;
 		}
 		Z._antiXss = isXss ? true: false;
@@ -1068,6 +1200,9 @@ jslet.data.Field.prototype = {
 	dataRange: function (range) {
 		var Z = this;
 		if (range === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('dataRange');
+			}
 			return Z._dataRange;
 		}
 		if(range && jslet.isString(range)) {
@@ -1103,6 +1238,9 @@ jslet.data.Field.prototype = {
 		var Z = this;
 		var argLen = arguments.length;
 		if (argLen === 0){
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('regularExpr');
+			}
 			return Z._regularExpr;
 		}
 		
@@ -1124,6 +1262,9 @@ jslet.data.Field.prototype = {
 	customValueConverter: function (converter) {
 		var Z = this;
 		if (converter === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('customValueConverter');
+			}
 			return Z._customValueConverter;
 		}
 		Z._customValueConverter = converter;
@@ -1146,6 +1287,9 @@ jslet.data.Field.prototype = {
 	customValidator: function (validator) {
 		var Z = this;
 		if (validator === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('customValidator');
+			}
 			return Z._customValidator;
 		}
 		if(validator) {
@@ -1163,6 +1307,9 @@ jslet.data.Field.prototype = {
 		var Z = this;
 		if (chars === undefined){
 			if (Z._validChars) {
+				if(Z._dataType === jslet.data.DataType.PROXY) {
+					return Z._getProxyPropValue('validChars');
+				}
 				return Z._validChars;
 			}
 			if (Z._dataType == jslet.data.DataType.NUMBER){
@@ -1194,6 +1341,9 @@ jslet.data.Field.prototype = {
 	trueValue: function(value) {
 		var Z = this;
 		if (value === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('trueValue');
+			}
 			return Z._trueValue;
 		}
 		Z._trueValue = value;
@@ -1206,6 +1356,9 @@ jslet.data.Field.prototype = {
 	falseValue: function(value) {
 		var Z = this;
 		if (value === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('falseValue');
+			}
 			return Z._falseValue;
 		}
 		Z._falseValue = value;
@@ -1218,6 +1371,9 @@ jslet.data.Field.prototype = {
 	trueText: function(trueText) {
 		var Z = this;
 		if (trueText === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('trueText');
+			}
 			return Z._trueText || jslet.locale.Dataset.trueText;
 		}
 		Z._trueText = trueText;
@@ -1230,6 +1386,9 @@ jslet.data.Field.prototype = {
 	falseText: function(falseText) {
 		var Z = this;
 		if (falseText === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('falseText');
+			}
 			return Z._falseText || jslet.locale.Dataset.falseText;
 		}
 		Z._falseText = falseText;
@@ -1344,6 +1503,9 @@ jslet.data.Field.prototype = {
 	fixedValue: function(fixedValue){
 		var Z = this;
 		if (fixedValue === undefined) {
+			if(Z._dataType === jslet.data.DataType.PROXY) {
+				return Z._getProxyPropValue('fixedValue');
+			}
 			return Z._fixedValue;
 		}
 		jslet.Checker.test('Field.fixedValue', fixedValue).isString();
@@ -1374,6 +1536,23 @@ jslet.data.Field.prototype = {
 		var result = new jslet.data.Field(fldName, Z._dataType);
 		newDataset = newDataset || this.dataset();
 		result.dataset(newDataset);
+		result.visible(Z._visible);
+		if (Z._parent) {
+			result.parent(Z._parent.clone(newDataset));
+		}
+		if (Z._children && Z._children.length > 0){
+			var childFlds = [];
+			for(var i = 0, cnt = Z._children.length; i < cnt; i++){
+				childFlds.push(Z._children[i].clone(newDataset));
+			}
+			result.children(childFlds);
+		}
+		
+		if(Z._dataType === jslet.data.DataType.PROXY) {
+			result.proxyDataset(Z._proxyDataset);
+			result.proxyField(Z._proxyField);
+			return result;
+		}
 		result.length(Z._length);
 		result.scale(Z._scale);
 		result.alignment(Z._alignment);
@@ -1393,7 +1572,6 @@ jslet.data.Field.prototype = {
 		result.unique(Z._unique);
 		result.required(Z._required);
 		result.readOnly(Z._readOnly);
-		result.visible(Z._visible);
 		result.disabled(Z._disabled);
 		result.unitConverted(Z._underted);
 		if (Z._lookup) {
@@ -1417,16 +1595,6 @@ jslet.data.Field.prototype = {
 		result.customValidator(Z._customValidator);
 		result.customValueConverter(Z._customValueConverter);
 		result.validChars(Z._validChars);
-		if (Z._parent) {
-			result.parent(Z._parent.clone(newDataset));
-		}
-		if (Z._children && Z._children.length > 0){
-			var childFlds = [];
-			for(var i = 0, cnt = Z._children.length; i < cnt; i++){
-				childFlds.push(Z._children[i].clone(newDataset));
-			}
-			result.children(childFlds);
-		}
 		
 		result.mergeSame(Z._mergeSame);
 		result.mergeSameBy(Z._mergeSameBy);
@@ -1467,9 +1635,11 @@ jslet.data.Field.URLTARGETBLANK = '_blank';
  */
 jslet.data.createField = function (fieldConfig, parent) {
 	jslet.Checker.test('createField#fieldConfig', fieldConfig).required().isObject();
-	var cfg = fieldConfig;
-	if (!cfg.name) {
-		throw new Error('Property: name required!');
+	var cfg = fieldConfig,
+		fldName = cfg.name;
+	if (!fldName) {
+		console.error(cfg);
+		throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNameRequired));
 	}
 	var dtype = cfg.type;
 	if (dtype === null) {
@@ -1481,12 +1651,13 @@ jslet.data.createField = function (fieldConfig, parent) {
 				dtype != jslet.data.DataType.DATE && 
 				dtype != jslet.data.DataType.BOOLEAN && 
 				dtype != jslet.data.DataType.CROSS && 
-				dtype != jslet.data.DataType.DATASET)
+				dtype != jslet.data.DataType.DATASET && 
+				dtype != jslet.data.DataType.PROXY)
 		dtype = jslet.data.DataType.STRING;
 	}
-
-	var fldObj = new jslet.data.Field(cfg.shortName || cfg.name, dtype);
-
+	
+	var fldObj = new jslet.data.Field(cfg.shortName || fldName, dtype);
+	
 	if(fieldConfig.dsName) {
 		fldObj._dsName = fieldConfig.dsName;
 	}
@@ -1519,13 +1690,24 @@ jslet.data.createField = function (fieldConfig, parent) {
 			fldObj.subDataset(subds);
 		} else {
 			throw new Error('subDataset NOT set when field data type is Dataset');
+			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDatasetField, [fldName]));
 		}
 		fldObj.visible(false);
 		return fldObj;
 	}
 	
 	setPropValue('visible');
-
+	
+	if (dtype == jslet.data.DataType.DATASET){ 
+		var proxyDataset = cfg.proxyDataset || cfg.proxydataset;
+		var pfoxyFldName = cfg.proxyField || cfg.proxyfield;
+		if(proxyDataset && pfoxyFldName) {
+			fldObj.proxyDataset(proxyDataset);
+			fldObj.proxyField(pfoxyFldName);
+			return fldObj
+		}
+		throw new Error(jslet.formatString(jslet.locale.Dataset.invalidProxyField, [fldName]));
+	}
 	setPropValue('unique');
 	setPropValue('required');
 	setPropValue('readOnly');
@@ -1685,12 +1867,29 @@ jslet.data.createDateField = function(fldName, parent) {
  * @return {jslet.data.Field}
  */
 jslet.data.createDatasetField = function(fldName, subDataset, parent) {
-	if (!subDataset) {
-		throw new Error('expected property:dataset in DatasetField!');
-	}
+	jslet.Checker.test('createDatasetField#subDataset', subDataset).required();
+
 	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.DATASET, parent);
 	fldObj.subDataset(subDataset);
 	fldObj.visible(false);
+	return fldObj;
+};
+
+/**
+ * Create dataset field object.
+ * 
+ * @param {String} fldName Field name.
+ * @param {jslet.data.Dataset} subDataset Detail dataset object.
+ * @param {jslet.data.Field} parent (Optional)Parent field object. It must be a 'Group' field.
+ * @return {jslet.data.Field}
+ */
+jslet.data.createProxyField = function(fldName, proxyDataset, proxyField, parent) {
+	jslet.Checker.test('createProxyField#proxyDataset', proxyDataset).required().isString();
+	jslet.Checker.test('createProxyField#proxyField', proxyField).required().isString();
+
+	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.PROXY, parent);
+	fldObj.proxyDataset(proxyDataset);
+	fldObj.proxyField(proxyField);
 	return fldObj;
 };
 

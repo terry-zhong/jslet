@@ -410,3 +410,14 @@
 }
 
 /* end jslet.MessageBox */
+
+/* find dialog*/
+.jl-finddlg {
+	z-index: 5!important;
+}
+
+.jl-finddlg-find {
+	diplay: inline-block!important;
+}
+
+/* End of find dialog */

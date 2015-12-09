@@ -18,7 +18,10 @@ jslet.data.dataModule = new jslet.SimpleMap();
  * @return {jslet.data.Dataset} Dataset object.
  */
 jslet.data.getDataset = function (dsName) {
-	return jslet.data.dataModule.get(dsName);
+	if(jslet.isString(dsName)) {
+		return jslet.data.dataModule.get(dsName)
+	}
+	return dsName;
 };
 
 jslet.data.DatasetType = {
@@ -37,7 +40,8 @@ jslet.data.DataType = {
 	TIME: 'T',  //Time
 	BOOLEAN: 'B', //Boolean
 	DATASET: 'V', //Dataset field
-	CROSS: 'C'   //Cross Field
+	CROSS: 'C',   //Cross Field
+	PROXY: 'P' //Proxy field
 };
 
 jslet.data.FieldValueStyle = {
@@ -1369,3 +1373,74 @@ jslet.data.GlobalDataHandler.prototype = {
 }
 
 jslet.data.globalDataHandler = new jslet.data.GlobalDataHandler();
+
+jslet.data.AdvandcedFilter = function() {
+	jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.advancedFilter.and, 'or': jslet.locale.advancedFilter.or});
+	var fldCfg = [{name: 'code', type: 'S', length: 10, label:'code'},
+                  {name: 'name', type: 'S', length: 30, label:'name'},
+                  {name: 'range', type: 'S', length: 30, label:'range'}];
+	
+	var dsOperator = jslet.data.createDataset('ds_operator_', fldCfg, {keyField: 'code', codeField: 'code', nameField: 'name'});
+	dsOperator.dataList([{code: '==', name: '==', range: 'NDS'},
+	                     {code: '!=', name: '!=', range: 'NDS'},
+	                     {code: '>', name: '>', range: 'NDS'},
+	                     {code: '>=', name: '>=', range: 'NDS'},
+	                     {code: '<', name: '<', range: 'NDS'},
+	                     {code: '<=', name: '<=', range: 'NDS'},
+	                     {code: 'between', name: jslet.locale.advancedFilter.between, range: 'NDS'},
+	                     
+	                     {code: 'likeany', name: jslet.locale.advancedFilter.likeany, range: 'S'},
+	                     {code: 'likefirst', name: jslet.locale.advancedFilter.likefirst, range: 'S'},
+	                     {code: 'likelast', name: jslet.locale.advancedFilter.likelast, range: 'S'},
+
+	                     {code: 'select', name: jslet.locale.advancedFilter.select, range: 'L'},
+	                     {code: 'selfchildren0', name: jslet.locale.advancedFilter.selfchildren0, range: 'L'},
+	                     {code: 'children0', name: jslet.locale.advancedFilter.children0, range: 'L'},
+	                     {code: 'selfchildren1', name: jslet.locale.advancedFilter.selfchildren1, range: 'L'},
+	                     {code: 'children1', name: jslet.locale.advancedFilter.children1, range: 'L'}
+	                     ]);
+	this._filterDataset;
+}
+
+jslet.data.AdvandcedFilter.prototype = {
+	filterDataset: function() {
+		if(this._filterDataset) {
+			return this._filterDataset;
+		}
+		
+		var fldCfg = [ 
+             {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.lParenthesis, validChars:'('}, 
+	         {name: 'hostField', type: 'S', length: 30, label : 'Host Field', visible: false},
+	         {name: 'field', type: 'S', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.field},
+	         {name: 'dataType', type: 'S', length: 10, label : jslet.locale.advancedFilter.dataType},
+	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label : jslet.locale.advancedFilter.operator, lookup: {dataset:"ds_operator_"}},
+	         {name: 'value', type: 'S',length: 200, displayWidth:30, label : jslet.locale.advancedFilter.value},
+             {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.rParenthesis, validChars:')'}, 
+             {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.advancedFilter.logicalOpr, lookup: {dataset:"ds_logical_opr_"}} 
+		];
+		var filterDs = jslet.data.createDataset('dsFilter' + jslet.nextId(), fldCfg);
+		var rule1 = {
+				condition: '[dataType]',
+				rules: [
+				{field: 'operator', lookup: {filter: '[range].indexOf("${dataType}") >= 0'}}
+				]
+			};
+		var rule2 = {
+				condition: '[dataType] == "D"',
+				rules: [
+				{field: 'value', meta: {editControl: 'DBDatePicker'}}
+				]
+			};
+		filterDs.contextRules([rule1, rule2]);
+		filterDs.enableContextRule();
+		this._filterDataset = filterDs;
+		return filterDs;
+
+	},
+	
+	convertToFilterExpr: function() {
+		if(!this._filterDataset || this._filterDataset.recordCount() === 0) {
+			return null;
+		}
+	}
+}
