@@ -470,18 +470,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if (!isMulti && Z.comboSelectObj._afterSelect) {
 			Z.comboSelectObj._afterSelect(Z.dataset, lookupDs);
 		}
-		if(!isMulti) {
-			var fieldMap = lkfld.returnFieldMap();
-			if(fieldMap) {
-				var mainDs = Z.dataset,
-					fldName, 
-					lkFldName;
-				for(var fldName in fieldMap) {
-					lkFldName = fieldMap[fldName];
-					Z.dataset.setFieldValue(fldName, lookupDs.getFieldValue(lkFldName));
-				}
-			}
-		}
 		Z.closePopup();
 	},
 

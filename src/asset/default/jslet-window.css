@@ -21,7 +21,7 @@
 
 .jl-window-active {
 	background-color: rgb(45, 108, 162)!important;
-	background-image:linear-gradient(to bottom,#e5e5e5 0,#d8d8d8 100%)!important;
+	background-image:linear-gradient(to bottom,#f8f8f8 0,#d5d5d5 100%)!important;
 }
 	
 .jl-win-header {

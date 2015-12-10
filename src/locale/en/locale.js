@@ -176,7 +176,7 @@
 	
 	locale.findDialog = {
 		caption: 'Find - {0}',
-		placeholder: 'Press <Enter> for finding...'
+		placeholder: '<Enter> for finding...'
 	};
 	
 	locale.advancedFilter = {

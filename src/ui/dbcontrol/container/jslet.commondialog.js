@@ -55,6 +55,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 		left = left || 0;
 		top = top || 0;
 		_dialog.show(left, top);
+		this.focus();
 	};
 	
 	this.hide = function() {
@@ -73,6 +74,10 @@ jslet.ui.FindDialog = function (dbContainer) {
 				jQuery(_dialog.el).find('.jl-finddlg-value').val('');
 			}
 		}
+	};
+	
+	this.focus = function() {
+		jQuery(_dialog.el).find('.jl-finddlg-value').focus();
 	};
 	
 	initialize();

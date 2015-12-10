@@ -668,7 +668,9 @@ jslet.data.Dataset.prototype = {
 		function addFormulaField(fldObj) {
 			var children = fldObj.children();
 			if(!children || children.length === 0) {
-				Z.addInnerFormulaField(fldObj.name(), fldObj.formula());
+				if(fldObj.getType() !== jslet.data.DataType.PROXY) {
+					Z.addInnerFormulaField(fldObj.name(), fldObj.formula());
+				}
 				return;
 			}
 			for(var i = 0, len = children.length; i < len; i++) {
@@ -3120,6 +3122,7 @@ jslet.data.Dataset.prototype = {
 			Z.calcContextRule(fldName);
 		}	
 		jslet.data.FieldValueCache.clear(Z.getRecord(), fldName);
+		Z._updateLookupRelativeFields(fldObj, value);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
 		Z.updateFormula(fldName);
@@ -3127,6 +3130,32 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 
+	_updateLookupRelativeFields: function(fldObj, fldValue) {
+		//Only single value can update relative fields.
+		if(!fldValue || fldObj.valueStyle() !== jslet.data.FieldValueStyle.NORMAL) {
+			return;
+		}
+		var lkObj = fldObj.lookup();
+		if(!lkObj) {
+			return;
+		}
+		var lkRtnFldMap = lkObj.returnFieldMap();
+		if(!lkRtnFldMap) {
+			return;
+		}
+		var lkFldName, lkDs = lkObj.dataset();
+		if(jslet.compareValue(lkDs.keyValue(), fldValue) !== 0) {
+			if(!lkDs.findByKey(fldValue)) {
+				return;
+			}
+		}
+		for(var fldName in lkRtnFldMap) {
+			lkFldName = lkRtnFldMap[fldName];
+			this.setFieldValue(fldName, lkDs.getFieldValue(lkFldName));
+		}
+		
+	},
+	
 	_calcFormulaRelation: function() {
 		var Z = this;
 		if(!Z._innerFormularFields) {

@@ -529,18 +529,6 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 			lkDs.first();
 			return undefined;
 		}
-		if(fldObj.valueStyle() === jslet.data.FieldValueStyle.NORMAL) {
-			var fieldMap = lkFldObj.returnFieldMap(),
-				lookupDs = lkFldObj.dataset();
-			mainDs = this;
-			if(lookupDs.findByKey(value)) {
-				var fldName, lkFldName;
-				for(var fldName in fieldMap) {
-					lkFldName = fieldMap[fldName];
-					mainDs.setFieldValue(fldName, lookupDs.getFieldValue(lkFldName));
-				}
-			}
-		}
 		return value;
 	},
 	
@@ -1414,6 +1402,7 @@ jslet.data.AdvandcedFilter.prototype = {
 	         {name: 'field', type: 'S', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.field},
 	         {name: 'dataType', type: 'S', length: 10, label : jslet.locale.advancedFilter.dataType},
 	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label : jslet.locale.advancedFilter.operator, lookup: {dataset:"ds_operator_"}},
+	         {name: 'value1', type: 'P',proxyDataset: 'employee', proxyField: 'department', displayWidth:30, label : 'value1'},
 	         {name: 'value', type: 'S',length: 200, displayWidth:30, label : jslet.locale.advancedFilter.value},
              {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.rParenthesis, validChars:')'}, 
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.advancedFilter.logicalOpr, lookup: {dataset:"ds_logical_opr_"}} 

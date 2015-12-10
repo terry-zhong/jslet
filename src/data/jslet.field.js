@@ -232,13 +232,17 @@ jslet.data.Field.prototype = {
 	},
 	
 	_getProxyFldObj: function() {
+		var Z = this;
 		if(Z._proxyFldObj) {
 			return Z._proxyFldObj;
 		}
 		var proxyDs = jslet.data.getDataset(Z._proxyDataset);
 		jslet.Checker.test('Field.proxyDataset', proxyDs).required().isClass(jslet.data.Dataset.className);
+		if(!proxyDs) {
+			return null
+		}
 		var proxyFldObj = proxyDs.getField(Z._proxyField);
-		jslet.Checker.test('Field.proxyField', proxyFld).required().isClass(jslet.data.Field.className);
+		jslet.Checker.test('Field.proxyField', proxyFldObj).required().isClass(jslet.data.Field.className);
 		Z._proxyFldObj = proxyFldObj;
 		return proxyFldObj;
 	},
@@ -246,6 +250,9 @@ jslet.data.Field.prototype = {
 	_getProxyPropValue: function(propName) {
 		var Z = this,
 			fldObj = Z._getProxyFldObj();
+		if(!fldObj) {
+			return null;
+		}
 		return fldObj[propName].call(fldObj);
 	},
 	
@@ -787,6 +794,7 @@ jslet.data.Field.prototype = {
 	},
 	
 	fieldDisabled: function() {
+		var Z = this;
 		if(Z._dataType === jslet.data.DataType.PROXY) {
 			return Z._getProxyPropValue('fieldDisabled');
 		}
@@ -1698,7 +1706,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	setPropValue('visible');
 	
-	if (dtype == jslet.data.DataType.DATASET){ 
+	if (dtype == jslet.data.DataType.PROXY){ 
 		var proxyDataset = cfg.proxyDataset || cfg.proxydataset;
 		var pfoxyFldName = cfg.proxyField || cfg.proxyfield;
 		if(proxyDataset && pfoxyFldName) {
