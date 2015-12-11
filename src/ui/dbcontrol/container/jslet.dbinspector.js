@@ -34,7 +34,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'styleClass,dataset,columnCount,rowHeight,fields';
+		Z.allProperties = 'styleClass,dataset,columnCount,fields';
 		
 		/**
 		 * {Integer} Column count
@@ -58,14 +58,6 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jslet.Checker.test('DBInspector.columnCount', columnCount).isGTZero();
 		this._columnCount = parseInt(columnCount);
-	},
-	
-	rowHeight: function(rowHeight) {
-		if(rowHeight === undefined) {
-			return this._rowHeight;
-		}
-		jslet.Checker.test('DBInspector.rowHeight', rowHeight).isGTZero();
-		this._rowHeight = parseInt(rowHeight);
 	},
 	
 	fields: function(fields) {
@@ -119,7 +111,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		var totalWidth = jqEl.width(),
 			allFlds = Z._dataset.getFields();
 		jqEl.html('<table cellpadding=0 cellspacing=0 style="margin:0;padding:0;table-layout:fixed;width:100%;height:100%"><tbody></tbody></table>');
-		var oCol, fldObj, i, found, visible, fldName, cfgFld,
+		var fldObj, i, found, visible, fldName, cfgFld,
 			fcnt = allFlds.length,
 			visibleFlds = [];
 		for (i = 0; i < fcnt; i++) {
@@ -156,7 +148,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		for (i = 0; i < fcnt; i++) {
 			fldObj = visibleFlds[i];
 			c = i % columnCnt;
-			w = Math.round(jslet.ui.textMeasurer.getWidth(fldObj.label()) + startWidth) + 5;
+			w = Math.round(jslet.ui.textMeasurer.getWidth(fldObj.label()) + startWidth) + 15;
 			if (arrLabelWidth[c] < w) {
 				arrLabelWidth[c] = w;
 			}
@@ -172,13 +164,10 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		
 		var otable = Z.el.firstChild,
 			tHead = otable.createTHead(), otd, otr = tHead.insertRow(-1);
-		otr.style.height = '0';
 		for (i = 0; i < columnCnt; i++) {
 			otd = otr.insertCell(-1);
 			otd.style.width = arrLabelWidth[i] + 'px';
-			otd.style.height = '0';
 			otd = otr.insertCell(-1);
-			otd.style.height = '0';
 		}
 		
 		var oldRowNo = -1, oldC = -1, rowNo, odiv, oLabel, fldName, editor, fldCtrl, dbCtrl;
@@ -190,9 +179,6 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 			c = i % columnCnt;
 			if (oldRowNo != rowNo) {
 				otr = otable.insertRow(-1);
-				if (Z._rowHeight) {
-					otr.style.height = Z._rowHeight + 'px';
-				}
 				oldRowNo = rowNo;
 			}
 			

@@ -174,6 +174,14 @@ jslet.data.Field.prototype = {
 		return this._dataType;
 	},
 
+	getActualType: function() {
+		if(this._dataType === jslet.data.DataType.PROXY) {
+			var fldObj = this._getProxyFldObj();
+			return fldObj? fldObj.getType(): jslet.data.DataType.STRING;
+		}
+		return this._dataType;
+	},
+	
 	/**
 	 * Get or set parent field object.
 	 * 
@@ -209,6 +217,12 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
+	/**
+	 * Get or set proxy dataset.
+	 * 
+	 * @param {jslet.data.Dataset or String} proxyDataset - proxy dataset.
+	 * @return {jslet.data.Dataset or String}
+	 */
 	proxyDataset: function(proxyDataset) {
 		var Z = this;
 		if (proxyDataset === undefined) {
@@ -220,6 +234,12 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
+	/**
+	 * Get or set proxy field name.
+	 * 
+	 * @param {String} proxyField - proxy field.
+	 * @return {String}
+	 */
 	proxyField: function(proxyField) {
 		var Z = this;
 		if (proxyField === undefined) {
@@ -237,12 +257,12 @@ jslet.data.Field.prototype = {
 			return Z._proxyFldObj;
 		}
 		var proxyDs = jslet.data.getDataset(Z._proxyDataset);
-		jslet.Checker.test('Field.proxyDataset', proxyDs).required().isClass(jslet.data.Dataset.className);
+		//jslet.Checker.test('Field.proxyDataset', proxyDs).required().isClass(jslet.data.Dataset.className);
 		if(!proxyDs) {
 			return null
 		}
 		var proxyFldObj = proxyDs.getField(Z._proxyField);
-		jslet.Checker.test('Field.proxyField', proxyFldObj).required().isClass(jslet.data.Field.className);
+		//jslet.Checker.test('Field.proxyField', proxyFldObj).required().isClass(jslet.data.Field.className);
 		Z._proxyFldObj = proxyFldObj;
 		return proxyFldObj;
 	},
@@ -428,10 +448,7 @@ jslet.data.Field.prototype = {
 	 */
 	displayWidth: function (displayWidth) {
 		var Z = this;
-		if (displayWidth === undefined){
-			if(Z._dataType === jslet.data.DataType.PROXY) {
-				return Z._getProxyPropValue('displayWidth');
-			}
+		if (displayWidth === undefined) {
 			if (Z._displayWidth <= 0) {
 				return Z._length > 0 ? Z._length : 12;
 			} else {

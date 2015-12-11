@@ -14,9 +14,10 @@ jslet.ui.FindDialog = function (dbContainer) {
 	var _containerEl = dbContainer.el;
 	var _currfield = null;
 	var _findingField = null;
-	
+	var _left = -1;
+	var _top = -1;
 	function initialize() {
-		var opt = { type: 'window', caption: 'Find', isCenter: false, resizable: true, minimizable: false, maximizable: false, 
+		var opt = { type: 'window', caption: jslet.formatString(jslet.locale.findDialog.caption, ['']), isCenter: false, resizable: true, minimizable: false, maximizable: false, 
 				stopEventBubbling: true, styleClass: 'jl-finddlg'};
 		_dialog = jslet.ui.createControl(opt, _containerEl);
 		_dialog.onClosed(function(){
@@ -28,7 +29,10 @@ jslet.ui.FindDialog = function (dbContainer) {
 		'<div class="input-group-btn"><button class="btn btn-default jl-finddlg-find"><i class="fa fa-search" /></button></div></div>';
 		
 		_dialog.setContent(content);
-		
+		_dialog.onPositionChanged(function(left, top) {
+			_left = (left > 0? left: 0);
+			_top = (top > 0? top: 0);
+		});
 		var dlgEl = _dialog.el;
 
 		var jqFindingValue = jQuery(dlgEl).find('.jl-finddlg-value');
@@ -52,6 +56,12 @@ jslet.ui.FindDialog = function (dbContainer) {
 	}
 	
 	this.show = function(left, top) {
+		if(_left >= 0) {
+			left = _left;
+		}
+		if(_top >= 0) {
+			top = _top;
+		}
 		left = left || 0;
 		top = top || 0;
 		_dialog.show(left, top);

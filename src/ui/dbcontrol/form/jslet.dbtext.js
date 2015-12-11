@@ -192,6 +192,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			cursorPos = jslet.ui.textutil.getCursorPos(Z.el);
 		if (!Z._dataset.fieldValidator().checkInputChar(fldObj, String.fromCharCode(keyCode), existStr, cursorPos.begin)) {
 			event.preventDefault();
+			return false;
 		}
 		Z._dataset.editRecord();
 		//When press 'enter', write data to dataset.

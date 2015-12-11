@@ -218,7 +218,7 @@ jslet.data.FieldValidator.prototype = {
 			var c = inputChar.charAt(0);
 			valid = validChars.indexOf(c) >= 0;
 		}
-		if(existText && valid && fldObj.getType() == jslet.data.DataType.NUMBER){
+		if(existText && valid && fldObj.getActualType() == jslet.data.DataType.NUMBER){
 			var scale = fldObj.scale();
 			var k = existText.lastIndexOf('.');
 			if(inputChar == '.') {
@@ -254,8 +254,7 @@ jslet.data.FieldValidator.prototype = {
 		if(inputText === "") {
 			return null;
 		}
-		var fldType = fldObj.getType();
-		
+		var fldType = fldObj.getActualType();
 		//Check with regular expression
 		var regular = fldObj.regularExpr();
 		if (!regular) {
@@ -335,7 +334,7 @@ jslet.data.FieldValidator.prototype = {
 			if(valid && jslet.isArray(value) && value.length === 0) {
 				valid = false;
 			}
-			if(fldObj.getType() === jslet.data.DataType.BOOLEAN && !value) {
+			if(fldObj.getActualType() === jslet.data.DataType.BOOLEAN && !value) {
 				valid = false;
 			}
 			if(!valid) {
@@ -356,7 +355,7 @@ jslet.data.FieldValidator.prototype = {
 	 * @return {String} If input text is valid, return null, otherwise return error message.
 	 */
 	checkValue: function(fldObj, value) {
-		var fldType = fldObj.getType();
+		var fldType = fldObj.getActualType();
 		//Check range
 		var fldRange = fldObj.dataRange(),
 			hasLookup = fldObj.lookup()? true: false;
@@ -566,8 +565,8 @@ jslet.data.getValueConverter = function(fldObj) {
 	if(fldObj.lookup()) {
 		return jslet.data._valueConverters.lookup;
 	}
-	
-	return jslet.data._valueConverters[fldObj.getType()];
+	var dataType = fldObj.getActualType();
+	return jslet.data._valueConverters[dataType];
 };
 /* End of field value converter */
 
@@ -1226,7 +1225,7 @@ jslet.data.DataSelection.prototype = {
 					if(this.isSelected(dataset.recno(), fldName)) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
-						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+						if(fldObj.getActualType() === 'N' && !fldObj.lookup()) {
 							text = fldObj.getValue();
 						} else {
 							text = dataset.getFieldText(fldName);
@@ -1362,7 +1361,7 @@ jslet.data.GlobalDataHandler.prototype = {
 
 jslet.data.globalDataHandler = new jslet.data.GlobalDataHandler();
 
-jslet.data.AdvandcedFilter = function() {
+jslet.data.AdvandcedFilter = function(hostDataset) {
 	jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.advancedFilter.and, 'or': jslet.locale.advancedFilter.or});
 	var fldCfg = [{name: 'code', type: 'S', length: 10, label:'code'},
                   {name: 'name', type: 'S', length: 30, label:'name'},
@@ -1387,6 +1386,7 @@ jslet.data.AdvandcedFilter = function() {
 	                     {code: 'selfchildren1', name: jslet.locale.advancedFilter.selfchildren1, range: 'L'},
 	                     {code: 'children1', name: jslet.locale.advancedFilter.children1, range: 'L'}
 	                     ]);
+	this._hostDataset = hostDataset;
 	this._filterDataset;
 }
 
@@ -1402,8 +1402,7 @@ jslet.data.AdvandcedFilter.prototype = {
 	         {name: 'field', type: 'S', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.field},
 	         {name: 'dataType', type: 'S', length: 10, label : jslet.locale.advancedFilter.dataType},
 	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label : jslet.locale.advancedFilter.operator, lookup: {dataset:"ds_operator_"}},
-	         {name: 'value1', type: 'P',proxyDataset: 'employee', proxyField: 'department', displayWidth:30, label : 'value1'},
-	         {name: 'value', type: 'S',length: 200, displayWidth:30, label : jslet.locale.advancedFilter.value},
+	         {name: 'value', type: 'P', proxyDataset: this._hostDataset, proxyField: 'TBD', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.value},
              {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.rParenthesis, validChars:')'}, 
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.advancedFilter.logicalOpr, lookup: {dataset:"ds_logical_opr_"}} 
 		];
@@ -1417,7 +1416,7 @@ jslet.data.AdvandcedFilter.prototype = {
 		var rule2 = {
 				condition: '[dataType] == "D"',
 				rules: [
-				{field: 'value', meta: {editControl: 'DBDatePicker'}}
+				{field: 'value', meta: {proxyField: 'birthday'}}
 				]
 			};
 		filterDs.contextRules([rule1, rule2]);

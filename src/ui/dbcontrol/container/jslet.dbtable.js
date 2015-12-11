@@ -732,7 +732,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jslet.Checker.test('DBTable.gotoColumn#colNum', colNum).required().isGTEZero();
 		var lastColNum = this.innerColumns.length - 1;
 		if(colNum > lastColNum) {
-			colNum = lastColNum
+			colNum = lastColNum;
 		}
 		this.currColNum(lastColNum);
 		if(colNum < lastColNum) {
@@ -801,6 +801,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
     		if (jslet.locale.isRtl){
     			x = x + jqFilterBtn.outerWidth();
     		}
+    		var colCfg = jqFilterBtn.parent().parent()[0]['jsletColCfg'];
+    		Z._filterPanel.changeField(colCfg.field);
+    		Z._filterPanel.jqFilterBtn = jqFilterBtn;
     		Z._filterPanel.showPopup(x, y, 0, h);
 
         	
@@ -811,9 +814,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         });
         
         jqEl.on('click', 'td.jl-tbl-cell', function(event){
-        	if(!Z.readOnly) {
-        		return;
-        	}
         	var otd = event.currentTarget;
         	var colCfg = otd.jsletColCfg;
         	if(colCfg) {
@@ -851,9 +851,20 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					var colCfg = Z.innerColumns[Z._currColNum];
 					if(colCfg.field) {
 						Z._findDialog.findingField(colCfg.field);
+					} else {
+						//Get first column with field name.
+						for(var i = Z._currColNum + 1, len = Z.innerColumns.length; i < len; i++) {
+							colCfg = Z.innerColumns[i];
+							if(colCfg.field) {
+								Z._findDialog.findingField(colCfg.field);
+								break;
+							}
+						}
 					}
 				}
-				Z._findDialog.show(0, Z.headSectionHt);
+				if(Z._findDialog.findingField()) {
+					Z._findDialog.show(0, Z.headSectionHt);
+				}
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
@@ -2134,7 +2145,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 			} 
 			ochild.innerHTML = [
-			    Z._hasFilterDialog ? '<button class="jl-tbl-filter"><i class="fa fa-filter"></i></button>': '',
+			    Z._hasFilterDialog && cobj.field? '<button class="jl-tbl-filter"><i class="fa fa-filter"></i></button>': '',
 			    '<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',
@@ -3211,6 +3222,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return null;
 		}
 		var fldCtrlCfg = fldObj.editControl();
+		if(!fldCtrlCfg) {
+			return null;
+		}
 		fldCtrlCfg.dataset = Z._dataset;
 		fldCtrlCfg.field = fldName;
 		fldCtrlCfg.inTableCtrl = true;
@@ -3357,7 +3371,9 @@ jslet.ui.EditableCellRender =  jslet.Class.create(jslet.ui.CellRender, {
 			fldObj = Z._dataset.getField(fldName);
 		
 		var editCtrl = Z._createEditControl(colCfg);
-		cellPanel.appendChild(editCtrl);
+		if(editCtrl) {
+			cellPanel.appendChild(editCtrl);
+		}
 	},
 	
 	refreshCell: function (cellPanel, colCfg, recNo) {
@@ -3655,11 +3671,12 @@ jslet.ui.Splitter = function () {
 	};
 };
 
-jslet.ui.DBTableFilterPanel = function(jqFilterBtn, fldName) {
+jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	var Z = this;
 	Z.popupWidth = 200;
 	Z.popupHeight = 200;
-	Z.fieldName = fldName;
+	Z.fieldName = null;
+	Z.jqFilterBtn = null;
 	
 	Z.popup = new jslet.ui.PopupPanel();
 	Z.popup.onHidePopup = function() {
@@ -3669,6 +3686,11 @@ jslet.ui.DBTableFilterPanel = function(jqFilterBtn, fldName) {
 }
 
 jslet.ui.DBTableFilterPanel.prototype = {
+		
+	changeField: function(fldName) {
+		console.log(fldName)
+
+	},
 	
 	showPopup: function (left, top, ajustX, ajustY) {
 		var Z = this;
@@ -3694,6 +3716,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		if (!Z.panel) {
 			Z.panel = document.createElement('div');
 		}
+		Z.panel.innerHTML = '<div><select class="form-control input-sm" /></div><select class="form-control input-sm" /><input class="form-control input-sm" />'
 return Z.panel;
 		//process variable
 		var fldObj = Z.dataset.getField(Z.field),

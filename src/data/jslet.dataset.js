@@ -428,7 +428,7 @@ jslet.data.Dataset.prototype = {
 		Z._unitName = unitName;
 		for (var i = 0, cnt = Z._normalFields.length, fldObj; i < cnt; i++) {
 			fldObj = Z._normalFields[i];
-			if (fldObj.getType() == jslet.data.DataType.NUMBER && fldObj.unitConverted()) {
+			if (fldObj.getActualType() == jslet.data.DataType.NUMBER && fldObj.unitConverted()) {
 				var fldName = fldObj.name();
 				jslet.data.FieldValueCache.clearAll(Z, fldName);
 				var evt = jslet.data.RefreshEvent.updateColumnEvent(fldName);
@@ -2017,7 +2017,7 @@ jslet.data.Dataset.prototype = {
 				}
 				value = window.eval(expr);
 			} else {
-				if(fldObj.getType() === jslet.data.DataType.NUMBER) {
+				if(fldObj.getActualType() === jslet.data.DataType.NUMBER) {
 					value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
 				}
 			}
@@ -3004,6 +3004,15 @@ jslet.data.Dataset.prototype = {
 			var formula = fldObj.formula();
 			if (!formula) {
 				value = dataRec[fldName];
+				if(fldObj.getType() === jslet.data.DataType.PROXY && 
+						fldObj.getActualType() === jslet.data.DataType.DATE && value && !jslet.isDate(value)) {
+					value = jslet.parseDate(value,'yyyy-MM-ddThh:mm:ss');
+					if (value) {
+						dataRec[fldName] = value;
+					} else {
+						throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fldName]));
+					}
+				}
 				fldValue = value !== undefined ? value :null;
 			} else {
 				if(dataRec[fldName] === undefined) {
@@ -3017,7 +3026,7 @@ jslet.data.Dataset.prototype = {
 		}
 
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
-			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
+			if(fldObj.getActualType() === jslet.data.DataType.BOOLEAN) {
 				return fldValue === fldObj.trueValue();
 			}
 			return fldValue;
@@ -3057,12 +3066,16 @@ jslet.data.Dataset.prototype = {
 	setFieldValue: function (fldName, value, valueIndex) {
 		var Z = this,
 			fldObj = Z.getField(fldName);
+		if (fldObj === null) {
+			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+		}
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
-		var currRec = Z.getRecord();
+		var currRec = Z.getRecord(),
+			dataType = fldObj.getActualType();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
-			if(value && fldObj.getType() === jslet.data.DataType.NUMBER && !jslet.isArray(value)) {
+			if(value && dataType === jslet.data.DataType.NUMBER && !jslet.isArray(value)) {
 				var oldValue = value;
 				value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
 				if(window.isNaN(value)) {
@@ -3071,7 +3084,7 @@ jslet.data.Dataset.prototype = {
 				}
 			}
 			var realValue = value;
-			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
+			if(dataType === jslet.data.DataType.BOOLEAN) {
 				if(value) {
 					realValue = fldObj.trueValue();
 				} else {
@@ -3447,8 +3460,7 @@ jslet.data.Dataset.prototype = {
 	},
 
 	_textToValue: function(fldObj, inputText, valueIndex) {
-		var Z = this,
-			fType = fldObj.getType();
+		var Z = this;
 		
 		if((fldObj.valueStyle() === jslet.data.FieldValueStyle.BETWEEN ||
 			fldObj.valueStyle() === jslet.data.FieldValueStyle.MULTIPLE)				
@@ -4929,7 +4941,7 @@ jslet.data.Dataset.prototype = {
 					if (exportDisplayValue) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
-						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+						if(fldObj.getActualType() === 'N' && !fldObj.lookup()) {
 							value = Z.getFieldValue(fldName);
 						} else {
 							value = Z.getFieldText(fldName);

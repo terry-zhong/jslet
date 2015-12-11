@@ -145,6 +145,8 @@ jslet.data.ContextRuleMeta = function() {
 	Z._valueCountLimit = undefined;
 	Z._validChars = undefined;
 	Z._customValidator = undefined;
+	Z._proxyDataset = undefined;
+	Z._proxyField = undefined;
 };
 
 jslet.data.ContextRuleMeta.className = 'jslet.data.ContextRuleMeta';
@@ -154,7 +156,7 @@ jslet.data.ContextRuleMeta.prototype = {
 	
 	properties: ['label', 'tip','nullText', 'required','disabled','readOnly','visible',
 	             'formula','scale','defaultValue','displayFormat','editMask','editControl',
-	             'range','regularExpr','valueCountLimit','validChars','customValidator'],
+	             'range','regularExpr','valueCountLimit','validChars','customValidator','proxyDataset', 'proxyField'],
 	/**
 	 * Get or set field label.
 	 * 
@@ -477,6 +479,36 @@ jslet.data.ContextRuleMeta.prototype = {
 		
 		jslet.Checker.test('ContextRuleMeta.validChars', chars).isString();
 		Z._validChars = jQuery.trim(chars);
+	},
+	
+	/**
+	 * Get or set proxy dataset.
+	 * 
+	 * @param {jslet.data.Dataset or String} proxyDataset - proxy dataset.
+	 * @return {jslet.data.Dataset or String}
+	 */
+	proxyDataset: function(proxyDataset) {
+		var Z = this;
+		if (proxyDataset === undefined) {
+			return Z._proxyDataset;
+		}
+		Z._proxyDataset = proxyDataset;
+		return this;
+	},
+	
+	/**
+	 * Get or set proxy field name.
+	 * 
+	 * @param {String} proxyField - proxy field.
+	 * @return {String}
+	 */
+	proxyField: function(proxyField) {
+		var Z = this;
+		if (proxyField === undefined) {
+			return Z._proxyField;
+		}
+		Z._proxyField = proxyField;
+		return this;
 	}
 	
 };
@@ -660,6 +692,14 @@ jslet.data.createContextRule = function(cxtRuleCfg) {
 		
 		if(metaCfg.customValidator !== undefined) {
 			meta.customValidator(metaCfg.customValidator);
+		}
+		
+		if(metaCfg.proxyDataset !== undefined) {
+			meta.proxyDataset(metaCfg.proxyDataset);
+		}
+		
+		if(metaCfg.proxyField !== undefined) {
+			meta.proxyField(metaCfg.proxyField);
 		}
 		
 		return meta;
