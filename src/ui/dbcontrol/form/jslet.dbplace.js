@@ -53,6 +53,14 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	},
 
 	/**
+	 * DBTable uses this property.
+	 */
+	ctrlRecno: function($super, ctrlRecno) {
+		this.el.firstChild.jslet.ctrlRecno(ctrlRecno);
+		return $super(ctrlRecno);
+	},
+	
+	/**
 	 * @override
 	 */
 	refreshControl: function (evt) {

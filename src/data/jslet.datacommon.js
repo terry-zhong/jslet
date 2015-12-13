@@ -40,8 +40,7 @@ jslet.data.DataType = {
 	TIME: 'T',  //Time
 	BOOLEAN: 'B', //Boolean
 	DATASET: 'V', //Dataset field
-	CROSS: 'C',   //Cross Field
-	PROXY: 'P' //Proxy field
+	CROSS: 'C'   //Cross Field
 };
 
 jslet.data.FieldValueStyle = {
@@ -218,7 +217,7 @@ jslet.data.FieldValidator.prototype = {
 			var c = inputChar.charAt(0);
 			valid = validChars.indexOf(c) >= 0;
 		}
-		if(existText && valid && fldObj.getActualType() == jslet.data.DataType.NUMBER){
+		if(existText && valid && fldObj.getType() == jslet.data.DataType.NUMBER){
 			var scale = fldObj.scale();
 			var k = existText.lastIndexOf('.');
 			if(inputChar == '.') {
@@ -254,7 +253,7 @@ jslet.data.FieldValidator.prototype = {
 		if(inputText === "") {
 			return null;
 		}
-		var fldType = fldObj.getActualType();
+		var fldType = fldObj.getType();
 		//Check with regular expression
 		var regular = fldObj.regularExpr();
 		if (!regular) {
@@ -334,7 +333,7 @@ jslet.data.FieldValidator.prototype = {
 			if(valid && jslet.isArray(value) && value.length === 0) {
 				valid = false;
 			}
-			if(fldObj.getActualType() === jslet.data.DataType.BOOLEAN && !value) {
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN && !value) {
 				valid = false;
 			}
 			if(!valid) {
@@ -355,7 +354,7 @@ jslet.data.FieldValidator.prototype = {
 	 * @return {String} If input text is valid, return null, otherwise return error message.
 	 */
 	checkValue: function(fldObj, value) {
-		var fldType = fldObj.getActualType();
+		var fldType = fldObj.getType();
 		//Check range
 		var fldRange = fldObj.dataRange(),
 			hasLookup = fldObj.lookup()? true: false;
@@ -565,7 +564,7 @@ jslet.data.getValueConverter = function(fldObj) {
 	if(fldObj.lookup()) {
 		return jslet.data._valueConverters.lookup;
 	}
-	var dataType = fldObj.getActualType();
+	var dataType = fldObj.getType();
 	return jslet.data._valueConverters[dataType];
 };
 /* End of field value converter */
@@ -1225,7 +1224,7 @@ jslet.data.DataSelection.prototype = {
 					if(this.isSelected(dataset.recno(), fldName)) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
-						if(fldObj.getActualType() === 'N' && !fldObj.lookup()) {
+						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
 							text = fldObj.getValue();
 						} else {
 							text = dataset.getFieldText(fldName);
@@ -1362,65 +1361,125 @@ jslet.data.GlobalDataHandler.prototype = {
 jslet.data.globalDataHandler = new jslet.data.GlobalDataHandler();
 
 jslet.data.AdvandcedFilter = function(hostDataset) {
-	jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.advancedFilter.and, 'or': jslet.locale.advancedFilter.or});
-	var fldCfg = [{name: 'code', type: 'S', length: 10, label:'code'},
-                  {name: 'name', type: 'S', length: 30, label:'name'},
-                  {name: 'range', type: 'S', length: 30, label:'range'}];
+	if(!jslet.data.getDataset('ds_logical_opr_')) {
+		jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.advancedFilter.and, 'or': jslet.locale.advancedFilter.or});
+	}
 	
-	var dsOperator = jslet.data.createDataset('ds_operator_', fldCfg, {keyField: 'code', codeField: 'code', nameField: 'name'});
-	dsOperator.dataList([{code: '==', name: '==', range: 'NDS'},
-	                     {code: '!=', name: '!=', range: 'NDS'},
-	                     {code: '>', name: '>', range: 'NDS'},
-	                     {code: '>=', name: '>=', range: 'NDS'},
-	                     {code: '<', name: '<', range: 'NDS'},
-	                     {code: '<=', name: '<=', range: 'NDS'},
-	                     {code: 'between', name: jslet.locale.advancedFilter.between, range: 'NDS'},
-	                     
-	                     {code: 'likeany', name: jslet.locale.advancedFilter.likeany, range: 'S'},
-	                     {code: 'likefirst', name: jslet.locale.advancedFilter.likefirst, range: 'S'},
-	                     {code: 'likelast', name: jslet.locale.advancedFilter.likelast, range: 'S'},
-
-	                     {code: 'select', name: jslet.locale.advancedFilter.select, range: 'L'},
-	                     {code: 'selfchildren0', name: jslet.locale.advancedFilter.selfchildren0, range: 'L'},
-	                     {code: 'children0', name: jslet.locale.advancedFilter.children0, range: 'L'},
-	                     {code: 'selfchildren1', name: jslet.locale.advancedFilter.selfchildren1, range: 'L'},
-	                     {code: 'children1', name: jslet.locale.advancedFilter.children1, range: 'L'}
-	                     ]);
+	if(!jslet.data.getDataset('ds_operator_')) {
+		var fldCfg = [{name: 'code', type: 'S', length: 10, label:'code'},
+	                  {name: 'name', type: 'S', length: 30, label:'name'},
+	                  {name: 'range', type: 'S', length: 30, label:'range'}];
+		
+		var dsOperator = jslet.data.createDataset('ds_operator_', fldCfg, {keyField: 'code', codeField: 'code', nameField: 'name'});
+		dsOperator.dataList([{code: '==', name: '==', range: 'NDS'},
+		                     {code: '!=', name: '!=', range: 'NDS'},
+		                     {code: '>', name: '>', range: 'NDS'},
+		                     {code: '>=', name: '>=', range: 'NDS'},
+		                     {code: '<', name: '<', range: 'NDS'},
+		                     {code: '<=', name: '<=', range: 'NDS'},
+		                     {code: 'between', name: jslet.locale.advancedFilter.between, range: 'NDS'},
+		                     
+		                     {code: 'likeany', name: jslet.locale.advancedFilter.likeany, range: 'S'},
+		                     {code: 'likefirst', name: jslet.locale.advancedFilter.likefirst, range: 'S'},
+		                     {code: 'likelast', name: jslet.locale.advancedFilter.likelast, range: 'S'},
+	
+		                     {code: 'select', name: jslet.locale.advancedFilter.select, range: 'LH'},
+		                     {code: 'selfchildren0', name: jslet.locale.advancedFilter.selfchildren0, range: 'H'},
+		                     {code: 'children0', name: jslet.locale.advancedFilter.children0, range: 'H'},
+		                     {code: 'selfchildren1', name: jslet.locale.advancedFilter.selfchildren1, range: 'H'},
+		                     {code: 'children1', name: jslet.locale.advancedFilter.children1, range: 'H'}
+		                     ]);
+	}
 	this._hostDataset = hostDataset;
 	this._filterDataset;
 }
 
 jslet.data.AdvandcedFilter.prototype = {
 	filterDataset: function() {
-		if(this._filterDataset) {
-			return this._filterDataset;
+		var Z = this;
+		if(Z._filterDataset) {
+			return Z._filterDataset;
 		}
+		
+		var id =  jslet.nextId();
+		var fldCfg = [
+            {name: 'name', type: 'S', length: 30, label: 'Field Code'}, 
+            {name: 'label', type: 'S', length: 50, label: 'Field Name'}, 
+            {name: 'dataType', type: 'S', length: 2, label: 'Data Type'}, 
+            {name: 'parentName', type: 'S', length: 30, label: 'Parent Field Code'}, 
+		];
+		var dsFields = jslet.data.createDataset('ds_fields_' + id, fldCfg, 
+				{keyField: 'name', codeField: 'name', nameField: 'label', parentField: 'parentName'});
+		
+		function appendFields(hostDataset, fieldLabels, hostFldName, hostFldLabel) {
+			var fields = jslet.data.getDataset(hostDataset).getNormalFields(),
+				fldObj;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				if(!fldObj.visible()) {
+					continue;
+				}
+				var fldCode = fldObj.name(),
+					fldLabel = fldObj.label(),
+					fldDataType = fldObj.getType();
+				if(hostFldName) {
+					fldCode = hostFldName + '.' + fldCode;
+					fldLabel = hostFldLabel + '.' + fldLabel;
+				}
+				var fldCfg = {name: fldCode, label: fldLabel, dataType: fldDataType};
+				if(hostFldName) {
+					fldCfg.parentName = hostFldName;
+				}
+				fieldLabels.push(fldCfg);
+//				if(fldDataType === jslet.data.DataType.DATE) {
+//					fieldLabels.push({name: fldCode + '.Y', label: fldLabel + '.Year', dataType: 'N', parentName: fldCode});
+//					fieldLabels.push({name: fldCode + '.YM', label: fldLabel + '.Year-Month', dataType: 'N', parentName: fldCode});
+//				}
+				var lkObj = fldObj.lookup();
+				if(lkObj) {
+					appendFields(lkObj.dataset(), fieldLabels, fldCode, fldLabel);
+				}
+			}
+		}
+		var fieldLabels = [];
+		appendFields(Z._hostDataset, fieldLabels);
+		dsFields.dataList(fieldLabels);
 		
 		var fldCfg = [ 
              {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.lParenthesis, validChars:'('}, 
-	         {name: 'hostField', type: 'S', length: 30, label : 'Host Field', visible: false},
-	         {name: 'field', type: 'S', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.field},
-	         {name: 'dataType', type: 'S', length: 10, label : jslet.locale.advancedFilter.dataType},
-	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label : jslet.locale.advancedFilter.operator, lookup: {dataset:"ds_operator_"}},
-	         {name: 'value', type: 'P', proxyDataset: this._hostDataset, proxyField: 'TBD', length: 200, displayWidth:30, label : jslet.locale.advancedFilter.value},
+	         {name: 'hostField', type: 'S', length: 30, label: 'Host Field', visible: false},
+	         {name: 'field', type: 'S', length: 200, displayWidth:30, label: jslet.locale.advancedFilter.field, 
+	        	 lookup: {dataset: dsFields, onlyLeafLevel: false}, editControl: {type: 'DBComboSelect', textReadOnly: true}, required: true},
+	         {name: 'dataType', type: 'S', length: 10, label: jslet.locale.advancedFilter.dataType},
+	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label: jslet.locale.advancedFilter.operator, 
+	        	 lookup: {dataset:"ds_operator_"}, required: true},
+	         {name: 'value', type: 'S', length: 200, displayWidth:30, label: jslet.locale.advancedFilter.value},
+	         {name: 'constValue', type: 'S', length: 2, label: ' ', readOnly: true, 
+	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>'},
              {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.advancedFilter.rParenthesis, validChars:')'}, 
-             {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.advancedFilter.logicalOpr, lookup: {dataset:"ds_logical_opr_"}} 
+             {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.advancedFilter.logicalOpr, 
+            	 lookup: {dataset:"ds_logical_opr_"}, required: true} 
 		];
-		var filterDs = jslet.data.createDataset('dsFilter' + jslet.nextId(), fldCfg);
+		var filterDs = jslet.data.createDataset('dsFilter_' + id, fldCfg);
 		var rule1 = {
 				condition: '[dataType]',
 				rules: [
 				{field: 'operator', lookup: {filter: '[range].indexOf("${dataType}") >= 0'}}
 				]
 			};
-		var rule2 = {
-				condition: '[dataType] == "D"',
-				rules: [
-				{field: 'value', meta: {proxyField: 'birthday'}}
-				]
-			};
-		filterDs.contextRules([rule1, rule2]);
+		filterDs.contextRules([rule1]);
 		filterDs.enableContextRule();
+		filterDs.onFieldChanged(function(fldName, fldValue) {
+			if(fldName == 'field') {
+				var hostFldObj = jslet.data.getDataset(Z._hostDataset).getField(fldValue),
+					fldType = hostFldObj.getType(),
+					lkObj = hostFldObj.lookup();
+				if(lkObj) {
+					fldType = (lkObj.dataset().parentField()) ? 'H': 'L';
+				}
+				this.setFieldValue('dataType', fldType);
+			}
+		});
 		this._filterDataset = filterDs;
 		return filterDs;
 
