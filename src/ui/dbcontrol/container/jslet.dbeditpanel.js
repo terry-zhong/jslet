@@ -263,14 +263,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				opanel.appendChild(octrlDiv);
 				octrlDiv.className = 'col-sm-' + layout._innerDataCols;
 				
-				if (fldObj.valueStyle() == jslet.data.FieldValueStyle.BETWEEN) {
-					editorCfg = {
-						type: 'DBBetweenEdit'
-					};
-				}
-				
-				editorCfg.dataset = Z._dataset;
-				editorCfg.field = fldName;
+				editorCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName};
 				editor = jslet.ui.createControl(editorCfg, null);
 				octrlDiv.appendChild(editor.el);
 				ctrlId = jslet.nextId();

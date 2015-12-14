@@ -69,7 +69,7 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
 			Z._field == evt.fieldName && 
-			evt.metaName == 'editControl') {
+			evt.metaName == 'editControl' && Z.isActiveRecord()) {
 			Z.renderAll();
 			return true;
 		}
@@ -83,6 +83,11 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.removeAllChildControls();
 		var	fldObj = Z._dataset.getField(Z._field),
 			param = fldObj.editControl();
+		if (fldObj.valueStyle() == jslet.data.FieldValueStyle.BETWEEN) {
+			param = {
+				type: 'DBBetweenEdit'
+			};
+		}
 		param.dataset = Z._dataset;
 		param.field = Z._field;
 		var dbCtrl = jslet.ui.createControl(param, Z.el);

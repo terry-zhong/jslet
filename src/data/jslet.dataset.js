@@ -2713,7 +2713,7 @@ jslet.data.Dataset.prototype = {
 			var masterFldName = masterFld.name();
 			if(hasError) {
 				//'Detail Dataset: {0} has error data!'
-				masterDs.addFieldError(masterFldName, jslet.format(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
+				masterDs.addFieldError(masterFldName, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
 			} else {
 				masterDs.addFieldError(masterFldName, null);
 			}
@@ -2744,7 +2744,7 @@ jslet.data.Dataset.prototype = {
 			subDs.confirm();
 			if(subDs.existDatasetError()) {
 				//'Detail Dataset: {0} has error data!'
-				Z.addFieldError(subFields[i], jslet.format(jslet.locale.Dataset.detailDsHasError, [subDs.name()]));
+				Z.addFieldError(subFields[i], jslet.formatString(jslet.locale.Dataset.detailDsHasError, [subDs.name()]));
 			} else {
 				Z.addFieldError(subFields[i], null);
 			}
@@ -5180,7 +5180,7 @@ jslet.data.Dataset.prototype = {
 			dsName = master.name;
 		if(dsName != Z._name) {
 			//Snapshot name: [{0}] does not match the current dataset name: [{1}], cannot import snapshot!
-			throw new Error(jslet.format(jslet.locale.Dataset.cannotImportSnapshot, [dsName, Z._name]));
+			throw new Error(jslet.formatString(jslet.locale.Dataset.cannotImportSnapshot, [dsName, Z._name]));
 		}
 		Z._dataList = master.dataList;
 		Z._changeLog._changedRecords = master.changedRecords;

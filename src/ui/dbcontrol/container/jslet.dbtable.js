@@ -3221,19 +3221,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!isEditable) {
 			return null;
 		}
-		var fldCtrlCfg = fldObj.editControl();
-		if(!fldCtrlCfg) {
-			return null;
-		}
-		fldCtrlCfg.dataset = Z._dataset;
-		fldCtrlCfg.field = fldName;
-		fldCtrlCfg.inTableCtrl = true;
+        var fldCtrlCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName, inTableCtrl: true};
 		var editCtrl = jslet.ui.createControl(fldCtrlCfg);
 		editCtrl = editCtrl.el;
 		editCtrl.id = jslet.nextId();
-		jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
-			Z._editingField = editingField;
-		});
+		if(isEditable) {
+			jQuery(editCtrl).addClass('jl-tbl-incell').on('editing', function(event, editingField) {
+				Z._editingField = editingField;
+			});
+		}
 		return editCtrl;
 	}, // end editControl
 

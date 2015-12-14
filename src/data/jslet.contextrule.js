@@ -82,6 +82,7 @@ jslet.data.ContextRuleItem = function(fldName) {
 	Z._meta = undefined;
 	Z._value = undefined;
 	Z._lookup = undefined;
+	Z._customized = undefined;
 };
 
 jslet.data.ContextRuleItem.className = 'jslet.data.ContextRuleItem';
@@ -119,6 +120,15 @@ jslet.data.ContextRuleItem.prototype = {
 		}
 		
 		this._value = value;
+		return this;
+	},
+	
+	customized: function(customizedFn) {
+		if(customizedFn === undefined) {
+			return this._customized;
+		}
+		jslet.Checker.test('ContextRuleItem.customized', customizedFn).isFunction();
+		this._customized = customizedFn;
 		return this;
 	}
 };
@@ -585,6 +595,10 @@ jslet.data.createContextRule = function(cxtRuleCfg) {
 		if(itemCfg.lookup !== undefined) {
 			item.lookup(createContextRuleLookup(itemCfg.lookup));
 		}
+		
+		if(itemCfg.customized !== undefined) {
+			item.customized(itemCfg.customized);
+		}
 		return item;
 	}
 	
@@ -849,6 +863,11 @@ jslet.data.ContextRuleEngine.prototype = {
 			if(isValueChanged && ruleItem.value() !== undefined) {
 				matchedRule.value(this._evalExpr(ruleItem, 'value'));
 			}
+			
+			var customized = ruleItem.customized();
+			if(customized) {
+				matchedRule.customized(customized);
+			}
 			this._matchedRules.push(matchedRule);
 		}
 	},
@@ -896,6 +915,10 @@ jslet.data.ContextRuleEngine.prototype = {
 				this._syncMatchedRuleMeta(fldObj, ruleObj.meta());
 				this._syncMatchedRuleLookup(fldObj, ruleObj.lookup());
 				this._syncMatchedRuleValue(fldObj, ruleObj.value());
+				var customizedFn = ruleObj.customized();
+				if(customizedFn) {
+					customizedFn(fldObj);
+				}
 			}
 		}
 	},

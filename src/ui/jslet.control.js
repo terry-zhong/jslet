@@ -129,6 +129,7 @@ jslet.ui.Control = jslet.Class.create({
 			childCtrl = Z._childControls[i];
 			childCtrl.destroy();
 		}
+		Z.el.innerHTML = '';
 		Z._childControls = null;
 	},
 	
