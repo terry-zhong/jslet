@@ -69,7 +69,8 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
 			Z._field == evt.fieldName && 
-			evt.metaName == 'editControl' && Z.isActiveRecord()) {
+			(evt.metaName == 'editControl' || evt.metaName == 'valueStyle') && 
+			Z.isActiveRecord()) {
 			Z.renderAll();
 			return true;
 		}

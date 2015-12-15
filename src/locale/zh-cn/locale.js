@@ -181,7 +181,7 @@
 		placeholder: '<回车>查找...'
 	};
 			
-	locale.advancedFilter = {
+	locale.FilterDataset = {
 		and: '并且',
 		or: '或者',
 		between: '在...之间',

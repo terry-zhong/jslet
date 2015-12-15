@@ -131,7 +131,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._hasFindDialog = true;
 		
-		Z._hasFilterDialog = false;
+		Z._hasFilterDialog = true;
 		//@private
 		Z._repairHeight = 0;
 		Z.contentHeight = 0;
@@ -3665,130 +3665,5 @@ jslet.ui.Splitter = function () {
 		this.unattach();
 		this.isDragging = false;
 	};
-};
-
-jslet.ui.DBTableFilterPanel = function(tblCtrl) {
-	var Z = this;
-	Z.popupWidth = 200;
-	Z.popupHeight = 200;
-	Z.fieldName = null;
-	Z.jqFilterBtn = null;
-	
-	Z.popup = new jslet.ui.PopupPanel();
-	Z.popup.onHidePopup = function() {
-		Z.jqFilterBtn.focus();
-	};
-	
-}
-
-jslet.ui.DBTableFilterPanel.prototype = {
-		
-	changeField: function(fldName) {
-		console.log(fldName)
-
-	},
-	
-	showPopup: function (left, top, ajustX, ajustY) {
-		var Z = this;
-		if (!Z.panel) {
-			Z.panel = Z._create();
-		}
-		Z.popup.setContent(Z.panel, '100%', '100%');
-		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
-		jQuery(Z.panel).find(".jl-combopnl-head input").focus();
-	},
-
-	closePopup: function () {
-		var Z = this;
-		Z.popup.hide();
-		var dispCtrl = Z.otree ? Z.otree : Z.otable;
-		if(dispCtrl) {
-			dispCtrl.dataset().removeLinkedControl(dispCtrl);
-		}
-	},
-	
-	_create: function () {
-		var Z = this;
-		if (!Z.panel) {
-			Z.panel = document.createElement('div');
-		}
-		Z.panel.innerHTML = '<div><select class="form-control input-sm" /></div><select class="form-control input-sm" /><input class="form-control input-sm" />'
-return Z.panel;
-		//process variable
-		var fldObj = Z.dataset.getField(Z.field),
-			lkfld = fldObj.lookup(),
-			pfld = lkfld.parentField(),
-			showType = Z.showStyle.toLowerCase(),
-			lkds = Z.lookupDs();
-
-		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
-		                '<input class="form-control" type="text" size="20"></input></div></div>',
-			'<div class="jl-combopnl-content',
-			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
-			'"></div>',
-			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default btn-sm" >',
-			jslet.locale.MessageBox.cancel,
-			'</button><button class="jl-combopnl-footer-ok btn btn-default btn-sm" >',
-			jslet.locale.MessageBox.ok,
-			'</button></div>'];
-
-		Z.panel.innerHTML = template.join('');
-		var jqPanel = jQuery(Z.panel),
-			jqPh = jqPanel.find('.jl-combopnl-head');
-		jqPanel.on('keydown', function(event){
-			if(event.keyCode === 27) {
-				Z.closePopup();
-			}
-		});
-		Z.searchBoxEle = jqPh.find('input')[0];
-		jQuery(Z.searchBoxEle).on('keydown', jQuery.proxy(Z._findData, Z));
-		
-		var jqContent = jqPanel.find('.jl-combopnl-content');
-		if (Z.isMultiple()) {
-			jqContent.addClass('jl-combopnl-content-nofooter').removeClass('jl-combopnl-content-nofooter');
-			var pnlFoot = jqPanel.find('.jl-combopnl-footer')[0];
-			pnlFoot.style.display = 'block';
-			var jqFoot = jQuery(pnlFoot);
-			jqFoot.find('.jl-combopnl-footer-cancel').click(jQuery.proxy(Z.closePopup, Z));
-			jqFoot.find('.jl-combopnl-footer-ok').click(jQuery.proxy(Z._confirmSelect, Z));
-		} else {
-			jqContent.addClass('jl-combopnl-content-nofooter');
-		}
-
-		var contentPanel = jqContent[0];
-
-		//create popup content
-		if (showType == 'tree') {
-			var treeparam = { 
-				type: 'DBTreeView', 
-				dataset: lkds, 
-				readOnly: false, 
-				displayFields: lkfld.displayFields(), 
-				hasCheckBox: Z.isMultiple()
-			};
-
-			if (!Z.isMultiple()) {
-				treeparam.onItemDblClick = jQuery.proxy(Z._confirmSelect, Z);
-			}
-			treeparam.correlateCheck = Z.comboSelectObj.correlateCheck();
-			window.setTimeout(function(){
-				Z.otree = jslet.ui.createControl(treeparam, contentPanel, '100%', '100%');
-			}, 1);
-		} else {
-			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, hasFindDialog: false };
-			if (!Z.isMultiple()) {
-				tableparam.onRowDblClick = jQuery.proxy(Z._confirmSelect, Z);
-			}
-			window.setTimeout(function(){
-				Z.otable = jslet.ui.createControl(tableparam, contentPanel, '100%', '100%');
-			}, 1);
-		}
-		return Z.panel;
-	},
-
-	destroy: function(){
-		Z.popup = null;
-		Z.panel = null;
-	}
 };
 

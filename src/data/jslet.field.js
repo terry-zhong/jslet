@@ -171,6 +171,34 @@ jslet.data.Field.prototype = {
 	},
 
 	/**
+	 * Get or set field's data type.
+	 * 
+	 * @param {String or undefined} dataType - field's data type.
+	 * @return {String or this}
+	 */
+	dataType: function(dataType) {
+		if(dataType === undefined) {
+			return this._dataType;
+		}
+		jslet.Checker.test('Field#dataType', dataType).isString().required();
+		var dtype = dataType;
+		if (dtype === null) {
+			dtype = jslet.data.DataType.STRING;
+		} else {
+			dtype = dtype.toUpperCase();
+			if (dtype != jslet.data.DataType.STRING && 
+					dtype != jslet.data.DataType.NUMBER && 
+					dtype != jslet.data.DataType.DATE && 
+					dtype != jslet.data.DataType.BOOLEAN && 
+					dtype != jslet.data.DataType.CROSS && 
+					dtype != jslet.data.DataType.DATASET)
+			dtype = jslet.data.DataType.STRING;
+		}
+		this._dataType = dtype;
+		return this;
+	},
+	
+	/**
 	 * Get or set parent field object.
 	 * 
 	 * @param {jslet.data.Field or undefined} parent Parent field object.
@@ -760,8 +788,9 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.valueStyle', mvalueStyle).isNumber().inArray([0,1,2]);
 		Z._valueStyle = mvalueStyle;
-		Z._clearFieldCache();		
+		Z._clearFieldCache();
 		Z._fireColumnUpdatedEvent();
+		Z._fireMetaChangedEvent('valueStyle');
 		Z._fireGlobalMetaChangedEvent('valueStyle');
 		return this;
 	},
@@ -769,7 +798,7 @@ jslet.data.Field.prototype = {
 	/**
 	 * Get or set allowed count when valueStyle is multiple.
 	 * 
-	 * @param {String or undefined} count.
+	 * @param {String or undefined} count - maximum items for multiple value.
 	 * @return {String or this}
 	 */
 	valueCountLimit: function (count) {
@@ -867,15 +896,6 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
-	/**
-	 * {Event} Get customized field text.
-	 * Pattern: function(fieldName, value){}
-	 *   //fieldName: String, field name;
-	 *   //value: Object, field value, the value type depends on field type;
-	 *   //return: String, field text;
-	 */
-	onCustomFormatFieldText: null, // (fieldName, value)
-
 	_addRelation: function() {
 		var Z = this,
 			lkDsName;
@@ -959,7 +979,7 @@ jslet.data.Field.prototype = {
 				Z.subDataset(Z._subDataset);
 				if(!Z._subDsParsed) {
 					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
-				}			
+				}
 			}
 			return Z._subDataset;
 		}

@@ -62,8 +62,9 @@ var _initialModules = [
 	{ name: 'field', src: '../src/data/jslet.field.js', deps: ['datacommon'], baseOnLoader: true },
 	{ name: 'dataset', src: '../src/data/jslet.dataset.js', deps: ['datacommon'], baseOnLoader: true },
 	{ name: 'contextrule', src: '../src/data/jslet.contextrule.js', deps: ['core'], baseOnLoader: true },
+	{ name: 'filterdataset', src: '../src/data/jslet.filterdataset.js', deps: ['core'], baseOnLoader: true },
 	
-	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule'], baseOnLoader: true },
+	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule', 'filterdataset'], baseOnLoader: true },
 	
 //ui
 	{ name: 'tabbable', src: '../src/ui/jquery.tabbable.js', deps: ['jquery'], baseOnLoader: true },

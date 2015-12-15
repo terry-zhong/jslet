@@ -15,7 +15,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	*/
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'styleClass,dataset,columnCount,labelCols,onlySpecifiedFields,fields';
+		Z.allProperties = 'styleClass,dataset,columnCount,labelCols,onlySpecifiedFields,fields,hasLabel';
 		
 		/**
 		 * {Integer} Column count
@@ -34,6 +34,8 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		 * Array of edit field configuration, prototype: [{field: "field1", colSpan: 2, rowSpan: 1}, ...]
 		 */
 		Z._fields;
+		
+		Z._hasLabel = true;
 		
 		Z._metaChangedDebounce = jslet.debounce(Z.renderAll, 10);
 
@@ -61,6 +63,13 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			return this._onlySpecifiedFields;
 		}
 		this._onlySpecifiedFields = onlySpecifiedFields ? true: false;
+	},
+	
+	hasLabel: function(hasLabel) {
+		if(hasLabel === undefined) {
+			return this._hasLabel;
+		}
+		this._hasLabel = hasLabel ? true: false;
 	},
 	
 	fields: function(fields) {
@@ -222,46 +231,49 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			editorCfg = fldObj.editControl();
 			var isCheckBox = editorCfg.type.toLowerCase() == 'dbcheckbox';
 			if(isCheckBox) {
-				oLabel = document.createElement('div');
-				opanel.appendChild(oLabel);
-				oLabel.className = 'col-sm-' + layout._innerLabelCols;
-
+				if(Z._hasLabel) {
+					oLabel = document.createElement('div');
+					opanel.appendChild(oLabel);
+					oLabel.className = 'col-sm-' + layout._innerLabelCols;
+				}
 				octrlDiv = document.createElement('div');
 				opanel.appendChild(octrlDiv);
-				octrlDiv.className = 'col-sm-' + layout._innerDataCols;
+				octrlDiv.className = 'col-sm-' + Z._hasLabel?　layout._innerDataCols: 12;
 				
 				editorCfg.dataset = Z._dataset;
 				editorCfg.field = fldName;
 				editor = jslet.ui.createControl(editorCfg, null);
 				octrlDiv.appendChild(editor.el);
 				Z.addChildControl(editor);
-				
-				oLabel = document.createElement('label');
-				octrlDiv.appendChild(oLabel);
-				dbCtrl = new jslet.ui.DBLabel(oLabel, {
-					type: 'DBLabel',
-					dataset: Z._dataset,
-					field: fldName
-				});
-				
+				if(Z._hasLabel) {
+					oLabel = document.createElement('label');
+					octrlDiv.appendChild(oLabel);
+					dbCtrl = new jslet.ui.DBLabel(oLabel, {
+						type: 'DBLabel',
+						dataset: Z._dataset,
+						field: fldName
+					});
+				}
 				ctrlId = jslet.nextId();
 				editor.el.id = ctrlId;
 				jQuery(oLabel).attr('for', ctrlId);
 				Z.addChildControl(dbCtrl);
 			} else {
-				oLabel = document.createElement('label');
-				opanel.appendChild(oLabel);
-				oLabel.className = 'col-sm-' + layout._innerLabelCols;
-				dbctrl = new jslet.ui.DBLabel(oLabel, {
-					type: 'DBLabel',
-					dataset: Z._dataset,
-					field: fldName
-				});
-				Z.addChildControl(dbCtrl);
+				if(Z._hasLabel) {
+					oLabel = document.createElement('label');
+					opanel.appendChild(oLabel);
+					oLabel.className = 'col-sm-' + layout._innerLabelCols;
+					dbctrl = new jslet.ui.DBLabel(oLabel, {
+						type: 'DBLabel',
+						dataset: Z._dataset,
+						field: fldName
+					});
+					Z.addChildControl(dbCtrl);
+				}
 				
 				octrlDiv = document.createElement('div');
 				opanel.appendChild(octrlDiv);
-				octrlDiv.className = 'col-sm-' + layout._innerDataCols;
+				octrlDiv.className = 'col-sm-' + Z._hasLabel?　layout._innerDataCols: 12;
 				
 				editorCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName};
 				editor = jslet.ui.createControl(editorCfg, null);

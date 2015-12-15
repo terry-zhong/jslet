@@ -36,6 +36,7 @@
 			    <file name="jslet.provider.js" />
 			    <file name="jslet.field.js" />
 			    <file name="jslet.contextrule.js" />
+			    <file name="jslet.filterdataset.js" />
 			</filelist>
 		</concat>
 	</target>	

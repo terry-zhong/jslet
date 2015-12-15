@@ -179,7 +179,7 @@
 		placeholder: '<Enter> for finding...'
 	};
 	
-	locale.advancedFilter = {
+	locale.FilterDataset = {
 		and: 'And',
 		or: 'Or',
 		between: 'Between',
