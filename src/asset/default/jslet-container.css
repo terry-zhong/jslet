@@ -421,3 +421,16 @@
 }
 
 /* End of find dialog */
+
+
+.jl-filter-panel {
+	position:absolute;
+	z-index: 10;
+	width: 300px;
+	height: auto;
+	padding: 5px 20px;
+}
+
+.jl-filter-panel .form-group {
+	margin-bottom: 5px!important;
+}

@@ -55,7 +55,7 @@ jslet.data.FilterDataset.prototype = {
             {name: 'parentName', type: 'S', length: 30, label: 'Parent Field Code'}, 
 		];
 		var dsFields = jslet.data.createDataset('ds_fields_' + id, fldCfg, 
-				{keyField: 'name', codeField: 'name', nameField: 'label', parentField: 'parentName'});
+				{keyField: 'name', codeField: 'name', nameField: 'label', parentField: 'parentName', autoRefreshHostDataset: true});
 		
 		var fieldLabels = [];
 		Z._appendFields(Z._hostDataset, fieldLabels);
@@ -220,5 +220,6 @@ jslet.data.FilterDataset.prototype = {
 		if(!this._filterDataset || this._filterDataset.recordCount() === 0) {
 			return null;
 		}
+		return null;
 	}
 }

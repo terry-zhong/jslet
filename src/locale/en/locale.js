@@ -200,6 +200,12 @@
 		rParenthesis: 'Right Parenthesis',
 		logicalOpr: 'Logical Operator'
 	};
+
+	locale.FilterPanel = {
+		ok: '  OK  ',
+		cancel: ' Cancel ',
+		clear: ' Clear '
+	};
 		
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){

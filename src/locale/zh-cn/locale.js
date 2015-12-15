@@ -202,6 +202,12 @@
 		rParenthesis: '右括号',
 		logicalOpr: '逻辑符'
 	};
+
+	locale.FilterPanel = {
+		ok: '确定',
+		cancel: '取消',
+		clear: '清除'
+	};
 	
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
