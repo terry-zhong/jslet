@@ -275,6 +275,13 @@ jslet.ui.DBComboSelectPanel.prototype = {
 				Z.popupWidth = 500;
 			}
 		}
+//		var jqPanel = jQuery(Z.panel),
+//		jqPh = jqPanel.find('.jl-combopnl-head');
+//		if(Z.lookupDs().recordCount() < 20) {
+//			jqPh.hide();
+//		} else {
+//			jqPh.show();
+//		}
 		Z.popup.setContent(Z.panel, '100%', '100%');
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
 		jQuery(Z.panel).find(".jl-combopnl-head input").focus();
@@ -351,7 +358,8 @@ jslet.ui.DBComboSelectPanel.prototype = {
 				dataset: lkds, 
 				readOnly: false, 
 				displayFields: lkfld.displayFields(), 
-				hasCheckBox: Z.isMultiple()
+				hasCheckBox: Z.isMultiple(),
+				expandLevel:1
 			};
 
 			if (!Z.isMultiple()) {

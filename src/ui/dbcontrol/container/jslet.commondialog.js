@@ -24,7 +24,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 			return 'hidden';
 		});
 			
-		var content = '<div class="input-group input-group-sm" style="width:150px"><input class="form-control jl-finddlg-value" placeholder="' + 
+		var content = '<div class="input-group input-group-sm"><input class="form-control jl-finddlg-value" placeholder="' + 
 		jslet.locale.findDialog.placeholder + '"/>' + 
 		'<div class="input-group-btn"><button class="btn btn-default jl-finddlg-find"><i class="fa fa-search" /></button></div></div>';
 		
@@ -136,7 +136,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		lkDs.filter('[name] == "' + fldName +'" || like([name],"'+ fldName + '.%' + '")');
 		lkDs.filtered(true);
 		fldObj.visible(lkDs.recordCount() > 1);
-		if(!dsFilter.findByField('field', fldName)) {
+		if(!dsFilter.find('[field] == "' + fldName + '" || like([field], "' + fldName + '.%' + '")')) {
 			dsFilter.appendRecord();
 			dsFilter.setFieldValue('field', fldName);
 		}
@@ -150,6 +150,9 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		Z._panel.style.left = left + 'px';
 		Z._panel.style.top = top + 'px';
 		Z._panel.style.display = "block";
+		window.setTimeout(function(){
+		Z._filterDataset.focusEditControl('value');
+		},5);
 	},
 
 	hide: function () {

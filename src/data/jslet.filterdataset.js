@@ -131,6 +131,7 @@ jslet.data.FilterDataset.prototype = {
 		dsFilter.onFieldChanged(function(fldName, fldValue) {
 			if(fldName == 'field' || fldName == 'operator') {
 				this.setFieldValue('value', null);
+				this.focusEditControl('value');
 			}
 		});
 		this._filterDataset = dsFilter;
@@ -339,7 +340,7 @@ jslet.data.FilterDataset.prototype = {
 				result = 'inChildren';
 			}
 			dataType = this._hostDataset.getField(fldName).getType();
-			result = funcStr + '(' + fldNameStr + ', ' + getValue(dataType, value) + ',';
+			result = funcStr + '("' + fldName + '", ' + getValue(dataType, value) + ',';
 			if(operator == 'selfchildren0' || operator == 'children0') {
 				result += 'false)';
 			} else {

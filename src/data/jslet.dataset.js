@@ -3730,8 +3730,8 @@ jslet.data.Dataset.prototype = {
 	inChildrenAndSelf: function(fldName, parentValue, onlyDirectChildren) {
 		jslet.Checker.test('inchildren#fldName', fldName).required().isString();
 		jslet.Checker.test('inchildren#parentValue', parentValue).required();
-		var fldValue = Z.getFieldValue(fldName);
-		if(jslet.compareValue(fldValue, parentValue)) {
+		var fldValue = this.getFieldValue(fldName);
+		if(jslet.compareValue(fldValue, parentValue) === 0) {
 			return true;
 		}
 		return inchildren(fldName, parentValue, onlyDirectChildren);
@@ -4729,24 +4729,26 @@ jslet.data.Dataset.prototype = {
 			if(!ctrl.field) {
 				continue;
 			}
-			if (ctrl.field() == fldName) {
+			if (ctrl.dataset().name() == Z._name && ctrl.field() == fldName) {
 				fldObj = Z.getField(fldName);
 				if(!fldObj || !fldObj.visible() || fldObj.disabled()|| !ctrl.isActiveRecord()) {
 					continue;
 				}
 				el = ctrl.el;
-				if (el.focus) {
-					try {
-						el.focus();
-						if(ctrl.selectText) {
-							ctrl.selectText();
+//				window.setTimeout(function(){
+					if (el.focus) {
+						try {
+							el.focus();
+							if(ctrl.selectText) {
+								ctrl.selectText();
+							}
+							return;
+						} catch (e) {
+							//Can\'t focus on this control, maybe it\'s disabled!
+							console.warn(jslet.locale.Dataset.cannotFocusControl);
 						}
-						return;
-					} catch (e) {
-						//Can\'t focus on this control, maybe it\'s disabled!
-						console.warn(jslet.locale.Dataset.cannotFocusControl);
 					}
-				}
+//				}, 2);
 			} //end if
 		} //end for
 	},
