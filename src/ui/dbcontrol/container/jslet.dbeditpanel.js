@@ -238,7 +238,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				}
 				octrlDiv = document.createElement('div');
 				opanel.appendChild(octrlDiv);
-				octrlDiv.className = 'col-sm-' + Z._hasLabel?　layout._innerDataCols: 12;
+				octrlDiv.className = 'col-sm-' + (Z._hasLabel?　layout._innerDataCols: 12);
 				
 				editorCfg.dataset = Z._dataset;
 				editorCfg.field = fldName;
@@ -273,7 +273,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				
 				octrlDiv = document.createElement('div');
 				opanel.appendChild(octrlDiv);
-				octrlDiv.className = 'col-sm-' + Z._hasLabel?　layout._innerDataCols: 12;
+				octrlDiv.className = 'col-sm-' + (Z._hasLabel?　layout._innerDataCols: 12);
 				
 				editorCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName};
 				editor = jslet.ui.createControl(editorCfg, null);

@@ -4710,7 +4710,7 @@ jslet.data.Dataset.prototype = {
 		cnt = this._linkedControls.length;
 		for (i = 0; i < cnt; i++) {
 			ctrl = this._linkedControls[i];
-			if (ctrl.refreshControl) {
+			if (ctrl && ctrl.refreshControl) {
 				ctrl.refreshControl(updateEvt);
 			}
 		}
@@ -5019,7 +5019,9 @@ jslet.data.Dataset.prototype = {
 			for(var k = startRecno; k <= endRecno; k++) {
 				Z.recno(k);
 				if(callBackFn) { 
-					callBackFn.call(Z); 
+					if(!callBackFn.call(Z)) {
+						break;
+					} 
 				} 
 			} 
 		}finally{ 

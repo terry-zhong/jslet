@@ -200,13 +200,21 @@
 		operator: '操作符',
 		value: '值',
 		rParenthesis: '右括号',
-		logicalOpr: '逻辑符'
+		logicalOpr: '逻辑符',
+		
+		parenthesisNotMatched: '左右括号不匹配!',
+		valueRequired: '条件值不得为空!',
+		
+		year: '年份',
+		month: '月份',
+		yearMonth: '年月'
 	};
 
 	locale.FilterPanel = {
 		ok: '确定',
 		cancel: '取消',
-		clear: '清除'
+		clear: '清除',
+		clearAll: ' 清除所有 ',
 	};
 	
 	if (window.jslet === undefined || jslet === undefined){

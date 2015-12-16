@@ -198,13 +198,21 @@
 		operator: 'Operator',
 		value: 'Value',
 		rParenthesis: 'Right Parenthesis',
-		logicalOpr: 'Logical Operator'
+		logicalOpr: 'Logical Operator',
+		
+		parenthesisNotMatched: 'Left parenthesis NOT match right parenthesis!',
+		valueRequired: 'Filter value required!',
+		
+		year: 'Year',
+		month: 'Month',
+		yearMonth: 'YearMonth'
 	};
 
 	locale.FilterPanel = {
 		ok: '  OK  ',
 		cancel: ' Cancel ',
-		clear: ' Clear '
+		clear: ' Clear ',
+		clearAll: ' Clear All ',
 	};
 		
 	if (window.jslet === undefined || jslet === undefined){

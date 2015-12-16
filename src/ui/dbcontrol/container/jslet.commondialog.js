@@ -24,7 +24,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 			return 'hidden';
 		});
 			
-		var content = '<div class="input-group input-group-sm" style="width:200px"><input class="form-control jl-finddlg-value" placeholder="' + 
+		var content = '<div class="input-group input-group-sm" style="width:150px"><input class="form-control jl-finddlg-value" placeholder="' + 
 		jslet.locale.findDialog.placeholder + '"/>' + 
 		'<div class="input-group-btn"><button class="btn btn-default jl-finddlg-find"><i class="fa fa-search" /></button></div></div>';
 		
@@ -50,8 +50,18 @@ jslet.ui.FindDialog = function (dbContainer) {
 			findData();
 		});
 
+		var isStart = false;
 		function findData() {
-			_dataset.findByField(_findingField, jqFindingValue.val(), true, true, 'any');
+			if(_dataset.recordCount() < 2) {
+				return;
+			}
+			var found = _dataset.findByField(_findingField, jqFindingValue.val(), true, true, 'any');
+			if(!found && !isStart) {
+				_dataset.first();
+				isStart = true;
+				findData();
+			}
+			isStart = false;
 		}
 	}
 	
@@ -112,7 +122,7 @@ jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	Z._filterDataset.getField('lParenthesis').visible(false);
 	Z._filterDataset.getField('rParenthesis').visible(false);
 	Z._filterDataset.getField('logicalOpr').visible(false);
-	Z._filterDataset.getField('varValueSelect').visible(false);
+	Z._filterDataset.getField('valueExprInput').visible(false);
 	Z._dbtable = tblCtrl;
 }
 
@@ -163,6 +173,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		'<div><button class="btn btn-default btn-sm jl-filter-panel-ok">' + jslet.locale.FilterPanel.ok +
 		'</button><button class="btn btn-default btn-sm jl-filter-panel-cancel">' + jslet.locale.FilterPanel.cancel + 
 		'</button><button class="btn btn-default btn-sm jl-filter-panel-clear">' + jslet.locale.FilterPanel.clear + 
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-clearall">' + jslet.locale.FilterPanel.clearAll + 
 		'</button></div>';
 		jslet.ui.install(Z._panel);
 		var jqPanel = jQuery(Z._panel);
@@ -180,6 +191,11 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			Z._filterDataset.deleteRecord();
 			var filter = Z._filterDatasetObj.convertToFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
+			Z.hide();
+		});
+		jqPanel.find('.jl-filter-panel-clearall').on('click', function(){
+			Z._filterDataset.dataList(null);
+			Z._dbtable.dataset().filter(null).filtered(false);
 			Z.hide();
 		});
 		return Z._panel;

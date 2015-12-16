@@ -434,3 +434,7 @@
 .jl-filter-panel .form-group {
 	margin-bottom: 5px!important;
 }
+
+.jl-filter-panel-ok, .jl-filter-panel-cancel, .jl-filter-panel-clear, .jl-filter-panel-clearall {
+	display:inline-block!important;
+}

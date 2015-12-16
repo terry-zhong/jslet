@@ -1107,6 +1107,27 @@ jslet.getRemainingString = function(wholeStr, cuttingStr) {
 	return wholeStr.replace(cuttingStr, '');
 }
 
+jslet.getYear = function(dateValue) {
+	if(!dateValue || !jslet.isDate(dateValue)) {
+		return 0;
+	}
+	return dateValue.getFullYear();
+}
+
+jslet.getMonth = function(dateValue) {
+	if(!dateValue || !jslet.isDate(dateValue)) {
+		return 0;
+	}
+	return dateValue.getMonth() + 1;
+}
+
+jslet.getYearMonth = function(dateValue) {
+	if(!dateValue || !jslet.isDate(dateValue)) {
+		return 0;
+	}
+	return dateValue.getFullYear() * 100 + dateValue.getMonth() + 1;
+}
+
 /**
 * Show error message.
 *  

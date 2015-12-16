@@ -70,8 +70,8 @@ jslet.data.FilterDataset.prototype = {
 	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label: jslet.locale.FilterDataset.operator, 
 	        	 lookup: {dataset:"ds_operator_"}, required: true},
 	         {name: 'value', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.value},
-	         {name: 'varValue', type: 'S', length: 30, visible: false},
-	         {name: 'varValueSelect', type: 'S', length: 2, label: ' ', readOnly: true, visible: false,
+	         {name: 'valueExpr', type: 'S', length: 30, visible: false},
+	         {name: 'valueExprInput', type: 'S', length: 2, label: ' ', readOnly: true, visible: false,
 	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>'},
              {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.rParenthesis, validChars:')'}, 
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.FilterDataset.logicalOpr, 
@@ -160,9 +160,9 @@ jslet.data.FilterDataset.prototype = {
 			}
 			fieldLabels.push(fldCfg);
 			if(fldDataType === jslet.data.DataType.DATE) {
-				fieldLabels.push({name: fldCode + '.Y', label: fldLabel + '.Year', dataType: 'N', parentName: fldCode});
-				fieldLabels.push({name: fldCode + '.M', label: fldLabel + '.Month', dataType: 'N', parentName: fldCode});
-				fieldLabels.push({name: fldCode + '.YM', label: fldLabel + '.Year-Month', dataType: 'N', parentName: fldCode});
+				fieldLabels.push({name: fldCode + '.Y', label: fldLabel + '.' + jslet.locale.FilterDataset.year, dataType: 'N', parentName: fldCode});
+				fieldLabels.push({name: fldCode + '.M', label: fldLabel + '.' + jslet.locale.FilterDataset.month, dataType: 'N', parentName: fldCode});
+				fieldLabels.push({name: fldCode + '.YM', label: fldLabel + '.' + jslet.locale.FilterDataset.yearMonth, dataType: 'N', parentName: fldCode});
 			}
 			var lkObj = fldObj.lookup();
 			if(lkObj) {
@@ -197,6 +197,7 @@ jslet.data.FilterDataset.prototype = {
 			fldObj.lookup(lkObj);
 			fldObj.editControl('DBComboSelect');
 		} else {
+			fldObj.lookup(null);
 			fldObj.editControl(hostFldObj.editControl());
 		}
 	},
@@ -217,9 +218,161 @@ jslet.data.FilterDataset.prototype = {
 	},
 	
 	convertToFilterExpr: function() {
-		if(!this._filterDataset || this._filterDataset.recordCount() === 0) {
+		var Z = this,
+			dsFilter = Z._filterDataset;
+		if(!dsFilter || dsFilter.recordCount() === 0) {
 			return null;
 		}
-		return null;
+		this.validate();
+		var result = '', recno,
+			lastRecno = dsFilter.recordCount() - 1;
+		
+		dsFilter.iterate(function() {
+			recno = this.recno();
+			var dataType = this.getFieldValue('dataType');
+			result += this.getFieldValue('lParenthesis') || '';
+			
+			result += Z._getFieldFilter(this);
+			result += this.getFieldValue('rParenthesis') || '';
+			if(recno != lastRecno) {
+				result += this.getFieldValue('logicalOpr') || '';
+			}
+			
+		});
+		console.log(result)
+		return result;
+	},
+	
+	_getFieldFilter: function(dsFilter) {
+		var	fldName = dsFilter.getFieldValue('field'),
+			dataType = dsFilter.getFieldValue('dataType'),
+			operator = dsFilter.getFieldValue('operator'),
+			value = dsFilter.getFieldValue('value'),
+			valueExpr = dsFilter.getFieldValue('valueExpr'),
+			result = '';
+		//Boolean value
+		if(dataType == 'B') { 
+			result =  '[' + fldName + ']';
+			if(!value) {
+				result =  '!' + result;
+			}
+			return result;
+		}
+		var fldNameStr = '[' + fldName + ']';
+		//Extend date field
+		if(dataType === 'N') {
+			if(fldName.endsWith('.Y')) {
+				fldNameStr = '[' + fldName.substring(0, fldName.length - 2) + ']';
+				fldNameStr = 'jslet.getYear(' + fldNameStr + ')';
+			} else	if(fldName.endsWith('.M')) {
+				fldNameStr = '[' + fldName.substring(0, fldName.length - 2) + ']';
+				fldNameStr = 'jslet.getMonth(' + fldNameStr + ')';
+			} else if(fldName.endsWith('.YM')) {
+				fldNameStr = '[' + fldName.substring(0, fldName.length - 3) + ']';
+				fldNameStr = 'jslet.getYearMonth(' + fldNameStr + ')';
+			}
+		}
+		function getValue(dataType, value) {
+			if(dataType === 'D') {
+				return 'new Date(' + value.getTime() + ')';
+			}
+			if(dataType === 'S') {
+				return '"' + value + '"';
+			}
+			return value;
+		}
+		//Operator: ==, !=, >, >=, <, <=
+		if(operator == '==' || operator == '!=' ||
+		   operator == '>' || operator == '>=' || 
+		   operator == '<' || operator == '<=') {
+			result = 'jslet.compareValue(' + fldNameStr + ', ' + getValue(dataType, value) + ')';
+			result += operator + '0';
+			return result;
+		}
+		//Operator: between
+		if(operator == 'between') {
+			var value1 = value[0], value2 = null;
+			if(value.length > 1) {
+				value2 = value[1];
+			}
+			if(value1 !== null && value1 !== undefined) {
+				result += 'jslet.compareValue(' + fldNameStr + ', ' + getValue(dataType, value1) + ') >=0';
+			}
+			if(value2 !== null && value2 !== undefined) {
+				if(result.length > 0) {
+					result += ' && '
+				}
+				result += 'jslet.compareValue(' + fldNameStr + ', ' + getValue(dataType, value2) + ') <=0';
+			}
+			return '(' + result + ')';
+		}
+		//Operator: likeany, likefirst, likelast
+		if(operator == 'likeany' || operator == 'likefirst' || operator == 'likelast') {
+			result = 'like(' + fldNameStr + ', "';
+			if(operator == 'likeany' || operator == 'likelast') {
+				result += '%';
+			}
+			result += value;
+			if(operator == 'likeany' || operator == 'likefirst') {
+				result += '%';
+			}
+			result += '")';
+			return result;
+		}
+		//Operator: select
+		if(operator == 'select') {
+			dataType = this._hostDataset.getField(fldName).getType();
+			result = 'inlist(' + fldNameStr ; 
+			for(var i = 0, len = value.length; i < len; i++) {
+				result += ',' + getValue(dataType, value[i]);
+			}
+			result += ')';
+			return result;
+		}
+		//Operator: selfchildren0, children0, selfchildren1, children1
+		if(operator == 'selfchildren0' || operator == 'children0' || 
+			operator == 'selfchildren1' || operator == 'children1') {
+			var funcStr = 'inChildren';
+			if(operator == 'selfchildren0' || operator == 'selfchildren1') {
+				funcStr = 'inChildrenAndSelf';
+			} else {
+				result = 'inChildren';
+			}
+			dataType = this._hostDataset.getField(fldName).getType();
+			result = funcStr + '(' + fldNameStr + ', ' + getValue(dataType, value) + ',';
+			if(operator == 'selfchildren0' || operator == 'children0') {
+				result += 'false)';
+			} else {
+				result += 'true)';
+			}
+			return result;
+		}
+		return result;
+	},
+	
+	_getFilterValue: function(dsFilter) {
+		return dsFilter.getFieldValue('value');
+	},
+	
+	validate: function() {
+		var dsFilter = this._filterDataset,
+			parenthesisCount = 0,
+			errMsg = null;
+		dsFilter.iterate(function() {
+			parenthesisCount = (this.getFieldValue('lParenthesis') || '').length - (this.getFieldValue('rParenthesis') || '').length;
+			if(!this.getFieldValue('value') && !this.getFieldValue('valueExpr')) {
+				errMsg = jslet.locale.FilterDataset.valueRequired;
+				return false; //Exists invalidate record, break iterating.
+			}
+		});
+		if(!errMsg && parenthesisCount !== 0) {
+			errMsg = jslet.locale.FilterDataset.parenthesisNotMatched;
+		}
+		if(errMsg) {
+			console.error(errMsg);
+		}
+		return errMsg;
 	}
+	
+	
 }
