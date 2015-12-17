@@ -61,7 +61,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		var btnCls = Z.comboButtonCls ? Z.comboButtonCls:'fa-caret-down'; 
 		var s = '<input type="text" class="form-control">' + 
-    	'<div class="jl-comb-btn-group"><button class="btn btn-default btn-sm" tabindex="-1"><i class="fa ' + btnCls + '"></i></button></div>'; 
+    	'<div class="input-group-btn"><button class="btn btn-default btn-sm" tabindex="-1"><i class="fa ' + btnCls + '"></i></button></div>'; 
 		jqEl.html(s);
 		var dbtext = jqEl.find('[type="text"]')[0];
 		Z.textCtrl = new jslet.ui.DBText(dbtext, {

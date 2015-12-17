@@ -181,7 +181,11 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		jslet.ui.install(Z._panel);
 		var jqPanel = jQuery(Z._panel);
 		jqPanel.find('.jl-filter-panel-ok').on('click', function(){
-			Z._filterDataset.confirm();
+			var dsFilter = Z._filterDataset;
+			dsFilter.confirm();
+			if(!dsFilter.getFieldValue('value')) {
+				dsFilter.deleteRecord();
+			}
 			var filter = Z._filterDatasetObj.convertToFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
 			Z.hide();

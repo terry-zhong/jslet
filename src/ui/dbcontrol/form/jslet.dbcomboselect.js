@@ -370,7 +370,8 @@ jslet.ui.DBComboSelectPanel.prototype = {
 				Z.otree = jslet.ui.createControl(treeparam, contentPanel, '100%', '100%');
 			}, 1);
 		} else {
-			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, hasFindDialog: false };
+			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, 
+					hasFindDialog: false, hasFilterDialog: false };
 			if (!Z.isMultiple()) {
 				tableparam.onRowDblClick = jQuery.proxy(Z._confirmSelect, Z);
 			}

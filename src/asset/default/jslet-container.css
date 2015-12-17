@@ -414,6 +414,7 @@
 /* find dialog*/
 .jl-finddlg {
 	z-index: 5!important;
+	width: 180px;
 }
 
 .jl-finddlg-find {
