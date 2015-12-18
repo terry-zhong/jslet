@@ -100,6 +100,10 @@ jslet.ui.FindDialog = function (dbContainer) {
 		jQuery(_dialog.el).find('.jl-finddlg-value').focus();
 	};
 	
+	this.destroy = function() {
+		_dialog.destroy();
+	};
+	
 	initialize();
 	this.hide();
 };
@@ -140,6 +144,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			dsFilter.appendRecord();
 			dsFilter.setFieldValue('field', fldName);
 		}
+		console.log(dsFilter.dataList())
 	},
 	
 	show: function (left, top, ajustX, ajustY) {

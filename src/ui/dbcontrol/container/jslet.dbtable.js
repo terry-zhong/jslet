@@ -3294,6 +3294,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 		
 		jqEl.find('.jl-tbl-select-check').off();
+		if(Z._filterPanel) {
+			Z._filterPanel.destroy();
+			Z._filterPanel = null;
+		}
+		
+		if(Z._findDialog) {
+			Z._findDialog.destroy();
+			Z._findDialog = null;
+		}
 		$super();
 	} 
 });

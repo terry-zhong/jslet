@@ -75,23 +75,10 @@ jslet.data.FilterDataset.prototype = {
 	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>'},
              {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.rParenthesis, validChars:')'}, 
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.FilterDataset.logicalOpr, 
-            	 lookup: {dataset:"ds_logical_opr_"}, required: true} 
+            	 lookup: {dataset:"ds_logical_opr_"}, required: true, defaultValue: 'and'} 
 		];
 		var dsFilter = jslet.data.createDataset('dsFilter_' + id, fldCfg);
-		var rule1 = {
-			condition: '[dataType]',
-			rules: [{field: 'operator', customized: function(fldObj){
-				var fldObj = dsFilter.getField('operator'),
-					lkDs = fldObj.lookup().dataset();
-				lkDs.filter('[range].indexOf("' + dsFilter.getFieldValue('dataType') + '") >= 0');
-				lkDs.filtered(true);
-				lkDs.first();
-				var firstValue = lkDs.getFieldValue('code');
-				dsFilter.setFieldValue('operator', firstValue);
-				}}
-			]};
-
-		var rule2 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj){
+		var rule1 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj){
 			var fldName = dsFilter.getFieldValue('field');
 			var hostFldObj = jslet.data.getDataset(Z._hostDataset).getField(fldName), 
 				fldType;
@@ -111,6 +98,19 @@ jslet.data.FilterDataset.prototype = {
 			}}
 		]};
 		
+		var rule2 = {
+			condition: '[dataType]',
+			rules: [{field: 'operator', customized: function(fldObj){
+				var fldObj = dsFilter.getField('operator'),
+					lkDs = fldObj.lookup().dataset();
+				lkDs.filter('[range].indexOf("' + dsFilter.getFieldValue('dataType') + '") >= 0');
+				lkDs.filtered(true);
+				lkDs.first();
+				var firstValue = lkDs.getFieldValue('code');
+				dsFilter.setFieldValue('operator', firstValue);
+				}}
+			]};
+
 		var rule3 = {condition: '[operator]', rules: [{field: 'value', customized: function(fldObj){
 			var oldValueStyle = dsFilter.getField('value').valueStyle();
 			var operator = dsFilter.getFieldValue('operator');
@@ -131,6 +131,7 @@ jslet.data.FilterDataset.prototype = {
 		dsFilter.onFieldChanged(function(fldName, fldValue) {
 			if(fldName == 'field' || fldName == 'operator') {
 				this.setFieldValue('value', null);
+				console.log(fldName);
 				this.focusEditControl('value');
 			}
 		});
@@ -236,11 +237,11 @@ jslet.data.FilterDataset.prototype = {
 			result += Z._getFieldFilter(this);
 			result += this.getFieldValue('rParenthesis') || '';
 			if(recno != lastRecno) {
-				result += this.getFieldValue('logicalOpr') || '';
+				result += ' ' + (this.getFieldValue('logicalOpr') == 'or' ?  '||': '&&') + ' ';
 			}
 			
 		});
-		console.log(result)
+		console.log('Filter Expr: ' + result)
 		return result;
 	},
 	
@@ -363,7 +364,7 @@ jslet.data.FilterDataset.prototype = {
 			parenthesisCount = (this.getFieldValue('lParenthesis') || '').length - (this.getFieldValue('rParenthesis') || '').length;
 			if(!this.getFieldValue('value') && !this.getFieldValue('valueExpr')) {
 				errMsg = jslet.locale.FilterDataset.valueRequired;
-				return false; //Exists invalidate record, break iterating.
+				return true; //Exists invalidate record, break iterating.
 			}
 		});
 		if(!errMsg && parenthesisCount !== 0) {
@@ -373,6 +374,12 @@ jslet.data.FilterDataset.prototype = {
 			console.error(errMsg);
 		}
 		return errMsg;
+	},
+	
+	destroy: function() {
+		var lkdsField = this._filterDataset.getField('field').lookup().dataset();
+		this._filterDataset.destroy();
+		lkdsField.destroy();
 	}
 	
 	
