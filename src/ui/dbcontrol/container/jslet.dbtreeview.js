@@ -49,7 +49,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'styleClass,dataset,displayFields,hasCheckBox,correlateCheck,onlyCheckChildren,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,afterCheckBoxClick,iconClassField,onGetIconClass,onCreateContextMenu';
+		Z.allProperties = 'styleClass,dataset,displayFields,hasCheckBox,correlateCheck,onlyCheckChildren,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,afterCheckBoxClick,iconClassField,onGetIconClass,onRenderItem,onCreateContextMenu';
 		Z.requiredProperties = 'displayFields';
 		
 		/**
@@ -107,6 +107,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		 *   //isLeaf: Boolean, Identify if the tree node is the leaf node.
 		 */
 		Z._onGetIconClass = null;
+		
+		Z._onRenderItem = null;
 		
 		Z._onCreateContextMenu = null;
 		
@@ -225,6 +227,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jslet.Checker.test('DBTreeView.onGetIconClass', onGetIconClass).isFunction();
 		this._onGetIconClass = onGetIconClass;
+	},
+	
+	onRenderItem: function(onRenderItem) {
+		if(onRenderItem === undefined) {
+			return this._onRenderItem;
+		}
+		jslet.Checker.test('DBTreeView.onRenderItem', onRenderItem).isFunction();
+		this._onRenderItem = onRenderItem;
 	},
 	
 	onCreateContextMenu: function(onCreateContextMenu) {
@@ -681,7 +691,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			ocheckbox.style.display = 'none';
 		}
 		//Icon
-		var oicon = row.cells[cellCnt- 2],
+		var oIcon = row.cells[cellCnt- 2],
 			clsName = 'jl-tree-icon',
 			iconClsId = null;
 
@@ -695,29 +705,31 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			if (iconClsId) {
 							clsName += ' '+ iconClsId;
 			}
-			if (oicon.className != clsName) {
-				oicon.className = clsName;
+			if (oIcon.className != clsName) {
+				oIcon.className = clsName;
 			}
-			oicon.style.display = '';
+			oIcon.style.display = '';
 			totalWidth += Z.iconWidth;
 		} else {
-			oicon.style.display = 'none';
+			oIcon.style.display = 'none';
 		}
 		//Text
 		var text = Z.evaluator.eval() || '      ';
 		jslet.ui.textMeasurer.setElement(Z.el);
-		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + text.length * 4;
+		var width = Math.round(jslet.ui.textMeasurer.getWidth(text)) + 10;
 		totalWidth += width + 10;
-		//node.style.width = totalWidth + 'px';
 		jslet.ui.textMeasurer.setElement();
-		var otd = row.cells[cellCnt- 1];
-		otd.style.width = width + 'px';
-		var jqTd = jQuery(otd);
+		var oText = row.cells[cellCnt- 1];
+		oText.style.width = width + 'px';
+		var jqTd = jQuery(oText);
 		jqTd.html(text);
 		if (item.isbold) {
 			jqTd.addClass('jl-tree-child-checked');
 		} else {
 			jqTd.removeClass('jl-tree-child-checked');
+		}
+		if(Z._onRenderItem) {
+			Z._onRenderItem.call(Z, oIcon, oText, item.level, isLeaf); //keyValue, level, isLeaf
 		}
 		return totalWidth;
 	},
@@ -828,10 +840,13 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.UPDATERECORD ||
 			evtType == jslet.data.RefreshEvent.UPDATECOLUMN){
 			Z._fillData();
-		} else if (evtType == jslet.data.RefreshEvent.SELECTALL || 
-			evtType == jslet.data.RefreshEvent.SELECTRECORD) {
+		} else if (evtType == jslet.data.RefreshEvent.SELECTALL) {
 			if (Z._hasCheckBox) {
-				Z._updateCheckboxState();
+				Z._fillData();
+			}
+		} else if (evtType == jslet.data.RefreshEvent.SELECTRECORD) {
+			if (Z._hasCheckBox) {
+				Z.listvm.checkNode(Z._dataset.selected(), Z._correlateCheck, Z._onlyCheckChildren);
 			}
 		} else if (evtType == jslet.data.RefreshEvent.SCROLL) {
 			Z.listvm.syncDataset();

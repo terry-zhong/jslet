@@ -3226,6 +3226,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
         var fldCtrlCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName, inTableCtrl: true};
 		var editCtrl = jslet.ui.createControl(fldCtrlCfg);
+		editCtrl.ctrlRecno(-2);
 		editCtrl = editCtrl.el;
 		editCtrl.id = jslet.nextId();
 		if(isEditable) {

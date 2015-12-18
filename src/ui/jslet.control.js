@@ -406,8 +406,9 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		if(ctrlRecno === undefined) {
 			return this._ctrlRecno;
 		}
-
-		jslet.Checker.test('DBFieldControl.ctrlRecno', ctrlRecno).isGTEZero();
+		if(ctrlRecno != -2) {
+			jslet.Checker.test('DBFieldControl.ctrlRecno', ctrlRecno).isGTEZero();
+		}
 		this._ctrlRecno = ctrlRecno;
 		this.doValueChanged();
 	},
@@ -443,7 +444,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 * Normally, only edit control in active record will refresh.  
 	 */
 	isActiveRecord: function(){
-		return this._ctrlRecno < 0 || this._ctrlRecno == this._dataset.recno();
+		return this._ctrlRecno === -1 || this._ctrlRecno == this._dataset.recno();
 	},
 	
 	/**
