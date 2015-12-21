@@ -29,7 +29,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'styleClass,caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,isCenter,isSmallHeader,stopEventBubbling';
+		Z.allProperties = 'styleClass,caption,resizable,minimizable,maximizable,closable,iconClass,onSizeChanged,onClosed,onPositionChanged,onActive,width,height,minWidth,maxWidth,minHeight,maxHeight,isCenter,isSmallHeader,stopEventBubbling,animation';
 
 		Z._caption = null;
 		
@@ -57,6 +57,8 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 
 		Z._isCenter = false;
  
+		Z._animation = 'linear';
+		
 		Z._onSizeChanged = null;
 		
 		Z._onPositionChanged = null;
@@ -164,6 +166,19 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			return this._isCenter;
 		}
 		this._isCenter = isCenter? true: false;
+	},
+	
+	/**
+	 * Animation effect for showing and hiding.
+	 * 
+	 * @param {String or undefined} animation - Animation effect for showing and hiding, optional value: 'none', 'linear', 'slide', 'fade', default is 'linear'.
+	 * @return {String or this}
+	 */
+	animation: function(animation) {
+		if(animation === undefined) {
+			return this._animation;
+		}
+		this._animation = animation;
 	},
 	
 	/**
@@ -369,7 +384,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		if (Z._height) {
 			jqEl.height(Z._height);
 		}
-
+		jqEl.css('display','none');
 		var template = [
 		'<div class="panel-heading jl-win-header jl-win-header-sm" style="cursor:move">',
 			Z._iconClass ? '<span class="jl-win-header-icon ' + Z._iconClass + '"></span>' : '',
@@ -537,8 +552,8 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	/**
 	 * Show window at specified position
 	 * 
-	 * @param {Integer} left Position left.
-	 * @param {Integer} top Position top.
+	 * @param {Integer} left - Position left.
+	 * @param {Integer} top - Position top.
 	 */
 	show: function (left, top) {
 		var Z = this,
@@ -556,8 +571,16 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		Z.left = left ? left : 0;
 		Z.el.style.left = Z.left + 'px';
 		Z.el.style.top = Z.top + 'px';
-		Z.el.style.display = 'block';
-
+		var jqEl = jQuery(Z.el);
+		if(Z._animation == 'slide') {
+			jqEl.slideDown();
+		} else if(Z._animation == 'fade') {
+			jqEl.fadeIn();
+		} else if(Z._animation == 'none') {
+			jqEl.show();
+		} else {
+			jqEl.show('fast');
+		}
 		Z.activate();
 	},
 
@@ -566,6 +589,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 * 
 	 * @param {Integer} left Position left.
 	 * @param {Integer} top Position top.
+	 * @param {String} animation - Animation effect. optional value: 'slide', 'fade'
 	 */
 	showModal: function (left, top) {
 		var Z = this;
@@ -583,10 +607,20 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 
 	/**
 	 * Hide window
+	 * @param {String} animation - Animation effect. optional value: 'slide', 'fade'
 	 */
 	hide: function () {
 		var Z = this;
-		Z.el.style.display = 'none';
+		var jqEl = jQuery(Z.el);
+		if(Z._animation == 'slide') {
+			jqEl.slideUp();
+		} else if(Z._animation == 'fade') {
+			jqEl.fadeOut();
+		} else if(Z._animation == 'none') {
+			jqEl.hide();
+		} else {
+			jqEl.hide('fast');
+		}
 		if (Z.overlay) {
 			Z.overlay.hide();
 		}
@@ -1085,7 +1119,7 @@ jslet.ui.MessageBox = function () {
 	 */
 	this.show = function (message, caption, iconClass, buttons, callbackFn, hasInput, defaultValue, validateFn) {
 
-		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true};
+		var opt = { type: 'window', caption: caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true, animation: 'fade'};
 		var owin = jslet.ui.createControl(opt);
 		var iconHtml = '';
 		if (iconClass) {

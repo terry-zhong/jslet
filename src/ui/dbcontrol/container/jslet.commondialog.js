@@ -105,7 +105,6 @@ jslet.ui.FindDialog = function (dbContainer) {
 	};
 	
 	initialize();
-	this.hide();
 };
 
 /**
@@ -122,15 +121,20 @@ jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	Z.fieldName = null;
 	Z._filterDatasetObj = new jslet.data.FilterDataset(tblCtrl.dataset());
 	Z._filterDataset = Z._filterDatasetObj.filterDataset();
-//	Z._filterDataset.getField('field').editControl('DBSelect');
 	Z._filterDataset.getField('lParenthesis').visible(false);
 	Z._filterDataset.getField('rParenthesis').visible(false);
 	Z._filterDataset.getField('logicalOpr').visible(false);
 	Z._filterDataset.getField('valueExprInput').visible(false);
 	Z._dbtable = tblCtrl;
+	Z._jqFilterBtn = null;
+	Z._currFieldName = null;
 }
 
 jslet.ui.DBTableFilterPanel.prototype = {
+	
+	jqFilterBtn: function(jqFilterBtn) {
+		this._jqFilterBtn = jqFilterBtn;
+	},
 		
 	changeField: function(fldName) {
 		var dsFilter = this._filterDataset,
@@ -144,7 +148,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			dsFilter.appendRecord();
 			dsFilter.setFieldValue('field', fldName);
 		}
-		console.log(dsFilter.dataList())
+		this._currFieldName = fldName;
 	},
 	
 	show: function (left, top, ajustX, ajustY) {
@@ -178,10 +182,10 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		jQuery(Z._panel).addClass('panel panel-default jl-filter-panel');
 		Z._panel.innerHTML = '<div class=""><div data-jslet="type: \'DBEditPanel\', dataset: \'' + Z._filterDataset.name() + 
 		'\', columnCount: 1,hasLabel:false " style="width:100%;height:100%" ></div></div>' +
-		'<div><button class="btn btn-default btn-sm jl-filter-panel-ok">' + jslet.locale.FilterPanel.ok +
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-cancel">' + jslet.locale.FilterPanel.cancel + 
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-clear">' + jslet.locale.FilterPanel.clear + 
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-clearall">' + jslet.locale.FilterPanel.clearAll + 
+		'<div><button class="btn btn-default btn-sm jl-filter-panel-ok" tabIndex="90990">' + jslet.locale.FilterPanel.ok +
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-cancel" tabIndex="90991">' + jslet.locale.FilterPanel.cancel + 
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-clear" tabIndex="90992">' + jslet.locale.FilterPanel.clear + 
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-clearall" tabIndex="90993">' + jslet.locale.FilterPanel.clearAll + 
 		'</button></div>';
 		jslet.ui.install(Z._panel);
 		var jqPanel = jQuery(Z._panel);
@@ -191,9 +195,11 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			if(!dsFilter.getFieldValue('value')) {
 				dsFilter.deleteRecord();
 			}
-			var filter = Z._filterDatasetObj.convertToFilterExpr();
+			var filter = Z._filterDatasetObj.getFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
+			
 			Z.hide();
+			Z._setFilterBtnStyle();
 		});
 		jqPanel.find('.jl-filter-panel-cancel').on('click', function(){
 			Z._filterDataset.cancel();
@@ -201,22 +207,42 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		});
 		jqPanel.find('.jl-filter-panel-clear').on('click', function(){
 			Z._filterDataset.deleteRecord();
-			var filter = Z._filterDatasetObj.convertToFilterExpr();
+			var filter = Z._filterDatasetObj.getFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
 			Z.hide();
+			Z._setFilterBtnStyle();
 		});
 		jqPanel.find('.jl-filter-panel-clearall').on('click', function(){
 			Z._filterDataset.dataList(null);
 			Z._dbtable.dataset().filter(null).filtered(false);
 			Z.hide();
+			jQuery(Z._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', '').removeClass('jl-tbl-filter-hasfilter');
+			jqPanel.find('.jl-filter-panel-clearall').attr('title', '');
 		});
 		return Z._panel;
 	},
 
+	_setFilterBtnStyle: function() {
+		var Z = this;
+		var filterText = Z._filterDatasetObj.getFilterExprText();
+		
+		var dsFilter = Z._filterDataset;
+		if(dsFilter.find('[field] == "' + Z._currFieldName + '" || like([field], "' + Z._currFieldName + '.%' + '")')) {
+			Z._jqFilterBtn.addClass('jl-tbl-filter-hasfilter');
+			Z._jqFilterBtn[0].title = filterText || '';
+		} else {
+			Z._jqFilterBtn[0].title = '';
+			Z._jqFilterBtn.removeClass('jl-tbl-filter-hasfilter');
+		}
+		jQuery(Z._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', filterText || '');
+		jQuery(Z._panel).find('.jl-filter-panel-clearall')[0].title = filterText || '';
+	},
+	
 	destroy: function(){
 		jslet.ui.uninstall(Z._panel);
 		Z._panel.innerHTML = '';
 		Z._panel = null;
 		Z._dbtable = null;
+		Z._jqFilterBtn = null;
 	}
 };

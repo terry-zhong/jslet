@@ -18,8 +18,8 @@
  */
 jslet.ui.WaitingBox = function (container, overlayColor, tipsAtNewLine) {
 	var overlay = new jslet.ui.OverlayPanel(container);
-	var s = '<div class="jl-waitingbox"><b class="jl-waitingbox-icon"></b>';
-		s += '<span id="tips"></span></div>';
+	var s = '<div class="jl-waitingbox jl-round4"><b class="jl-waitingbox-icon"></b>';
+		s += '<span class="jl-waitingbo-text"></span></div>';
 
 	jQuery(overlay.overlayPanel).html(s);
 

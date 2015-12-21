@@ -10,6 +10,7 @@ jslet.data.ContextRule = function() {
 	Z._name = '';
 	Z._description = '';
 	Z._status = undefined;
+	Z._selected = undefined;
 	Z._condition = undefined;
 	Z._rules = [];
 };
@@ -50,13 +51,21 @@ jslet.data.ContextRule.prototype = {
 		this._status = status;
 		return this;
 	},
+
+	selected: function(selected) {
+		if(selected === undefined) {
+			return this._selected;
+		}
+		
+		this._selected = selected? true: false;
+	},
 	
 	condition: function(condition) {
 		if(condition === undefined) {
 			return this._condition;
 		}
 		
-		jslet.Checker.test('ContextRule.status', condition).isString();
+		jslet.Checker.test('ContextRule.condition', condition).isString();
 		this._condition = jQuery.trim(condition);
 		return this;
 	},
@@ -570,6 +579,9 @@ jslet.data.createContextRule = function(cxtRuleCfg) {
 	if(cxtRuleCfg.status !== undefined) {
 		ruleObj.status(cxtRuleCfg.status);
 	}
+	if(cxtRuleCfg.selected !== undefined) {
+		ruleObj.selected(cxtRuleCfg.selected);
+	} 
 	if(cxtRuleCfg.condition !== undefined) {
 		ruleObj.condition(cxtRuleCfg.condition);
 	}
@@ -725,28 +737,6 @@ jslet.data.ContextRuleEngine.prototype = {
 		}
 	},
 
-	evalStatus: function() {
-		var contextRules = this._dataset.contextRules(),
-			status = 'other', 
-			dsStatus = this._dataset.changedStatus();
-		if(dsStatus == jslet.data.DataSetStatus.INSERT) {
-			status = 'insert';
-		} else if(dsStatus == jslet.data.DataSetStatus.UPDATE) {
-			status = 'update';
-		}
-
-		this._matchedRules = [];
-		var ruleObj, ruleStatus;
-		for(var i = 0, len = contextRules.length; i < len; i++) {
-			ruleObj = contextRules[i];
-			ruleStatus = ruleObj.status();
-			if(ruleStatus && ruleStatus.indexOf(status) >= 0) {
-				this._evalRuleItems(ruleObj.rules(), status == 'insert' || status == 'update');
-			}
-		}
-		this._syncMatchedRules();
-	},
-	
 	evalRule: function(changingFldName){
 		var contextRules = this._dataset.contextRules();
 		var ruleObj;
@@ -754,11 +744,9 @@ jslet.data.ContextRuleEngine.prototype = {
 		this._ruleEnv = {};
 		for(var i = 0, len = contextRules.length; i < len; i++) {
 			ruleObj = contextRules[i];
-			if(!ruleObj.status()) {
-				this._evalOneRule(ruleObj, changingFldName);
-			}
+			this._evalOneRule(ruleObj, changingFldName);
 		}
-		this._syncMatchedRules();
+		this._syncMatchedRules(changingFldName);
 	},
 	
 	_compileOneRule: function(ruleObj) {
@@ -812,6 +800,8 @@ jslet.data.ContextRuleEngine.prototype = {
 		var matched = false;
 		var exprObj = ruleObj.conditionExpr;
 		var mainFields = null;
+		var hasRule = false;
+		//Check if the rule matched or not
 		if(exprObj) {
 			mainFields = exprObj.mainFields();
 			if(changingFldName) {
@@ -819,9 +809,35 @@ jslet.data.ContextRuleEngine.prototype = {
 					return;
 				}
 			}
-			matched = ruleObj.conditionExpr.eval();
-		} else {
-			matched = ruleObj.condition();
+			matched = exprObj.eval();
+			if(!matched) {
+				return;
+			}
+			hasRule = true;
+		}
+		//if exists 'status' condition
+		var ruleStatus = ruleObj.status()
+		if(ruleStatus !== undefined) {
+			var dsStatus = 'other', 
+				changedStatus = this._dataset.changedStatus();
+			if(changedStatus == jslet.data.DataSetStatus.INSERT) {
+				dsStatus = 'insert';
+			} else if(changedStatus == jslet.data.DataSetStatus.UPDATE) {
+				dsStatus = 'update';
+			}
+			if(!hasRule) {
+				matched = true;
+			}
+			matched = (matched && ruleStatus.indexOf(dsStatus) >= 0);
+			hasRule = true;
+		}
+		//if exists 'selected' condition
+		var ruleSelected = ruleObj.selected();
+		if(ruleSelected !== undefined) {
+			if(!hasRule) {
+				matched = true;
+			}
+			matched = (matched && ruleSelected === (this._dataset.selected()? true: false))
 		}
 		if(matched) {
 			var ruleEnv = null;
@@ -843,10 +859,7 @@ jslet.data.ContextRuleEngine.prototype = {
 		for(var i = 0, len = rules.length; i < len; i++) {
 			ruleItem = rules[i];
 			fldName = ruleItem.field();
-			matchedRule = this._findMatchedRule(fldName);
-			if(!matchedRule) {
-				matchedRule = new jslet.data.ContextRuleItem(fldName);
-			}
+			matchedRule = new jslet.data.ContextRuleItem(fldName);
 			
 			var meta = ruleItem.meta(); 
 			if(meta) {
@@ -892,18 +905,7 @@ jslet.data.ContextRuleEngine.prototype = {
 		}
 	},
 	
-	_findMatchedRule: function(fldName) {
-		var item;
-		for(var i = 0, len = this._matchedRules.length; i < len; i++) {
-			item = this._matchedRules[i];
-			if(fldName == item.field()) {
-				return item;
-			}
-		}
-		return null;
-	},
-	
-	_syncMatchedRules: function() {
+	_syncMatchedRules: function(changingFldName) {
 		var matchedRules = this._matchedRules,
 			ruleObj, fldName, fldObj;
 		
@@ -917,7 +919,7 @@ jslet.data.ContextRuleEngine.prototype = {
 				this._syncMatchedRuleValue(fldObj, ruleObj.value());
 				var customizedFn = ruleObj.customized();
 				if(customizedFn) {
-					customizedFn(fldObj);
+					customizedFn(fldObj, changingFldName);
 				}
 			}
 		}
@@ -988,11 +990,3 @@ jslet.data.ContextRuleEngine.prototype = {
 		}
 	}
 };
-
-
-
-
-
-
-
-
