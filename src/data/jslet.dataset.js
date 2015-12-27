@@ -1449,10 +1449,10 @@ jslet.data.Dataset.prototype = {
 				}
 			} //end for
 		} //end if
+		if (Z._contextRuleEnabled) {
+			this.calcContextRule();
+		}
 		if (!Z._silence) {
-			if (Z._contextRuleEnabled) {
-				this.calcContextRule();
-			}
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.scrollEvent(Z._recno, preno);
@@ -1817,8 +1817,8 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		if(oldStatus != status) {
-			if(this._contextRuleEngine) {
-				this._contextRuleEngine.evalStatus();
+			if (this._contextRuleEnabled) {
+				this.calcContextRule();
 			}
 			recInfo.status = status;
 		}
@@ -2496,6 +2496,10 @@ jslet.data.Dataset.prototype = {
 			} finally {
 				Z._silence--;
 			}
+		} else {
+			if (Z._contextRuleEnabled) {
+				this.calcContextRule();
+			}
 		}
 		Z.calcAggradedValue();
 		var evt = jslet.data.RefreshEvent.deleteEvent(preRecno);
@@ -2783,6 +2787,10 @@ jslet.data.Dataset.prototype = {
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
 			}
+			if (Z._contextRuleEnabled) {
+				this.calcContextRule();
+			}
+
 			Z.calcAggradedValue();		
 			evt = jslet.data.RefreshEvent.deleteEvent(no);
 			Z.refreshControl(evt);
@@ -3001,7 +3009,12 @@ jslet.data.Dataset.prototype = {
 			}
 			var formula = fldObj.formula();
 			if (!formula) {
-				value = dataRec[fldName];
+				var rawValueConverter = fldObj.rawValueConverter();
+				if(rawValueConverter && rawValueConverter.getRawValue) {
+					value = rawValueConverter.getRawValue(dataRec, fldName);
+				} else {
+					value = dataRec[fldName];
+				}
 				fldValue = value !== undefined ? value :null;
 			} else {
 				if(dataRec[fldName] === undefined) {
@@ -3061,6 +3074,16 @@ jslet.data.Dataset.prototype = {
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
+		
+		function setValue(dataRec, fldObj, fldName, value) {
+			var rawConverter = fldObj.rawValueConverter();
+			if(rawConverter && rawConverter.setRawValue) {
+				rawConverter.setRawValue(dataRec, fldName, value);
+			} else {
+				currRec[fldName] = value;
+			}
+		}
+		
 		var currRec = Z.getRecord(),
 			dataType = fldObj.getType();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
@@ -3080,16 +3103,20 @@ jslet.data.Dataset.prototype = {
 					realValue = fldObj.falseValue();
 				}
 			}
-
-			currRec[fldName] = realValue;
+			setValue(currRec, fldObj, fldName, realValue);
+//			currRec[fldName] = realValue;
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
 				return this;
 			}
 		} else {
-			var arrValue = currRec[fldName];
+			var rawConverter = fldObj.rawValueConverter(), arrValue;
+			if(rawConverter && rawConverter.getRawValue) {
+				arrValue = rawConverter.getRawValue(currRec, fldName);
+			} else {
+				arrValue = currRec[fldName];
+			}
 			if(!arrValue || !jslet.isArray(arrValue)) {
 				arrValue = [];
-				currRec[fldName] = arrValue;
 			}
 			var len = arrValue.length;
 			if(valueIndex < len) {
@@ -3100,6 +3127,8 @@ jslet.data.Dataset.prototype = {
 				}
 				arrValue.push(value);
 			}
+//			currRec[fldName] = arrValue;
+			setValue(currRec, fldObj, fldName, arrValue);
 		}
 		Z.setFieldError(fldName, null, valueIndex);
 		if (Z._onFieldChanged) {
@@ -3151,7 +3180,12 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
+		var keyFldName = fldObj.name();
 		for(var fldName in lkRtnFldMap) {
+			//Avoid setting value to key field.
+			if(keyFldName == fldName) {
+				continue;
+			}
 			lkFldName = lkRtnFldMap[fldName];
 			this.setFieldValue(fldName, lkDs.getFieldValue(lkFldName));
 		}
@@ -4041,9 +4075,6 @@ jslet.data.Dataset.prototype = {
 		if(Z._contextRuleEngine) {
 			Z._inContextRule = true;
 			try {
-				if(!changedField) {
-					Z._contextRuleEngine.evalStatus();
-				}
 				Z._contextRuleEngine.evalRule(changedField);
 			} finally {
 				Z._inContextRule = false;
@@ -4092,6 +4123,9 @@ jslet.data.Dataset.prototype = {
 				}
 				rec[selFld] = selected;
 				Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECT);
+				if(this._contextRuleEngine) {
+					this._contextRuleEngine.evalRule();
+				}
 			}
 		}
 		return Z;
@@ -5021,7 +5055,7 @@ jslet.data.Dataset.prototype = {
 			for(var k = startRecno; k <= endRecno; k++) {
 				Z.recno(k);
 				if(callBackFn) { 
-					if(!callBackFn.call(Z)) {
+					if(callBackFn.call(Z)) {
 						break;
 					} 
 				} 

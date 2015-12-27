@@ -374,8 +374,6 @@ a.jl-pb-button-disabled:hover {
 }
 /*end of pagebar*/
 
-
-
 /*Popup panel*/
 .jslet_popup_panel {
     position: absolute;
@@ -421,16 +419,19 @@ a.jl-pb-button-disabled:hover {
 
 .jl-waitingbox {
     background-image: none;
-    border: 2px solid #2c6ae8;
-    color: #000099;
+    border: 1px solid #555;
     height: auto;
-    padding-bottom: 1px;
-    padding-left: 5px;
-    padding-right: 20px;
-    padding-top: 1px;
+    padding: 10px;
     float: left;
     position: absolute;
-    background-color: #fff0ff
+  	-webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+          box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+          
+    filter: alpha(opacity=100);
+    -moz-opacity: 1;
+    -khtml-opacity: 1;
+    opacity: 1;
+    background-color: white;       
 }
 
 .jl-rtl .jl-waitingbox {
@@ -447,22 +448,28 @@ a.jl-pb-button-disabled:hover {
     display: block;
     float: left;
     font-size: 0;
-    height: 16px;
-    margin: 0;
+    margin-right: 10px;
     overflow-x: hidden;
     overflow-y: hidden;
     padding: 0;
-    width: 16px;
+    width: 24px;
+    height: 24px;
 }
 
 .jl-rtl .jl-waitingbox-icon {
     float: right;
 }
 
+.jl-waitingbo-text {
+	color: #000;
+}
+
 /*DBRadioGroup*/
 .jl-radiogroup, .jl-checkboxgroup {
 	overflow:hidden;
-	padding:0 3px;
+	padding: 0!important;
+	padding-top: 3px!important;
+	padding-left: 5px!important;
 }
 
 .jl-radiogroup table, .jl-checkboxgroup table{
@@ -470,10 +477,22 @@ a.jl-pb-button-disabled:hover {
 	width:100%;
 }
 
+.jl-radiogroup tr, .jl-checkboxgroup tr{
+	height: 30px!important;
+}
+
 .jl-radiogroup td, .jl-checkboxgroup td {
 	padding-right: 8px;
 	border: 0!important;
 	vertical-align:middle;
+}
+
+.jl-radiogroup label, .jl-checkboxgroup label {
+	margin-bottom: 0!important;
+}
+
+.jl-radiogroup input, .jl-checkboxgroup input {
+	margin-top: 0!important;
 }
 
 /*tip panel */

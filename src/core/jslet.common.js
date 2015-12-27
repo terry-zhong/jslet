@@ -482,6 +482,7 @@ jslet.parseDate = function(strDate, format) {
  * Convert Date to SO8601
  */
 Date.prototype.toJSON = function() {
+	console.log('test')
 	return jslet.formatDate(this, 'yyyy-MM-ddThh:mm:ss');
 }
 
@@ -626,10 +627,17 @@ jslet.like = function(testValue, pattern, escapeChar) {
  * @return {Boolean} True if matched, false otherwise
  */
 jslet.between = function(testValue, minValue, maxValue) {
-	if (arguments.length != 3) {
+	if (arguments.length <= 1) {
 		return false;
 	}
-	return testValue >= minValue && testValue <= maxValue;
+	var flagMin = flagMax = true;
+	if(minValue != null && minValue !== undefined) { 
+		flagMin = (jslet.compareValue(testValue, minValue) >= 0);
+	}
+	if(maxValue != null && maxValue !== undefined) { 
+		flagMax = (jslet.compareValue(testValue, maxValue) <= 0);
+	}
+	return flagMin && flagMax;
 };
 
 /**
@@ -644,11 +652,11 @@ jslet.between = function(testValue, minValue, maxValue) {
  */
 jslet.inlist = function(testValue, valueList) {
 	var cnt = arguments.length;
-	if (cnt <= 2) {
+	if (cnt < 2) {
 		return false;
 	}
 	for (var i = 1; i < cnt; i++) {
-		if (testValue == arguments[i]) {
+		if (jslet.compareValue(testValue, arguments[i]) === 0) {
 			return true;
 		}
 	}
@@ -662,7 +670,7 @@ jslet.inlist = function(testValue, valueList) {
  * @return {Boolean} True if the given value is an array, false otherwise
  */
 jslet.isArray = function (testValue) {
-    return !testValue || Object.prototype.toString.apply(testValue) === '[object Array]';
+    return testValue === null || testValue === undefined || Object.prototype.toString.apply(testValue) === '[object Array]';
 };
 
 /**
@@ -672,7 +680,7 @@ jslet.isArray = function (testValue) {
  * @return {Boolean} True if the given value is date object, false otherwise
  */
 jslet.isDate = function(testValue) {
-	return !testValue || testValue.constructor == Date;
+	return testValue === null || testValue === undefined || testValue.constructor == Date;
 };
 
 /**
@@ -687,6 +695,24 @@ jslet.isString = function(testValue) {
 
 jslet.isObject = function(testValue) {
 	return testValue === null || testValue === undefined || jQuery.type(this.varValue) !== "object";	
+}
+
+jslet.isEmpty = function(value) {
+	if(value === null || value === undefined || value === '') {
+		return true;
+	}
+	if(jslet.isArray(value)) {
+		var arrValue = value;
+		var isEmpty = true;
+		for(var i = 0, len = arrValue.length; i < len; i++) {
+			if(!jslet.isEmpty(arrValue[i])) {
+				isEmpty = false;
+				break;
+			}
+		}
+		return isEmpty;
+	}
+	return false;
 }
 
 jslet.setTimeout = function(obj, func, time) {

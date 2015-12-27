@@ -42,6 +42,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._readOnly = false;
 	Z._visible = true;
 	Z._disabled = false;
+	Z._rawValueConverter = null;
 	Z._customValueConverter = null;
 	Z._unitConverted = false;
 
@@ -1137,6 +1138,24 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
+	/**
+	 * Raw value converts to field value or field value converts raw value.
+	 * Converter pattern:
+	 * var converter = {
+	 * 		getRawValue: function(dataRec, fldName) {}, 
+	 * 		setRawValue: function(dataRec, fldName, fldValue) {}
+	 * };
+	 * 
+	 * @param {Object or undefined} converter - raw value converter.
+	 */
+	rawValueConverter: function(converter) {
+		var Z = this;
+		if (converter === undefined) {
+			return Z._rawValueConverter;
+		}
+		Z._rawValueConverter = converter;
+		return this;
+	},
 	
 	/**
 	 * Get or set customized field value converter.
@@ -1449,6 +1468,7 @@ jslet.data.Field.prototype = {
 		result.antiXss(Z._antiXss);
 		result.customValidator(Z._customValidator);
 		result.customValueConverter(Z._customValueConverter);
+		result.rawValueConverter(Z._rawValueConverter);
 		result.validChars(Z._validChars);
 		
 		result.mergeSame(Z._mergeSame);
@@ -1576,6 +1596,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('dataRange');
 	setPropValue('customValidator');
 	setPropValue('customValueConverter');
+	setPropValue('rawValueConverter');
 	setPropValue('trueValue');
 	setPropValue('falseValue');
 	setPropValue('mergeSame');
