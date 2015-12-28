@@ -41,11 +41,6 @@ jslet.data.FilterDataset = function(hostDataset) {
 }
 
 jslet.data.FilterDataset.prototype = {
-	/**
-	 * Get filter dataset, if not found, generate it.
-	 * 
-	 * @return {jslet.data.Dataset}
-	 */
 	filterDataset: function() {
 		var Z = this;
 		if(Z._filterDataset) {
@@ -67,27 +62,24 @@ jslet.data.FilterDataset.prototype = {
 		dsFields.dataList(fieldLabels);
 		
 		var fldCfg = [ 
-             {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.lParenthesis, validChars:'(', tabIndex: 90980}, 
+             {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.lParenthesis, validChars:'('}, 
 	         {name: 'hostField', type: 'S', length: 30, label: 'Host Field', visible: false},
-	         {name: 'field', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.field, tabIndex: 90981, 
+	         {name: 'field', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.field, 
 	        	 lookup: {dataset: dsFields, onlyLeafLevel: false}, editControl: {type: 'DBComboSelect', textReadOnly: true}, required: true},
 	         {name: 'dataType', type: 'S', length: 10, label: jslet.locale.FilterDataset.dataType, visible: false},
 	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label: jslet.locale.FilterDataset.operator, 
-	        	 lookup: {dataset:"ds_operator_"}, required: true, tabIndex: 90982},
-	         {name: 'value', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.value, tabIndex: 90983},
+	        	 lookup: {dataset:"ds_operator_"}, required: true},
+	         {name: 'value', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.value},
 	         {name: 'valueExpr', type: 'S', length: 30, visible: false},
 	         {name: 'valueExprInput', type: 'S', length: 2, label: ' ', readOnly: true, visible: false,
-	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>', tabIndex: 90984},
-             {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.rParenthesis, validChars:')', tabIndex: 90985}, 
+	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>'},
+             {name: 'rParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.rParenthesis, validChars:')'}, 
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.FilterDataset.logicalOpr, 
-            	 lookup: {dataset:"ds_logical_opr_"}, required: true, defaultValue: 'and', tabIndex: 90986} 
+            	 lookup: {dataset:"ds_logical_opr_"}, required: true, defaultValue: 'and'} 
 		];
 		var dsFilter = jslet.data.createDataset('dsFilter_' + id, fldCfg);
-		var rule1 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj, changingFldName){
+		var rule1 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj){
 			var fldName = dsFilter.getFieldValue('field');
-			if(!fldName) {
-				return;
-			}
 			var hostFldObj = jslet.data.getDataset(Z._hostDataset).getField(fldName), 
 				fldType;
 			if(hostFldObj) {
@@ -102,45 +94,24 @@ jslet.data.FilterDataset.prototype = {
 				fldType = dsFields.getFieldValue('dataType');
 				Z._setExtendDateField(dsFilter);
 			}
-			var operator = dsFilter.getFieldValue('operator');
-			var valueStyle = jslet.data.FieldValueStyle.NORMAL;
-			if(operator == 'between') {
-				valueStyle = jslet.data.FieldValueStyle.BETWEEN;
-			} else if(operator == 'select') {
-				valueStyle = jslet.data.FieldValueStyle.MULTIPLE;
-			}
-			fldObj.valueStyle(valueStyle);
-			
-			if(changingFldName) {
-				dsFilter.setFieldValue('dataType', fldType);
-			}
+			dsFilter.setFieldValue('dataType', fldType);
 			}}
 		]};
 		
 		var rule2 = {
 			condition: '[dataType]',
-			rules: [{field: 'operator', customized: function(fldObj, changingFldName){
-				var dataType = dsFilter.getFieldValue('dataType');
-				if(!dataType) {
-					return;
-				}
+			rules: [{field: 'operator', customized: function(fldObj){
 				var fldObj = dsFilter.getField('operator'),
 					lkDs = fldObj.lookup().dataset();
-				lkDs.filter('[range].indexOf("' + dataType + '") >= 0');
+				lkDs.filter('[range].indexOf("' + dsFilter.getFieldValue('dataType') + '") >= 0');
 				lkDs.filtered(true);
 				lkDs.first();
-				if(changingFldName) {
-					var firstValue = lkDs.getFieldValue('code');
-					dsFilter.setFieldValue('operator', firstValue);
-				}
+				var firstValue = lkDs.getFieldValue('code');
+				dsFilter.setFieldValue('operator', firstValue);
 				}}
 			]};
 
-		var rule3 = {condition: '[operator]', rules: [{field: 'value', customized: function(fldObj, changingFldName){
-			if(!changingFldName) {
-				return;
-			}
-
+		var rule3 = {condition: '[operator]', rules: [{field: 'value', customized: function(fldObj){
 			var oldValueStyle = dsFilter.getField('value').valueStyle();
 			var operator = dsFilter.getFieldValue('operator');
 			var valueStyle = jslet.data.FieldValueStyle.NORMAL;
@@ -160,72 +131,13 @@ jslet.data.FilterDataset.prototype = {
 		dsFilter.onFieldChanged(function(fldName, fldValue) {
 			if(fldName == 'field' || fldName == 'operator') {
 				this.setFieldValue('value', null);
+				console.log(fldName);
 				this.focusEditControl('value');
 			}
 		});
 		this._filterDataset = dsFilter;
 		return dsFilter;
 
-	},
-	
-	/**
-	 * Get filter expression text.
-	 * 
-	 * @return {String} Filter expression text.
-	 */
-	getFilterExprText: function() {
-		var Z = this,
-			dsFilter = Z._filterDataset;
-		if(!dsFilter || dsFilter.recordCount() === 0) {
-			return null;
-		}
-		this.validate();
-		var result = '', recno,
-			lastRecno = dsFilter.recordCount() - 1;
-		
-		dsFilter.iterate(function() {
-			recno = this.recno();
-			result += this.getFieldValue('lParenthesis') || '';
-			result += this.getFieldText('field') + ' ';
-			result += this.getFieldText('operator') + ' ';
-			result += this.getFieldText('value');
-			result += this.getFieldText('valueExpr');
-			result += this.getFieldValue('rParenthesis') || '';
-			if(recno != lastRecno) {
-				result += ' ' + this.getFieldText('logicalOpr') + ' ';
-			}
-		});
-		return result;
-	},
-	
-	/**
-	 * Get filter expression.
-	 * 
-	 * @return {String} Filter expression.
-	 */
-	getFilterExpr: function() {
-		var Z = this,
-			dsFilter = Z._filterDataset;
-		if(!dsFilter || dsFilter.recordCount() === 0) {
-			return null;
-		}
-		this.validate();
-		var result = '', recno,
-			lastRecno = dsFilter.recordCount() - 1;
-		
-		dsFilter.iterate(function() {
-			recno = this.recno();
-			var dataType = this.getFieldValue('dataType');
-			result += this.getFieldValue('lParenthesis') || '';
-			
-			result += Z._getFieldFilter(this);
-			result += this.getFieldValue('rParenthesis') || '';
-			if(recno != lastRecno) {
-				result += ' ' + (this.getFieldValue('logicalOpr') == 'or' ?  '||': '&&') + ' ';
-			}
-			
-		});
-		return result;
 	},
 	
 	_appendFields: function(hostDataset, fieldLabels, hostFldName, hostFldLabel) {
@@ -267,7 +179,7 @@ jslet.data.FilterDataset.prototype = {
 		fldObj.dataType(hostFldObj.dataType());
 		fldObj.length(hostFldObj.length());
 		fldObj.scale(hostFldObj.scale());
-//		fldObj.alignment(hostFldObj.alignment());
+		fldObj.alignment(hostFldObj.alignment());
 		fldObj.editMask(hostFldObj.editMask());
 
 		fldObj.displayFormat(hostFldObj.displayFormat());
@@ -305,6 +217,32 @@ jslet.data.FilterDataset.prototype = {
 		fldObj.lookup(null);
 		fldObj.displayControl(null);
 		fldObj.editControl(null);
+	},
+	
+	convertToFilterExpr: function() {
+		var Z = this,
+			dsFilter = Z._filterDataset;
+		if(!dsFilter || dsFilter.recordCount() === 0) {
+			return null;
+		}
+		this.validate();
+		var result = '', recno,
+			lastRecno = dsFilter.recordCount() - 1;
+		
+		dsFilter.iterate(function() {
+			recno = this.recno();
+			var dataType = this.getFieldValue('dataType');
+			result += this.getFieldValue('lParenthesis') || '';
+			
+			result += Z._getFieldFilter(this);
+			result += this.getFieldValue('rParenthesis') || '';
+			if(recno != lastRecno) {
+				result += ' ' + (this.getFieldValue('logicalOpr') == 'or' ?  '||': '&&') + ' ';
+			}
+			
+		});
+		console.log('Filter Expr: ' + result)
+		return result;
 	},
 	
 	_getFieldFilter: function(dsFilter) {

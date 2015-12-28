@@ -806,7 +806,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
     		}
     		var colCfg = jqFilterBtn.parent().parent()[0]['jsletColCfg'];
     		Z._filterPanel.changeField(colCfg.field);
-    		Z._filterPanel.jqFilterBtn(jqFilterBtn);
+    		Z._filterPanel.jqFilterBtn = jqFilterBtn;
     		Z._filterPanel.show(x, y, 0, h);
         	
        		event.preventDefault();

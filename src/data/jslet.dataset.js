@@ -1449,10 +1449,10 @@ jslet.data.Dataset.prototype = {
 				}
 			} //end for
 		} //end if
-		if (Z._contextRuleEnabled) {
-			this.calcContextRule();
-		}
 		if (!Z._silence) {
+			if (Z._contextRuleEnabled) {
+				this.calcContextRule();
+			}
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);
 			if (!Z._lockCount) {
 				evt = jslet.data.RefreshEvent.scrollEvent(Z._recno, preno);
@@ -1817,8 +1817,8 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		if(oldStatus != status) {
-			if (this._contextRuleEnabled) {
-				this.calcContextRule();
+			if(this._contextRuleEngine) {
+				this._contextRuleEngine.evalStatus();
 			}
 			recInfo.status = status;
 		}
@@ -2496,10 +2496,6 @@ jslet.data.Dataset.prototype = {
 			} finally {
 				Z._silence--;
 			}
-		} else {
-			if (Z._contextRuleEnabled) {
-				this.calcContextRule();
-			}
 		}
 		Z.calcAggradedValue();
 		var evt = jslet.data.RefreshEvent.deleteEvent(preRecno);
@@ -2787,10 +2783,6 @@ jslet.data.Dataset.prototype = {
 			if(no >= Z.recordCount()) {
 				Z._recno = Z.recordCount() - 1;
 			}
-			if (Z._contextRuleEnabled) {
-				this.calcContextRule();
-			}
-
 			Z.calcAggradedValue();		
 			evt = jslet.data.RefreshEvent.deleteEvent(no);
 			Z.refreshControl(evt);
@@ -3159,12 +3151,7 @@ jslet.data.Dataset.prototype = {
 				return;
 			}
 		}
-		var keyFldName = fldObj.name();
 		for(var fldName in lkRtnFldMap) {
-			//Avoid setting value to key field.
-			if(keyFldName == fldName) {
-				continue;
-			}
 			lkFldName = lkRtnFldMap[fldName];
 			this.setFieldValue(fldName, lkDs.getFieldValue(lkFldName));
 		}
@@ -4054,6 +4041,9 @@ jslet.data.Dataset.prototype = {
 		if(Z._contextRuleEngine) {
 			Z._inContextRule = true;
 			try {
+				if(!changedField) {
+					Z._contextRuleEngine.evalStatus();
+				}
 				Z._contextRuleEngine.evalRule(changedField);
 			} finally {
 				Z._inContextRule = false;
@@ -4102,9 +4092,6 @@ jslet.data.Dataset.prototype = {
 				}
 				rec[selFld] = selected;
 				Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECT);
-				if(this._contextRuleEngine) {
-					this._contextRuleEngine.evalRule();
-				}
 			}
 		}
 		return Z;
@@ -5034,7 +5021,7 @@ jslet.data.Dataset.prototype = {
 			for(var k = startRecno; k <= endRecno; k++) {
 				Z.recno(k);
 				if(callBackFn) { 
-					if(callBackFn.call(Z)) {
+					if(!callBackFn.call(Z)) {
 						break;
 					} 
 				} 

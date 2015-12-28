@@ -317,10 +317,6 @@
 	color: #000;
 }
 
-.jl-table .jl-tbl-filter-hasfilter {
-	color: blue;
-}
-
 .jl-table .jl-tbl-filter:focus{
 	color: green;
 }
