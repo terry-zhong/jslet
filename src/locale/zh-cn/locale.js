@@ -182,6 +182,12 @@
 	};
 			
 	locale.FilterDataset = {
+		equal: '等于',
+		notEqual: '不等于',
+		greatThan: '大于',
+		greatThanAndEqual: '大于等于',
+		lessThan: '小于',
+		lessThanAndEqual: '小于等于',
 		and: '并且',
 		or: '或者',
 		between: '在...之间',
@@ -215,6 +221,10 @@
 		cancel: '取消',
 		clear: '清除',
 		clearAll: ' 清除所有 ',
+	};
+	
+	locale.ExportDialog = {
+		caption: '导出'
 	};
 	
 	if (window.jslet === undefined || jslet === undefined){

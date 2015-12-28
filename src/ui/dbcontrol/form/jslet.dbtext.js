@@ -174,7 +174,13 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode == 8 || keyCode == 46)) {
 			Z._dataset.editRecord();
 		}
-
+		if(keyCode === 37 || keyCode === 39) { //Arrow-left, Arrow-right
+			var pos = jslet.ui.textutil.getCursorPos(Z.el);
+			if((keyCode === 37 && pos.begin > 0) || 
+					(keyCode === 39 && pos.begin < Z.el.value.length)) {
+	       		event.stopImmediatePropagation();
+			}
+		}
 	},
 
 	/**

@@ -180,6 +180,12 @@
 	};
 	
 	locale.FilterDataset = {
+		equal: '==',
+		notEqual: '!=',
+		greatThan: '>',
+		greatThanAndEqual: '>=',
+		lessThan: '<',
+		lessThanAndEqual: '<=',
 		and: 'And',
 		or: 'Or',
 		between: 'Between',

@@ -866,8 +866,10 @@ jslet.data.FieldError = {
 		var rec, errObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
-			recInfo = jslet.data.getRecInfo(rec); 
-			delete recInfo['error'];
+			recInfo = jslet.data.getRecInfo(rec);
+			if(recInfo) {
+				delete recInfo['error'];
+			}
 		}
 	}
 };
@@ -1019,7 +1021,7 @@ jslet.data.convertDateFieldValue = function(dataset, records) {
 				if (value) {
 					rec[fname] = value;
 				} else {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fldName]));
+					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fname]));
 				}
 			} //end if
 		} //end for j

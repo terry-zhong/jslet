@@ -4,6 +4,60 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+jslet.ui.TableCellEditor = function(tableCtrl) { 
+	var _tableCtrl = tableCtrl; 
+	var _editPanel;
+	var _currField;
+	
+	function _create() { 
+		var html = '<div class="jl-tbl-editpanel"><table class="jl-tbl-edittable"><tbody><tr class="jl-tbl-editrow">';
+		var columns = _tableCtrl._sysColumns, colCfg,
+			dsName = tableCtrl.dataset().name(),
+			left = 1;
+			
+		for(var i = 0, len = columns.length; i < len; i++) {
+			colCfg = columns[i];
+			left += colCfg.width + 1;
+		}
+		columns = _tableCtrl.innerColumns
+		for(var i = 0, len = columns.length; i < len; i++) {
+			colCfg = columns[i];
+			if(colCfg.field) {
+				html += '<td class="jl-edtfld-' + colCfg.field +  '" style="display:none"><div data-jslet=\'type:"DBPlace",dataset:"' + 
+					dsName + '",field:"' + colCfg.field + '"\' class="' + 
+					colCfg.widthCssName + '"></div></td>';
+			} else {
+				html += '<td><div class="' + colCfg.widthCssName + '"</td>';
+			}
+		}
+		html += '</tr></tbody></table></div>';
+		console.log(html);
+		var jqPanel = jQuery(html);
+		jqPanel.appendTo(jQuery(_tableCtrl.el));
+		jqPanel.css('left', left + 'px');
+		jslet.ui.install(jqPanel[0]);
+		_editPanel = jqPanel;
+	} 
+	
+	_create();
+	
+	this.showEditor = function(fldName, otd) {
+		var tblPos = jQuery(_tableCtrl).offset();
+		var cellPos = jQuery(otd).offset();
+		if(_currField) {
+			_editPanel.find('.jl-edtfld-' + _currField).hide();
+		}
+		var jqEditor = _editPanel.find('.jl-edtfld-' + fldName);
+		_editPanel.offset(cellPos);
+		jqEditor.show();
+		_tableCtrl.dataset().focusEditControl(fldName);
+		_currField = fldName;
+	}
+	
+	this.destroy = function() { 
+		_tableCtrl = null; 
+	} 
+} 
 
 /**
  * Find dialog for DBTable and DBTreeView control
@@ -57,9 +111,9 @@ jslet.ui.FindDialog = function (dbContainer) {
 			}
 			var found = _dataset.findByField(_findingField, jqFindingValue.val(), true, true, 'any');
 			if(!found && !isStart) {
-				_dataset.first();
 				isStart = true;
-				findData();
+				_dataset.findByField(_findingField, jqFindingValue.val(), false, true, 'any');
+				return;
 			}
 			isStart = false;
 		}
@@ -86,12 +140,15 @@ jslet.ui.FindDialog = function (dbContainer) {
 		if(findingField === undefined) {
 			return _findingField;
 		}
+		var oldField = _findingField;
 		_findingField = findingField;
 		if(_findingField) {
 			var fldObj = _dataset.getField(_findingField);
 			if(fldObj) {
 				_dialog.changeCaption(jslet.formatString(jslet.locale.findDialog.caption, [fldObj.label()]));
-				jQuery(_dialog.el).find('.jl-finddlg-value').val('');
+				if(oldField != findingField) {
+					jQuery(_dialog.el).find('.jl-finddlg-value').val('');
+				}
 			}
 		}
 	};
@@ -105,7 +162,6 @@ jslet.ui.FindDialog = function (dbContainer) {
 	};
 	
 	initialize();
-	this.hide();
 };
 
 /**
@@ -115,6 +171,9 @@ jslet.ui.FilterDialog = function (dataset, fields) {
 	
 };
 
+/**
+ * Filter panel for DBTable
+ */
 jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	var Z = this;
 	Z._width = 300;
@@ -122,15 +181,21 @@ jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	Z.fieldName = null;
 	Z._filterDatasetObj = new jslet.data.FilterDataset(tblCtrl.dataset());
 	Z._filterDataset = Z._filterDatasetObj.filterDataset();
-//	Z._filterDataset.getField('field').editControl('DBSelect');
 	Z._filterDataset.getField('lParenthesis').visible(false);
 	Z._filterDataset.getField('rParenthesis').visible(false);
 	Z._filterDataset.getField('logicalOpr').visible(false);
 	Z._filterDataset.getField('valueExprInput').visible(false);
 	Z._dbtable = tblCtrl;
+	Z._jqFilterBtn = null;
+	Z._currFieldName = null;
+	Z._currFilterExpr = null;
 }
 
 jslet.ui.DBTableFilterPanel.prototype = {
+	
+	jqFilterBtn: function(jqFilterBtn) {
+		this._jqFilterBtn = jqFilterBtn;
+	},
 		
 	changeField: function(fldName) {
 		var dsFilter = this._filterDataset,
@@ -144,7 +209,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			dsFilter.appendRecord();
 			dsFilter.setFieldValue('field', fldName);
 		}
-		console.log(dsFilter.dataList())
+		this._currFieldName = fldName;
 	},
 	
 	show: function (left, top, ajustX, ajustY) {
@@ -154,15 +219,15 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		}
 		Z._panel.style.left = left + 'px';
 		Z._panel.style.top = top + 'px';
-		Z._panel.style.display = "block";
+		jQuery(Z._panel).show('fast');
 		window.setTimeout(function(){
-		Z._filterDataset.focusEditControl('value');
+			Z._filterDataset.focusEditControl('value');
 		},5);
 	},
 
 	hide: function () {
 		this._filterDataset.cancel();
-		this._panel.style.display = "none";
+		jQuery(this._panel).hide('fast');
 	},
 	
 	cancelFilter: function() {
@@ -178,22 +243,25 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		jQuery(Z._panel).addClass('panel panel-default jl-filter-panel');
 		Z._panel.innerHTML = '<div class=""><div data-jslet="type: \'DBEditPanel\', dataset: \'' + Z._filterDataset.name() + 
 		'\', columnCount: 1,hasLabel:false " style="width:100%;height:100%" ></div></div>' +
-		'<div><button class="btn btn-default btn-sm jl-filter-panel-ok">' + jslet.locale.FilterPanel.ok +
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-cancel">' + jslet.locale.FilterPanel.cancel + 
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-clear">' + jslet.locale.FilterPanel.clear + 
-		'</button><button class="btn btn-default btn-sm jl-filter-panel-clearall">' + jslet.locale.FilterPanel.clearAll + 
+		'<div><button class="btn btn-default btn-sm jl-filter-panel-ok" tabIndex="90990">' + jslet.locale.FilterPanel.ok +
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-cancel" tabIndex="90991">' + jslet.locale.FilterPanel.cancel + 
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-clear" tabIndex="90992">' + jslet.locale.FilterPanel.clear + 
+		'</button><button class="btn btn-default btn-sm jl-filter-panel-clearall" tabIndex="90993">' + jslet.locale.FilterPanel.clearAll + 
 		'</button></div>';
 		jslet.ui.install(Z._panel);
 		var jqPanel = jQuery(Z._panel);
 		jqPanel.find('.jl-filter-panel-ok').on('click', function(){
 			var dsFilter = Z._filterDataset;
 			dsFilter.confirm();
-			if(!dsFilter.getFieldValue('value')) {
+			if(jslet.isEmpty(dsFilter.getFieldValue('value'))) {
 				dsFilter.deleteRecord();
 			}
-			var filter = Z._filterDatasetObj.convertToFilterExpr();
+			var filter = Z._filterDatasetObj.getFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
+			Z._currFilterExpr = filter;
+			
 			Z.hide();
+			Z._setFilterBtnStyle();
 		});
 		jqPanel.find('.jl-filter-panel-cancel').on('click', function(){
 			Z._filterDataset.cancel();
@@ -201,22 +269,119 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		});
 		jqPanel.find('.jl-filter-panel-clear').on('click', function(){
 			Z._filterDataset.deleteRecord();
-			var filter = Z._filterDatasetObj.convertToFilterExpr();
+			var filter = Z._filterDatasetObj.getFilterExpr();
 			Z._dbtable.dataset().filter(filter).filtered(true);
 			Z.hide();
+			Z._currFilterExpr = filter;
+			Z._setFilterBtnStyle();
 		});
 		jqPanel.find('.jl-filter-panel-clearall').on('click', function(){
 			Z._filterDataset.dataList(null);
 			Z._dbtable.dataset().filter(null).filtered(false);
 			Z.hide();
+			Z._clearFilterBtnStyle();
 		});
 		return Z._panel;
 	},
 
+	_clearFilterBtnStyle: function() {
+		var jqPanel = jQuery(this._panel);
+		jQuery(this._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', '').removeClass('jl-tbl-filter-hasfilter');
+		jqPanel.find('.jl-filter-panel-clearall').attr('title', '');
+		Z._currFilterExpr = null;
+	},
+	
+	checkFilterBtnStyle: function() {
+		var Z = this;
+		if(!Z._currFilterExpr) {
+			return;
+		}
+		var dsFilterExpr = Z._dbtable.dataset().filter();
+		if(dsFilterExpr != Z._currFilterExpr) {
+			Z._clearFilterBtnStyle();
+		}
+	},
+	
+	_setFilterBtnStyle: function() {
+		var Z = this;
+		var filterText = Z._filterDatasetObj.getFilterExprText();
+		
+		var dsFilter = Z._filterDataset;
+		if(dsFilter.find('[field] == "' + Z._currFieldName + '" || like([field], "' + Z._currFieldName + '.%' + '")')) {
+			Z._jqFilterBtn.addClass('jl-tbl-filter-hasfilter');
+			Z._jqFilterBtn[0].title = filterText || '';
+		} else {
+			Z._jqFilterBtn[0].title = '';
+			Z._jqFilterBtn.removeClass('jl-tbl-filter-hasfilter');
+		}
+		jQuery(Z._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', filterText || '');
+		jQuery(Z._panel).find('.jl-filter-panel-clearall')[0].title = filterText || '';
+	},
+	
 	destroy: function(){
 		jslet.ui.uninstall(Z._panel);
 		Z._panel.innerHTML = '';
 		Z._panel = null;
 		Z._dbtable = null;
+		Z._jqFilterBtn = null;
 	}
 };
+
+/**
+ * Export dialog;
+ */
+jslet.ui.ExportDialog = function(dataset) {
+	_dataset = dataset;
+	
+	
+}
+
+jslet.ui.ExportDialog.prototype = {
+	show: function() {
+		var opt = { type: 'window', caption: jslet.locale.ExportDialog, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true, animation: 'fade'};
+		var owin = jslet.ui.createControl(opt);
+		var html = [];
+		owin.setContent(html.join(''));
+		var jqEl = jQuery(owin.el);
+		var obtn;
+		for (var i = 0; i < btnCount; i++) {
+			obtn = toolBar.childNodes[i];
+			obtn.onclick = function () {
+				btnName = jQuery(this).attr('data-jsletname');
+				var value = null;
+				if (hasInput && btnName == 'ok') {
+					value = inputCtrl.value;
+					if (validateFn && !validateFn(value)) {
+						inputCtrl.focus();
+						return;
+					}
+				}
+				owin.close();
+				if (callbackFn) {
+					callbackFn(btnName, value);
+				}
+			};
+		}
+
+		owin.onClosed(function () {
+			if (callbackFn) {
+				callbackFn(btnName);
+			}
+		});
+		
+		owin.showModal();
+		owin.setZIndex(99981);
+		var k = 0;
+		if (jslet.locale.isRtl) {
+			k = btnCount - 1;
+		}
+		var toolBtn = toolBar.childNodes[k];
+		toolBtn && toolBtn.focus();
+		return owin;
+		
+	},
+	
+	close: function() {
+		
+	}
+}
