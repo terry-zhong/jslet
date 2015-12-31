@@ -31,7 +31,6 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 			}
 		}
 		html += '</tr></tbody></table></div>';
-		console.log(html);
 		var jqPanel = jQuery(html);
 		jqPanel.appendTo(jQuery(_tableCtrl.el));
 		jqPanel.css('left', left + 'px');
@@ -288,7 +287,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		var jqPanel = jQuery(this._panel);
 		jQuery(this._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', '').removeClass('jl-tbl-filter-hasfilter');
 		jqPanel.find('.jl-filter-panel-clearall').attr('title', '');
-		Z._currFilterExpr = null;
+		this._currFilterExpr = null;
 	},
 	
 	checkFilterBtnStyle: function() {
@@ -319,6 +318,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 	},
 	
 	destroy: function(){
+		var Z = this;
 		jslet.ui.uninstall(Z._panel);
 		Z._panel.innerHTML = '';
 		Z._panel = null;

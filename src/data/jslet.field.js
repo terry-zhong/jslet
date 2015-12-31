@@ -25,6 +25,10 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._fieldName = fieldName;
 	Z._dataType = dataType;
 	
+	Z._proxyDataset = null;
+	Z._proxyField = null;
+	Z._proxyFldObj = null;
+	
 	Z._length = 0;
 	Z._scale = 0;
 	Z._unique = false;
@@ -192,11 +196,56 @@ jslet.data.Field.prototype = {
 					dtype != jslet.data.DataType.DATE && 
 					dtype != jslet.data.DataType.BOOLEAN && 
 					dtype != jslet.data.DataType.CROSS && 
+					dtype != jslet.data.DataType.PROXY && 
 					dtype != jslet.data.DataType.DATASET)
 			dtype = jslet.data.DataType.STRING;
 		}
 		this._dataType = dtype;
 		return this;
+	},
+	
+	proxyDataset: function(proxyDataset) {
+		var Z = this;
+		if (proxyDataset === undefined) {
+			return Z._proxyDataset;
+		}
+		jslet.Checker.test('Field.proxyDataset', proxyDataset).required();
+		Z._proxyDataset = proxyDataset;
+		Z._proxyFldObj = null;
+		return this;
+	},
+	
+	proxyField: function(proxyField) {
+		var Z = this;
+		if (proxyField === undefined) {
+			return Z._proxyField;
+		}
+		jslet.Checker.test('Field.proxyField', proxyField).required().isString();
+		Z._proxyField = proxyField;
+		Z._proxyFldObj = null;
+		return this;
+	},
+	
+	getProxyFieldObject: function() {
+		var Z = this;
+		if(Z._proxyFldObj) {
+			return Z._proxyFldObj;
+		}
+		if(!Z._proxyDataset || Z._proxyField) {
+			return Z;
+		}
+		var proxyDs = jslet.data.getDataset(Z._proxyDataset);
+		if(!proxyDs) {
+			return Z;
+		}
+//		jslet.Checker.test('Field.proxyDataset', proxyDs).required().isClass(jslet.data.Dataset.className);
+		var proxyFldObj = proxyDs.getField(Z._proxyField);
+		if(!proxyFldObj) {
+			return Z;
+		}
+//		jslet.Checker.test('Field.proxyField', proxyFld).required().isClass(jslet.data.Field.className);
+		Z._proxyFldObj = proxyFldObj;
+		return proxyFldObj;
 	},
 	
 	/**
@@ -1526,6 +1575,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 				dtype != jslet.data.DataType.DATE && 
 				dtype != jslet.data.DataType.BOOLEAN && 
 				dtype != jslet.data.DataType.CROSS && 
+				dtype != jslet.data.DataType.PROXY && 
 				dtype != jslet.data.DataType.DATASET)
 		dtype = jslet.data.DataType.STRING;
 	}
@@ -1549,6 +1599,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	if(parent) {
 		fldObj.dataset(parent.dataset());
 	}
+	
 	if(cfg.crossSource) {
  		var crossSrc = jslet.data.createCrossFieldSource(cfg.crossSource);
  		fldObj.crossSource(crossSrc);
@@ -1558,6 +1609,13 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('label');
 	setPropValue('tip');
 
+	if(dtype === jslet.data.DataType.PROXY) {
+		setPropValue('proxyDataset');
+		if(fieldConfig.proxyField) {
+			fldObj.proxyField(fieldConfig.proxyField);
+		}
+		return fldObj;
+	}
 	if (dtype == jslet.data.DataType.DATASET){
 		var subds = cfg.subDataset || cfg.subdataset;
 		if (subds) {

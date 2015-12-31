@@ -356,22 +356,36 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return;
 		}
 		var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
-			lkf = fldObj.lookup();
-		if (!lkf) {
+			lkFld = fldObj.lookup();
+		if (!lkFld) {
 			console.error(Z._field + ' is NOT a lookup field!');
 			return;
 		}
 		
-		var lkds = lkf.dataset();
+		var lkds = lkFld.dataset(),
+			editFilter = lkFld.editFilter();
 		var eventFunc = jslet.getFunction(Z._beforePopup);
 		if (eventFunc) {
-			eventFunc.call(Z, lkds, inputValue);
+			eventFunc.call(Z, lkds, inputValue, editFilter);
 		} else if (inputValue) {
-			var filter = Z._getFilterFields(lkf, inputValue);
+			var filter = Z._getFilterFields(lkFld, inputValue);
+			if(editFilter) {
+				if(filter) {
+					filter = '(' + editFilter + ') && (' + filter + ')';
+				} else {
+					filter = editFilter;
+				}
+			}
 			lkds.filter(filter);
 			lkds.filtered(true);
 		} else {
-			lkds.filter(null);
+			if(editFilter) {
+				lkds.filter(editFilter);
+				lkds.filtered(true);
+			} else {
+				lkds.filter(null);
+				lkds.filtered(false);
+			}
 		}
 		//Clear field value which specified by 'lookupField'.
 		if(Z._lookupField) {

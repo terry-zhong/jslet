@@ -40,7 +40,8 @@ jslet.data.DataType = {
 	TIME: 'T',  //Time
 	BOOLEAN: 'B', //Boolean
 	DATASET: 'V', //Dataset field
-	CROSS: 'C'   //Cross Field
+	CROSS: 'C',   //Cross Field
+	PROXY: 'P' //Proxy field
 };
 
 jslet.data.FieldValueStyle = {

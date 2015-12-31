@@ -95,9 +95,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._selectBy = null;
 
-		Z._rowHeight = 25;
+		Z._rowHeight = null;
 
-		Z._headRowHeight = 25;
+		Z._headRowHeight = null;
 
 		Z._treeField = null;
 
@@ -149,7 +149,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._cellEditor = null;
 		
-		Z._isSingleEditor = false;
+		Z._isSingleEditor = true;
 		
 		$super(el, params);
 	},
@@ -189,12 +189,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	 * @return {Integer or this}
 	 */
 	rowHeight: function(rowHeight) {
+		var Z = this;
 		if(rowHeight === undefined) {
-			return this._rowHeight;
+			if(Z._rowHeight === null) {
+				var clsName = Z._readOnly? 'jl-tbl-row': 'jl-tbl-editing-row';
+				Z._rowHeight = parseInt(jslet.ui.getCssValue(clsName, 'height'));
+			}
+			return Z._rowHeight;
 		}
 		jslet.Checker.test('DBTable.rowHeight', rowHeight).isGTZero();
-		this._rowHeight = parseInt(rowHeight);
-		this._rowHeightChanged = true;
+		Z._rowHeight = parseInt(rowHeight);
+		Z._rowHeightChanged = true;
 	},
 	
 	/**
@@ -205,6 +210,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	headRowHeight: function(headRowHeight) {
 		if(headRowHeight === undefined) {
+			if(this._headRowHeight === null) {
+				this._headRowHeight = parseInt(jslet.ui.getCssValue('jl-tbl-header-row', 'height'));
+			}
 			return this._headRowHeight;
 		}
 		jslet.Checker.test('DBTable.headRowHeight', headRowHeight).isGTZero();
@@ -289,7 +297,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		Z._readOnly = readOnly ? true: false;
 		if(!Z._readOnly && !Z._rowHeightChanged) {
-			Z._rowHeight = 34;
+			Z._rowHeight = null;
 		}
 	},
 	
@@ -934,7 +942,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if( keyCode === 39 || keyCode === 9) { //Arrow Right
+			} else if( keyCode === 39 || keyCode === 9 || keyCode === jslet.global.defaultFocusKeyCode) { //Arrow Right
 				if(!Z._isSingleEditor) {
 					if(!Z._readOnly) {
 						return;
@@ -1451,13 +1459,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		//calculate Fixed row section's height
 		if (Z._fixedRows > 0) {
-			Z.fixedSectionHt = Z._fixedRows * Z._rowHeight;
+			Z.fixedSectionHt = Z._fixedRows * Z.rowHeight();
 		} else {
 			Z.fixedSectionHt = 0;
 		}
 		//Calculate Foot section's height
 		if (Z.aggraded() && Z.dataset().checkAggraded()){
-			Z.footSectionHt = Z._rowHeight;
+			Z.footSectionHt = Z.rowHeight();
 		} else {
 			Z.footSectionHt = 0;
 		}
@@ -1868,7 +1876,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
 				Z._dataset.confirm();
 			}
-			var num = Math.round(this.scrollTop / Z._rowHeight);// + Z._fixedRows;
+			var num = Math.round(this.scrollTop / Z.rowHeight());// + Z._fixedRows;
 			if (num != Z.listvm.getVisibleStartRow()) {
 				Z._keep_silence_ = true;
 				try {
@@ -1926,11 +1934,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z.rightFootTbl.style.display = '';
 		}
 		Z._renderHeader();
-		
 		if (Z._hideHead) {
 			Z.headSectionHt = 0;
 		} else {
-			Z.headSectionHt = Z.maxHeadRows * Z._headRowHeight;
+			Z.headSectionHt = Z.maxHeadRows * Z.headRowHeight();
 		}
 		Z._changeContentWidth(0);
 
@@ -2096,15 +2103,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._isHoriOverflow){
 			Z.contentSectionHt -= jslet.ui.htmlclass.TABLECLASS.scrollBarWidth;
 		}
-		
-		Z.listvm.setVisibleCount(Math.floor((Z.contentSectionHt) / Z._rowHeight), true);
-		Z._repairHeight = Z.contentSectionHt - Z.listvm.getVisibleCount() * Z._rowHeight;
+		var rh = Z.rowHeight();
+		Z.listvm.setVisibleCount(Math.floor((Z.contentSectionHt) / rh), true);
+		Z._repairHeight = Z.contentSectionHt - Z.listvm.getVisibleCount() * rh;
 		
 		jqEl.find('.jl-tbl-contentcol').height(Z.height);
 		jqEl.find('.jl-tbl-content-div').height(Z.contentSectionHt);
 
 		Z.jqVScrollBar.height(Z.contentSectionHt + Z.footSectionHt);
-		Z._setScrollBarMaxValue(Z.listvm.getNeedShowRowCount() * Z._rowHeight);
+		Z._setScrollBarMaxValue(Z.listvm.getNeedShowRowCount() * rh);
 	},
 	
 	_checkHoriOverflow: function(){
@@ -2232,7 +2239,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 		travHead(Z.innerHeads);
-		var jqTr1, jqTr2, h= Z._headRowHeight;
+		var jqTr1, jqTr2, h= Z.headRowHeight();
 		for(var i = 0; i <= Z.maxHeadRows; i++){
 			jqTr1 = jQuery(leftHeadObj.rows[i]);
 			jqTr2 = jQuery(rightHeadObj.rows[i]);
@@ -2539,11 +2546,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (onlyRefreshContent){
 			startRow = rightBody.rows.length;
 		}
+		var rh = Z.rowHeight();
 		// create date content table row
 		for (var i = startRow; i < rowCnt; i++) {
 			if (hasLeft) {
 				otr = leftBody.insertRow(-1);
-				otr.style.height = Z._rowHeight + 'px';
+				otr.style.height = rh + 'px';
 
 				otr.ondblclick = Z._doRowDblClick;
 				otr.onclick = Z._doRowClick;
@@ -2561,7 +2569,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			isfirstCol = !hasLeft;
 			otr = rightBody.insertRow(-1);
-			otr.style.height = Z._rowHeight + 'px';
+			otr.style.height = rh + 'px';
 			otr.ondblclick = Z._doRowDblClick;
 			otr.onclick = Z._doRowClick;
 			for (var j = Z._fixedCols; j < fldCnt; j++) {
@@ -2606,7 +2614,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		if (hasLeft) {
 			otr = leftBody.insertRow(-1);
-			otr.style.height = Z._rowHeight + 'px';
+			otr.style.height = Z.rowHeight() + 'px';
 
 			for(var j = 0, len = Z._sysColumns.length; j < len; j++) {
 				colCfg = Z._sysColumns[j];
@@ -2619,7 +2627,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 		otr = rightBody.insertRow(-1);
-		otr.style.height = Z._rowHeight + 'px';
+		otr.style.height = Z.rowHeight() + 'px';
 		for (var j = Z._fixedCols, len = Z.innerColumns.length; j < len; j++) {
 			colCfg = Z.innerColumns[j];
 			otr.appendChild(createCell(colCfg));
@@ -2692,7 +2700,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this;
 		var preRecno = Z._dataset.recno(),
 			allCnt = Z.listvm.getNeedShowRowCount(),
-			h = allCnt * Z._rowHeight + Z.footSectionHt;
+			h = allCnt * Z.rowHeight() + Z.footSectionHt;
 		Z._setScrollBarMaxValue(h);
 		Z.noRecordDiv.style.display = (allCnt === 0 ?'block':'none');
 		var oldRecno = Z._dataset.recnoSilence();
@@ -3100,7 +3108,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._keep_silence_) {
 			return;
 		}
-		var	sw = rowno * Z._rowHeight;
+		var	sw = rowno * Z.rowHeight();
 		Z._keep_silence_ = true;
 		try {
 			var scrBar = Z.jqVScrollBar[0];
@@ -3571,7 +3579,7 @@ jslet.ui.TreeCellRender = jslet.Class.create(jslet.ui.CellRender, {
 
 		var odiv = document.createElement('div'),
 			jqDiv = jQuery(odiv);
-		odiv.style.height = Z._rowHeight - 2 + 'px';
+		odiv.style.height = Z.rowHeight() - 2 + 'px';
 		jqDiv.html('<span class="jl-tbltree-indent"></span><span class="jl-tbltree-node"></span><span class="jl-tbltree-icon"></span><span class="jl-tbltree-text"></span>');
 		
 		var obtn = odiv.childNodes[1];

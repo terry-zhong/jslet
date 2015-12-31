@@ -165,7 +165,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.updateToDataset();
 		}
 		//Process 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown' key when it is editing. 
-		var isEditing = Z.ctrlRecno() >= 0 && Z._dataset.status() > 0;
+		var isEditing = Z._dataset.status() > 0;
 		if(isEditing && (keyCode == 38 || keyCode == 40 || keyCode == 33 || keyCode == 34)) {
 			Z._enterProcessed = true;
 			Z.updateToDataset();
