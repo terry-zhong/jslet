@@ -10,8 +10,11 @@
     function doLoaded() {
        dsBOM = jslet.data.createDataset("bom", [
          { "name": "itemid", "type": "S", "length": 10, "label": "BOM Code", "label": "Spec", "displayWidth": 20 }, 
-         { "name": "stdnum", "type": "N", "length": 9, "label": "Quantity", "displayWidth": 15}], "itemid");
-       dsBOM.queryUrl('../../employee/findBom.jsp');
+         { "name": "stdnum", "type": "N", "length": 9, "label": "Quantity", "displayWidth": 15}], {keyField: "itemid"});
+         
+         dsBOM.queryUrl('/demo/bom/find');
+         dsBOM.pageNo(1);
+         dsBOM.pageSize(500);
     }
     function doJsletReady() {
        dsBOM.query();

@@ -482,7 +482,6 @@ jslet.parseDate = function(strDate, format) {
  * Convert Date to SO8601
  */
 Date.prototype.toJSON = function() {
-	console.log('test')
 	return jslet.formatDate(this, 'yyyy-MM-ddThh:mm:ss');
 }
 

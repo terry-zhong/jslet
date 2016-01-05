@@ -16,18 +16,20 @@
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-	<h4 style="color:red">If you see this page on http://jslet.github.io/jslet, it will raise error cause github.io only supports static page. You can goto download page to download standalone.war.</h4>
-
     <p>Product List: <button class="btn btn-primary" onclick="queryData()"> Query </button>
-    <button class="btn btn-primary" onclick="applyToServer()"> Audit Selected </button>
+    <button class="btn btn-primary" onclick="audit()"> Audit Selected </button>
+    <button class="btn btn-primary" onclick="cancelAudit()"> Cancel Audit Selected </button>
 	</p>
 	<div data-jslet='type:"DBTable",dataset:"product",hasSelectCol:true' style="width: 100%; height: 200px">
 	</div>	
 
     <script type="text/javascript">
-        jslet.require("jslet", function () {
-            initialize();
-        });
+	    jslet.define("mockjax", "../mock/jquery.mockjax.js");
+	
+	    jslet.define("servermock", "../mock/servermock.js", "mockjax");
+	    jslet.require("mockjax,jslet,servermock", function () {
+	        initialize();
+	    });
 
         function initialize() {
 			fldCfg = [
@@ -41,21 +43,21 @@
 				];
 			//Create dataset
 			product = jslet.data.createDataset('product', fldCfg);
-			product.queryUrl('../../product/findall.jsp');
+			product.queryUrl('/demo/order/findall');
         }
 
 		function queryData() {
 			product.query();
 		}
 
-        function applyToServer() {
-			var selRecs = product.selectedRecords();
-			if(selRecs && selRecs.length > 0) {
-				product.submitSelected('../../product/audit.jsp');
-			} else {
-				jslet.showInfo('Please select records to audit!');
-			}
+        function audit() {
+			product.submitSelected('/demo/order/audit');
         }
+        
+        function cancelAudit() {
+			product.submitSelected('/demo/order/cancelaudit');
+        }
+
     </script>
 
 	<!-- Source Code -->

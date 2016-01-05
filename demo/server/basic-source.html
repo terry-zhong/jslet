@@ -14,8 +14,8 @@
             //Clear all records which are created at client side.
             //We need all employee data to query from server side.
             dsEmployee.dataList(null);
-            dsEmployee.queryUrl('../../employee/findEmployee.jsp');
-            dsEmployee.submitUrl('../../employee/save.jsp');
+            dsEmployee.queryUrl('/demo/employee/findall');
+            dsEmployee.submitUrl('/demo/employee/save');
         }
 
     &lt;/script&gt;
@@ -31,7 +31,7 @@
         function processServerError() {
             var oldUrl = dsEmployee.queryUrl();
             try {
-                dsEmployee.queryUrl('../../employee/getServerErrMsg.jsp');
+                dsEmployee.queryUrl('/demo/employee/queryerror');
                 dsEmployee.query();
             }finally{
                 dsEmployee.queryUrl(oldUrl);

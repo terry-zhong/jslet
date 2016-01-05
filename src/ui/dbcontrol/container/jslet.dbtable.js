@@ -3183,7 +3183,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		} else if (evtType == jslet.data.RefreshEvent.UPDATERECORD) {
 			Z.refreshCurrentRow();
-		} else if (evtType == jslet.data.RefreshEvent.UPDATECOLUMN) {
+		} else if (evtType == jslet.data.RefreshEvent.UPDATECOLUMN || evtType == jslet.data.RefreshEvent.UPDATELOOKUP) {
 			Z._fillData();
 		} else if (evtType == jslet.data.RefreshEvent.INSERT) {
 			Z.listvm.refreshModel();

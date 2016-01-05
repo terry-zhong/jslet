@@ -8,15 +8,18 @@
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
-        jslet.define("employee", "../js/employee.js");
-        jslet.require("jslet,employee", function () {
-            initialize();
-        });
+	    jslet.define("mockjax", "../mock/jquery.mockjax.js");
+	
+	    jslet.define("employee", "../js/employee.js");
+	    jslet.define("servermock", "../mock/servermock.js", "mockjax");
+	    jslet.require("mockjax,jslet,employee,servermock", function () {
+	        initialize();
+	    });
 
         function initialize() {
             dsEmployee.dataList(null);
             jslet.data.getDataset('department').dataList(null);
-            dsEmployee.queryUrl('../../employee/findMultiDataset.jsp');
+            dsEmployee.queryUrl('/demo/employee/findEmployeeAndDepartment');
         }
     </script>
 </head>
@@ -28,7 +31,6 @@
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-	<h4 style="color:red">If you see this page on http://jslet.github.io/jslet, it will raise error cause github.io only supports static page. You can goto download page to download standalone.war.</h4>
     <h4>Employee List</h4>
 		<p><button class="btn btn-primary" onclick="dsEmployee.query();"> Query </button></p>
     <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
