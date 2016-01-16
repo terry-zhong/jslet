@@ -2702,7 +2702,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			allCnt = Z.listvm.getNeedShowRowCount(),
 			h = allCnt * Z.rowHeight() + Z.footSectionHt;
 		Z._setScrollBarMaxValue(h);
-		Z.noRecordDiv.style.display = (allCnt === 0 ?'block':'none');
+		Z.noRecordDiv.style.display = (Z.dataset().recordCount() === 0 ?'block':'none');
 		var oldRecno = Z._dataset.recnoSilence();
 		try {
 			Z._fillRow(true);
@@ -2750,7 +2750,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			actualCnt = Math.min(contentRows.length, rowCnt);
 
 		for (var i = 0; i < actualCnt ; i++) {
-			if (i >= allCnt) {
+			if (i + start >= allCnt) {
 				if (hasLeft) {
 					otr = fixedRows[i];
 					otr.style.display = 'none';

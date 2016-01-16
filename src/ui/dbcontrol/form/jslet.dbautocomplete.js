@@ -384,7 +384,9 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 				lkds.filtered(true);
 			} else {
 				lkds.filter(null);
-				lkds.filtered(false);
+				if(!lkds.fixedFilter()) {
+					lkds.filtered(false);
+				}
 			}
 		}
 		//Clear field value which specified by 'lookupField'.
