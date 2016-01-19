@@ -129,6 +129,13 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	renderAll: function () {
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	},
+	
+	/**
+	 * @override
+	 */
+	canFocus: function() {
+		return false;
 	}
 });
 

@@ -66,6 +66,47 @@ jslet.data.FilterDataset.prototype = {
 		Z._appendFields(Z._hostDataset, fieldLabels);
 		dsFields.dataList(fieldLabels);
 		
+		function doProxyFieldChanged(dataRec, proxyFldName, proxyFldObj) {
+			var hostFldObj = jslet.data.getDataset(Z._hostDataset).getField(proxyFldName);
+			proxyFldObj.dataType(hostFldObj.dataType());
+			proxyFldObj.length(hostFldObj.length());
+			proxyFldObj.scale(hostFldObj.scale());
+			proxyFldObj.editMask(hostFldObj.editMask());
+
+			proxyFldObj.displayFormat(hostFldObj.displayFormat());
+			proxyFldObj.dateFormat(hostFldObj.dateFormat());
+			proxyFldObj.displayControl(hostFldObj.displayControl());
+			proxyFldObj.validChars(hostFldObj.validChars());
+			if(hostFldObj.lookup()) {
+				var hostLkObj = hostFldObj.lookup();
+				var lkObj = new jslet.data.FieldLookup();
+				lkObj.dataset(hostLkObj.dataset());
+				lkObj.keyField(hostLkObj.keyField());
+				lkObj.codeField(hostLkObj.codeField());
+				lkObj.nameField(hostLkObj.nameField());
+				lkObj.displayFields(hostLkObj.displayFields());
+				lkObj.parentField(hostLkObj.parentField());
+				lkObj.onlyLeafLevel(false);
+				proxyFldObj.lookup(lkObj);
+				proxyFldObj.editControl('DBComboSelect');
+			} else {
+				proxyFldObj.lookup(null);
+				var editorObj = hostFldObj.editControl();
+				if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
+					editorObj = {type: 'DBText'};
+				}
+				proxyFldObj.editControl(editorObj);
+			}
+			var operator = dataRec['operator'];
+			var valueStyle = jslet.data.FieldValueStyle.NORMAL;
+			if(operator == 'between') {
+				valueStyle = jslet.data.FieldValueStyle.BETWEEN;
+			} else if(operator == 'select') {
+				valueStyle = jslet.data.FieldValueStyle.MULTIPLE;
+			}
+			proxyFldObj.valueStyle(valueStyle);
+		}
+		
 		var fldCfg = [ 
              {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.lParenthesis, validChars:'(', tabIndex: 90980}, 
 	         {name: 'hostField', type: 'S', length: 30, label: 'Host Field', visible: false},
@@ -74,7 +115,8 @@ jslet.data.FilterDataset.prototype = {
 	         {name: 'dataType', type: 'S', length: 10, label: jslet.locale.FilterDataset.dataType, visible: false},
 	         {name: 'operator', type: 'S',length: 50, displayWidth:20, label: jslet.locale.FilterDataset.operator, 
 	        	 lookup: {dataset:"ds_operator_"}, required: true, tabIndex: 90982},
-	         {name: 'value', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.value, tabIndex: 90983},
+	         {name: 'value', type: 'P', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.value, tabIndex: 90983, 
+	        		 proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged, visible: false},
 	         {name: 'valueExpr', type: 'S', length: 30, visible: false},
 	         {name: 'valueExprInput', type: 'S', length: 2, label: ' ', readOnly: true, visible: false,
 	        	 fixedValue: '<button class="btn btn-defualt btn-xs">...</button>', tabIndex: 90984},
@@ -88,6 +130,7 @@ jslet.data.FilterDataset.prototype = {
 			if(!fldName) {
 				return;
 			}
+			var valueFldObj = dsFilter.getField('value', true);
 			var hostFldObj = jslet.data.getDataset(Z._hostDataset).getField(fldName), 
 				fldType;
 			if(hostFldObj) {
@@ -97,20 +140,10 @@ jslet.data.FilterDataset.prototype = {
 				} else {
 					fldType = hostFldObj.getType();
 				}
-				Z._copyFilterValueMeta(dsFilter, hostFldObj);
+				
 			} else {
 				fldType = dsFields.getFieldValue('dataType');
-				Z._setExtendDateField(dsFilter);
 			}
-			var operator = dsFilter.getFieldValue('operator');
-			var valueStyle = jslet.data.FieldValueStyle.NORMAL;
-			if(operator == 'between') {
-				valueStyle = jslet.data.FieldValueStyle.BETWEEN;
-			} else if(operator == 'select') {
-				valueStyle = jslet.data.FieldValueStyle.MULTIPLE;
-			}
-			fldObj.valueStyle(valueStyle);
-			
 			if(changingFldName) {
 				dsFilter.setFieldValue('dataType', fldType);
 			}
@@ -261,56 +294,6 @@ jslet.data.FilterDataset.prototype = {
 		}
 	},
 
-	_copyFilterValueMeta: function(dsFilter, hostFldObj){
-		var fldObj = dsFilter.getField('value');
-		
-		fldObj.dataType(hostFldObj.dataType());
-		fldObj.length(hostFldObj.length());
-		fldObj.scale(hostFldObj.scale());
-//		fldObj.alignment(hostFldObj.alignment());
-		fldObj.editMask(hostFldObj.editMask());
-
-		fldObj.displayFormat(hostFldObj.displayFormat());
-		fldObj.dateFormat(hostFldObj.dateFormat());
-		fldObj.displayControl(hostFldObj.displayControl());
-		fldObj.validChars(hostFldObj.validChars());
-		if(hostFldObj.lookup()) {
-			var hostLkObj = hostFldObj.lookup();
-			var lkObj = new jslet.data.FieldLookup();
-			lkObj.dataset(hostLkObj.dataset());
-			lkObj.keyField(hostLkObj.keyField());
-			lkObj.codeField(hostLkObj.codeField());
-			lkObj.nameField(hostLkObj.nameField());
-			lkObj.displayFields(hostLkObj.displayFields());
-			lkObj.parentField(hostLkObj.parentField());
-			lkObj.onlyLeafLevel(false);
-			fldObj.lookup(lkObj);
-			fldObj.editControl('DBComboSelect');
-		} else {
-			fldObj.lookup(null);
-			var editorObj = hostFldObj.editControl();
-			if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
-				editorObj = {type: 'DBText'};
-			}
-			fldObj.editControl(editorObj);
-		}
-	},
-	
-	_setExtendDateField: function(dsFilter) {
-		var fldObj = dsFilter.getField('value');
-		
-		fldObj.dataType(jslet.data.DataType.NUMBER);
-		fldObj.length(10);
-		fldObj.scale(0);
-		fldObj.alignment('right');
-		fldObj.editMask(null);
-
-		fldObj.displayFormat(null);
-		fldObj.lookup(null);
-		fldObj.displayControl(null);
-		fldObj.editControl(null);
-	},
-	
 	_getFieldFilter: function(dsFilter) {
 		var	fldName = dsFilter.getFieldValue('field'),
 			dataType = dsFilter.getFieldValue('dataType'),

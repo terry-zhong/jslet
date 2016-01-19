@@ -71,7 +71,6 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			enableInvalidTip: true,
 			valueIndex: Z._valueIndex
 		});
-		jQuery(Z.textCtrl.el).on('keydown', this.popupUp);
 		Z.addChildControl(Z.textCtrl);
 		
 		var jqBtn = jqEl.find('button');
@@ -94,19 +93,21 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		this.refreshControl();
 	},
 	
-	popupUp: function(event) {
-		if(event.keyCode == jslet.ui.KeyCode.DOWN) {
-			var Z = jslet(this);
-			if(Z.ctrlRecno() < 0) {
-				Z.doBlur(event);
-				var el = jslet.ui.findJsletParent(this.parentNode);
-				el.jslet.buttonClick();
-			}
-		}
-	},
-	
+	/**
+	 * @override
+	 */
 	focus: function() {
-		this.textCtrl.focus();
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field),
+			flag = fldObj.disabled() || fldObj.readOnly();
+		if(flag) {
+			return;
+		}
+		if(Z._textReadOnly) {
+			jQuery(Z.el).find('button').focus();
+		} else {
+			Z.textCtrl.focus();
+		}
 	},
 	
 	/**

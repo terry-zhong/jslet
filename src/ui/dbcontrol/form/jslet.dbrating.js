@@ -256,7 +256,15 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jqEl.off();
 		
 		$super();
+	},
+	
+	/**
+	 * @override
+	 */
+	canFocus: function() {
+		return false;
 	}
+	
 });
 
 jslet.ui.DBRating.CHECKED = 0;

@@ -91,6 +91,13 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderAll: function () {
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent, true);
+	},
+	
+	/**
+	 * @override
+	 */
+	canFocus: function() {
+		return false;
 	}
 });
 jslet.ui.register('DBLookupLabel', jslet.ui.DBLookupLabel);

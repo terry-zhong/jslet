@@ -209,9 +209,19 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
 	
+	/**
+	 * @override
+	 */
 	focus: function() {
-		if (_itemIds && _itemIds.length > 0) {
-			document.getElementById(_itemIds[0]).focus();
+		var Z = this,
+			fldObj = Z._dataset.getField(Z._field),
+			flag = fldObj.disabled() || fldObj.readOnly();
+		if(flag) {
+			return;
+		}
+		var itemIds = this._itemIds;
+		if (itemIds && itemIds.length > 0) {
+			document.getElementById(itemIds[0]).focus();
 		}
 	},
 	

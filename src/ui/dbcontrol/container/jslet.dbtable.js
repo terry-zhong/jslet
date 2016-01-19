@@ -830,8 +830,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
     		if (jslet.locale.isRtl){
     			x = x + jqFilterBtn.outerWidth();
     		}
-    		var colCfg = jqFilterBtn.parent().parent()[0]['jsletColCfg'];
-    		Z._filterPanel.changeField(colCfg.field);
+    		var fldName = jqFilterBtn[0].getAttribute('jsletfilterfield');
+    		Z._filterPanel.changeField(fldName);
     		Z._filterPanel.jqFilterBtn(jqFilterBtn);
     		Z._filterPanel.show(x, y, 0, h);
         	
@@ -925,15 +925,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			if(keyCode === 37) { //Arrow Left
+			if(keyCode === 37 || (event.shiftKey && (keyCode === 9 || keyCode === jslet.global.defaultFocusKeyCode))) { //Arrow Left
 				if(!Z._isSingleEditor) {
 					if(!Z._readOnly) {
 						return;
 					}
 				}
-				var num;
+				var lastColNum = Z.innerColumns.length - 1, 
+					num;
 				if(Z._currColNum === 0) {
-					return;
+					if(Z._dataset.recno() > 0) {
+						Z._dataset.prior();
+						num = lastColNum;
+					} else {
+						return;
+					}
 				} else {
 					num = Z._currColNum - 1;
 				}
@@ -953,6 +959,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				if(Z._currColNum < lastColNum) {
 					num = Z._currColNum + 1;
 				} else {
+					if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
+						return;
+					}
 					Z._dataset.next();
 					num = 0;
 				}
@@ -2191,7 +2200,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 			} 
 			ochild.innerHTML = [
-			    Z._hasFilterDialog && cobj.field && !cobj.subHeads? '<button class="jl-tbl-filter"><i class="fa fa-filter"></i></button>': '',
+			    Z._hasFilterDialog && cobj.field && !cobj.subHeads? '<button class="jl-tbl-filter" jsletfilterfield="' + cobj.field + 
+			    		'"><i class="fa fa-filter"></i></button>': '',
 			    '<span id="',
 				cobj.id, 
 				'" unselectable="on" style="width:100%;padding:0px 2px">',

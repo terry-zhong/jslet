@@ -65,7 +65,15 @@ jslet.ui.DBHtml = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	renderAll: function () {
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	},
+	
+	/**
+	 * @override
+	 */
+	canFocus: function() {
+		return false;
 	}
+
 });
 
 jslet.ui.register('DBHtml', jslet.ui.DBHtml);

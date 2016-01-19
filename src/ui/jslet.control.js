@@ -485,6 +485,45 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
  
+	/**
+	 * @protected
+	 * Identify this control can be focused or not.  
+	 */
+	canFocus: function() {
+		return true;
+	},
+	
+	/**
+	 * Focus to this control.
+	 */
+	focus: function() {
+		var Z = this;
+		if(!Z.canFocus()) {
+			return;
+		}
+		var	fldObj = Z._dataset.getField(Z._field),
+			flag = fldObj.disabled() || fldObj.readOnly();
+		if(flag) {
+			return;
+		}
+		var el = Z.el;
+		if (el.focus) {
+			try {
+				el.focus();
+				if(Z.selectText) {
+					Z.selectText();
+				}
+				return;
+			} catch (e) {
+				//Can\'t focus on this control, maybe it\'s disabled!
+				console.warn(jslet.locale.Dataset.cannotFocusControl);
+			}
+		}
+	},
+	
+	/**
+	 * @override
+	 */
 	destroy: function ($super) {
 		this._field = null;
 		$super();

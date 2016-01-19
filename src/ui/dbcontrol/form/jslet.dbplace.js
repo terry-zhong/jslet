@@ -94,6 +94,13 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var dbCtrl = jslet.ui.createControl(param, Z.el);
 		dbCtrl.el.style.width = '100%';
 		Z.addChildControl(dbCtrl);
+	},
+	
+	/**
+	 * @override
+	 */
+	canFocus: function() {
+		return false;
 	}
 });
 

@@ -19,7 +19,7 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 			colCfg = columns[i];
 			left += colCfg.width + 1;
 		}
-		columns = _tableCtrl.innerColumns
+		columns = _tableCtrl.innerColumns;
 		for(var i = 0, len = columns.length; i < len; i++) {
 			colCfg = columns[i];
 			if(colCfg.field) {
@@ -280,6 +280,10 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			Z.hide();
 			Z._clearFilterBtnStyle();
 		});
+		//prevent to fire the dbtable's keydown event.
+		jqPanel.on('keydown', function(event) {
+       		event.stopImmediatePropagation();
+		});
 		return Z._panel;
 	},
 
@@ -296,9 +300,23 @@ jslet.ui.DBTableFilterPanel.prototype = {
 			return;
 		}
 		var dsFilterExpr = Z._dbtable.dataset().filter();
-		if(dsFilterExpr != Z._currFilterExpr) {
-			Z._clearFilterBtnStyle();
+		if(dsFilterExpr == Z._currFilterExpr) {
+			return;
 		}
+		Z._clearFilterBtnStyle();
+		var filterText = Z._filterDatasetObj.getFilterExprText();
+		var dsFilter = Z._filterDataset;
+		jQuery(Z._dbtable.el).find('button.jl-tbl-filter').each(function(){
+			var fldName = this.getAttribute('jsletfilterfield');
+			var jqFilterBtn = jQuery(this);
+			if(dsFilter.find('[field] == "' + fldName + '" || like([field], "' + fldName + '.%' + '")')) {
+				jqFilterBtn.addClass('jl-tbl-filter-hasfilter');
+			} else {
+				jqFilterBtn.removeClass('jl-tbl-filter-hasfilter');
+			}
+			jqFilterBtn.attr('title', filterText || '');
+		});
+		jQuery(Z._panel).find('.jl-filter-panel-clearall').attr('title', filterText || '');
 	},
 	
 	_setFilterBtnStyle: function() {
@@ -308,13 +326,12 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		var dsFilter = Z._filterDataset;
 		if(dsFilter.find('[field] == "' + Z._currFieldName + '" || like([field], "' + Z._currFieldName + '.%' + '")')) {
 			Z._jqFilterBtn.addClass('jl-tbl-filter-hasfilter');
-			Z._jqFilterBtn[0].title = filterText || '';
 		} else {
-			Z._jqFilterBtn[0].title = '';
 			Z._jqFilterBtn.removeClass('jl-tbl-filter-hasfilter');
 		}
+		Z._jqFilterBtn.attr('title', filterText || '');
 		jQuery(Z._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', filterText || '');
-		jQuery(Z._panel).find('.jl-filter-panel-clearall')[0].title = filterText || '';
+		jQuery(Z._panel).find('.jl-filter-panel-clearall').attr('title', filterText || '');
 	},
 	
 	destroy: function(){

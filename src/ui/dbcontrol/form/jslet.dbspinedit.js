@@ -259,8 +259,11 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.setValueToDataset(val);
 	}, // end decValue
 	
+	/**
+	 * @override
+	 */
 	focus: function() {
-		if(Z._isDisabled()) {
+		if(this._isDisabled()) {
 			return;
 		}
 		this.editor.focus();
