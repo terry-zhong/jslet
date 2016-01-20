@@ -105,6 +105,7 @@
     fldObj.label('ID');
     fldObj.required(true);
     fldObj.displayWidth(6);
+    fldObj.focused(true);
     fldObj.tip('Employee ID must be unique!');
     dsEmployee.addField(fldObj);
 
@@ -113,6 +114,7 @@
     fldObj.required(true);
     fldObj.unique(true);
     fldObj.aggraded(true);
+    fldObj.focused(true);
     fldObj.tip('Name is required and unique');
     dsEmployee.addField(fldObj);
 
@@ -121,6 +123,7 @@
     fldObj.required(false);
     fldObj.displayWidth(16);
     fldObj.nullText('(Empty)');
+    fldObj.focused(true);
     lkf = new jslet.data.FieldLookup();
     lkf.dataset(dsDept);
     fldObj.lookup(lkf);

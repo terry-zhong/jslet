@@ -317,7 +317,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	/**Inner use**/
 	_ctrlRecno: -1,
 	
-	_inTableCtrl: false,
+	_tableId: null,
 	
 	field: function(fldName) {
 		if(fldName === undefined) {
@@ -353,10 +353,14 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	setParams: function ($super, ctrlParams) {
 		$super(ctrlParams);
-		value = ctrlParams.valueIndex;
+		var value = ctrlParams.valueIndex;
 		if (value !== undefined) {
 			this.valueIndex(value);
 		}
+//		value = ctrlParams.tableId;
+//		if(value !== undefined) {
+//			this.tableId(value);
+//		}
 	},
  
 	checkRequiredProperty: function($super) {
@@ -380,7 +384,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	
 	setTabIndex: function(tabIdx) {
 		var Z = this;
-		if(Z._inTableCtrl) {
+		if(Z._tableId) {
 			return;
 		}
 		if(tabIdx !== 0 && !tabIdx) {
@@ -413,11 +417,11 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		this.doValueChanged();
 	},
 	
-	inTableCtrl: function(inTable) {
-		if(inTable === undefined) {
-			return this._inTableCtrl;
+	tableId: function(tableId) {
+		if(tableId === undefined) {
+			return this._tableId;
 		}
-		this._inTableCtrl = inTable;
+		this._tableId = tableId;
 	},
 	
 	getValue: function() {
@@ -502,11 +506,22 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		var	fldObj = Z._dataset.getField(Z._field),
-			flag = fldObj.disabled() || fldObj.readOnly();
+			flag = !fldObj || fldObj.disabled() || fldObj.readOnly() || !fldObj.visible();
 		if(flag) {
 			return;
 		}
-		var el = Z.el;
+		if(Z._tableId) {
+			jslet('#' + Z._tableId).gotoField(Z._field);
+		}
+		this.innerFocus();
+	},
+	
+	/**
+	 * @protected.
+	 */
+	innerFocus: function() {
+		var Z = this,
+			el = Z.el;
 		if (el.focus) {
 			try {
 				el.focus();

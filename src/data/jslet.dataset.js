@@ -109,8 +109,9 @@ jslet.data.Dataset = function (name) {
 	Z.selection = new jslet.data.DataSelection(Z);
 	Z._changeLog = new jslet.data.ChangeLog(Z);
 	Z._dataTransformer = new jslet.data.DataTransformer(Z);
-	Z._followedValue = null;
-
+	Z._followedValues = null;
+	Z._focusedFields = null;
+	
 	Z._lastFindingValue = null;
 	Z._inContextRule = false;
 	
@@ -619,6 +620,7 @@ jslet.data.Dataset.prototype = {
 			}
 			return false; //Identify if cancel traveling or not
 		});
+		this.calcFocusedFields();
 	},
 	
 	/**
@@ -636,24 +638,30 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 
+	addFields: function(arrFldObj) {
+		jslet.Checker.test('Dataset.addFields#arrFldObj', arrFldObj).required().isArray();
+		for(var i = 0, len = arrFldObj.length; i < len; i++) {
+			this.addField(arrFldObj[i], true);
+		}
+		this.refreshDisplayOrder();
+	},
+	
 	/**
 	* Add a new field object.
 	* 
 	* @param {jslet.data.Field} fldObj: field object.
 	*/
-	addField: function (fldObj) {
+	addField: function (fldObj, batchMode) {
 		jslet.Checker.test('Dataset.addField#fldObj', fldObj).required().isClass(jslet.data.Field.className);
 		var Z = this,
 			fldName = fldObj.name();
 		if(Z.getField(fldName)) {
 			Z.removeField(fldName);
 		}
-		Z._fields.push(fldObj);
 		fldObj.dataset(Z);
+		Z._fields.push(fldObj);
 		var dispOrder = fldObj.displayOrder(); 
-		if (dispOrder) {
-			Z._fields.sort(jslet.data.displayOrderComparator);
-		} else {
+		if (!dispOrder) {
 			fldObj.displayOrder(Z._fields.length - 1);
 		}
 		var dataType = fldObj.dataType();
@@ -684,6 +692,10 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		addFormulaField(fldObj);
+		
+		if(!batchMode) {
+			Z.refreshDisplayOrder();
+		}
 		return Z;
 	},
 	
@@ -2008,8 +2020,8 @@ jslet.data.Dataset.prototype = {
 				continue;
 			}
 			
-			if(fldObj.valueFollow() && Z._followedValue) {
-				var fValue = Z._followedValue[fldName];
+			if(fldObj.valueFollow() && Z._followedValues) {
+				var fValue = Z._followedValues[fldName];
 				if(fValue !== undefined) {
 					fldObj.setValue(fValue);
 					continue;
@@ -3152,10 +3164,10 @@ jslet.data.Dataset.prototype = {
 		}
 
 		if(fldObj.valueFollow()) {
-			if(!Z._followedValue) {
-				Z._followedValue = {};
+			if(!Z._followedValues) {
+				Z._followedValues = {};
 			}
-			Z._followedValue[fldName] = value;
+			Z._followedValues[fldName] = value;
 		}
 		Z._refreshProxyField(currRec);
 		//calc other fields' range to use context rule
@@ -3171,6 +3183,28 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 
+	clearFollowedValues: function() {
+		this._followedValues = null;
+	},
+	
+	calcFocusedFields: function() {
+		var Z = this, fldObj;
+		Z._focusedFields = null;
+		for(var i = 0, len = Z._normalFields.length; i < len; i++) {
+			fldObj = Z._normalFields[i];
+			if(fldObj.focused()) {
+				if(!Z._focusedFields) {
+					Z._focusedFields = [];
+				}
+				Z._focusedFields.push(fldObj.name());
+			}
+		}
+	},
+	
+	focusedFields: function() {
+		return this._focusedFields;
+	},
+	
 	_updateLookupRelativeFields: function(fldObj, fldValue) {
 		//Only single value can update relative fields.
 		if(!fldValue || fldObj.valueStyle() !== jslet.data.FieldValueStyle.NORMAL) {
@@ -4788,20 +4822,23 @@ jslet.data.Dataset.prototype = {
 	focusEditControl: function (fldName) {
 		var Z = this,
 			ctrl, el, fldObj;
+		if(jslet.temp.focusing) {
+			return;
+		}
 		for (var i = Z._linkedControls.length - 1; i >= 0; i--) {
 			ctrl = Z._linkedControls[i];
 			if(!ctrl.field) {
 				continue;
 			}
-			if (ctrl.dataset().name() == Z._name && ctrl.field() == fldName) {
-				fldObj = Z.getField(fldName);
-				if(!fldObj || !fldObj.visible() || fldObj.disabled()|| !ctrl.isActiveRecord()) {
-					continue;
-				}
-				if(ctrl.focus) {
+			if (ctrl.field() == fldName) {
+				//Avoid nesting call
+				jslet.temp.focusing = true;
+				try {
 					ctrl.focus();
+				} finally {
+					jslet.temp.focusing = false;
 				}
-			} //end if
+			}
 		} //end for
 	},
 
@@ -5380,16 +5417,17 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 	jslet.Checker.test('createDataset#fieldConfig', fieldConfig).required().isArray();
 	jslet.Checker.test('Dataset.createDataset#datasetCfg', dsCfg).isPlanObject();
 	var dsObj = new jslet.data.Dataset(dsName),
-		fldObj, 
-		fldCfg;
+		fldObj, fldCfg, 
+		arrFldObj = [];
 	for (var i = 0, cnt = fieldConfig.length; i < cnt; i++) {
 		fldCfg = fieldConfig[i];
 		jslet.Checker.test('Dataset.createDataset#fieldCfg', fldCfg).isPlanObject();
 		
 		fldCfg.dsName = dsName;
 		fldObj = jslet.data.createField(fldCfg);
-		dsObj.addField(fldObj);
+		arrFldObj.push(fldObj);
 	}
+	dsObj.addFields(arrFldObj);
 	
 	function setPropValue(propName) {
 		var propValue = dsCfg[propName];

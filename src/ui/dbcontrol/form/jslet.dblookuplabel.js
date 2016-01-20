@@ -49,6 +49,7 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 		 * {String} Return field name.
 		 */
 		Z.returnField;
+		
 		$super(el, params);
 	},
 

@@ -96,13 +96,8 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	focus: function() {
-		var Z = this,
-			fldObj = Z._dataset.getField(Z._field),
-			flag = fldObj.disabled() || fldObj.readOnly();
-		if(flag) {
-			return;
-		}
+	innerFocus: function() {
+		var Z = this;
 		if(Z._textReadOnly) {
 			jQuery(Z.el).find('button').focus();
 		} else {
@@ -140,7 +135,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */ 
 	setTabIndex: function(tabIdx) {
 		var Z = this;
-		if(Z.inTableCtrl()) {
+		if(Z.tableId()) {
 			return;
 		}
 		if(tabIdx !== 0 && !tabIdx) {

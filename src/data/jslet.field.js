@@ -81,6 +81,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._mergeSameBy = null;
 	Z._fixedValue = null;
 	Z._valueFollow = false;
+	Z._focused = false;
 	Z._aggraded = false; //optional value: sum, count, avg
 	Z._aggradedBy = null;
 	
@@ -1532,9 +1533,29 @@ jslet.data.Field.prototype = {
 		}
 		Z._valueFollow = valueFollow? true: false;
 		if(!Z._valueFollow && Z._dataset) {
-			Z._dataset._followedValue = null;
+			Z._dataset.clearFollowedValues();
 		}
 		Z._fireGlobalMetaChangedEvent('valueFollow');
+		return this;
+	},
+
+	/**
+	 * Get or set if the field is focused or not.
+	 * If a field is focused, the input focus will be jumped in them.
+	 * 
+	 * @param {Boolean or undefined} focused true - the field is focused, false -otherwise.
+	 * @return {Boolean or this}
+	 */
+	focused: function(focused) {
+		var Z = this;
+		if(focused === undefined) {
+			return Z._focused;
+		}
+		Z._focused = focused? true: false;
+		if(Z._dataset) {
+			Z._dataset.calcFocusedFields();
+		}
+		Z._fireGlobalMetaChangedEvent('focused');
 		return this;
 	},
 
@@ -1683,6 +1704,7 @@ jslet.data.Field.prototype = {
 		result.fixedValue(Z._fixedValue);
 		
 		result.valueFollow(Z._valueFollow);
+		result.focused(Z._focused);
 		result.aggraded(Z._aggraded);
 		result.aggradedBy(Z._aggradedBy);
 
@@ -1819,6 +1841,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('aggraded');
 
 	setPropValue('valueFollow');
+	setPropValue('focused');
 	setPropValue('aggradedBy');
 	setPropValue('mergeSameBy');
 	setPropValue('fixedValue');

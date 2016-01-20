@@ -33,14 +33,15 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.allProperties = 'styleClass,dataset,field,step';
-		/**
-		 * {Integer} Step value.
-		 */
-		Z._step = 1;
 
+		Z._step = 1;
+		
 		$super(el, params);
 	},
 
+	/**
+	 * {Integer} Step value.
+	 */
 	step: function(step) {
 		if(step === undefined) {
 			return this._step;
@@ -129,7 +130,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */ 
 	setTabIndex: function(tabIdx) {
 		var Z = this;
-		if(Z.inTableCtrl()) {
+		if(Z.tableId()) {
 			return;
 		}
 		
@@ -262,10 +263,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	focus: function() {
-		if(this._isDisabled()) {
-			return;
-		}
+	innerFocus: function() {
 		this.editor.focus();
 	},
 	

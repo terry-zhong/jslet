@@ -20,11 +20,12 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 			left += colCfg.width + 1;
 		}
 		columns = _tableCtrl.innerColumns;
+		var tableId = tableCtrl.el.id;
 		for(var i = 0, len = columns.length; i < len; i++) {
 			colCfg = columns[i];
 			if(colCfg.field) {
 				html += '<td class="jl-edtfld-' + colCfg.field +  '" style="display:none"><div data-jslet=\'type:"DBPlace",dataset:"' + 
-					dsName + '",field:"' + colCfg.field + '"\' class="' + 
+					dsName + '",field:"' + colCfg.field + '", tableId: "' + tableId + '"\' class="' + 
 					colCfg.widthCssName + '"></div></td>';
 			} else {
 				html += '<td><div class="' + colCfg.widthCssName + '"</td>';

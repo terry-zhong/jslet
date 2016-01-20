@@ -50,6 +50,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		 * {Integer} Step
 		 */
 		Z._step = 1;
+		
 		$super(el, params);
 	},
 

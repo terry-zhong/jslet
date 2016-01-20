@@ -760,10 +760,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(colNum > lastColNum) {
 			colNum = lastColNum;
 		}
-		this.currColNum(lastColNum);
-		if(colNum < lastColNum) {
-			this.currColNum(colNum);
-		}
+		this.currColNum(colNum);
 	},
 	
 	/**
@@ -1899,7 +1896,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		jqEl.find('.jl-tbl-contentcol').on('scroll', function () {
 			if(Z._isCurrCellInView()) {
-				Z._showCurrentCell();			
+				//Avoid focusing the current control
+				jslet.temp.focusing = true;
+				try {
+					Z._showCurrentCell();
+				} finally {
+					jslet.temp.focusing = false;
+				}
 			}
 			if(Z._filterPanel) {
 				Z._filterPanel.hide();
@@ -3300,7 +3303,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!isEditable) {
 			return null;
 		}
-        var fldCtrlCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName, inTableCtrl: true};
+        var fldCtrlCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName, tableId: Z.el.id};
 		var editCtrl = jslet.ui.createControl(fldCtrlCfg);
 		editCtrl.ctrlRecno(-2);
 		editCtrl = editCtrl.el;

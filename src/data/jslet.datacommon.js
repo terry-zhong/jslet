@@ -1059,7 +1059,9 @@ jslet.emptyPromise = {
 }
 
 jslet.data.displayOrderComparator = function(fldObj1, fldObj2) {
-	return fldObj1.displayOrder() - fldObj2.displayOrder();
+	var order1 = fldObj1.displayOrder();
+	var order2 = fldObj2.displayOrder();
+	return order1 - order2;
 }
 
 /**

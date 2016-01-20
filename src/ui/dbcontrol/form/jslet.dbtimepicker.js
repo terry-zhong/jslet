@@ -32,8 +32,11 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.allProperties = 'styleClass,dataset,field,is12Hour,hasSecond';
+		
 		Z._is12Hour = false;
+		
 		Z._hasSecond = false;
+		
 		$super(el, params);
 	},
 
@@ -284,7 +287,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	focus: function() {
+	innerFocus: function() {
 		var jqEl = jQuery(Z.el);
 		jqEl.find('.jl-time-hour').focus();
 	},

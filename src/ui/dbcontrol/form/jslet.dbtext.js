@@ -44,6 +44,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._enterProcessed = false;
 		
 		Z._autoSelectAll = true;
+
 		/**
 		 * @private
 		 */
@@ -211,13 +212,6 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
 
-	focus: function() {
-		var jqEl = jQuery(this.el);
-		if(!jqEl.attr('disabled')) {
-			this.el.focus();
-		}
-	},
-	
 	/**
 	 * Select text.
 	 * 

@@ -33,23 +33,22 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.allProperties = 'styleClass,dataset,field,groupField,lookupDataset';
-		/**
-		 * {String} Group field name, you can use this to group options.
-		 * Detail to see html optgroup element.
-		 */
+
 		Z._groupField = null;
 		
-		/**
-		 * {String or jslet.data.Dataset} It will use this dataset to render Select Options.
-		 */
 		Z._lookupDataset = null;
 		
 		Z._enableInvalidTip = true;
 		
 		Z._innerEditFilterExpr;
+		
 		$super(el, params);
 	},
 
+	/**
+	 * {String} Group field name, you can use this to group options.
+	 * Detail to see html optgroup element.
+	 */
 	groupField: function(groupField) {
 		if(groupField === undefined) {
 			return this._groupField;
@@ -59,6 +58,9 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		this._groupField = groupField;
 	},
 	
+	/**
+	 * {String or jslet.data.Dataset} It will use this dataset to render Select Options.
+	 */
 	lookupDataset: function(lookupDataset) {
 		if(lookupDataset === undefined) {
 			return this._lookupDataset;
@@ -396,10 +398,6 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		} else {
 			return true;
 		}
-	},
-	
-	focus: function() {
-		this.el.focus();
 	},
 	
 	/**

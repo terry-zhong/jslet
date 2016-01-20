@@ -38,7 +38,9 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		 * {Integer} Column count
 		 */
 		Z._columnCount = 99999;
+		
 		Z._itemIds = null;
+		
 		$super(el, params);
 	},
 
@@ -212,13 +214,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	focus: function() {
-		var Z = this,
-			fldObj = Z._dataset.getField(Z._field),
-			flag = fldObj.disabled() || fldObj.readOnly();
-		if(flag) {
-			return;
-		}
+	innerFocus: function() {
 		var itemIds = this._itemIds;
 		if (itemIds && itemIds.length > 0) {
 			document.getElementById(itemIds[0]).focus();
