@@ -738,15 +738,34 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	gotoField: function(fldName) {
 		jslet.Checker.test('DBTable.gotoField#fldName', fldName).required().isString();
+		var colNum = this.getColNumByField(fldName);
+		if(colNum >= 0) {
+			this.gotoColumn(colNum);
+		}
+	},
+	
+	getColNumByField: function(fldName) {
 		var lastColNum = this.innerColumns.length - 1,
-			colCfg, colField;
+			colCfg;
 		for(var i = 0; i <= lastColNum; i++) {
 			colCfg = this.innerColumns[i];
-			colField = colCfg.field;
-			if(colField == fldName) {
-				this.gotoColumn(colCfg.colNum);
+			if(colCfg.field == fldName) {
+				return colCfg.colNum;
 			}
 		}
+		return -1;
+	},
+	
+	getFieldByColNum: function(colNum) {
+		var lastColNum = this.innerColumns.length - 1,
+			colCfg;
+		for(var i = 0; i <= lastColNum; i++) {
+			colCfg = this.innerColumns[i];
+			if(colCfg.colNum == colNum) {
+				return colCfg.field;
+			}
+		}
+		return null;
 	},
 	
 	/**
@@ -928,17 +947,34 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						return;
 					}
 				}
-				var lastColNum = Z.innerColumns.length - 1, 
-					num;
-				if(Z._currColNum === 0) {
-					if(Z._dataset.recno() > 0) {
-						Z._dataset.prior();
-						num = lastColNum;
+				var fldName = Z.getFieldByColNum(Z._currColNum), 
+					lastColNum, num, 
+					focusedFields = Z._dataset.focusedFields();
+				if(fldName && focusedFields && focusedFields.indexOf(fldName) >=0) {
+					var idx = focusedFields.indexOf(fldName);
+					if(idx === 0) {
+						if(Z._dataset.recno() > 0) {
+							Z._dataset.prior();
+							fldName = focusedFields[focusedFields.length - 1];;
+						} else {
+							return;
+						}
 					} else {
-						return;
+						fldName = focusedFields[idx - 1];
 					}
+					num = Z.getColNumByField(fldName);
 				} else {
-					num = Z._currColNum - 1;
+					lastColNum = Z.innerColumns.length - 1;
+					if(Z._currColNum === 0) {
+						if(Z._dataset.recno() > 0) {
+							Z._dataset.prior();
+							num = lastColNum;
+						} else {
+							return;
+						}
+					} else {
+						num = Z._currColNum - 1;
+					}
 				}
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
@@ -951,16 +987,33 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						return;
 					}
 				}
-				var lastColNum = Z.innerColumns.length - 1, 
-					num = 0;
-				if(Z._currColNum < lastColNum) {
-					num = Z._currColNum + 1;
-				} else {
-					if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
-						return;
+				var fldName = Z.getFieldByColNum(Z._currColNum), 
+					lastColNum, num, 
+					focusedFields = Z._dataset.focusedFields();
+				if(fldName && focusedFields && focusedFields.indexOf(fldName) >=0) {
+					var idx = focusedFields.indexOf(fldName);
+					if(idx === focusedFields.length - 1) {
+						if(Z._dataset.recno() < Z._dataset.recordCount() - 1) {
+							Z._dataset.next();
+							fldName = focusedFields[0];;
+						} else {
+							return;
+						}
+					} else {
+						fldName = focusedFields[idx + 1];
 					}
-					Z._dataset.next();
-					num = 0;
+					num = Z.getColNumByField(fldName);
+				} else {
+					lastColNum = Z.innerColumns.length - 1;
+					if(Z._currColNum < lastColNum) {
+						num = Z._currColNum + 1;
+					} else {
+						if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
+							return;
+						}
+						Z._dataset.next();
+						num = 0;
+					}
 				}
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
@@ -2045,17 +2098,18 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._dataset.designMode(false);
 			}
 		}
+		var currField = Z.getFieldByColNum(Z._currColNum);
 		var headRows = Z.rightHeadTbl.createTHead().rows;
 		Z._changeColNum(headRows[headRows.length - 1], srcStart, srcEnd, destStart, destEnd);
 		var dataRows = Z.rightContentTbl.tBodies[0].rows;
 		Z._changeColNum(dataRows[0], srcStart, srcEnd, destStart, destEnd);
-		Z._currColNum = 0;
 		moveOneTableColumn(headRows, rowIndex, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightFixedTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(dataRows, 0, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightFootTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 		Z._dataset.selection.removeAll();
 		Z._refreshSelection();
+    	Z.gotoField(currField);
 	},
 	
 	_changeColNum: function(rowObj, srcStart, srcEnd, destStart, destEnd) {
@@ -2833,7 +2887,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				jQuery(sameNode.cell).attr('rowspan', sameNode.count);
 			}
 		}
-
 		var cellRender = colCfg.cellRender || Z._defaultCellRender;
 		if (cellRender && cellRender.refreshCell) {
 			cellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
@@ -2844,6 +2897,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				jslet.ui.DBTable.editableCellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
 			} else {
 				jslet.ui.DBTable.defaultCellRender.refreshCell.call(Z, cellPanel, colCfg, recNo);
+			}
+		}
+		if(fldName) {
+			var errObj = Z._dataset.getFieldErrorByRecno(recNo, fldName);
+			var jqTd = jQuery(otd);
+			var title = cellPanel.title;
+			if(errObj && errObj.message) {
+				if(!jqTd.hasClass('has-error')) {
+					jqTd.addClass('has-error');
+				}
+				cellPanel.title = errObj.message;
+			} else {
+				if(jqTd.hasClass('has-error')) {
+					jqTd.removeClass('has-error');
+				}
 			}
 		}
 	},

@@ -311,7 +311,7 @@
     width: 16px;
 }
 
-.jl-table .jl-tbl-sequence.has-error,
+.jl-table .has-error,
 .jl-table .has-error .form-control {
 	background-color: #a94442!important;
 	color: white!important;
@@ -352,14 +352,10 @@
 .jl-tbl-edittable {
 	border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid transparent;
-	height: auto;
+    border: 0;
+	height: 100%;
 }
 
 .jl-tbl-edittable td {
 	background-color: #fff;
-}
-
-.jl-tbl-edittable .jl-tbl-editrow {
-	height: 35px;
 }

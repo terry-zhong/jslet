@@ -3376,6 +3376,15 @@ jslet.data.Dataset.prototype = {
 		var currRec = dataRec, 
 			k = fldName.indexOf('.'), 
 			fldObj, value;
+		
+		var errObj = jslet.data.FieldError.get(currRec, fldName, valueIndex);
+		if(errObj && errObj.message) {
+			var inputText = errObj.inputText;
+			if(inputText !== undefined && inputText !== null) {
+				return inputText;
+			}
+		}
+		
 		Z._refreshProxyField(currRec);
 		if (k > 0) { //Field chain
 			var subFldName = fldName.substr(0, k);

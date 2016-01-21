@@ -155,6 +155,7 @@
     fldObj.label('Birthday');
     fldObj.displayFormat('yyyy-MM-dd');
     fldObj.dataRange({ min: new Date(1960, 1, 1) });
+    fldObj.focused(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('position', 10);
@@ -190,6 +191,7 @@
     fldObj = jslet.data.createStringField('photo', 10);
     fldObj.label('Photo');
     fldObj.visible(true);
+    fldObj.focused(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('officephone', 12);

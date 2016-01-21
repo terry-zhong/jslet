@@ -10,7 +10,7 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 	var _currField;
 	
 	function _create() { 
-		var html = '<div class="jl-tbl-editpanel"><table class="jl-tbl-edittable"><tbody><tr class="jl-tbl-editrow">';
+		var html = '<div class="form-group form-group-sm jl-tbl-editpanel"><table class="jl-tbl-edittable"><tbody><tr class="jl-tbl-editrow">';
 		var columns = _tableCtrl._sysColumns, colCfg,
 			dsName = tableCtrl.dataset().name(),
 			left = 1;
@@ -37,6 +37,7 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		jqPanel.css('left', left + 'px');
 		jslet.ui.install(jqPanel[0]);
 		_editPanel = jqPanel;
+		jqPanel.height(_tableCtrl.rowHeight());
 	} 
 	
 	_create();
