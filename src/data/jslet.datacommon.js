@@ -9,6 +9,7 @@
  * keep all dataset object,
  * key for dataset name, value for dataset object
  */
+"use strict";
 
 jslet.data.dataModule = new jslet.SimpleMap();
 /**
@@ -1257,7 +1258,7 @@ jslet.data.DataSelection.prototype = {
 	},
 	
 	_selectCell: function(recno, fldName, selected) {
-		var selObj
+		var selObj,
 			found = false;
 		for(var i = 0, len = this._selection.length; i < len; i++) {
 			selObj = this._selection[i];

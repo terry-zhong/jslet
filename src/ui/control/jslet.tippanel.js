@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
 * @class TipPanel. Example:

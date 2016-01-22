@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class DBSelect. Example:
@@ -343,8 +344,8 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return;
 		}
 		var optCnt = Z.el.options.length, 
-			opt, i;
-		for (i = 0; i < optCnt; i++) {
+			opt;
+		for (var i = 0; i < optCnt; i++) {
 			opt = Z.el.options[i];
 			if (opt) {
 				opt.selected = false;
@@ -371,10 +372,10 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var vcnt = arrValue.length - 1, selected;
 			Z._skipRefresh = true;
 			try {
-				for (i = 0; i < optCnt; i++) {
+				for (var i = 0; i < optCnt; i++) {
 					opt = Z.el.options[i];
 
-					for (j = vcnt; j >= 0; j--) {
+					for (var j = vcnt; j >= 0; j--) {
 						selected = (arrValue[j] == opt.value);
 						if (selected) {
 							opt.selected = selected;

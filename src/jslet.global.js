@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 if (!jslet.rootUri) {
     var ohead = document.getElementsByTagName('head')[0], 

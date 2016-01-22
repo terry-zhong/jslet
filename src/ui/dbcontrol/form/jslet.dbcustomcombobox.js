@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
 * @class DBCustomComboBox: used in jslet.ui.DBComboDlg and jslet.ui.DBDatePicker
@@ -139,7 +140,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return;
 		}
 		if(tabIdx !== 0 && !tabIdx) {
-			fldObj = Z._dataset.getField(Z._field);
+			var fldObj = Z._dataset.getField(Z._field);
 			if(fldObj) {
 				tabIdx = fldObj.tabIndex();
 			}

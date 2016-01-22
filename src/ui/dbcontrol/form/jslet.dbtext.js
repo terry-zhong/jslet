@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class DBText is a powerful control, it can input any data type, like:
@@ -295,9 +296,9 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 					Z.editMask = new jslet.ui.EditMask();
 					Z.editMask.attach(Z.el);
 				}
-				mask = editMaskCfg.mask;
-				keepChar = editMaskCfg.keepChar;
-				transform = editMaskCfg.transform;
+				var mask = editMaskCfg.mask,
+					keepChar = editMaskCfg.keepChar,
+					transform = editMaskCfg.transform;
 				Z.editMask.setMask(mask, keepChar, transform);
 			} else {
 				if(Z.editMask) {
@@ -343,7 +344,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.el.style.textAlign = align;
 		var value;
 		if (Z.editMask){
-			value = Z.getValue();
+			value = Z.getText();
 			Z.editMask.setValue(value);
 		} else {
 			if (document.activeElement != Z.el || Z.el.readOnly || Z._isBluring) {

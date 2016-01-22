@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
 * DBEditPanel
@@ -209,7 +210,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		var layouts = Z._calcLayout();
 		//calc max label width
 			
-		var r = -1, oLabel, editorCfg, fldName, fldObj, ohr, octrlDiv, opanel, ctrlId, dbCtrl;
+		var layout, dbctrl, editor, r = -1, oLabel, editorCfg, fldName, fldObj, ohr, octrlDiv, opanel, ctrlId, dbCtrl;
 		for (var i = 0, cnt = layouts.length; i < cnt; i++) {
 			layout = layouts[i];
 			if (layout.showLine) {

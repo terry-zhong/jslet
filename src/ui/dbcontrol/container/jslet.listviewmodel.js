@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * Inner Class for DBTable and DBTreeView control
@@ -56,7 +57,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				pnodes = [], 
 				node, pnode, 
 				tmpNode, tmpKeyValue,
-				currRec, state;
+				currRec, state, keyValue;
 			for(var recno = 0, recCnt = ds.recordCount(); recno < recCnt; recno++) {
 				ds.recnoSilence(recno);
 				keyValue = ds.keyValue();

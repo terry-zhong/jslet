@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class DBTimePicker is used for time inputting. Example:
@@ -188,7 +189,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 			jqMinute = jqEl.find('.jl-time-minute');
 		
 		if(Z._is12Hour) {
-			jqAmPm = jqEl.find('.jl-time-ampm');
+			var jqAmPm = jqEl.find('.jl-time-ampm');
 			jqAmPm.prop('selectedIndex', hour < 12 ? 0: 1);
 			if(hour > 11) {
 				hour -= 12;

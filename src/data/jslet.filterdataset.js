@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 jslet.data.FilterDataset = function(hostDataset) {
 	if(!jslet.data.getDataset('ds_logical_opr_')) {

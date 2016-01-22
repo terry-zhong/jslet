@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class Field 
@@ -1072,7 +1073,7 @@ jslet.data.Field.prototype = {
 		}
 		var hostDs = Z._dataset.name(),
 			hostField = Z._fieldName,
-			relationType;
+			relationType, lkDsName;
 
 		if(Z._subDataset) {
 			lkDsName = Z._getDatasetName(Z._subDataset);
@@ -1138,8 +1139,7 @@ jslet.data.Field.prototype = {
 		}
 		
 		var oldSubDsName = Z._getDatasetName(Z._subDataset),
-		 	newSubDsName = Z._getDatasetName(subdataset),
-		 	needProcessRelation = (oldSubDsName != newSubDsName);
+		 	newSubDsName = Z._getDatasetName(subdataset);
 		var subDsObj = subdataset;
 		if (jslet.isString(subDsObj)) {
 			subDsObj = jslet.data.getDataset(subDsObj);
@@ -1147,9 +1147,11 @@ jslet.data.Field.prototype = {
 				jslet.data.onCreatingDataset(subdataset, jslet.data.DatasetType.DETAIL, null, Z._dsName); //1 - sub dataset
 			}
 		}
-		if(needProcessRelation) {
-			Z._removeRelation();
+		Z._subDataset = subdataset;
+		if(!Z._dataset) {
+			return this;
 		}
+		Z._removeRelation();
 		if(subDsObj) {
 			jslet.Checker.test('Field.subDataset', subDsObj).isClass(jslet.data.Dataset.className);		
 			if (Z._subDataset && Z._subDataset.datasetField) {
@@ -1158,12 +1160,9 @@ jslet.data.Field.prototype = {
 			Z._subDataset = subDsObj;
 			Z._subDsParsed = true;
 		} else {
-			Z._subDataset = subdataset;
 			Z._subDsParsed = false;
 		}
-		if(needProcessRelation) {
-			Z._addRelation();
-		}
+		Z._addRelation();
 		return this;
 	},
 
@@ -1861,7 +1860,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	var lkfCfg = cfg.lookup;
 	if(lkfCfg === undefined) {
-		var lkDataset = cfg.lookupSource || cfg.lookupsource || cfg.lookupDataset || cfg.lookupdataset;
+		var lkDataset = cfg.lookupSource || cfg.lookupsource || cfg.lookupDataset || cfg.lookupdataset,
 			lkParam = cfg.lookupParam || cfg.lookupparam,
 			realDataset = cfg.realSource || cfg.realsource || cfg.realDataset || cfg.realdataset;
 		if(lkDataset) {

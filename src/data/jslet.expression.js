@@ -16,6 +16,8 @@
  * @param {jselt.data.Dataset} dataset dataset that use to evalute.
  * @param {String} expre Expression
  */
+"use strict";
+
 jslet.Expression = function(dataset, expr) {
 	jslet.Checker.test('jslet.Expression#dataset', dataset).required();
 	jslet.Checker.test('jslet.Expression#expr', expr).required().isString();
@@ -144,12 +146,14 @@ jslet.Expression.prototype = {
 		var like = jslet.like;
 		var between = jslet.between;
 		var inlist = jslet.inlist;
-		var inChildren = inchildren = function(fldName, parentValue, onlyDirectChild) {
+		var inchildren = function(fldName, parentValue, onlyDirectChild) {
 			return context.mainds.inChildren(fldName, parentValue, onlyDirectChild);
 		};
-		var inChildrenAndSelf = inchildrenandself = function(fldName, parentValue, onlyDirectChild) {
+		var inChildren = inchildren;
+		var inchildrenandself = function(fldName, parentValue, onlyDirectChild) {
 			return context.mainds.inChildrenAndSelf(fldName, parentValue, onlyDirectChild);
-		}; 
+		};
+		var inChildrenAndSelf = inchildrenandself;
 		return eval(this._parsedExpr);
 	},
 	

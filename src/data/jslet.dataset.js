@@ -10,6 +10,8 @@
  * 
  * @param {String} name dataset's name that must be unique in jslet.data.dataModule variable.
  */
+"use strict";
+
 jslet.data.Dataset = function (name) {
 	
 	var Z = this;
@@ -620,6 +622,7 @@ jslet.data.Dataset.prototype = {
 			}
 			return false; //Identify if cancel traveling or not
 		});
+		this._normalFields = arrFields;
 		this.calcFocusedFields();
 	},
 	
@@ -1041,7 +1044,7 @@ jslet.data.Dataset.prototype = {
 			fname, fldObj, arrFName, indexNameObj, 
 			order = 1;//asce
 		var result = [];
-		for (i = 0, cnt = arrFields.length; i < cnt; i++) {
+		for (var i = 0, cnt = arrFields.length; i < cnt; i++) {
 			fname = jQuery.trim(arrFields[i]);
 			arrFName = fname.split(' ');
 			if (arrFName.length == 1) {
@@ -1725,7 +1728,9 @@ jslet.data.Dataset.prototype = {
 			context = Z.startSilenceMove(true),
 			found = false,
 			parentKeys = [],
-			currPKey, lastPKey = prePKey = Z.keyValue();
+			currPKey, 
+			prePKey = Z.keyValue(),
+			lastPKey = prePKey;
 		try {
 			Z.next();
 			while (!Z.isEof()) {
@@ -2223,7 +2228,7 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		evt = jslet.data.RefreshEvent.aggradedEvent();
+		var evt = jslet.data.RefreshEvent.aggradedEvent();
 		Z.refreshControl(evt);
 	},
 	
@@ -2386,9 +2391,10 @@ jslet.data.Dataset.prototype = {
 		if (!Z._parentField) {
 			return;
 		}
-		var context = Z.startSilenceMove();
-		var rootValue = preKeyValue = Z.keyValue();
-		var arrPValues = [];
+		var context = Z.startSilenceMove(),
+			preKeyValue = Z.keyValue(),
+			rootValue = preKeyValue,
+			arrPValues = [];
 		try {
 			Z.next();
 			var keyValue, pValue, isExist;
@@ -3264,7 +3270,7 @@ jslet.data.Dataset.prototype = {
 		if (!Z._innerFormularFields) {
 			Z._innerFormularFields = new jslet.SimpleMap();
 		}
-		evaluator = new jslet.Expression(Z, formula);
+		var evaluator = new jslet.Expression(Z, formula);
 		Z._innerFormularFields.set(fldName, evaluator);
 		Z._calcFormulaRelation();
 	},
@@ -3821,7 +3827,7 @@ jslet.data.Dataset.prototype = {
 		if(jslet.compareValue(fldValue, parentValue) === 0) {
 			return true;
 		}
-		return inchildren(fldName, parentValue, onlyDirectChildren);
+		return this.inChildren(fldName, parentValue, onlyDirectChildren);
 	},
 	
 	/**
@@ -5379,7 +5385,7 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
 	var dataList = [];
 	if(jslet.isString(enumStrOrObj)) {
 		var enumStr = jQuery.trim(enumStrOrObj);
-		var recs = enumStr.split(','), recstr;
+		var recs = enumStr.split(','), recstr, rec;
 		for (var i = 0, cnt = recs.length; i < cnt; i++) {
 			recstr = jQuery.trim(recs[i]);
 			rec = recstr.split(':');
@@ -5601,16 +5607,16 @@ jslet.data.ChangeLog.prototype = {
 		  	chgRecords;
 		if(masterFldObj) {
 			var masterFldName = masterFldObj.name(),
-				masterDsObj = masterFldObj.dataset();
+				masterDsObj = masterFldObj.dataset(),
 				masterRecInfo = jslet.data.getRecInfo(masterDsObj.getRecord());
-				if(!masterRecInfo.subLog) {
-					masterRecInfo.subLog = {};
-				}
-				chgRecords = masterRecInfo.subLog[masterFldName];
-				if(!chgRecords) {
-					chgRecords = [];
-					masterRecInfo.subLog[masterFldName] = chgRecords;
-				}
+			if(!masterRecInfo.subLog) {
+				masterRecInfo.subLog = {};
+			}
+			chgRecords = masterRecInfo.subLog[masterFldName];
+			if(!chgRecords) {
+				chgRecords = [];
+				masterRecInfo.subLog[masterFldName] = chgRecords;
+			}
 		} else {
 			if(!this._changedRecords) {
 				this._changedRecords = [];

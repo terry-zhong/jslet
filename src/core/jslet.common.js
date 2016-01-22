@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 if (window.jslet === undefined || jslet === undefined){
 	/**
@@ -629,7 +630,8 @@ jslet.between = function(testValue, minValue, maxValue) {
 	if (arguments.length <= 1) {
 		return false;
 	}
-	var flagMin = flagMax = true;
+	var flagMin = true,
+		flagMax = true;
 	if(minValue != null && minValue !== undefined) { 
 		flagMin = (jslet.compareValue(testValue, minValue) >= 0);
 	}

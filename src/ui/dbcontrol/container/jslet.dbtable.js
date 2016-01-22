@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 jslet.ui.htmlclass.TABLECLASS = {
 	currentrow: 'jl-tbl-current',
@@ -1421,7 +1422,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!fldObj.visible()) {
 			return false;
 		}
-		var level = 0;
+		var level = 0, heads;
 		if (!parentHeadObj){
 			heads = Z.innerHeads;
 		} else {
@@ -1465,7 +1466,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			cobj.mergeSame = fldObj.mergeSame();
 			cobj.colNum = ohead.colNum;
 			if (!cobj.width){
-				maxWidth = fldObj ? fldObj.displayWidth() : 0;
+				var maxWidth = fldObj ? fldObj.displayWidth() : 0;
 				if (!Z._hideHead && cobj.label) {
 					maxWidth = Math.max(maxWidth, cobj.label.length);
 				}
@@ -1771,7 +1772,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return false;
 		});
 		
-		dragTransfer = null;
+		var dragTransfer = null;
 		jqRightHead.on('dragstart', '.jl-focusable-item', function(event){
 			if(Z._filterPanel) {
 				Z._filterPanel.hide();
@@ -1800,7 +1801,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var	srcFldName = dragTransfer.fieldName,
 				currFldName = colCfg.field,
 				srcPFldObj = Z._dataset.getField(srcFldName).parent(),
-				currPFldObj = Z._dataset.getField(currFldName).parent();
+				currPFldObj = currFldName && Z._dataset.getField(currFldName).parent();
 			result = (srcPFldObj === currPFldObj || (currPFldObj && srcPFldObj.name() == currPFldObj.name()));
 			return result;
 		}
@@ -2949,6 +2950,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._onFillRow) {
 				Z._onFillRow.call(Z, otr, Z._dataset);
 			}
+			var ocheck
 			for (var j = 0, clen = cells.length; j < clen; j++) {
 				otd = cells[j];
 				colCfg = otd.jsletColCfg;
@@ -3098,7 +3100,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return false; 
 		}
 		var containerWidth = jqContentPanel.innerWidth(),
-			contentWidth = jqContentPanel.find('.jl-tbl-content-div').width();
+			contentWidth = jqContentPanel.find('.jl-tbl-content-div').width(),
 			scrWidth = 0;
 		for(var i = Z.innerColumns.length - 1; i > Z._currColNum; i--) {
 			scrWidth += (Z.innerColumns[i].width + borderW); //"2" is the cell border's width(left+right)

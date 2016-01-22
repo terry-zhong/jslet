@@ -26,6 +26,8 @@
 * </code></pre>
 * 
 */
+"use strict";
+
 jslet.MessageBus = function () {
 	var _messages = {};
 	//SizeChanged is predefined message

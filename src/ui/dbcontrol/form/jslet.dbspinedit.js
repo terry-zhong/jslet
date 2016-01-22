@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class DBSpinEdit. 
@@ -135,7 +136,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		
 		if(tabIdx !== 0 && !tabIdx) {
-			fldObj = Z._dataset.getField(Z._field);
+			var fldObj = Z._dataset.getField(Z._field);
 			if(fldObj) {
 				tabIdx = fldObj.tabIndex();
 			}
@@ -216,7 +217,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			val = maxValue;
 		}
 		if (val > maxValue) {
-			value = maxValue;
+			val = maxValue;
 		}
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.setValueToDataset(val);
@@ -290,7 +291,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		}
 		if(!metaName || metaName == 'dataRange') {
-			range = fldObj.dataRange();
+			var range = fldObj.dataRange();
 			jqEl.attr('aria-valuemin', range && (range.min || range.min === 0) ? range.min: '');
 			jqEl.attr('aria-valuemin', range && (range.max || range.max === 0) ? range.max: '');
 		}

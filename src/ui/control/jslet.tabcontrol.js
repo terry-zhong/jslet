@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class TabControl. Example:
@@ -222,7 +223,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			jqEl.addClass('jl-tabcontrol jl-round5');
 		jqEl.html(template.join(''));
 		if (Z._newable) {
-			oul = jqEl.find('.jl-tab-list')[0];
+			var oul = jqEl.find('.jl-tab-list')[0];
 			var newTab = oul.childNodes[oul.childNodes.length - 1];
 			Z._newTabItem = newTab;
 			

@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class Split Panel. Example:
@@ -343,8 +344,8 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		Z.splitterTracker.style.top = pos.top + 'px';
 		Z.splitterTracker.style.left = pos.left + 'px';
 		Z.draggingId = this.id;
-		var jqSplitter = jQuery('#'+Z.draggingId);
-		jqBtn = jqSplitter.find(':first-child');
+		var jqSplitter = jQuery('#'+Z.draggingId),
+			jqBtn = jqSplitter.find(':first-child');
 		if(jqBtn.attr('jsletcollapsed')=='1') { //Collapsed
 			jqBtn.click();
 			return;

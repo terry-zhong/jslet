@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class Calendar. Example:
@@ -117,8 +118,8 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 	 * @override
 	 */
 	renderAll: function () {
-		var Z = this;
-		jqEl = jQuery(Z.el);
+		var Z = this,
+			jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-calendar')) {
 			jqEl.addClass('jl-calendar panel panel-default');
 		}
@@ -403,6 +404,7 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		var currM = Z._value.getMonth(),
 			currY = Z._value.getFullYear(),
 			currD = Z._value.getDate(),
+			jqEl = jQuery(Z.el),
 			otable = jqEl.find('.jl-cal-body table')[0],
 			rows = otable.tBodies[0].rows,
 			rowCnt = rows.length, otr, otd, m, d, y, date, jqLink;

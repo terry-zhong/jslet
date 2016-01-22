@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 /**
  * @class DBInspector. 
@@ -36,14 +37,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this;
 		Z.allProperties = 'styleClass,dataset,columnCount,fields';
 		
-		/**
-		 * {Integer} Column count
-		 */
 		Z._columnCount = 1;
-		/**
-		 * {Integer} Row height
-		 */
-		Z._rowHeight = 30;
 		
 		Z._fields = null;
 		
@@ -52,6 +46,9 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		$super(el, params);
 	},
 	
+	/**
+	 * {Integer} Column count
+	 */
 	columnCount: function(columnCount) {
 		if(columnCount === undefined) {
 			return this._columnCount;

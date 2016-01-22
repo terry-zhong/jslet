@@ -8,9 +8,9 @@
  * Released under the MIT license
  *
  */
-(function($){
-	'use strict';
+"use strict";
 
+(function($){
 	/**
 	 * Focusses the next :focusable element. Elements with tabindex=-1 are focusable, but not tabable.
 	 * Does not take into account that the taborder might be different as the :tabbable elements order

@@ -4,6 +4,7 @@
  * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
  * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
  * ======================================================================== */
+"use strict";
 
 if(!jslet.ui) {
 	jslet.ui = {};
@@ -206,8 +207,12 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 	 * @return {Boolean} if refresh successfully, return true, otherwise false.
 	 */
 	refreshControl: function (evt, isForce) {
-		var Z = this,
+		var Z = this, evtType;
+		if(evt) {
 			evtType = evt.eventType;
+		} else {
+			evtType = jslet.data.RefreshEvent.UPDATEALL
+		}
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
 			var metaName = evt.metaName,
@@ -248,7 +253,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		if((evtType == jslet.data.RefreshEvent.UPDATERECORD ||
 			evtType == jslet.data.RefreshEvent.UPDATECOLUMN) && 
-			evt.fieldName === undefined || evt.fieldName == Z._field){
+			evt.fieldName === undefined || evt && evt.fieldName == Z._field){
 			Z.doValueChanged();
 			return true;
 		}
@@ -388,7 +393,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		if(tabIdx !== 0 && !tabIdx) {
-			fldObj = Z._dataset.getField(Z._field);
+			var fldObj = Z._dataset.getField(Z._field);
 			if(fldObj) {
 				tabIdx = fldObj.tabIndex();
 			}
