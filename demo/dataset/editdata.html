@@ -34,9 +34,6 @@
             }
         }
 
-        function apply() {
-        	dsEmployee.submitUrl('xxx').submit();
-        }
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -58,7 +55,7 @@
     <button class="btn btn-primary" onclick="dsEmployee.deleteSelected();"> Delete Selected </button>
     <button class="btn btn-primary" onclick="dsEmployee.confirm();"> Confirm </button>
     <button class="btn btn-primary" onclick="dsEmployee.cancel();"> Cancel </button>
-    <button class="btn btn-primary" onclick="apply();" title="Submit data to server"> Submit Changes</button>
+    <a class="btn btn-primary" href="../server/basic.html">Submit changes to server(Jump to another page)</a>
     </div>
 	
 	

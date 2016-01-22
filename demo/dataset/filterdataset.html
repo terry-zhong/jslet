@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jslet dataset edit data">
+    <title>Jslet - Filter Dataset</title>
+    <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
+    <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
+    <script type="text/javascript">
+        jslet.define('employee', '../js/employee.js', 'jslet');
+        jslet.require('jslet,employee', function () {
+            initialize();
+        });
+
+        function initialize() {
+           
+           	var x = new jslet.data.FilterDataset('employee');
+           	dsFilter = x.filterDataset();
+           	//dsFilter.appendRecord();
+           	dsFilter.dataList([
+           	 {field: 'department', dataType: 'H', operator: 'select', value: ['00', '01'], logicalOpr: 'and'},
+           	 {field: 'name', dataType: 'S', operator: '==', value: 'tom', logicalOpr: 'and'}
+           	 ])
+
+             var navigation = ['field', 'value'];
+    	    jslet.ui.rootFocusManager.onChangingFocus(function(ele, reverse, dataset, fieldName) {
+                if ((fieldName  && fieldName == navigation[navigation.length-1])) { //最后一个字段时
+                	jslet('#tblFilter').gotoField(navigation[0]);
+                	//dsFilter.focusEditControl(navigation[0]); //切换焦点到第一个字段
+                    return false;
+                }
+                return true;
+            });
+        
+        }
+
+    </script>
+</head>
+<body onunload="jslet.ui.uninstall()">
+	<div class="container-fluid">
+	<!--[if lt IE 8]>
+	<p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+	<![endif]-->
+	<div class="page-header" id="top">
+		<h2>Jslet - Filter Dataset</h2>
+		<p class="lead">Demonstrate how to use filter dataset to filter data.</p>
+	</div>
+    <h4>Data Filter List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</h4>
+    <div id="tblFilter" data-jslet='type:"DBTable",dataset:dsFilter,hasSelectCol:true,readOnly:false' style="width: 100%; height: 200px"></div>
+	<br />
+	<div class="padding-top: 10px">
+	    <button class="btn btn-primary" onclick="dsFilter.insertRecord();"  title='Add record after current cursor'> Insert </button>
+	    <button class="btn btn-primary" onclick="dsFilter.appendRecord();" title='Add record after last record'> Append </button>
+	    <button class="btn btn-primary" onclick="dsFilter.editRecord();"> Edit </button>
+	    <button class="btn btn-primary" onclick="dsFilter.deleteRecord();"> Delete </button>
+	    <button class="btn btn-primary" onclick="dsFilter.deleteSelected();"> Delete Selected </button>
+	    <button class="btn btn-primary" onclick="dsFilter.confirm();"> Confirm </button>
+	    <button class="btn btn-primary" onclick="dsFilter.cancel();"> Cancel </button>
+	    <button class="btn btn-primary" onclick="dsFilter.cancel();"> Cancel </button>
+	    <button class="btn btn-primary" onclick="apply();" title="Submit data to server"> Submit Changes</button>
+    </div>
+	<label data-jslet="type: 'dbdatalabel',dataset: dsFilter, field: 'value'"></label>
+	<hr />
+	<section>
+	<h3>Demo Comments:</h3>
+	<div class="cotent">
+		<ol>
+		<li>Change the field value of "Filter Field", check the change of field 'value' ;</li>
+		</ol>
+	</div>
+	</section>
+	<!-- Source Code 
+	<script type="text/javascript" src="../source/demosource.js?height=1050"></script>
+	-->
+	</div>
+</body>
+</html>

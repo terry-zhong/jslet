@@ -54,7 +54,7 @@
           };
         //DBTable configuration
         var tblCfg = { type: "DBTable", dataset: "employee", onlySpecifiedCol: true,rowHeight:28,
-            columns: [{ field: "workerid" }, { field: "name" }, { field: "age" }, {cellRender: commandCellRender,width:50}]
+            columns: [{ field: "workerid" }, { field: "name" }, { field: "age" }, {cellRender: commandCellRender,width:50,displayOrder: 999}]
         };
         jslet.define("employee", "../../js/employee.js");
         jslet.require("jslet,employee");

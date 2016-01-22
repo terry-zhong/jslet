@@ -14,6 +14,10 @@
     	.winicon{
 			background:transparent url('images/favicon.png');
     	}
+    	
+    	.test .jl-win-header {
+    		color: red!important;
+    	}
     </style>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -52,13 +56,13 @@
     <script type="text/javascript">
         //Open window in "Body"
         function openwin1(event) {
-            owin = jslet.ui.createControl({ type: "Window", iconClass:"winicon", caption: "<i>test window</i>", minimizable: false, maximizable:false,onActive: doWinActive, onPositionChanged: doPositionChanged });
+            owin = jslet.ui.createControl({ type: "Window", styleClass: 'test', animation: 'slide', iconClass:"winicon", caption: "<i>test window</i>", minimizable: false, maximizable:false,onActive: doWinActive, onPositionChanged: doPositionChanged });
             owin.setContent("Open modeless window in the Body(with icon)!");
             owin.show(350,250);
         }
 
         function openwin2(event) {
-            owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive }, $("#con")[0]);
+            owin = jslet.ui.createControl({ type: "Window", animation: 'slide',  caption: "<i>child window</i>", onActive: doWinActive }, $("#con")[0]);
             owin.setContent("Open modeless window in one Div");
             owin.show(150, 50);
         }

@@ -29,7 +29,7 @@
         }
 
         function doClick() {
-			var dataset = jslet('#trvRegion').dataset;
+			var dataset = jslet('#trvRegion').dataset();
 			var info = '[' + dataset.getFieldValue('name') + '] clicked!';
 			$('#info').html(info);
         }
