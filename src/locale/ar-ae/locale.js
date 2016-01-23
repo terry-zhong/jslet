@@ -32,7 +32,7 @@
 		lookupFieldExpected: 'Field: {0} must be lookup field!',
 		invalidLookupField: 'Invalid lookup field: {0}!',
 		invalidContextRule: 'Invalid context rule in field: [{0}]!',
-		fieldValueRequired: '[{0}] cannot be null!',
+		fieldValueRequired: 'Value required!',
 		invalidFieldTranslate: 'Properties: displayValueField and inputValueField required in field: {0}!',
 		translateListenerRequired: 'Event listener: translateListener required!',
 		minMaxValueError: 'Min value must less than and equal to max value in Field: [{0}]!',

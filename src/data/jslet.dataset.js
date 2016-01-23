@@ -2667,6 +2667,36 @@ jslet.data.Dataset.prototype = {
 		return jslet.data.FieldError.existRecordError(this.getRecord(recno), checkingFields);
 	},
 	
+	getRecordErrorInfo: function(recno, checkingFields) {
+		var record = this.getRecord(recno);
+		if(!this.existRecordError) {
+			return '';
+		}
+		var recInfo = jslet.data.getRecInfo(record);
+		if(!recInfo) {
+			return null;
+		}
+		var result = '',
+			errObj = recInfo.error,
+			fldObj;
+		if(errObj) {
+			for(var fldName in errObj) {
+				if(checkingFields && checkingFields.indexOf(fldName) < 0) {
+					continue;
+				}
+				var msg = jslet.data.FieldError.get(record, fldName).message;
+				if(msg) {
+					fldObj = this.getField(fldName);
+					if(result) {
+						result += ', ';
+					}
+					result += msg;
+				}
+			}
+		}
+		return result;
+	},
+	
 	/**
 	 * Check show error message if the dataset exists error data.
 	 * 

@@ -194,7 +194,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(rowHeight === undefined) {
 			if(Z._rowHeight === null) {
 				var clsName = Z._readOnly? 'jl-tbl-row': 'jl-tbl-editing-row';
-				Z._rowHeight = parseInt(jslet.ui.getCssValue(clsName, 'height'));
+				Z._rowHeight = parseInt(jslet.ui.getCssValue(clsName, 'height')) || 25;
 			}
 			return Z._rowHeight;
 		}
@@ -212,7 +212,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	headRowHeight: function(headRowHeight) {
 		if(headRowHeight === undefined) {
 			if(this._headRowHeight === null) {
-				this._headRowHeight = parseInt(jslet.ui.getCssValue('jl-tbl-header-row', 'height'));
+				this._headRowHeight = parseInt(jslet.ui.getCssValue('jl-tbl-header-row', 'height')) || 25;
 			}
 			return this._headRowHeight;
 		}
@@ -2955,12 +2955,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				otd = cells[j];
 				colCfg = otd.jsletColCfg;
 				if (colCfg && colCfg.isSeqCol) {
-					otd.firstChild.innerHTML = recno + 1;
-					if(Z._dataset.existRecordError(recno)) {
-						jQuery(otd).addClass('has-error');
-					} else {
-						jQuery(otd).removeClass('has-error');
-					}
+					colCfg.cellRender.refreshCell.call(Z, otd.firstChild, colCfg);
 					continue;
 				}
 				if (colCfg && colCfg.isSelectCol) {
@@ -3571,12 +3566,16 @@ jslet.ui.SequenceCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		} else {
 			text = recno + 1;
 		}
+		var title;
 		if(this._dataset.existRecordError(recno)) {
 			jqDiv.parent().addClass('has-error');
+			title = this._dataset.getRecordErrorInfo(recno);
 		} else {
 			jqDiv.parent().removeClass('has-error');
+			title = text;
 		}
-		cellPanel.title = text;
+		
+		cellPanel.title = title;
 		jqDiv.html(text);
 	}
 });

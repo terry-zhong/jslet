@@ -64,7 +64,7 @@
 		lookupFieldExpected: '字段: {0} 必须是查找字段!',
 		invalidLookupField: '字段: {0} 的是一个无效的查找字段，请检查参数!',
 		invalidContextRule: '字段: [{0}]的上下文规则的条件中必须要有字段!如果是固定条件，请直接设置过滤条件!',
-		fieldValueRequired: '[{0}]不能为空!',
+		fieldValueRequired: '不能为空!',
 		invalidFieldTranslate: '字段: {0}里的属性: displayValueField 和 inputValueField不能为空!',
 		translateListenerRequired: '必须设置事件监听器: translateListener!',
 		minMaxValueError: '[{0}] 的最小值必须要小于或者等于最大值!',

@@ -283,7 +283,7 @@ jslet.data.FieldValidator.prototype = {
 			}
 			regExpObj.lastIndex = 0;
 			if (!regExpObj.test(inputText)) {
-				return regular.message;
+				return this._formatError(fldObj.label(), regular.message);
 			}
 		}
 		
@@ -299,11 +299,13 @@ jslet.data.FieldValidator.prototype = {
 					var actual = k > 0? k: inputText.length,
 						expected = length - scale;
 					if(actual > expected) {
-						return jslet.formatString(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]);
+						return this._formatError(fldObj.label(), 
+								jslet.formatString(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]));
 					}
 					actual = k > 0 ? inputText.length - k - 1: 0;
 					if(actual > scale) {
-						return jslet.formatString(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]);
+						return this._formatError(fldObj.label(), 
+								jslet.formatString(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]));
 					}
 					value = parseFloat(inputText);
 				}
@@ -315,7 +317,11 @@ jslet.data.FieldValidator.prototype = {
 		
 		return this.checkValue(fldObj, value);
 	},
-
+	
+	_addFieldLabel: function(fldLabel, errMsg) {
+		return '[' + fldLabel + ']: ' + errMsg;
+	},
+	
 	/**
 	 * Check the required field's value is empty or not
 	 * 
@@ -339,7 +345,7 @@ jslet.data.FieldValidator.prototype = {
 				valid = false;
 			}
 			if(!valid) {
-				return jslet.formatString(jslet.locale.Dataset.fieldValueRequired, [fldObj.label()]);
+				return this._addFieldLabel(fldObj.label(), jslet.formatString(jslet.locale.Dataset.fieldValueRequired));
 			} else {
 				return null;
 			}
@@ -387,13 +393,16 @@ jslet.data.FieldValidator.prototype = {
 			}
 			
 			if (min !== undefined && max !== undefined && (value < min || value > max)) {
-				return jslet.formatString(jslet.locale.Dataset.notInRange, [strMin, strMax]);
+				return this._addFieldLabel(fldObj.label(), 
+						jslet.formatString(jslet.locale.Dataset.notInRange, [strMin, strMax]));
 			}
 			if (min !== undefined && max === undefined && value < min) {
-				return jslet.formatString(jslet.locale.Dataset.moreThanValue, [strMin]);
+				return this._addFieldLabel(fldObj.label(), 
+						jslet.formatString(jslet.locale.Dataset.moreThanValue, [strMin]));
 			}
 			if (min === undefined && max !== undefined && value > max) {
-				return jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]);
+				return this._addFieldLabel(fldObj.label(), 
+						jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]));
 			}
 		}
 		
@@ -412,14 +421,17 @@ jslet.data.FieldValidator.prototype = {
 						continue;
 					}
 					if(rec[fldName] == value) {
-						return jslet.locale.Dataset.notUnique;
+						return this._addFieldLabel(fldObj.label(), jslet.locale.Dataset.notUnique);
 					}
 				}
 			}
 		}
 		//Customized validation
 		if (fldObj.customValidator()) {
-			return fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
+			var msg = fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
+			if(msg) {
+				this._addFieldLabel(fldObj.label(), msg);
+			}
 		}
 		
 		return null;
