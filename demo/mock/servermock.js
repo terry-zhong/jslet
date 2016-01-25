@@ -356,5 +356,30 @@
 		}
 	});
 
+	var performanceService = {
+		find: function() {
+			var result = [];
+			for(var i = 0; i < 20000; i++) {
+				var rec = {};
+				for(var j = 1; j <= 70; j++) {
+					rec['a' + j] = 'value'+ j + '-' + i;
+				}
+				result.push(rec)
+			}
+			return result;
+		}
+	}
+	
+	jQuery.mockjax({
+		url : "/demo/perf/find",
+		contentType : "application/json",
+		dataType: 'json',
+		responseTime: [100, 300],
+		response: function(request) {
+			this.responseText = {main: performanceService.find()};
+		},
+		logging: false
+	});
+
 	
 })();

@@ -500,7 +500,7 @@ jslet.convertISODate= function(dateStr) {
 		return dateStr;
 	}
 	var flag = dateStr.substr(10,1);
-	if('T' == flag) {
+	if(dateStr.length === 10 || 'T' == flag) {
 		var year = dateStr.substr(0,4),
 		month = dateStr.substr(5,2),
 		day = dateStr.substr(8,2),

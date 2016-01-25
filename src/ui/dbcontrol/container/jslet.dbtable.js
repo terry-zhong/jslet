@@ -2818,7 +2818,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			actualCnt = Math.min(contentRows.length, rowCnt);
 
 		for (var i = 0; i < actualCnt ; i++) {
-			if (i + start >= allCnt) {
+			if (i + (isFixed? start: 0) >= allCnt) {
 				if (hasLeft) {
 					otr = fixedRows[i];
 					otr.style.display = 'none';

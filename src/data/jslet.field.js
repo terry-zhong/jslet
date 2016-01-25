@@ -24,6 +24,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._displayOrder = 0;
 	Z._tabIndex = null;
 	Z._fieldName = fieldName;
+	Z._shortName = null;
 	Z._dataType = dataType;
 	
 	Z._proxyHostFieldName = null;
@@ -49,7 +50,6 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._readOnly = false;
 	Z._visible = true;
 	Z._disabled = false;
-	Z._rawValueConverter = null;
 	Z._customValueConverter = null;
 	Z._unitConverted = false;
 
@@ -134,6 +134,16 @@ jslet.data.Field.prototype = {
 		return this._fieldName;
 	},
 
+	shortName: function(shortName) {
+		var Z = this;
+		if (shortName === undefined) {
+			return Z._shortName;
+		}
+		jslet.Checker.test('Field.shortName', shortName).isString();
+		Z._shortName = shortName;
+		return this;
+	},
+	
 	/**
 	 * Get or set field label.
 	 * 
@@ -1302,25 +1312,6 @@ jslet.data.Field.prototype = {
 	},
 	
 	/**
-	 * Raw value converts to field value or field value converts raw value.
-	 * Converter pattern:
-	 * var converter = {
-	 * 		getRawValue: function(dataRec, fldName) {}, 
-	 * 		setRawValue: function(dataRec, fldName, fldValue) {}
-	 * };
-	 * 
-	 * @param {Object or undefined} converter - raw value converter.
-	 */
-	rawValueConverter: function(converter) {
-		var Z = this;
-		if (converter === undefined) {
-			return Z._rawValueConverter;
-		}
-		Z._rawValueConverter = converter;
-		return this;
-	},
-	
-	/**
 	 * Get or set customized field value converter.
 	 * 
 	 * @param {jslet.data.FieldValueConverter} converter converter object, sub class of jslet.data.FieldValueConverter.
@@ -1661,6 +1652,7 @@ jslet.data.Field.prototype = {
 		result.defaultExpr(Z._defaultExpr);
 		result.defaultValue(Z._defaultValue);
 		result.label(Z._label);
+		result.shortName(Z._shortName);
 		result.tip(Z._tip);
 		result.displayWidth(Z._displayWidth);
 		if (Z._editMask) {
@@ -1695,7 +1687,6 @@ jslet.data.Field.prototype = {
 		result.antiXss(Z._antiXss);
 		result.customValidator(Z._customValidator);
 		result.customValueConverter(Z._customValueConverter);
-		result.rawValueConverter(Z._rawValueConverter);
 		result.validChars(Z._validChars);
 		
 		result.mergeSame(Z._mergeSame);
@@ -1786,6 +1777,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('tabIndex');
 	setPropValue('displayOrder');
 	setPropValue('label');
+	setPropValue('shortName');
 	setPropValue('tip');
 
 	if(dtype === jslet.data.DataType.PROXY) {
@@ -1832,7 +1824,6 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('dataRange');
 	setPropValue('customValidator');
 	setPropValue('customValueConverter');
-	setPropValue('rawValueConverter');
 	setPropValue('trueValue');
 	setPropValue('falseValue');
 	setPropValue('mergeSame');

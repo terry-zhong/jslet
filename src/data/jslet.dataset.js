@@ -3044,9 +3044,9 @@ jslet.data.Dataset.prototype = {
 				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [subfldName]));
 			}
 			if(lkf) {
-				value = dataRec[subfldName];
+				value = jslet.data.FieldRawValueAccessor.getRawValue(dataRec, fldObj);
 				lkds = lkf.dataset();
-				if(value === undefined || value === null || value === '') {
+				if(!value) {
 					fldValue = null;
 				} else {
 					if (lkds.findByField(lkds.keyField(), value)) {
@@ -3066,28 +3066,18 @@ jslet.data.Dataset.prototype = {
 			}
 			var formula = fldObj.formula();
 			if (!formula) {
-				var rawValueConverter = fldObj.rawValueConverter();
-				if(rawValueConverter && rawValueConverter.getRawValue) {
-					value = rawValueConverter.getRawValue(dataRec, fldName);
-				} else {
-					value = dataRec[fldName];
-				}
-				fldValue = value !== undefined ? value :null;
+				fldValue = jslet.data.FieldRawValueAccessor.getRawValue(dataRec, fldObj);
 			} else {
 				if(dataRec[fldName] === undefined) {
 					fldValue = Z._calcFormula(dataRec, fldName);
-					dataRec[fldName] = fldValue;
+					jslet.data.FieldRawValueAccessor.setRawValue(dataRec, fldObj, fldValue);
 				} else {
-					value = dataRec[fldName];
-					fldValue = value !== undefined ? value :null;
+					fldValue = jslet.data.FieldRawValueAccessor.getRawValue(dataRec, fldObj);
 				}
 			}
 		}
 
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
-			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
-				return fldValue === fldObj.trueValue();
-			}
 			return fldValue;
 		}
 		return jslet.getArrayValue(fldValue, valueIndex);
@@ -3132,15 +3122,6 @@ jslet.data.Dataset.prototype = {
 			Z.editRecord();
 		}
 		
-		function setValue(dataRec, fldObj, fldName, value) {
-			var rawConverter = fldObj.rawValueConverter();
-			if(rawConverter && rawConverter.setRawValue) {
-				rawConverter.setRawValue(dataRec, fldName, value);
-			} else {
-				currRec[fldName] = value;
-			}
-		}
-		
 		var currRec = Z.getRecord(),
 			dataType = fldObj.getType();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
@@ -3152,26 +3133,13 @@ jslet.data.Dataset.prototype = {
 					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, oldValue]));
 				}
 			}
-			var realValue = value;
-			if(dataType === jslet.data.DataType.BOOLEAN) {
-				if(value) {
-					realValue = fldObj.trueValue();
-				} else {
-					realValue = fldObj.falseValue();
-				}
-			}
-			setValue(currRec, fldObj, fldName, realValue);
-//			currRec[fldName] = realValue;
+			jslet.data.FieldRawValueAccessor.setRawValue(currRec, fldObj, value);
 			if (fldObj.getType() == jslet.data.DataType.DATASET) {//dataset field
 				return this;
 			}
 		} else {
-			var rawConverter = fldObj.rawValueConverter(), arrValue;
-			if(rawConverter && rawConverter.getRawValue) {
-				arrValue = rawConverter.getRawValue(currRec, fldName);
-			} else {
-				arrValue = currRec[fldName];
-			}
+			var arrValue = jslet.data.FieldRawValueAccessor.getRawValue(currRec, fldObj);
+
 			if(!arrValue || !jslet.isArray(arrValue)) {
 				arrValue = [];
 			}
@@ -3184,8 +3152,8 @@ jslet.data.Dataset.prototype = {
 				}
 				arrValue.push(value);
 			}
-//			currRec[fldName] = arrValue;
-			setValue(currRec, fldObj, fldName, arrValue);
+			
+			jslet.data.FieldRawValueAccessor.setRawValue(currRec, fldObj, arrValue);
 		}
 		Z.setFieldError(fldName, null, valueIndex);
 		if (Z._onFieldChanged) {
@@ -5209,7 +5177,6 @@ jslet.data.Dataset.prototype = {
 		if(!isDetailDs) { //Master dataset
 			jslet.data.FieldValueCache.removeAllCache(Z);
 			jslet.data.FieldError.clearDatasetError(Z);
-			jslet.data.convertDateFieldValue(Z);
 			Z._changeLog.clear();
 		}
 		Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -5761,9 +5728,6 @@ jslet.data.DataTransformer.prototype = {
 	_refreshDataset: function(dsObj, submittedData, isDetailDataset) {
 		if(!submittedData || submittedData.length === 0) {
 			return;
-		}
-		if(!isDetailDataset) {
-			jslet.data.convertDateFieldValue(dsObj, submittedData);
 		}
 		var masterFldObj = dsObj.datasetField(), chgLogs;
 		if(!masterFldObj) {

@@ -889,6 +889,67 @@ jslet.data.FieldError = {
 };
 /*End of field value error manager*/
 
+jslet.data.FieldRawValueAccessor = {
+	getRawValue: function(dataRec, fldObj) {
+		var fldName = fldObj.shortName() || fldObj.name(),
+			fldType = fldObj.getType(),
+			value = dataRec[fldName];
+		
+		if(value === undefined || value === null) {
+			return null;
+		}
+		if(fldType === jslet.data.DataType.BOOLEAN) {
+			return value === fldObj.trueValue();
+		}
+		
+		if(fldType === jslet.data.DataType.PROXY) {
+			return jslet.toJSON(value);
+		}
+
+		if(fldType === jslet.data.DataType.DATE) {
+			var flag = false;
+			if(jslet.isArray(value)) {
+				for(var i = 0, len = value.length; i < len; i++) {
+					var val = value[i];
+					if (!jslet.isDate(val)) {
+						val = jslet.convertISODate(val);
+						value[i] = val;
+						flag = true;
+					} //end if
+					
+				}
+			} else {
+				if (!jslet.isDate(value)) {
+					value = jslet.convertISODate(value);
+					flag = true;
+				} //end if
+			}
+			if(flag) {
+				dataRec[fldName] = value;
+			}
+		}
+		return value;
+	},
+	
+	setRawValue: function(dataRec, fldObj, value) {
+		var fldName = fldObj.shortName() || fldObj.name(),
+			fldType = fldObj.getType();
+		
+		if(value === undefined || value === null) {
+			dataRec[fldName] = null;
+			return;
+		}
+		if(fldType === jslet.data.DataType.BOOLEAN) {
+			value = (value? fldObj.trueValue(): fldObj.falseValue());
+		}
+		
+		if(fldType === jslet.data.DataType.PROXY) {
+			value = jslet.stringify(value);
+		}
+		dataRec[fldName] = value;
+	}
+}
+
 jslet.data.DatasetRelationManager = function() {
 	var relations= [];
 	
@@ -996,57 +1057,6 @@ jslet.data.DatasetRelationManager = function() {
 	}
 };
 jslet.data.datasetRelationManager = new jslet.data.DatasetRelationManager();
-
-jslet.data.convertDateFieldValue = function(dataset, records) {
-	var Z = dataset;
-	if(!records) {
-		records = Z.dataList();
-	}
-	if (!records || records.length === 0) {
-		return;
-	}
-
-	var dateFlds = [], subFlds = [],
-		fields = Z.getNormalFields(),
-		fldObj;
-	for (var i = 0, len = fields.length; i < len; i++) {
-		fldObj = fields[i];
-		if (fldObj.getType() == jslet.data.DataType.DATE) {
-			dateFlds.push(fldObj.name());
-		}
-		if (fldObj.getType() == jslet.data.DataType.DATASET) {
-			subFlds.push(fldObj);
-		}
-	}
-	if (dateFlds.length === 0 && subFlds.length === 0) {
-		return;
-	}
-
-	var rec, fname, value,
-		fcnt = dateFlds.length,
-		subCnt = subFlds.length;
-	for (var i = 0, recCnt = records.length; i < recCnt; i++) {
-		rec = records[i];
-		for (var j = 0; j < fcnt; j++) {
-			fname = dateFlds[j];
-			value = rec[fname];
-			if (!jslet.isDate(value)) {
-				value = jslet.parseDate(value,'yyyy-MM-ddThh:mm:ss');
-				if (value) {
-					rec[fname] = value;
-				} else {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue,[fname]));
-				}
-			} //end if
-		} //end for j
-		for(var j = 0; j < subCnt; j++) {
-			fldObj = subFlds[j];
-			fname = fldObj.name();
-			jslet.data.convertDateFieldValue(fldObj.subDataset(), rec[fname]);
-		}
-	} //end for i
-	
-}
 
 jslet.emptyPromise = {
 	done: function(callBackFn) {
