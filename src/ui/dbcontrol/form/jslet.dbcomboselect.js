@@ -316,7 +316,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = Z.lookupDs();
 
-		var template = ['<div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
+		var template = ['<div class="jl-combopnl-tip" style="display:none">Can not select this item</div><div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
 		                '<input class="form-control" type="text" size="20"></input></div></div>',
 			'<div class="jl-combopnl-content',
 			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
@@ -468,6 +468,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			lookupDs = Z.lookupDs();
 		
 		if(!lookupDs.checkSelectable()) {
+			var jqPanel = jQuery(Z.panel);
+			jqPanel.find('.jl-combopnl-tip').html(jslet.locale.DBComboSelect.cannotSelect).slideDown();
+			window.setTimeout(function() {
+				jqPanel.find('.jl-combopnl-tip').slideUp();
+			}, 2000);
 			return;
 		}
 		if (isMulti) {

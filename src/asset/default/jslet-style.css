@@ -177,6 +177,14 @@
 }
 
 /** DBComboSelect **/
+.jl-combopnl-tip {
+	background-color: rgba(244, 244, 149, 1);;
+	position:absolute;
+	z-index: 5;
+	top: 2px;
+	left: 2px;
+}
+
 .jl-combopnl-head {
 	height:35px;
 	position:absolute;

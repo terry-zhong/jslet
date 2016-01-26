@@ -125,7 +125,8 @@
 	};
 	
 	locale.DBComboSelect = { 
-		find: 'Find: '
+		find: 'Find: '，
+		cannotSelect: 'Cannot select this item.'
 	};
 	
 	locale.MessageBox = { 

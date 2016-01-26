@@ -127,7 +127,8 @@
 	};
 
 	locale.DBComboSelect = { 
-		find: '查找'
+		find: '查找',
+		cannotSelect: '不能选择此项！'
 	};
 
 	locale.MessageBox = { 

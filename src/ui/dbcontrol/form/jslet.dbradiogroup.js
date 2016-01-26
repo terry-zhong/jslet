@@ -195,7 +195,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		} finally {
 			lkds.recnoSilence(oldRecno);
 		}
-
+		Z.doMetaChanged();
 	}, // end renderOptions
 
 	updateToDataset: function(currCheckBox) {

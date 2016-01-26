@@ -48,13 +48,17 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		var tblPos = jQuery(_tableCtrl).offset();
 		var cellPos = jQuery(otd).offset();
 		if(_currField) {
-			_editPanel.find('.jl-edtfld-' + _currField).hide();
+			_editPanel.show().find('.jl-edtfld-' + _currField).hide();
 		}
 		var jqEditor = _editPanel.find('.jl-edtfld-' + fldName);
 		_editPanel.offset(cellPos);
 		jqEditor.show();
 		_tableCtrl.dataset().focusEditControl(fldName);
 		_currField = fldName;
+	}
+	
+	this.hideEditor = function() {
+		_editPanel.hide();
 	}
 	
 	this.destroy = function() { 
