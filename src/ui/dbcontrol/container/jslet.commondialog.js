@@ -40,12 +40,16 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		jslet.ui.install(jqPanel[0]);
 		_editPanel = jqPanel;
 		jqPanel.height(_tableCtrl.rowHeight());
-	} 
+	}
 	
 	_create();
 	
 	this.showEditor = function(fldName, otd) {
-		var tblPos = jQuery(_tableCtrl).offset();
+		var dataset = _tableCtrl.dataset(),
+			fldObj = dataset.getField(fldName);
+		if(fldObj.disabled() || fldObj.readOnly()) {
+			return;
+		}
 		var cellPos = jQuery(otd).offset();
 		if(_currField) {
 			_editPanel.show().find('.jl-edtfld-' + _currField).hide();

@@ -11,9 +11,6 @@ jslet.ui.htmlclass.TABLECLASS = {
 	scrollBarWidth: 16,
 	selectColWidth: 30,
 	hoverrow: 'jl-tbl-row-hover',
-	
-	sortAscChar: '&#8593;',
-	sortDescChar: '&#8595;'
 };
 
 /**
@@ -809,7 +806,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		var ti = jqEl.attr('tabindex');
-		if (Z._readOnly && !ti) {
+		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
 
@@ -943,7 +940,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return false;
 			}
 			var isTabKey = (keyCode === 9 || keyCode === jslet.global.defaultFocusKeyCode);
-			if(keyCode === 37 || (event.shiftKey && isTabKey)) { //Arrow Left
+			if(event.shiftKey && isTabKey) { //Shift TAB Left
 				if(!Z._isSingleEditor) {
 					if(!Z._readOnly) {
 						return;
@@ -978,14 +975,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						num = Z._currColNum - 1;
 					}
 				}
-				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+//				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
-				if(!isTabKey) {
-					Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
-				}
+//				if(!isTabKey) {
+//					Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+//				}
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if( keyCode === 39 || isTabKey) { //Arrow Right
+			} else if(isTabKey) { //TAB Right
 				if(!Z._isSingleEditor) {
 					if(!Z._readOnly) {
 						return;
@@ -1019,9 +1016,44 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						num = 0;
 					}
 				}
+//				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+				Z.currColNum(num);
+//				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			} else if(keyCode === 37) { //Arrow Left
+				var num,
+					lastColNum = Z.innerColumns.length - 1;
+				
+				if(Z._currColNum === 0) {
+					if(Z._dataset.recno() > 0) {
+						Z._dataset.prior();
+						num = lastColNum;
+					} else {
+						return;
+					}
+				} else {
+					num = Z._currColNum - 1;
+				}
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.currColNum(num);
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			} else if( keyCode === 39) { //Arrow Right
+				var lastColNum = Z.innerColumns.length - 1,
+					num;
+				
+				if(Z._currColNum < lastColNum) {
+					num = Z._currColNum + 1;
+				} else {
+					if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
+						return;
+					}
+					Z._dataset.next();
+					num = 0;
+				}
+				Z.currColNum(num);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 			} else if (keyCode == 38) {//KEY_UP
@@ -2481,7 +2513,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				sortDiv = jQuery(oth).find('.jl-tbl-sorter')[0];
 				sortFlag = '&nbsp;';
 				if (fldName == sortObj.fieldName) {
-					sortFlag = sortObj.order === 1 ? jslet.ui.htmlclass.TABLECLASS.sortAscChar : jslet.ui.htmlclass.TABLECLASS.sortDescChar;
+					sortFlag = sortObj.order === 1 ? '<i class="fa fa-arrow-up"></i>' : '<i class="fa fa-arrow-down"></i>';
 					if (len > 1) {
 						sortFlag += k++;
 					}

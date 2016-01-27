@@ -790,6 +790,9 @@ jslet.data.Field.prototype = {
 	disabled: function (disabled) {
 		var Z = this;
 		if (disabled === undefined) {
+			if(Z._formula || Z._dataType === jslet.data.DataType.DATASET || Z._children) {
+				return false;
+			}
 			return Z._disabled;
 		}
 		Z._disabled = disabled ? true: false;

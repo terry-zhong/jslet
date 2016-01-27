@@ -95,7 +95,9 @@ jslet.data.Dataset = function (name) {
 	Z._fieldValidator = new jslet.data.FieldValidator();
 	
 	Z._onFieldChanged = null;  
-	
+
+	Z._onFieldFocusing = null;
+
 	Z._onCheckSelectable = null;
 	
 	Z._datasetListener = null; //
@@ -113,6 +115,7 @@ jslet.data.Dataset = function (name) {
 	Z._dataTransformer = new jslet.data.DataTransformer(Z);
 	Z._followedValues = null;
 	Z._focusedFields = null;
+	Z._canFocusFields = null;
 	
 	Z._lastFindingValue = null;
 	Z._inContextRule = false;
@@ -302,7 +305,7 @@ jslet.data.Dataset.prototype = {
 			fldObj;
 		for(var i = 0, len = fields.length; i < len; i++) {
 			fldObj = fields[i];
-			fldObj._fireMetaChangedEvent('readOnly', true);
+			fldObj._fireMetaChangedEvent('readOnly', false);
 		}
 		return this;
 	},
@@ -523,6 +526,14 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		this._onFieldChanged = onFieldChanged;
+		return this;
+	},
+	
+	onFieldFocusing: function(onFieldFocusing) {
+		if(onFieldFocusing === undefined) {
+			return this._onFieldFocusing;
+		}
+		this._onFieldFocusing = onFieldFocusing;
 		return this;
 	},
 	
@@ -4902,6 +4913,16 @@ jslet.data.Dataset.prototype = {
 			this._linkedLabels.push(linkedControl);
 		} else {
 			this._linkedControls.push(linkedControl);
+			var fldName = null;
+			if(linkedControl.field) {
+				fldName = linkedControl.field();
+			}
+			if(fldName && linkedControl.canFocus()) {
+				if(!this._canFocusFields) {
+					this._canFocusFields = [];
+				}
+				this._canFocusFields.push(fldName);
+			}
 		}
 	},
 
@@ -4914,6 +4935,15 @@ jslet.data.Dataset.prototype = {
 		var k = arrCtrls.indexOf(linkedControl);
 		if (k >= 0) {
 			arrCtrls.splice(k, 1);
+		}
+		if(!linkedControl.isLabel) {
+			var fldName = linkedControl.field();
+			if(fldName) {
+				var k = this._canFocusFields.indexOf(fldName);
+				if(k >= 0) {
+					this._canFocusFields.splice(k, 1);
+				}
+			}
 		}
 	},
 

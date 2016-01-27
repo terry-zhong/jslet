@@ -51,6 +51,9 @@ jslet.ui.Control = jslet.Class.create({
 		Z.checkRequiredProperty();
 		Z.el.jslet = this;
 		Z.beforeBind();
+		if(!Z.el.id) {
+			Z.el.id = jslet.nextId();
+		}
 		Z.bind();
 		var jqEl = jQuery(Z.el);
 		if(Z._styleClass) {
@@ -545,8 +548,8 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	 * @override
 	 */
 	destroy: function ($super) {
-		this._field = null;
 		$super();
+		this._field = null;
 	}
 	
 });
