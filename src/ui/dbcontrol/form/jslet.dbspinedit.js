@@ -108,21 +108,30 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			valueIndex: Z._valueIndex
 		});
 		
-		jQuery(upButton).on('click', function () {
+		var jqBtn = jQuery(upButton);
+		jqBtn.on('click', function () {
 			Z.incValue();
 		});
 		
-		jQuery(upButton).on('focus', function () {
-			jqEl.trigger('editing', [Z._field]);
+		jqBtn.focus(function(event) {
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+		});
+		jqBtn.blur(function(event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
 		
-		jQuery(downButton).on('click', function () {
+		jqBtn = jQuery(downButton);
+		jqBtn.on('click', function () {
 			Z.decValue();
 		});
 		
-		jQuery(downButton).on('focus', function () {
-			jqEl.trigger('editing', [Z._field]);
+		jqBtn.focus(function(event) {
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
 		});
+		jqBtn.blur(function(event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
+		});
+		
 		
 	},
 	

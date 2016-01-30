@@ -221,7 +221,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 			var metaName = evt.metaName,
 				changeAllRows = evt.changeAllRows;
 			if(Z._field && Z._field == evt.fieldName) {
-				if (!changeAllRows && !isForce && !Z.isActiveRecord()) {
+				if (!changeAllRows && !isForce) {
 					return false;
 				}
 				Z.doMetaChanged(metaName);
@@ -234,19 +234,10 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		//Lookup data changed
 		if(evtType == jslet.data.RefreshEvent.UPDATELOOKUP && evt.fieldName == Z._field) {
-			if(Z._ctrlRecno >= 0 && (evt.recno || evt.recno === 0)) {
-				if(Z._ctrlRecno === evt.recno) {
-					Z.doLookupChanged();
-				}
-			} else {
-				Z.doLookupChanged();
-			}
+			Z.doLookupChanged();
 			return true;
 		}
 
-		if (!isForce && Z.isActiveRecord && !Z.isActiveRecord()) {
-			return false;
-		}
 		//Value changed
 		if (evtType == jslet.data.RefreshEvent.SCROLL || 
 				evtType == jslet.data.RefreshEvent.INSERT ||
@@ -322,9 +313,6 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	
 	_enableInvalidTip: true,
 	
-	/**Inner use**/
-	_ctrlRecno: -1,
-	
 	_tableId: null,
 	
 	field: function(fldName) {
@@ -365,10 +353,6 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		if (value !== undefined) {
 			this.valueIndex(value);
 		}
-//		value = ctrlParams.tableId;
-//		if(value !== undefined) {
-//			this.tableId(value);
-//		}
 	},
  
 	checkRequiredProperty: function($super) {
@@ -411,20 +395,6 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		return fldObj ? true: false;
 	},
 	
-	/**
-	 * DBTable uses this property.
-	 */
-	ctrlRecno: function(ctrlRecno) {
-		if(ctrlRecno === undefined) {
-			return this._ctrlRecno;
-		}
-		if(ctrlRecno != -2) {
-			jslet.Checker.test('DBFieldControl.ctrlRecno', ctrlRecno).isGTEZero();
-		}
-		this._ctrlRecno = ctrlRecno;
-		this.doValueChanged();
-	},
-	
 	tableId: function(tableId) {
 		if(tableId === undefined) {
 			return this._tableId;
@@ -433,30 +403,11 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	getValue: function() {
-		var Z = this;
-		if(Z._ctrlRecno < 0) {
-			return Z._dataset.getFieldValue(Z._field, Z._valueIndex); 
-		} else {
-			return Z._dataset.getFieldValueByRecno(Z._ctrlRecno, Z._field, Z._valueIndex);
-		}
+		return this._dataset.getFieldValue(this._field, this._valueIndex); 
 	},
 	
 	getText: function(isEditing) {
-		var Z = this;
-		if(Z._ctrlRecno < 0) {
-			return Z._dataset.getFieldText(Z._field, isEditing, Z._valueIndex); 
-		} else {
-			return Z._dataset.getFieldTextByRecno(Z._ctrlRecno, Z._field, isEditing, Z._valueIndex);
-		}
-	},
-	
-	/**
-	 * Check if this control is in current record.
-	 * In DBTable edit mode, one field corresponds many edit control(one row one edit control), but only one edit control is in active record.
-	 * Normally, only edit control in active record will refresh.  
-	 */
-	isActiveRecord: function(){
-		return this._ctrlRecno === -1 || this._ctrlRecno == this._dataset.recno();
+		return this._dataset.getFieldText(this._field, isEditing, this._valueIndex); 
 	},
 	
 	/**
@@ -467,14 +418,7 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	getFieldError: function() {
-		var Z = this,
-			errObj;
-		if(Z._ctrlRecno < 0) {
-			errObj = Z._dataset.getFieldError(Z._field, Z._valueIndex);
-		} else {
-			errObj = Z._dataset.getFieldErrorByRecno(Z._ctrlRecno, Z._field, Z._valueIndex);
-		}
-		return errObj;
+		return this._dataset.getFieldError(this._field, this._valueIndex);
 	},
 	
 	/**
@@ -633,18 +577,17 @@ jslet.ui.createControl = function (jsletparam, parent, width, height, hidden) {
 	if (parent) {
 		parent.appendChild(el);
 	} else {
-//		el.style.display = 'none';
 		document.body.appendChild(el);
 	}
 	if (width) {
 		if (parseInt(width) == width)
 			width = width + 'px';
-		el.style.width = width; // parseInt(width) + 'px';
+		el.style.width = width;
 	}
 	if (height) {
 		if (parseInt(height) == height)
 			height = height + 'px';
-		el.style.height = height; // parseInt(height) + 'px';
+		el.style.height = height;
 	}
 
 	return new ctrlClass(el, ctrlParam);

@@ -72,12 +72,15 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var ctrl = this;
 			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
 				event.delegateTarget.jslet.updateToDataset(ctrl);
-			}, 5)
+			}, 5);
 		});
 		jqEl.on('focus', 'input[type="radio"]', function (event) {
-			jqEl.trigger('editing', [Z._field]);
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
 		});
-		jqEl.addClass('form-control');//Bootstrap class
+		jqEl.on('blur', 'input[type="radio"]', function (event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
+		});
+		jqEl.addClass('form-control');
 		jqEl.css('height', 'auto');
 	},
 
@@ -136,7 +139,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			return;
 		}
 		var lkds = lkf.dataset(),
-		cnt = lkds.recordCount();
+			cnt = lkds.recordCount();
 		if(cnt === 0) {
 			Z.el.innerHTML = jslet.locale.DBRadioGroup.noOptions;
 			return;

@@ -359,58 +359,122 @@ jslet.ui.DBTableFilterPanel.prototype = {
 /**
  * Export dialog;
  */
-jslet.ui.ExportDialog = function(dataset) {
-	_dataset = dataset;
+jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
+	this._dataset = dataset;
+	this._exportDataset;
+	this._hasSchemaSection = hasSchemaSection;
 	
+	this._dlgId;
 	
+	this._initialize();
 }
 
 jslet.ui.ExportDialog.prototype = {
-	show: function() {
-		var opt = { type: 'window', caption: jslet.locale.ExportDialog, isCenter: true, resizable: false, minimizable: false, maximizable: false, stopEventBubbling: true, animation: 'fade'};
+	_initialize: function() {
+		var fldCfg = [
+		    	      {name: 'field', type: 'S', length: 100, label: 'Field Name', nullText: 'default'}, 
+		    	      {name: 'label', type: 'S', length: 50, label: 'Field Label'},
+		    	      {name: 'parent', type: 'S', length: 100, label: 'Field Name'}, 
+		    	    ];
+		var exportLKDs = jslet.data.createDataset('exportLKDs' + jslet.nextId(), fldCfg, 
+				{keyField: 'field', codeField: 'field', nameField: 'label', parentField: 'parent'});
+		exportLKDs.onCheckSelectable(function(){
+	        return !this.hasChildren(); 
+	    });
+		
+		var fldCfg = [
+    	      //{name: 'schemaId', type: 'S', length: 30, label: 'Export Schema ID'}, 
+    	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
+    	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
+    	    ];
+    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema'});
+    	if(this.hasSchemaSection) {
+	    	var exportDsClone = this._exportDataset.clone();
+	    	var lkObj = new jslet.data.FieldLookup();
+	    	lkObj.dataset(exportDsClone);
+	    	this._exportDataset.getField('schema').lookup(lkObj);
+    	}
+		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, animation: 'fade'};
 		var owin = jslet.ui.createControl(opt);
-		var html = [];
-		owin.setContent(html.join(''));
-		var jqEl = jQuery(owin.el);
-		var obtn;
-		for (var i = 0; i < btnCount; i++) {
-			obtn = toolBar.childNodes[i];
-			obtn.onclick = function () {
-				btnName = jQuery(this).attr('data-jsletname');
-				var value = null;
-				if (hasInput && btnName == 'ok') {
-					value = inputCtrl.value;
-					if (validateFn && !validateFn(value)) {
-						inputCtrl.focus();
-						return;
-					}
-				}
-				owin.close();
-				if (callbackFn) {
-					callbackFn(btnName, value);
-				}
-			};
-		}
+		var html = ['<div class="form-horizontal" style="width: 600px;height:400px" data-jslet="dataset: \'', this._exportDataset.name(),
+		            '\'"><div class="form-group form-group-sm">',
+		            '<div class="col-sm-6"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>',
+		            '<div class="col-sm-6"><button class="btn btn-default btn-sm">Save</button><button class="btn btn-default btn-sm">Delete</button></div></div>',
+		            
+		            '<div class="form-group form-group-sm">',
+		            '<div class="col-sm-12" style="height: 300px" data-jslet="type:\'DBList\',field:\'fields\',correlateCheck:true"></div></div>',
 
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-2">File Name</label>',
+					'<div class="col-sm-10"><input id="txtExportFile" class="form-control" type="text"></input></div></div>',
+		            
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label><div class="col-sm-3"><button id="btnExport" class="btn btn-default btn-sm">Export</button><button id="btnCancel" class="btn btn-default btn-sm">Cancel</button></div></div>',
+		            '</div>'];
+		owin.setContent(html.join(''));
 		owin.onClosed(function () {
-			if (callbackFn) {
-				callbackFn(btnName);
-			}
+			return 'hidden';
 		});
-		
-		owin.showModal();
-		owin.setZIndex(99981);
-		var k = 0;
-		if (jslet.locale.isRtl) {
-			k = btnCount - 1;
-		}
-		var toolBtn = toolBar.childNodes[k];
-		toolBtn && toolBtn.focus();
-		return owin;
-		
+		this._dlgId = owin.el.id;
+		var jqEl = jQuery(owin.el);
+		jqEl.find('#btnExport').click(function(event) {
+			var jqExpportFile = jqEl.find('#txtExportFile');
+			var fileName = jqExpportFile.val();
+			if(!fileName || !fileName.trim()) {
+				jslet.showInfo('FileName required!');
+				event.stopPropagation();
+				event.preventDefault();
+				return false;
+			}
+			var fields = Z._exportDataset.getFieldValue('fields');
+			
+			Z._dataset.exportCsvFile(fileName, {includeFields: fields});
+			owin.close();
+		});
+		jqEl.find('#btnCancel').click(function(event) {
+			owin.close();
+		});
 	},
 	
-	close: function() {
+	exportDataset: function(exportDs) {
+		return this._exportDataset;
+	},
+	
+	_freshFields: function() {
+		var dataList = [{field: '_all_', label: 'All'}];
 		
+		function addFields(dataList, fields, parentField) {
+			var fldObj, fldName;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				fldName = fldObj.name();
+				if(parentField) {
+					fldName = parentField + '.' + fldName;
+				}
+				var detailDs = fldObj.subDataset();
+				if(detailDs) {
+					addFields(dataList, detailDs.getNormalFields(), fldName);
+					continue;
+				}
+				if(fldObj.visible()) {
+					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+				}
+			}
+		}
+		addFields(dataList, this._dataset.getNormalFields());
+		var exportLKDs = this._exportDataset.getField('fields').lookup().dataset();
+		exportLKDs.dataList(dataList);
+		exportLKDs.selectAll(true);
+	},
+
+	show: function(dataset) {
+		var Z = this;
+		this._freshFields();
+		var jqEl = jQuery('#' + this._dlgId);
+		var owin = jqEl[0].jslet;
+		var fileName = Z._dataset.description() + '.csv';
+		var jqExpportFile = jqEl.find('#txtExportFile');
+		jqExpportFile.val(fileName);
+		owin.showModal();
+		owin.setZIndex(999);
+		return owin;
 	}
 }

@@ -54,14 +54,6 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	},
 
 	/**
-	 * DBTable uses this property.
-	 */
-	ctrlRecno: function($super, ctrlRecno) {
-		this.el.firstChild.jslet.ctrlRecno(ctrlRecno);
-		return $super(ctrlRecno);
-	},
-	
-	/**
 	 * @override
 	 */
 	refreshControl: function (evt) {
@@ -70,8 +62,7 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA &&
 			Z._field == evt.fieldName && 
-			(evt.metaName == 'editControl' || evt.metaName == 'valueStyle') && 
-			Z.isActiveRecord()) {
+			(evt.metaName == 'editControl' || evt.metaName == 'valueStyle')) {
 			Z.renderAll();
 			return true;
 		}

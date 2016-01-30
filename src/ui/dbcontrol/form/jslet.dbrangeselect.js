@@ -103,7 +103,10 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var jqEl = jQuery(Z.el);
 		jqEl.on('change', Z._doChanged);// end observe
 		jqEl.focus(function(event) {
-			jqEl.trigger('editing', [Z._field]);
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+		});
+		jqEl.blur(function(event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
 		if(Z.el.multiple) {
 			jqEl.on('click', 'option', function () {

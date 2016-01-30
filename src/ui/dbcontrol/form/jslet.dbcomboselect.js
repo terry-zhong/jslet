@@ -231,7 +231,7 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
 	
 	Z.popup = new jslet.ui.PopupPanel();
 	Z.popup.onHidePopup = function() {
-		Z.comboSelectObj.focus();
+		Z.comboSelectObj && Z.comboSelectObj.focus();
 	};
 };
 

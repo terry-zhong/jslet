@@ -99,9 +99,11 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 		var jqEl = jQuery(Z.el);
 		jqEl.on('change', Z._doChanged);
-		jqEl.on('mousedown', Z._doMouseDown);
 		jqEl.focus(function(event) {
-			jqEl.trigger('editing', [Z._field]);
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+		});
+		jqEl.blur(function(event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
 		if(Z.el.multiple) {
 			jqEl.on('click', 'option', Z._doCheckLimitCount);
@@ -110,19 +112,6 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.doMetaChanged('required');
 	}, // end bind
 
-	_doMouseDown: function(event) {
-		var Z = this.jslet,
-			ctrlRecno = Z.ctrlRecno();
-		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
-			Z._skipRefresh = true;
-			try {
-				Z._dataset.recno(ctrlRecno);
-			} finally {
-				Z._skipRefresh = false;
-			}
-		}
-	},
-	
 	_doChanged: function (event) {
 		var Z = this.jslet;
 		if(Z.el.multiple) {

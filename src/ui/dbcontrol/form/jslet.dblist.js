@@ -99,40 +99,46 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 			showType = 'tree';
 		}
 		if (showType == 'tree') {
-			var treeparam = { 
+			var treeParam = { 
 				type: 'DBTreeView', 
 				dataset: lkds, 
 				readOnly: false, 
 				displayFields: lkfld.displayFields(), 
 				hasCheckBox: isMulti,
-				correlateCheck: Z._correlateCheck
+				correlateCheck: Z._correlateCheck,
+				expandLevel: 99
 			};
 			if(isMulti) {
-				treeparam.afterCheckBoxClick = function() {
+				treeParam.afterCheckBoxClick = function() {
 					Z.updateToDataset();
 				}
 			} else {
-				treeparam.onItemClick = function() {
+				treeParam.onItemClick = function() {
 					Z.updateToDataset();
 				}
 			}
 	
-			window.setTimeout(function(){
-				jslet.ui.createControl(treeparam, Z.el, '100%', '100%');
+			window.setTimeout(function() {
+				jslet.ui.createControl(treeParam, Z.el, '100%', '100%');
+				jQuery(Z.el.childNodes[0]).on('focus', function(event) {
+					jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+				}).on('blur', function(event) {
+					jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
+				});
 			}, 1);
 		} else {
-			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: isMulti, hasSeqCol: false, hasFindDialog: false, hasFilterDialog: false};
+			var tableParam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: isMulti, hasSeqCol: false, hasFindDialog: false, hasFilterDialog: false};
 			if(isMulti) {
-				tableparam.afterSelect = tableparam.afterSelectAll = function() {
+				tableParam.afterSelect = tableParam.afterSelectAll = function() {
 					Z.updateToDataset();
 				};
 			} else {
-				tableparam.onRowClick = function() {
+				tableParam.onRowClick = function() {
 					Z.updateToDataset();
 				};
 			}
 			window.setTimeout(function() {
-				jslet.ui.createControl(tableparam, Z.el, '100%', '100%');
+				jslet.ui.createControl(tableParam, Z.el, '100%', '100%');
 			}, 1);
 		}
 		
@@ -141,7 +147,7 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	doMetaChanged: function($super, metaName){
+	doMetaChanged: function($super, metaName) {
 		$super(metaName);
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
@@ -182,23 +188,12 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 		} else {
 			value = lkds.selectedKeyValues();
 		}
-		var ctrlRecno = Z.ctrlRecno();
-		if(ctrlRecno >= 0) {
-			var oldRecno = Z._dataset.recnoSilence();
-			Z._dataset.recnoSilence(Z.ctrlRecno());
-		}
+		Z._dataset.editRecord();
+		Z._keep_silence_ = true;
 		try {
-			Z._dataset.editRecord();
-			Z._keep_silence_ = true;
-			try {
-				Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
-			} finally {
-				Z._keep_silence_ = false;
-			}
+			Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
 		} finally {
-			if(ctrlRecno >= 0) {
-				Z._dataset.recnoSilence(oldRecno);
-			}
+			Z._keep_silence_ = false;
 		}
 		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		return true;
@@ -236,7 +231,7 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	destroy: function($super){
+	destroy: function($super) {
 		var Z = this;
 		$super();
 	}

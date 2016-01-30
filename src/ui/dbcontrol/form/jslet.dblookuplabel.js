@@ -76,7 +76,7 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 		if (evt.eventType != jslet.data.RefreshEvent.UPDATEALL) {
 			return;
 		}
-		if (!isForce && !Z.isActiveRecord()) {
+		if (!isForce) {
 			return;
 		}
 		var Z = this;

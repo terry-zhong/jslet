@@ -57,7 +57,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				pnodes = [], 
 				node, pnode, 
 				tmpNode, tmpKeyValue,
-				currRec, state, keyValue;
+				currRec, keyValue;
 			for(var recno = 0, recCnt = ds.recordCount(); recno < recCnt; recno++) {
 				ds.recnoSilence(recno);
 				keyValue = ds.keyValue();
@@ -82,17 +82,13 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 					}
 				}
 				currRec = ds.getRecord();
-				state = ds.selected();
-				if (!state) {
-					state = 0;
-				}
 				var expanded = true;
 				if(expandLevel >= 0 && level <= expandLevel) {
 					expanded = true;
 				} else { 
 					expanded = ds.expanded();
 				}
-				node = { parent: pnode, recno: recno, keyvalue: keyValue, expanded: expanded, state: state, isbold: 0, level: level };
+				node = { parent: pnode, recno: recno, keyvalue: keyValue, expanded: expanded, isbold: 0, level: level };
 				pnodes.push(node);
 								
 				if (pnode){
@@ -115,7 +111,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 		
 	this._updateParentNodeBoldByChecked = function(node){
-		if (!node.state || !node.parent) {
+		if (!dataset.selectedByRecno(node.recno) || !node.parent) {
 			return;
 		}
 		var pnode = node.parent;
@@ -132,7 +128,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	};
 
 	this._updateParentNodeBoldByNotChecked = function(node){
-		if (node.state || !node.parent) {
+		if (dataset.selectedByRecno(node.recno) || !node.parent) {
 			return;
 		}
 		var pnode = node.parent, cnode;
@@ -140,7 +136,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			if (pnode.children){
 				for(var i = 0, cnt = pnode.children.length; i < cnt; i++){
 					cnode = pnode.children[i];
-					if (cnode.state) {
+					if (dataset.selectedByRecno(cnode.recno)) {
 						return;
 					}
 				}
@@ -490,12 +486,12 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		return null;
 	};
 	
-	this._callbackFn = function (node, state) {
+	this._callbackFn = function (node, expanded) {
 		var oldRecno = dataset.recnoSilence();
 		try {
 			dataset.recnoSilence(node.recno);
-			dataset.expanded(state);
-			node.expanded = state;
+			dataset.expanded(expanded);
+			node.expanded = expanded;
 		} finally {
 			dataset.recnoSilence(oldRecno);
 		}
@@ -562,8 +558,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 //		if (node.state == state) {
 //			return;
 //		}
-		node.state = state ? 1 : 0;
-		dataset.selected(node.state);
+		dataset.selected(state ? 1 : 0);
 
 		if (relativeCheck){
 			if (node.children && node.children.length > 0) {
@@ -587,8 +582,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	
 	this.checkChildNodes = function(state, relativeCheck){
 		var node = this.getCurrentRow();
-		node.state = state ? 1 : 0;
-		dataset.selected(node.state);
+		dataset.selected(state ? 1 : 0);
 
 		if (node.children && node.children.length > 0) {
 			this._updateChildState(node, state);
@@ -616,7 +610,6 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		try{
 			for(var i = 0, cnt = node.children.length; i < cnt; i++){
 				childNode = node.children[i];
-				childNode.state = state;
 				dataset.recnoSilence(childNode.recno);
 				dataset.selected(state);
 				if (childNode.children && childNode.children.length > 0) {
@@ -633,27 +626,27 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if (!pNode) {
 			return;
 		}
-		var childNode, newState;
+		var childNode, newState, childState;
 		if (state != 2){
 			for(var i = 0, cnt = pNode.children.length; i < cnt; i++){
 				childNode = pNode.children[i];
-				if (childNode.state == 2){
+				childState = dataset.selectedByRecno(childNode.recno);
+				if (childState == 2){
 					newState = 2;
 					break;
 				}
 				if (i === 0){
-					newState = childNode.state;
-				} else if (newState != childNode.state){
-						newState =2;
-						break;
+					newState = childState;
+				} else if (newState != childState){
+					newState =2;
+					break;
 				}
-				
 			}//end for
 		} else {
 			newState = state;
 		}
-		if (pNode.state != newState){
-			pNode.state = newState;
+		var pState = dataset.selectedByRecno(pNode.recno);
+		if (pState != newState){
 			var oldRecno = dataset.recnoSilence();
 			try{
 				dataset.recnoSilence(pNode.recno);

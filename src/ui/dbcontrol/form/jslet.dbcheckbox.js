@@ -72,22 +72,16 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var jqEl = jQuery(Z.el);
 		jqEl.on('click', Z._doClick);
 		jqEl.focus(function(event) {
-			jqEl.trigger('editing', [Z._field]);
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+		});
+		jqEl.blur(function(event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
 		jqEl.addClass('checkbox-inline');
 	}, // end bind
 
 	_doClick: function (event) {
 		var Z = this.jslet;
-		var ctrlRecno = Z.ctrlRecno();
-		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
-			Z._skipRefresh = true;
-			try {
-				Z._dataset.recno(ctrlRecno);
-			} finally {
-				Z._skipRefresh = false;
-			}
-		}
 		if (Z._beforeClick) {
 			var result = Z._beforeClick.call(Z, Z.el);
 			if (!result) {

@@ -82,7 +82,10 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}, 5)
 		});
 		jqEl.on('focus', 'input[type="checkbox"]', function (event) {
-			jqEl.trigger('editing', [Z._field]);
+			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+		});
+		jqEl.on('blur', 'input[type="checkbox"]', function (event) {
+			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
 		jqEl.addClass('form-control');//Bootstrap class
 		jqEl.css('height', 'auto');

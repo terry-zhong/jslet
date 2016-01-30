@@ -113,12 +113,7 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z.el.src != srcURL) {
 			var altText = srcURL;
 			if(Z._altField) {
-				var ctrlRecno = Z.ctrlRecno();
-				if(ctrlRecno < 0) {
-					altText = Z._dataset.getFieldText(Z._altField);
-				} else {
-					altText = Z._dataset.getFieldTextByRecno(ctrlRecno, Z._altField);
-				}
+				altText = Z._dataset.getFieldText(Z._altField);
 			}
 			Z.el.alt = altText;
 			Z.el.src = srcURL;

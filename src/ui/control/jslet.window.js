@@ -406,7 +406,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		});
 
 		jqEl.on('click', function(event){
-			if(Z._isModal || Z._stopEventBubbling) {
+			if(Z._stopEventBubbling) {
 				event.stopPropagation();
 				event.preventDefault();
 			}
@@ -868,6 +868,9 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	setZIndex: function (zIndex) {
 		this.el.style.zIndex = zIndex;
+		if(this.overlay) {
+			this.overlay.setZIndex(zIndex - 2);
+		}
 	},
 
 	_checkSize: function (width, height) {

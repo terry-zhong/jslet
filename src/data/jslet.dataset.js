@@ -16,6 +16,7 @@ jslet.data.Dataset = function (name) {
 	
 	var Z = this;
 	Z._name = null; //Dataset name
+	Z._description = null;
 	Z._recordClass = jslet.global.defaultRecordClass; //Record class, used for serialized/deserialize
 	Z._dataList = null; //Array of data records
 	Z._oriDataList = null;
@@ -152,7 +153,21 @@ jslet.data.Dataset.prototype = {
 		Z._datasetField = jslet.data.datasetRelationManager.getHostFieldObject(name); //jslet.data.Field 
 		return this;
 	},
-		
+	
+	/**
+	 * Dataset description.
+	 * 
+	 * @param {String} description - Dataset's description.
+	 * @return {String or this}
+	 */
+	description: function(description) {
+		if(description === undefined) {
+			return this._description || this._name;
+		}
+		this._description = description;
+		return this;
+	},
+	
 	/**
 	* Set dataset's record class, recordClass is the server entity class quantified name.
 	* It's used for automated serialization.
@@ -1661,6 +1676,52 @@ jslet.data.Dataset.prototype = {
 		Z._bof = Z._eof = false;
 	},
 
+	firstError: function() {
+		return this._moveToError(0);
+	},
+	
+	nextError: function() {
+		return this._moveToError(this.recno() + 1);
+	},
+	
+	priorError: function() {
+		return this._moveToError(this.recno() - 1, true);
+	},
+	
+	lastError: function() {
+		return this._moveToError(Z.recordCount() - 1, true);
+	},
+	
+	_moveToError: function(startRecno, reverse) {
+		var Z = this,
+			recCnt = Z.recordCount() - 1;
+		if(recCnt < 0) {
+			return false;
+		}
+		if(!reverse) {
+			if(startRecno < 0) {
+				startRecno = 0;
+			}
+			for(var i = startRecno; i < recCnt; i++) {
+				if(Z.existRecordError(i)) {
+					Z._moveCursor(i);
+					return true;
+				}
+			}
+		} else {
+			if(startRecno > recCnt) {
+				startRecno = recCnt;
+			}
+			for(var i = startRecno; i >= 0; i--) {
+				if(Z.existRecordError(i)) {
+					Z._moveCursor(i);
+					return true;
+				}
+			}
+		}
+		return false;
+	},
+	
 	/**
 	 * @private
 	 * Check dataset status and cancel dataset 
@@ -2680,7 +2741,7 @@ jslet.data.Dataset.prototype = {
 	
 	getRecordErrorInfo: function(recno, checkingFields) {
 		var record = this.getRecord(recno);
-		if(!this.existRecordError) {
+		if(!this.existRecordError()) {
 			return '';
 		}
 		var recInfo = jslet.data.getRecInfo(record);
@@ -2958,9 +3019,9 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 	},
-
+	
 	/**
-	 * Check the specified field which value is valid.
+	 * Check the specified field if it is valid or not.
 	 * 
 	 * @param fldName {String} - field name;
 	 * @param valueIndex {Integer} - value index.
@@ -3218,6 +3279,21 @@ jslet.data.Dataset.prototype = {
 	
 	focusedFields: function() {
 		return this._focusedFields;
+	},
+	
+	mergedFocusedFields: function() {
+		var fields = this._focusedFields,
+			result = fields,
+			canFields = this._canFocusFields;
+		if(canFields) {
+			for(var i = fields.length - 1; i >= 0; i--) {
+				if(canFields.indexOf(fields[i]) < 0) {
+					result = fields.slice(0);
+					result.splice(i, 1);
+				}
+			}
+		}
+		return result;
 	},
 	
 	_updateLookupRelativeFields: function(fldObj, fldValue) {
@@ -4936,7 +5012,7 @@ jslet.data.Dataset.prototype = {
 		if (k >= 0) {
 			arrCtrls.splice(k, 1);
 		}
-		if(!linkedControl.isLabel) {
+		if(!linkedControl.isLabel && linkedControl.field) {
 			var fldName = linkedControl.field();
 			if(fldName) {
 				var k = this._canFocusFields.indexOf(fldName);
@@ -4991,7 +5067,8 @@ jslet.data.Dataset.prototype = {
 			exportDisplayValue = true,
 			onlySelected = false,
 			includeFields = null,
-			excludeFields = null;
+			excludeFields = null,
+			escapeDate = true;
 		
 		if(exportOption && jQuery.isPlainObject(exportOption)) {
 			if(exportOption.exportHeader !== undefined) {
@@ -5010,6 +5087,9 @@ jslet.data.Dataset.prototype = {
 			if(exportOption.excludeFields !== undefined) {
 				excludeFields = exportOption.excludeFields;
 				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
+			}
+			if(exportOption.escapeDate !== undefined) {
+				escapeDate = exportOption.escapeDate? true: false;
 			}
 		}
 		var fldSeperator = ',', surround='"';
@@ -5052,6 +5132,7 @@ jslet.data.Dataset.prototype = {
 				}
 				result.push(arrRec.join(fldSeperator));
 			}
+			var isDate;
 			while(!Z.isEof()) {
 				if (onlySelected && !Z.selected()) {
 					Z.next();
@@ -5061,6 +5142,7 @@ jslet.data.Dataset.prototype = {
 				for(i = 0; i < fldCnt; i++) {
 					fldObj = exportFields[i];
 					fldName = fldObj.name();
+					isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
 					if (exportDisplayValue) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
@@ -5077,8 +5159,15 @@ jslet.data.Dataset.prototype = {
 					} else {
 						value += '';
 					}
-					value = value.replace(/"/,'');
+					value = value.replace(/"/g,'""');
+					var isStartZero = false;
+					if(value.startsWith('0')) {
+						isStartZero = true;
+					}
 					value = surround + value + surround;
+					if(isStartZero || isDate) {
+						value = '=' + value;
+					}
 					arrRec.push(value);
 				}
 				result.push(arrRec.join(fldSeperator));
@@ -5093,15 +5182,19 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * Export data to CSV file.
 	 * 
-	 * @param {fileName}fileName - CSV file name.
-	 * @param {String}includeFieldLabel - export with field labels, can be null  
-	 * @param {Boolean}dispValue - true: export display value of field, false: export actual value of field 
-	 * @param {Boolean}onlySelected - export selected records or not.
-	 * @param {String[]} onlyFields - specified the field name to export.
+	 * Export option pattern:
+	 * {exportHeader: true|false, //export with field labels
+	 *  exportDisplayValue: true|false, //true: export display value of field, false: export actual value of field
+	 *  onlySelected: true|false, //export selected records or not
+	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
+	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
+	 *  }
+	 *  
+	 * @param exportOption {PlanObject} export options
 	 */
-	exportCsvFile: function(fileName, includeFieldLabel, dispValue, onlySelected, onlyFields) {
+	exportCsvFile: function(fileName, exportOption) {
 		jslet.Checker.test('Dataset.exportCsvFile#fileName', fileName).required().isString();
-    	var str = this.exportCsv(includeFieldLabel, dispValue, onlySelected, onlyFields);
+    	var str = this.exportCsv(exportOption);
         var a = document.createElement('a');
 		
         var blob = new Blob([str], {'type': 'text\/csv'});
@@ -5514,7 +5607,8 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setPropValue('levelOrderField');
 		setPropValue('selectField');
 		setPropValue('recordClass');
-
+		setPropValue('description');
+		
 		setPropValue('queryUrl');
 		setPropValue('submitUrl');
 		setIntPropValue('pageNo');

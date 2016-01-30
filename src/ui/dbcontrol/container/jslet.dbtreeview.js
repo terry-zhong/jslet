@@ -53,42 +53,18 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		Z.allProperties = 'styleClass,dataset,displayFields,hasCheckBox,correlateCheck,onlyCheckChildren,readOnly,expandLevel,codeField,codeFormat,onItemClick,onItemDblClick,beforeCheckBoxClick,afterCheckBoxClick,iconClassField,onGetIconClass,onRenderItem,onCreateContextMenu';
 		Z.requiredProperties = 'displayFields';
 		
-		/**
-		 * {String} Display fields, it's a js expresssion, like: "[code]+'-'+[name]"
-		 */
 		Z._displayFields = null;
-		/**
-		 * {Boolean} Identify if there is checkbox on tree node.
-		 */
+
 		Z._hasCheckBox = false;
-		/**
-		 * {Boolean} Checkbox is readonly or not, ignored if hasCheckBox = false
-		 */
+
 		Z._readOnly = false;
 		
-		/**
-		 * {Boolean} if true, when you check one tree node, its children and its parent will check too;
-		 */
 		Z._correlateCheck = false;
 		
 		Z._onlyCheckChildren = false;
 		
-		///**
-		// * {String} Key field, it will use 'keyField' and 'parentField' to construct tree nodes.
-		// */
-		//Z._keyField = null;
-		///**
-		// * {String} Parent field, it will use 'keyField' and 'parentField' to construct tree nodes.
-		// */
-		//Z._parentField = null;
-		/**
-		 * {String} If icon class is stored one field, you can set this property to display different tree node icon.
-		 */
 		Z._iconClassField = null;
 		
-		/**
-		 * {Integer} Identify the nodes which level is from 0 to "expandLevel" will be expanded when initialize tree.
-		 */
 		Z._expandLevel = -1;
 		
 		Z._onItemClick = null;
@@ -99,14 +75,6 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._afterCheckBoxClick = null;
 
-		/**
-		 * {Event} You can use this event to customize your tree node icon flexibly.
-		 * Pattern: 
-		 *   function(keyValue, level, isLeaf){}
-		 *   //keyValue: String, key value of tree node;
-		 *   //level: Integer, tree node level;
-		 *   //isLeaf: Boolean, Identify if the tree node is the leaf node.
-		 */
 		Z._onGetIconClass = null;
 		
 		Z._onRenderItem = null;
@@ -118,24 +86,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		$super(el, params);
 	},
 	
-	//keyField: function(keyField) {
-	//	if(keyField === undefined) {
-	//		return this._keyField;
-	//	}
-	//	keyField = jQuery.trim(keyField);
-	//		jslet.Checker.test('DBTreeView.keyField', keyField).required().isString();
-	//	this._keyField = keyField;
-	//},
-	//
-	//parentField: function(parentField) {
-	//	if(parentField === undefined) {
-	//		return this._parentField;
-	//	}
-	//	parentField = jQuery.trim(parentField);
-	//		jslet.Checker.test('DBTreeView.parentField', parentField).required().isString();
-	//	this._parentField = parentField;
-	//},
-	//
+	/**
+	 * Display fields to render tree node, it's a js expresssion, like: "[code]+'-'+[name]"
+	 * 
+	 * @param {String or undefined} displayFields - Display fields, it's a js expresssion, like: "[code]+'-'+[name]"
+	 * @return {String or this}
+	 */
 	displayFields: function(displayFields) {
 		if(displayFields === undefined) {
 			return this._displayFields;
@@ -145,6 +101,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._displayFields = displayFields;
 	},
 	
+	/**
+	 * If icon class is stored one field, you can set this property to display different tree node icon.
+	 * 
+	 * @param {String or undefined} iconClassField - If icon class is stored one field, you can set this property to display different tree node icon.
+	 * @return {String or this}
+	 */
 	iconClassField: function(iconClassField) {
 		if(iconClassField === undefined) {
 			return this._iconClassField;
@@ -154,6 +116,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._iconClassField = iconClassField;
 	},
 	
+	/**
+	 * Identify if there is a check box on tree node
+	 * 
+	 * @param {Boolean or undefined} hasCheckBox - Identify if there is a check box on tree node.
+	 * @return {Boolean or this}
+	 */
 	hasCheckBox: function(hasCheckBox) {
 		if(hasCheckBox === undefined) {
 			return this._hasCheckBox;
@@ -161,6 +129,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._hasCheckBox = hasCheckBox ? true: false;
 	},
 	
+	/**
+	 * If true, when you check one tree node, its children and its parent will be checked too;
+	 * 
+	 * @param {Boolean or undefined} correlateCheck - If true, when you check one tree node, its children and its parent will be checked too.
+	 * @return {Boolean or this}
+	 */
 	correlateCheck: function(correlateCheck) {
 		if(correlateCheck === undefined) {
 			return this._correlateCheck;
@@ -175,6 +149,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._onlyCheckChildren = onlyCheckChildren ? true: false;
 	},
 	
+	/**
+	 * Identify if the checkbox is read only or not, ignored if "hasCheckBox" is false
+	 * 
+	 * @param {Boolean or undefined} readOnly - Checkbox is readonly or not, ignored if hasCheckBox = false.
+	 * @return {Boolean or this}
+	 */
 	readOnly: function(readOnly) {
 		if(readOnly === undefined) {
 			return this._readOnly;
@@ -182,6 +162,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._readOnly = readOnly ? true: false;
 	},
 	
+	/**
+	 * Identify the nodes which level is from 0 to "expandLevel" will be expanded when initialize tree.
+	 * 
+	 * @param {Integer or undefined} expandLevel - Identify the nodes which level is from 0 to "expandLevel" will be expanded when initialize tree.
+	 * @return {Integer or this}
+	 */
 	expandLevel: function(expandLevel) {
 		if(expandLevel === undefined) {
 			return this._expandLevel;
@@ -222,6 +208,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this._afterCheckBoxClick = afterCheckBoxClick;
 	},
 	
+	/**
+	 * {Event} You can use this event to customize your tree node icon flexibly.
+	 * Pattern: 
+	 *   function(keyValue, level, isLeaf){}
+	 *   //keyValue: String, key value of tree node;
+	 *   //level: Integer, tree node level;
+	 *   //isLeaf: Boolean, Identify if the tree node is the leaf node.
+	 */
 	onGetIconClass: function(onGetIconClass) {
 		if(onGetIconClass === undefined) {
 			return this._onGetIconClass;
@@ -247,8 +241,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	/**
-		 * @override
-		 */
+	 * @override
+	 */
 	isValidTemplateTag: function (el) {
 		return el.tagName.toLowerCase() == 'div';
 	},
@@ -265,7 +259,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			Z._keyField = Z._dataset.keyField();
 		}
 		var ti = jqEl.attr('tabindex');
-		if (!Z._readOnly && !ti) {
+		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
 		jqEl.keydown(function(event){
@@ -483,14 +477,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		this.expand();
 	},
 	
-	_doRowClick: function(node){
+	_doRowClick: function(treeNode){
 		var Z = this,
-			nodeType = node.getAttribute(jslet.ui.DBTreeView.NODETYPE);
+			nodeType = treeNode.getAttribute(jslet.ui.DBTreeView.NODETYPE);
 		if(!nodeType) {
 			return;
 		}
 		if (nodeType != '0') {
-			Z._syncToDs(node);
+			Z._syncToDs(treeNode);
 		}
 		if (nodeType == '1' || nodeType == '2'){ //expander
 			var item = Z.listvm.getCurrentRow();
@@ -505,14 +499,17 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				Z._doCheckBoxClick();
 			}
 		}
-		if(nodeType == '9' && Z._onItemClick) {
-			Z._onItemClick.call(Z);
+		if(nodeType == '9') {
+			Z._doCheckBoxClick();
+			if(Z._onItemClick) {
+				Z._onItemClick.call(Z);
+			}
 		}
 	},
 	
-	_doRowDblClick: function(node){
-		this._syncToDs(node);
-		var nodeType = node.getAttribute(jslet.ui.DBTreeView.NODETYPE);
+	_doRowDblClick: function(treeNode){
+		this._syncToDs(treeNode);
+		var nodeType = treeNode.getAttribute(jslet.ui.DBTreeView.NODETYPE);
 		if (this._onItemDblClick && nodeType == '9') {
 			this._onItemDblClick.call(this);
 		}
@@ -523,11 +520,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._readOnly) {
 			return;
 		}
+		var node = Z.listvm.getCurrentRow();
+		if(!node.hasCheckbox) {
+			return;
+		}
 		if (Z._beforeCheckBoxClick && !Z._beforeCheckBoxClick.call(Z)) {
 			return;
 		}
-		var node = Z.listvm.getCurrentRow();
-		Z.listvm.checkNode(!node.state? 1:0, Z._correlateCheck, Z._onlyCheckChildren);
+		Z.listvm.checkNode(!Z._dataset.selected()? 1:0, Z._correlateCheck, Z._onlyCheckChildren);
 		if (Z._afterCheckBoxClick) {
 			Z._afterCheckBoxClick.call(Z);
 		}
@@ -624,8 +624,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		return jslet.ui.htmlclass.TREECHECKBOXCLASS.checked;
 	},
 	
-	_fillNode: function(node, rowNo){
-		var row = node.rows[0],
+	_fillNode: function(nodeTbl, rowNo){
+		var row = nodeTbl.rows[0],
 			Z = this,
 			item = Z.listvm.setCurrentRowno(rowNo, true),
 			cells = row.cells, 
@@ -682,6 +682,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				
 		// CheckBox
 		var flag = Z._hasCheckBox && Z._dataset.checkSelectable();
+		var node = Z.listvm.getCurrentRow();
+		node.hasCheckbox = flag;
 		var ocheckbox = row.cells[cellCnt- 3];
 		if (flag) {
 			ocheckbox.noWrap = true;
@@ -704,7 +706,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 				iconClsId = Z._onGetIconClass.call(Z, Z._dataset.keyValue(), item.level, isLeaf); //keyValue, level, isLeaf
 			}
 			if (iconClsId) {
-							clsName += ' '+ iconClsId;
+				clsName += ' '+ iconClsId;
 			}
 			if (oIcon.className != clsName) {
 				oIcon.className = clsName;
@@ -791,7 +793,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			{ id: 'expandAll', name: jslet.locale.DBTreeView.expandAll },
 			{ id: 'collapseAll', name: jslet.locale.DBTreeView.collapseAll}]
 		};
-		if (Z._hasCheckBox && !Z._correlateCheck) {
+		if (Z._hasCheckBox) {
 			menuCfg.items.push({ name: '-' });
 			menuCfg.items.push({ id: 'checkAll', name: jslet.locale.DBTreeView.checkAll });
 			menuCfg.items.push({ id: 'uncheckAll', name: jslet.locale.DBTreeView.uncheckAll });
@@ -834,7 +836,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL ||
 			evtType == jslet.data.RefreshEvent.INSERT ||
 			evtType == jslet.data.RefreshEvent.DELETE){
-			Z.listvm.refreshModel();
+			Z.listvm.refreshModel(Z._expandLevel);
 			if(evtType == jslet.data.RefreshEvent.INSERT) {
 				Z.listvm.syncDataset();
 			}

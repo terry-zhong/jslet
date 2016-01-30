@@ -43,17 +43,6 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	ctrlRecno: function($super, ctrlRecno) {
-		if(ctrlRecno !== undefined) {
-			this.textCtrl.ctrlRecno(ctrlRecno);
-		}
-		var result = $super(ctrlRecno);
-		return result;
-	},
-	
-	/**
-	 * @override
-	 */
 	bind: function () {
 		var Z = this;
 		var jqEl = jQuery(Z.el);
@@ -80,8 +69,11 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			jqBtn.on('click', function(event){
 				Z.buttonClick(jqBtn[0]);
 			});
-			jqBtn.on('focus', function (event) {
-				jqEl.trigger('editing', [Z._field]);
+			jqBtn.focus(function(event) {
+				jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
+			});
+			jqBtn.blur(function(event) {
+				jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 			});
 			
 		}

@@ -117,18 +117,12 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._skipFocusEvent) {
 			return;
 		}
-		var ctrlRecno = Z.ctrlRecno();
-		if(ctrlRecno >= 0 && ctrlRecno != Z._dataset.recno()) {
-			if(!Z._dataset.recno(ctrlRecno)) {
-				return;
-			}
-		}
+		jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
 		Z.doValueChanged();
 		Z.oldValue = Z.el.value;
 		if(Z._autoSelectAll) {
 			jslet.ui.textutil.selectText(Z.el);
 		}
-		jQuery(Z.el).trigger('editing', [Z._field]);
 	},
 
 	/**
@@ -137,6 +131,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 	doBlur: function () {
 		var Z = this,
 			fldObj = Z._dataset.getField(Z._field);
+		jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		Z._position = jslet.ui.textutil.getCursorPos(Z.el);
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;
@@ -376,35 +371,24 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(Z.oldValue == value) {
 			return true;
 		}
-		var ctrlRecno = Z.ctrlRecno();
-		if(ctrlRecno >= 0) {
-			var oldRecno = Z._dataset.recnoSilence();
-			Z._dataset.recnoSilence(Z.ctrlRecno());
+		Z._dataset.editRecord();
+		if (this.editMask && !this.editMask.validateValue()) {
+			return false;
 		}
-		try {
-			Z._dataset.editRecord();
-			if (this.editMask && !this.editMask.validateValue()) {
+		if (Z._beforeUpdateToDataset) {
+			if (!Z._beforeUpdateToDataset.call(Z)) {
 				return false;
 			}
-			if (Z._beforeUpdateToDataset) {
-				if (!Z._beforeUpdateToDataset.call(Z)) {
-					return false;
-				}
+		}
+
+		Z._keep_silence_ = true;
+		try {
+			if (Z.editMask) {
+				value = Z.editMask.getValue();
 			}
-	
-			Z._keep_silence_ = true;
-			try {
-				if (Z.editMask) {
-					value = Z.editMask.getValue();
-				}
-				Z._dataset.setFieldText(Z._field, value, Z._valueIndex);
-			} finally {
-				Z._keep_silence_ = false;
-			}
+			Z._dataset.setFieldText(Z._field, value, Z._valueIndex);
 		} finally {
-			if(ctrlRecno >= 0) {
-				Z._dataset.recnoSilence(oldRecno);
-			}
+			Z._keep_silence_ = false;
 		}
 		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		return true;

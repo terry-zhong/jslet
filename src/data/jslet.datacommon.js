@@ -1237,36 +1237,48 @@ jslet.data.DataSelection.prototype = {
 		if(!seperator) {
 			seperator = '\t';
 		}
+		var surround='"';
 		var dataset = this._dataset,
 			result = [], 
 			context = dataset.startSilenceMove(),
 			fields = dataset.getNormalFields(),
 			fldCnt = fields.length,
-			fldName, textRec = '', fldObj, text;
+			fldName, textRec, fldObj, text, dataType;
 		try {
 			dataset.first();
-			while(!dataset.isEof()) { 
+			while(!dataset.isEof()) {
+				textRec = [];
 				for(var i = 0; i < fldCnt; i++) {
 					fldObj = fields[i];
 					fldName = fldObj.name();
 					if(this.isSelected(dataset.recno(), fldName)) {
 						//If Number field does not have lookup field, return field value, not field text. 
 						//Example: 'amount' field
-						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+						dataType = fldObj.getType();
+						var isDate = false;
+						if(dataType === 'N' && !fldObj.lookup()) {
 							text = fldObj.getValue();
 						} else {
+							isDate = (dataType === jslet.data.DataType.DATE);
 							text = dataset.getFieldText(fldName);
 							if(text === null || text === undefined) {
 								text = '';
 							}
 						}
-						textRec += text + seperator; 
+						text = text.replace(/"/g,'""');
+						var isStartZero = false;
+						if(text.startsWith('0')) {
+							isStartZero = true;
+						}
+						text = surround + text + surround;
+						if(isStartZero || isDate) {
+							text = '=' + text;
+						}
+						
+						textRec.push(text); 
 					}
 				}
-				if(textRec) {
-					result.push(textRec);
-				}
-				textRec = '';
+				result.push(textRec.join(seperator));
 				dataset.next(); 
 			} 
 		} finally { 

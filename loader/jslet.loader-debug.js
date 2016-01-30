@@ -67,15 +67,14 @@ var _initialModules = [
 	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule', 'filterdataset'], baseOnLoader: true },
 	
 //ui
-	{ name: 'tabbable', src: '../src/ui/jquery.tabbable.js', deps: ['jquery'], baseOnLoader: true },
+	{ name: 'focusmanager', src: '../src/ui/jslet.focusmanager.js', deps: ['jquery'], baseOnLoader: true },	
 	{ name: 'basecontrol', src: '../src/ui/jslet.control.js', deps: ['class'], baseOnLoader: true },
 	{ name: 'dnd', src: '../src/ui/jslet.dnd.js', deps: ['common'], baseOnLoader: true },
 	{ name: 'editmask', src: '../src/ui/jslet.editmask.js', deps: ['common'], baseOnLoader: true },
 	{ name: 'uicommon', src: '../src/ui/jslet.uicommon.js', deps: ['control','jslet-style'], baseOnLoader: true },
 	{ name: 'resizeeventbus', src: '../src/ui/jslet.resizeeventbus.js', deps: ['common'], baseOnLoader: true },
 
-	{ name: 'uicore', deps: ['tabbable', 'basecontrol','dnd','editmask','uicommon','resizeeventbus','bootstrap'], baseOnLoader: true },
-
+	{ name: 'uicore', deps: ['basecontrol','dnd','editmask','uicommon','resizeeventbus','bootstrap', 'focusmanager'], baseOnLoader: true },
 //control
 	{ name: 'overlaypanel', src: '../src/ui/control/jslet.overlaypanel.js', deps: ['uicore'], baseOnLoader: true },
 	{ name: 'waitingbox', src: '../src/ui/control/jslet.waitingbox.js', deps: ['uicore','jslet-container','jslet-calendar'], baseOnLoader: true },

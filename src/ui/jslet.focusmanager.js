@@ -1,3 +1,184 @@
+if(!jslet.ui) {
+	jslet.ui = {};
+}
+/**
+ * Control focus manager.
+ * 
+ * @param containerId {String} container id, if containerid is not specified, container is document.
+ */
+jslet.ui.FocusManager = function() {
+	this._onChangingFocus = null;
+	this._focusKeyCode = null;
+	this._containerIds = null;
+	this._activeDataset = null;
+	this._activeField = null;
+	this._activeValueIndex = null;
+	
+	this._initialize();
+}
+
+jslet.ui.FocusManager.prototype = {
+	/**
+	 * Get or set onChangingFocus event handler. 
+	 * 
+	 * @param onChangingFocus {Function} event handler, pattern:
+	 * function doChangingFocus(element, reserve, datasetObj, fieldName) {
+	 * 		console.log('Changind focus');
+	 * }
+	 * 
+	 * focusManager.onChangingFocus(doChangingFocus);
+	 * 
+	 */
+	onChangingFocus: function(onChangingFocus) {
+		if(onChangingFocus === undefined) {
+			return this._onChangingFocus;
+		}
+		jslet.Checker.test('FocusManager.onChangingFocus', onChangingFocus).isFunction();
+		this._onChangingFocus = onChangingFocus;
+	},
+	
+	/**
+	 * Get or set 'focusKeyCode'
+	 * 
+	 * @param {Integer} focusKeyCode - Key code for changing focus.
+	 * 
+	 */
+	focusKeyCode: function(focusKeyCode) {
+		if(focusKeyCode === undefined) {
+			return this._focusKeyCode;
+		}
+		jslet.Checker.test('FocusManager.focusKeyCode', focusKeyCode).isNumber();
+		this._focusKeyCode = focusKeyCode;
+	},
+	
+	pushContainer: function(containerId) {
+		jslet.Checker.test('FocusManager.pushContainer#containerId', containerId).required().isString();
+		if(this._containerIds == null) {
+			this._containerIds = [];
+		}
+		this._containerIds.push(containerId);
+	},
+	
+	popContainer: function(containerId) {
+		jslet.Checker.test('FocusManager.pushContainer#containerId', containerId).required().isString();
+		if(this._containerIds[this._containerIds.length - 1] == containerId) {
+			this._containerIds.pop();
+		}
+	},
+	
+	activeDataset: function(dsName) {
+		if(dsName === undefined) {
+			return this._activeDataset;
+		}
+		jslet.Checker.test('FocusManager.activeDataset', dsName).isString();
+		this._activeDataset = dsName;
+		return this;
+	},
+	
+	activeField: function(fldName) {
+		if(fldName === undefined) {
+			return this._activeField;
+		}
+		jslet.Checker.test('FocusManager.activeField', fldName).isString();
+		this._activeField = fldName;
+		return this;
+	},
+	
+	activeValueIndex: function(valueIndex) {
+		if(valueIndex === undefined) {
+			return this._activeValueIndex;
+		}
+		jslet.Checker.test('FocusManager.activeValueIndex', valueIndex).isNumber();
+		this._activeValueIndex = valueIndex;
+		return this;
+	},
+	
+	_initialize: function() {
+		function isTabableElement(ele) {
+			var tagName = ele.tagName;
+			if(tagName == 'TEXTAREA' || tagName == 'A' || tagName == 'BUTTON') {
+				return false;
+			}
+			if(tagName == 'INPUT') {
+				var typeAttr = ele.type;
+				if(typeAttr == 'button' || typeAttr == 'image' || typeAttr == 'reset' || typeAttr == 'submit' || typeAttr == 'url' || typeAttr == 'file') {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		var Z = this;
+		
+		function doChangingFocus(ele, reverse) {
+			if(Z._onChangingFocus) {
+				var cancelFocus = Z._onChangingFocus(ele, reverse, Z._activeDataset, Z._activeField, Z._activeValueIndex);
+				if(!cancelFocus) {
+					return false;
+				}
+			}
+			if(!Z._activeDataset && !Z._activeField) {
+				return true;
+			}
+			var dsObj = jslet.data.getDataset(Z._activeDataset);
+			if(!dsObj || !dsObj.focusedFields()) {
+				return true;
+			}
+			var focusedFlds = dsObj.mergedFocusedFields();
+			var idx = focusedFlds.indexOf(Z._activeField);
+			if(idx < 0) {
+				return true;
+			}
+			if(!reverse) {
+				if(idx === focusedFlds.length - 1) {
+					return true;
+				} else {
+					dsObj.focusEditControl(focusedFlds[idx + 1]);
+				}
+			} else {
+				if(idx === 0) {
+					return true;
+				} else {
+					dsObj.focusEditControl(focusedFlds[idx - 1]);
+				}
+			}
+			return false;
+		}
+		
+		function handleHostKeyDown(event) {
+			var focusKeyCode = Z._focusKeyCode || jslet.global.defaultFocusKeyCode || 9;
+			var keyCode = event.which;
+			if(keyCode === focusKeyCode || keyCode === 9) {
+				if(keyCode !== 9 && !isTabableElement(event.target)) {
+					return;
+				}
+				var jqContainer;
+				if(Z._containerIds && Z._containerIds.length > 0) {
+					var containerId = Z._containerIds[Z._containerIds.length - 1];
+					var jqContainer = jQuery('#' + containerId);
+					if(jqContainer.length === 0) {
+						throw new Error('Not found container: ' + containerId);
+					}
+				} else {
+					jqContainer = jQuery(document);
+				}
+				
+				if(event.shiftKey){
+					jQuery.tabPrev(jqContainer, true, doChangingFocus);
+				}
+				else{
+					jQuery.tabNext(jqContainer, true, doChangingFocus);
+				}
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+	       		return false;
+			}
+		}
+		jQuery(document).keydown(handleHostKeyDown);
+	}
+}
+jslet.ui.focusManager = new jslet.ui.FocusManager();
+
 /*!
  * jQuery.tabbable 1.0 - Simple utility for selecting the next / previous ':tabbable' element.
  * https://github.com/marklagendijk/jQuery.tabbable
