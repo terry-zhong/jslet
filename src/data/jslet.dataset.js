@@ -5046,7 +5046,6 @@ jslet.data.Dataset.prototype = {
 	 * 
 	 * Export option pattern:
 	 * {exportHeader: true|false, //export with field labels
-	 *  exportDisplayValue: true|false, //true: export display value of field, false: export actual value of field
 	 *  onlySelected: true|false, //export selected records or not
 	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
 	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
@@ -5064,7 +5063,6 @@ jslet.data.Dataset.prototype = {
 		}
 
 		var exportHeader = true,
-			exportDisplayValue = true,
 			onlySelected = false,
 			includeFields = null,
 			excludeFields = null,
@@ -5073,9 +5071,6 @@ jslet.data.Dataset.prototype = {
 		if(exportOption && jQuery.isPlainObject(exportOption)) {
 			if(exportOption.exportHeader !== undefined) {
 				exportHeader = exportOption.exportHeader? true: false;
-			}
-			if(exportOption.exportDisplayValue !== undefined) {
-				exportDisplayValue = exportOption.exportDisplayValue? true: false;
 			}
 			if(exportOption.onlySelected !== undefined) {
 				onlySelected = exportOption.onlySelected? true: false;
@@ -5099,7 +5094,7 @@ jslet.data.Dataset.prototype = {
 			var result = [], 
 				arrRec, 
 				fldCnt = Z._normalFields.length, 
-				fldObj, fldName, value, i,
+				fldObj, fldName, text, i,
 				exportFields = [];
 			for(i = 0; i < fldCnt; i++) {
 				fldObj = Z._normalFields[i];
@@ -5126,7 +5121,7 @@ jslet.data.Dataset.prototype = {
 				arrRec = [];
 				for(i = 0; i < fldCnt; i++) {
 					fldObj = exportFields[i];
-					fldName = fldObj.label() || fldObj.name();
+					fldName = fldObj.fullLabel();
 					fldName = surround + fldName + surround;
 					arrRec.push(fldName);
 				}
@@ -5142,33 +5137,34 @@ jslet.data.Dataset.prototype = {
 				for(i = 0; i < fldCnt; i++) {
 					fldObj = exportFields[i];
 					fldName = fldObj.name();
-					isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
-					if (exportDisplayValue) {
-						//If Number field does not have lookup field, return field value, not field text. 
-						//Example: 'amount' field
-						if(fldObj.getType() === 'N' && !fldObj.lookup()) {
-							value = Z.getFieldValue(fldName);
-						} else {
-							value = Z.getFieldText(fldName);
+					//If Number field does not have lookup field, return field value, not field text. 
+					//Example: 'amount' field
+					if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+						text = fldObj.getValue();
+						if(text === null || text === undefined) {
+							text = '';
 						}
+						text = surround + text + surround;
 					} else {
-						value = Z.getFieldValue(fldName);
+						text = Z.getFieldText(fldName);
+						if(text === null || text === undefined) {
+							text = '""';
+						} else {
+							text = text.replace(/"/g,'""');
+							var isStartZero = false;
+							if(text.startsWith('0')) {
+								isStartZero = true;
+							}
+							text = surround + text + surround;
+							if(!isStartZero) {
+								isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
+							}
+							if(isStartZero || isDate) {
+								text = '=' + text;
+							}
+						}
 					}
-					if (!value && value !== 0) {
-						value = '';
-					} else {
-						value += '';
-					}
-					value = value.replace(/"/g,'""');
-					var isStartZero = false;
-					if(value.startsWith('0')) {
-						isStartZero = true;
-					}
-					value = surround + value + surround;
-					if(isStartZero || isDate) {
-						value = '=' + value;
-					}
-					arrRec.push(value);
+					arrRec.push(text);
 				}
 				result.push(arrRec.join(fldSeperator));
 				Z.next();

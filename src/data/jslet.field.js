@@ -162,6 +162,22 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 
+	fullLabel: function(separator) {
+		if(!this.parent()) {
+			return this.label();
+		}
+		if(separator === undefined) {
+			separator = '_';
+		}
+		var labels = [this.label()];
+		var pFldObj = this.parent();
+		while(pFldObj) {
+			labels.push(pFldObj.label());
+			pFldObj = pFldObj.parent();
+		}
+		return labels.reverse().join(separator);
+	},
+	
 	/**
 	 * Get or set field tip.
 	 * 

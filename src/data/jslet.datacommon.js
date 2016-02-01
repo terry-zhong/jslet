@@ -1251,33 +1251,37 @@ jslet.data.DataSelection.prototype = {
 				for(var i = 0; i < fldCnt; i++) {
 					fldObj = fields[i];
 					fldName = fldObj.name();
-					if(this.isSelected(dataset.recno(), fldName)) {
-						//If Number field does not have lookup field, return field value, not field text. 
-						//Example: 'amount' field
-						dataType = fldObj.getType();
-						var isDate = false;
-						if(dataType === 'N' && !fldObj.lookup()) {
-							text = fldObj.getValue();
-						} else {
-							isDate = (dataType === jslet.data.DataType.DATE);
-							text = dataset.getFieldText(fldName);
-							if(text === null || text === undefined) {
-								text = '';
-							}
-						}
-						text = text.replace(/"/g,'""');
-						var isStartZero = false;
-						if(text.startsWith('0')) {
-							isStartZero = true;
+					if(!this.isSelected(dataset.recno(), fldName)) {
+						continue;
+					}
+					//If Number field does not have lookup field, return field value, not field text. 
+					//Example: 'amount' field
+					dataType = fldObj.getType();
+					if(dataType === 'N' && !fldObj.lookup()) {
+						text = fldObj.getValue();
+						if(text === null || text === undefined) {
+							text = '';
 						}
 						text = surround + text + surround;
-						if(isStartZero || isDate) {
-							text = '=' + text;
+					} else {
+						text = dataset.getFieldText(fldName);
+						if(text === null || text === undefined) {
+							text = '""';
+						} else {
+							text = text.replace(/"/g,'""');
+							var isStartZero = false;
+							if(text.startsWith('0')) {
+								isStartZero = true;
+							}
+							text = surround + text + surround;
+							if(isStartZero || dataType === jslet.data.DataType.DATE) {
+								text = '=' + text;
+							}
 						}
-						
-						textRec.push(text); 
 					}
-				}
+					
+					textRec.push(text); 
+				} //End for
 				result.push(textRec.join(seperator));
 				dataset.next(); 
 			} 

@@ -276,6 +276,15 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		if (!jqEl.hasClass('jl-tree')) {
 			jqEl.addClass('jl-tree');
 		}
+        var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
+        var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
+        jqEl.on(wheelEvent, function (event) {
+            var originalEvent = event.originalEvent;
+            var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
+            Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
+       		event.preventDefault();
+        });
+		
 		Z.renderAll();
 		Z.refreshControl(jslet.data.RefreshEvent.scrollEvent(this._dataset.recno()));
 		Z._createContextMenu();		
@@ -349,8 +358,8 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		var sb = jqEl.find('.jl-tree-scrollbar');
 		
 		sb.on('scroll',function(){
-			var numb=Math.floor(this.scrollTop/Z.nodeHeight);
-			if (numb!=Z.listvm.getVisibleStartRow()){
+			var numb = Math.ceil(this.scrollTop/Z.nodeHeight);
+			if (numb != Z.listvm.getVisibleStartRow()) {
 				Z._skip_ = true;
 				try {
 					Z.listvm.setVisibleStartRow(numb);
@@ -788,15 +797,14 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		var Z = this;
-		var menuCfg = { type: 'Menu', onItemClick: Z._menuItemClick, items: [
-			{ id: 'expandAll', name: jslet.locale.DBTreeView.expandAll },
-			{ id: 'collapseAll', name: jslet.locale.DBTreeView.collapseAll}]
-		};
+		var menuCfg = { type: 'Menu', onItemClick: Z._menuItemClick, items: []};
 		if (Z._hasCheckBox) {
-			menuCfg.items.push({ name: '-' });
 			menuCfg.items.push({ id: 'checkAll', name: jslet.locale.DBTreeView.checkAll });
 			menuCfg.items.push({ id: 'uncheckAll', name: jslet.locale.DBTreeView.uncheckAll });
+			menuCfg.items.push({ name: '-' });
 		}
+		menuCfg.items.push({ id: 'expandAll', name: jslet.locale.DBTreeView.expandAll });
+		menuCfg.items.push({ id: 'collapseAll', name: jslet.locale.DBTreeView.collapseAll});
 		if (Z._onCreateContextMenu) {
 			Z._onCreateContextMenu.call(Z, menuCfg.items);
 		}

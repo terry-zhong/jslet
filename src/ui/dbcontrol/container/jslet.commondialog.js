@@ -360,7 +360,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
  * Export dialog;
  */
 jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
-	this._dataset = dataset;
+	this._dataset = jslet.data.getDataset(dataset);
 	this._exportDataset;
 	this._hasSchemaSection = hasSchemaSection;
 	
@@ -451,29 +451,39 @@ jslet.ui.ExportDialog.prototype = {
 	
 	_freshFields: function() {
 		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
+		var fieldNames = [];
 		
-		function addFields(dataList, fields, parentField) {
+		function addFields(dataList, fieldNames, fields, parentField, isDetailDs) {
 			var fldObj, fldName;
 			for(var i = 0, len = fields.length; i < len; i++) {
 				fldObj = fields[i];
 				fldName = fldObj.name();
-				if(parentField) {
+				if(parentField && isDetailDs) {
 					fldName = parentField + '.' + fldName;
 				}
 				var detailDs = fldObj.subDataset();
 				if(detailDs) {
-					addFields(dataList, detailDs.getNormalFields(), fldName);
+					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+					addFields(dataList, fieldNames, detailDs.getNormalFields(), fldName, true);
 					continue;
 				}
-				if(fldObj.visible()) {
-					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+				if(!fldObj.visible()) {
+					continue;
+				}
+				dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+				var fldChildren = fldObj.children();
+				if(fldChildren) {
+					addFields(dataList, fieldNames, fldChildren, fldName);
+				} else {
+					fieldNames.push(fldName);
 				}
 			}
 		}
-		addFields(dataList, this._dataset.getNormalFields());
+		addFields(dataList, fieldNames, this._dataset.getFields());
 		var exportLKDs = this._exportDataset.getField('fields').lookup().dataset();
 		exportLKDs.dataList(dataList);
-		exportLKDs.selectAll(true);
+		this._exportDataset.setFieldValue('fields', fieldNames);
+		exportLKDs.first();
 	},
 
 	show: function() {
