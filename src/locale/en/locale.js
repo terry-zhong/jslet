@@ -222,7 +222,17 @@
 		clear: ' Clear ',
 		clearAll: ' Clear All ',
 	};
-		
+
+	locale.ExportDialog = {
+		caption: 'Export Dialog',
+		saveSchema: ' Save ',
+		deleteSchema: 'Delete',
+		all: 'All',
+		fileName: 'File Name：',
+		exportData: ' Export ',
+		cancel: ' Cancel '
+	};		
+	
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

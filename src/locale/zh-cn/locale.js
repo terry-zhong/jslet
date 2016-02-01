@@ -226,7 +226,13 @@
 	};
 	
 	locale.ExportDialog = {
-		caption: '导出'
+		caption: '导出',
+		saveSchema: ' 保存 ',
+		deleteSchema: ' 删除 ',
+		all: '全部',
+		fileName: '文件名：',
+		exportData: ' 导出 ',
+		cancel: ' 取消 '
 	};
 	
 	if (window.jslet === undefined || jslet === undefined){

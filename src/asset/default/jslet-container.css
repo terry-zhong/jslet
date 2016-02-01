@@ -444,3 +444,11 @@
 .jl-filter-panel-ok, .jl-filter-panel-cancel, .jl-filter-panel-clear, .jl-filter-panel-clearall {
 	display:inline-block!important;
 }
+
+.jl-expdlg-content {
+	width: 380px;
+}
+
+.jl-expdlg-fields {
+	height: 300px;
+}

@@ -294,7 +294,12 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		Z.oldWidth = jqEl.width();
 		Z.oldHeight = jqEl.height();
 		Z.nodeHeight = Z.iconWidth =  parseInt(jslet.ui.getCssValue('jl-tree', 'line-height'));
-		Z.treePanelHeight = jqEl.height();
+		var strHeight = jqEl[0].style.height; 
+		if(strHeight.indexOf('%') > 0) {
+			Z.treePanelHeight = jqEl.parent().height() * parseFloat(strHeight) / 100;
+		} else {
+			Z.treePanelHeight = jqEl.height();
+		}
 		Z.treePanelWidth = jqEl.width();
 		Z.nodeCount = Math.floor(Z.treePanelHeight / Z.nodeHeight);
 
@@ -316,7 +321,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			lines.push('="0"></td>');
 		}
 		var s = lines.join(''),
-			tmpl = ['<table border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;height:100%"><tr><td style="vertical-align:top"><div class="jl-tree-container">'];
+			tmpl = ['<div class="jl-tree-container">'];
 		for(var i = 0, cnt = Z.nodeCount; i < cnt; i++){
 			tmpl.push('<table class="jl-tree-nodes" cellpadding="0" cellspacing="0"><tr>');
 			tmpl.push(s);
@@ -330,7 +335,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			tmpl.push(jslet.ui.DBTreeView.NODETYPE);//text
 			tmpl.push('="9" nowrap="nowrap"></td></tr></table>');
 		}
-		tmpl.push('</div></td><td class="jl-tree-scroll-col"><div class="jl-tree-scrollbar"><div class="jl-tree-tracker"></div></div></td></tr></table>');
+		tmpl.push('</div><div class="jl-tree-scrollbar"><div class="jl-tree-tracker"></div></div>');
 		jqEl.html(tmpl.join(''));
 		
 		var treePnl = jqEl.find('.jl-tree-container');
@@ -600,12 +605,6 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 					node.jsletrowno = k;
 				}
 			}
-			var sb = jqEl.find('.jl-tree-scrollbar');
-			if (ajustScrBar) {
-				sb.height(Z.treePanelHeight - Z.scrBarSize - 2);
-			} else {
-				sb.height(Z.treePanelHeight - 2);
-			}
 		} finally {
 			Z.listvm.setCurrentRowno(preRowNo, false);
 			Z._dataset.recnoSilence(oldRecno);
@@ -833,8 +832,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			evtType = evt.eventType;
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
 			//empty
-		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL ||
-			evtType == jslet.data.RefreshEvent.INSERT ||
+		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL) {
+			Z.renderAll();
+		} else if (evtType == jslet.data.RefreshEvent.INSERT ||
 			evtType == jslet.data.RefreshEvent.DELETE){
 			Z.listvm.refreshModel(Z._expandLevel);
 			if(evtType == jslet.data.RefreshEvent.INSERT) {

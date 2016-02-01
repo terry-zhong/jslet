@@ -394,25 +394,36 @@ jslet.ui.ExportDialog.prototype = {
 	    	lkObj.dataset(exportDsClone);
 	    	this._exportDataset.getField('schema').lookup(lkObj);
     	}
-		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, animation: 'fade'};
+		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
 		var owin = jslet.ui.createControl(opt);
-		var html = ['<div class="form-horizontal" style="width: 600px;height:400px" data-jslet="dataset: \'', this._exportDataset.name(),
+		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
 		            '\'"><div class="form-group form-group-sm">',
 		            '<div class="col-sm-6"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>',
-		            '<div class="col-sm-6"><button class="btn btn-default btn-sm">Save</button><button class="btn btn-default btn-sm">Delete</button></div></div>',
+		            '<div class="col-sm-6"><button class="btn btn-default btn-sm">',
+		            jslet.locale.ExportDialog.saveSchema,
+		            '</button><button class="btn btn-default btn-sm">',
+		            jslet.locale.ExportDialog.deleteSchema,
+		            '</button></div></div>',
 		            
 		            '<div class="form-group form-group-sm">',
-		            '<div class="col-sm-12" style="height: 300px" data-jslet="type:\'DBList\',field:\'fields\',correlateCheck:true"></div></div>',
+		            '<div class="col-sm-12 jl-expdlg-fields" data-jslet="type:\'DBList\',field:\'fields\',correlateCheck:true"></div></div>',
 
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-2">File Name</label>',
-					'<div class="col-sm-10"><input id="txtExportFile" class="form-control" type="text"></input></div></div>',
-		            
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label><div class="col-sm-3"><button id="btnExport" class="btn btn-default btn-sm">Export</button><button id="btnCancel" class="btn btn-default btn-sm">Cancel</button></div></div>',
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-3">',
+		            jslet.locale.ExportDialog.fileName,
+		            '</label>',
+					'<div class="col-sm-9"><input id="txtExportFile" class="form-control" type="text"></input></div></div>',
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-8">&nbsp</label>',
+		            '<div class="col-sm-4"><button id="btnExport" class="btn btn-default btn-sm">',
+		            jslet.locale.ExportDialog.exportData,
+		            '</button><button id="btnCancel" class="btn btn-default btn-sm">',
+		            jslet.locale.ExportDialog.cancel,
+		            '</button></div></div>',
 		            '</div>'];
 		owin.setContent(html.join(''));
 		owin.onClosed(function () {
 			return 'hidden';
 		});
+		var Z = this;
 		this._dlgId = owin.el.id;
 		var jqEl = jQuery(owin.el);
 		jqEl.find('#btnExport').click(function(event) {
@@ -439,7 +450,7 @@ jslet.ui.ExportDialog.prototype = {
 	},
 	
 	_freshFields: function() {
-		var dataList = [{field: '_all_', label: 'All'}];
+		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
 		
 		function addFields(dataList, fields, parentField) {
 			var fldObj, fldName;
@@ -465,9 +476,9 @@ jslet.ui.ExportDialog.prototype = {
 		exportLKDs.selectAll(true);
 	},
 
-	show: function(dataset) {
+	show: function() {
 		var Z = this;
-		this._freshFields();
+		Z._freshFields();
 		var jqEl = jQuery('#' + this._dlgId);
 		var owin = jqEl[0].jslet;
 		var fileName = Z._dataset.description() + '.csv';
