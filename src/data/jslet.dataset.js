@@ -5040,22 +5040,8 @@ jslet.data.Dataset.prototype = {
 		//Don't use the following code, is will cause DBAutoComplete control issues.
 		//this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));
 	},
-	
-	/**
-	 * Export data with CSV format.
-	 * 
-	 * Export option pattern:
-	 * {exportHeader: true|false, //export with field labels
-	 *  onlySelected: true|false, //export selected records or not
-	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
-	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
-	 *  }
-	 *  
-	 * @param exportOption {PlanObject} export options
-	 * 
-	 * @return {String} Csv Text. 
-	 */
-	exportCsv: function(exportOption) {
+
+	innerExportTextArray: function(exportOption, csvFlag) {
 		var Z = this;
 		Z.confirm();
 		if(Z.existDatasetError()) {
@@ -5063,6 +5049,7 @@ jslet.data.Dataset.prototype = {
 		}
 
 		var exportHeader = true,
+			exportDisplayValue = true,
 			onlySelected = false,
 			includeFields = null,
 			excludeFields = null,
@@ -5083,51 +5070,52 @@ jslet.data.Dataset.prototype = {
 				excludeFields = exportOption.excludeFields;
 				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
 			}
-			if(exportOption.escapeDate !== undefined) {
-				escapeDate = exportOption.escapeDate? true: false;
-			}
 		}
-		var fldSeperator = ',', surround='"';
-		var context = Z.startSilenceMove();
+		var result = [], 
+			arrRec, 
+			fldCnt = Z._normalFields.length, 
+			fldObj, fldName, value,
+			exportFields = [],
+			dateFields = null;
+		for(var i = 0; i < fldCnt; i++) {
+			fldObj = Z._normalFields[i];
+			fldName = fldObj.name();
+			if(includeFields && includeFields.length > 0) {
+				if(includeFields.indexOf(fldName) < 0) {
+					continue;
+				}
+			} else {
+				if(!fldObj.visible()) {
+					continue;
+				}
+			}
+			if(excludeFields && excludeFields.length > 0) {
+				if(excludeFields.indexOf(fldName) >= 0) {
+					continue;
+				}
+			} 
+			if(csvFlag && fldObj.getType() === jslet.data.DataType.DATE) {
+				if(!dateFields) {
+					dateFields = [];
+				}
+				dateFields.push(i);
+			}
+			exportFields.push(fldObj);
+		}
+		fldCnt = exportFields.length;
+		if (exportHeader) {
+			arrRec = [];
+			for(i = 0; i < fldCnt; i++) {
+				fldObj = exportFields[i];
+				fldName = fldObj.fullLabel();
+				arrRec.push(fldName);
+			}
+			result.push(arrRec);
+		}
+
+		var context = Z.startSilenceMove(), text;
 		try{
 			Z.first();
-			var result = [], 
-				arrRec, 
-				fldCnt = Z._normalFields.length, 
-				fldObj, fldName, text, i,
-				exportFields = [];
-			for(i = 0; i < fldCnt; i++) {
-				fldObj = Z._normalFields[i];
-				fldName = fldObj.name();
-				if(includeFields && includeFields.length > 0) {
-					if(includeFields.indexOf(fldName) < 0) {
-						continue;
-					}
-				} else {
-					if(!fldObj.visible()) {
-						continue;
-					}
-				}
-				if(excludeFields && excludeFields.length > 0) {
-					if(excludeFields.indexOf(fldName) >= 0) {
-						continue;
-					}
-				} 
-				
-				exportFields.push(fldObj);
-			}
-			fldCnt = exportFields.length;
-			if (exportHeader) {
-				arrRec = [];
-				for(i = 0; i < fldCnt; i++) {
-					fldObj = exportFields[i];
-					fldName = fldObj.fullLabel();
-					fldName = surround + fldName + surround;
-					arrRec.push(fldName);
-				}
-				result.push(arrRec.join(fldSeperator));
-			}
-			var isDate;
 			while(!Z.isEof()) {
 				if (onlySelected && !Z.selected()) {
 					Z.next();
@@ -5143,38 +5131,230 @@ jslet.data.Dataset.prototype = {
 						text = fldObj.getValue();
 						if(text === null || text === undefined) {
 							text = '';
+						} else {
+							text += '';
 						}
-						text = surround + text + surround;
 					} else {
 						text = Z.getFieldText(fldName);
 						if(text === null || text === undefined) {
-							text = '""';
-						} else {
-							text = text.replace(/"/g,'""');
-							var isStartZero = false;
-							if(text.startsWith('0')) {
-								isStartZero = true;
-							}
-							text = surround + text + surround;
-							if(!isStartZero) {
-								isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
-							}
-							if(isStartZero || isDate) {
-								text = '=' + text;
-							}
+							text = '';
 						}
 					}
 					arrRec.push(text);
 				}
-				result.push(arrRec.join(fldSeperator));
+				result.push(arrRec);
 				Z.next();
+			} // end while
+			if(!csvFlag) {
+				return result;
+			} else {
+				return [result, dateFields];
 			}
-			return result.join('\n');
 		}finally{
 			Z.endSilenceMove(context);
 		}
 	},
 
+	exportTextArray: function(exportOption) {
+		return this.innerExportTextArray(exportOption);
+	},
+	
+	/**
+	 * Export data with CSV format.
+	 * 
+	 * Export option pattern:
+	 * {exportHeader: true|false, //export with field labels
+	 *  onlySelected: true|false, //export selected records or not
+	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
+	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
+	 *  }
+	 *  
+	 * @param exportOption {PlanObject} export options
+	 * 
+	 * @return {String} Csv Text. 
+	 */
+	exportCsv: function(exportOption) {
+		var textArr = this.innerExportTextArray(exportOption, true),
+			dateFields = textArr[1],
+			textArr = textArr[0];
+			
+		if(textArr.length === 0) {
+			return '';
+		}
+		var escapeDate = true;
+		if(exportOption.escapeDate !== undefined) {
+			escapeDate = exportOption.escapeDate? true: false;
+		}
+		
+		var	recArr = textArr[0],
+			fldCnt = recArr.length,
+			fldSeperator = ',', 
+			surround='"',
+			text, isDate = false;
+		
+		for(var i = 0, recCnt = textArr.length; i < recCnt; i++) {
+			recArr = textArr[i];
+			for(var j = 0; j < fldCnt; j++) {
+				text = recArr[j];
+				if(text) {
+					text = text.replace(/"/g,'""');
+					var isStartZero = false;
+					if(text.startsWith('0')) {
+						isStartZero = true;
+					} else {
+						isDate = false;
+						if(escapeDate && dateFields && i > 0 && dateFields.indexOf(j) >= 0) {
+							isDate = true;
+						}
+					}
+					text = surround + text + surround;
+					if(isStartZero || isDate) {
+						text = '=' + text;
+					}
+				} else {
+					text = '""';
+				}
+				recArr[j] = text;
+			}
+			textArr[i] = recArr.join(fldSeperator);
+		}
+		return textArr.join('\n');
+	},
+
+//	/**
+//	 * Export data with CSV format.
+//	 * 
+//	 * Export option pattern:
+//	 * {exportHeader: true|false, //export with field labels
+//	 *  onlySelected: true|false, //export selected records or not
+//	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
+//	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
+//	 *  }
+//	 *  
+//	 * @param exportOption {PlanObject} export options
+//	 * 
+//	 * @return {String} Csv Text. 
+//	 */
+//	exportCsv: function(exportOption) {
+//		var Z = this;
+//		Z.confirm();
+//		if(Z.existDatasetError()) {
+//			console.warn(jslet.locale.Dataset.cannotConfirm);
+//		}
+//
+//		var exportHeader = true,
+//			onlySelected = false,
+//			includeFields = null,
+//			excludeFields = null,
+//			escapeDate = true;
+//		
+//		if(exportOption && jQuery.isPlainObject(exportOption)) {
+//			if(exportOption.exportHeader !== undefined) {
+//				exportHeader = exportOption.exportHeader? true: false;
+//			}
+//			if(exportOption.onlySelected !== undefined) {
+//				onlySelected = exportOption.onlySelected? true: false;
+//			}
+//			if(exportOption.includeFields !== undefined) {
+//				includeFields = exportOption.includeFields;
+//				jslet.Checker.test('Dataset.exportCsv#exportOption.includeFields', includeFields).isArray();
+//			}
+//			if(exportOption.excludeFields !== undefined) {
+//				excludeFields = exportOption.excludeFields;
+//				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
+//			}
+//			if(exportOption.escapeDate !== undefined) {
+//				escapeDate = exportOption.escapeDate? true: false;
+//			}
+//		}
+//		var fldSeperator = ',', surround='"';
+//		var context = Z.startSilenceMove();
+//		try{
+//			Z.first();
+//			var result = [], 
+//				arrRec, 
+//				fldCnt = Z._normalFields.length, 
+//				fldObj, fldName, text, i,
+//				exportFields = [];
+//			for(i = 0; i < fldCnt; i++) {
+//				fldObj = Z._normalFields[i];
+//				fldName = fldObj.name();
+//				if(includeFields && includeFields.length > 0) {
+//					if(includeFields.indexOf(fldName) < 0) {
+//						continue;
+//					}
+//				} else {
+//					if(!fldObj.visible()) {
+//						continue;
+//					}
+//				}
+//				if(excludeFields && excludeFields.length > 0) {
+//					if(excludeFields.indexOf(fldName) >= 0) {
+//						continue;
+//					}
+//				} 
+//				
+//				exportFields.push(fldObj);
+//			}
+//			fldCnt = exportFields.length;
+//			if (exportHeader) {
+//				arrRec = [];
+//				for(i = 0; i < fldCnt; i++) {
+//					fldObj = exportFields[i];
+//					fldName = fldObj.fullLabel();
+//					fldName = surround + fldName + surround;
+//					arrRec.push(fldName);
+//				}
+//				result.push(arrRec.join(fldSeperator));
+//			}
+//			var isDate;
+//			while(!Z.isEof()) {
+//				if (onlySelected && !Z.selected()) {
+//					Z.next();
+//					continue;
+//				}
+//				arrRec = [];
+//				for(i = 0; i < fldCnt; i++) {
+//					fldObj = exportFields[i];
+//					fldName = fldObj.name();
+//					//If Number field does not have lookup field, return field value, not field text. 
+//					//Example: 'amount' field
+//					if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+//						text = fldObj.getValue();
+//						if(text === null || text === undefined) {
+//							text = '';
+//						}
+//						text = surround + text + surround;
+//					} else {
+//						text = Z.getFieldText(fldName);
+//						if(text === null || text === undefined) {
+//							text = '""';
+//						} else {
+//							text = text.replace(/"/g,'""');
+//							var isStartZero = false;
+//							if(text.startsWith('0')) {
+//								isStartZero = true;
+//							}
+//							text = surround + text + surround;
+//							if(!isStartZero) {
+//								isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
+//							}
+//							if(isStartZero || isDate) {
+//								text = '=' + text;
+//							}
+//						}
+//					}
+//					arrRec.push(text);
+//				}
+//				result.push(arrRec.join(fldSeperator));
+//				Z.next();
+//			}
+//			return result.join('\n');
+//		}finally{
+//			Z.endSilenceMove(context);
+//		}
+//	},
+//
 	/**
 	 * Export data to CSV file.
 	 * 

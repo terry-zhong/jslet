@@ -3223,9 +3223,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         		break;
         	}
 		}
-		if(Z.cellEditor()) {
-			Z.cellEditor().showEditor(colCfg.field, otd);
-		}
+    	var cellEditor = Z.cellEditor();
+    	if(cellEditor) {
+   			cellEditor.showEditor(colCfg.field, otd);
+    	}
 	},
 	
 	_showSelected: function(otd, fldName, recno) {

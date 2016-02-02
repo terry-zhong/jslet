@@ -29,8 +29,6 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 				html += '<td class="jl-edtfld-' + colCfg.field +  '" style="display:none"><div data-jslet=\'type:"DBPlace",dataset:"' + 
 					dsName + '",field:"' + colCfg.field + '", tableId: "' + tableId + '"\' class="' + 
 					colCfg.widthCssName + '"></div></td>';
-			} else {
-				html += '<td><div class="' + colCfg.widthCssName + '"</td>';
 			}
 		}
 		html += '</tr></tbody></table></div>';
@@ -45,9 +43,14 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 	_create();
 	
 	this.showEditor = function(fldName, otd) {
+		if(!fldName) {
+			_editPanel.hide();
+			return;
+		}
 		var dataset = _tableCtrl.dataset(),
 			fldObj = dataset.getField(fldName);
-		if(fldObj.disabled() || fldObj.readOnly()) {
+		if(!fldObj || fldObj.disabled() || fldObj.readOnly()) {
+			_editPanel.hide();
 			return;
 		}
 		var cellPos = jQuery(otd).offset();
