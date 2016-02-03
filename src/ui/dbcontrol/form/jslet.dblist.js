@@ -224,12 +224,17 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!isMulti) {
 			lkds.findByKey(fldValue);
 		} else {
-			lkds.selectAll(false);
-			if(fldValue) {
-				for(var i = 0, len = fldValue.length; i < len; i++) {
-					lkds.findByKey(fldValue[i]);
-					lkds.selected(true);
+			lkds.disableControls();
+			try {
+				lkds.selectAll(false);
+				if(fldValue) {
+					for(var i = 0, len = fldValue.length; i < len; i++) {
+						lkds.findByKey(fldValue[i]);
+						lkds.selected(true);
+					}
 				}
+			} finally {
+				lkds.enableControls();
 			}
 		}
 	},

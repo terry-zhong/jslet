@@ -365,7 +365,7 @@ jslet.ui.DBTableFilterPanel.prototype = {
 jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
 	this._dataset = jslet.data.getDataset(dataset);
 	this._exportDataset;
-	this._hasSchemaSection = hasSchemaSection;
+	this._hasSchemaSection = (hasSchemaSection === undefined || hasSchemaSection ? true: false);
 	
 	this._dlgId;
 	
@@ -391,8 +391,8 @@ jslet.ui.ExportDialog.prototype = {
     	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
     	    ];
     	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema'});
-    	if(this.hasSchemaSection) {
-	    	var exportDsClone = this._exportDataset.clone();
+    	if(this._hasSchemaSection) {
+	    	var exportDsClone = this._exportDataset;
 	    	var lkObj = new jslet.data.FieldLookup();
 	    	lkObj.dataset(exportDsClone);
 	    	this._exportDataset.getField('schema').lookup(lkObj);

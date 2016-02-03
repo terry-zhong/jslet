@@ -162,7 +162,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		if (fldObj.readOnly() || fldObj.disabled()) {
 			return;		
 		}
-		if (lkf === null && lkf === undefined) {
+		if (lkf === null || lkf === undefined) {
 			throw new Error(Z._field + ' is NOT a lookup field!');
 		}
 		var style = Z._showStyle;
