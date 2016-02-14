@@ -388,7 +388,7 @@ jslet.ui.ExportDialog.prototype = {
 		var fldCfg = [
     	      //{name: 'schemaId', type: 'S', length: 30, label: 'Export Schema ID'}, 
     	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
-    	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
+    	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', visible: false, valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
     	    ];
     	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema'});
     	if(this._hasSchemaSection) {
@@ -402,7 +402,7 @@ jslet.ui.ExportDialog.prototype = {
 		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
 		            '\'"><div class="form-group form-group-sm">',
 		            '<div class="col-sm-6"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>',
-		            '<div class="col-sm-6"><button class="btn btn-default btn-sm">',
+		            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="btnSave">',
 		            jslet.locale.ExportDialog.saveSchema,
 		            '</button><button class="btn btn-default btn-sm">',
 		            jslet.locale.ExportDialog.deleteSchema,
@@ -443,6 +443,18 @@ jslet.ui.ExportDialog.prototype = {
 			Z._dataset.exportCsvFile(fileName, {includeFields: fields});
 			owin.close();
 		});
+		jqEl.find('#btnSave').click(function(event) {
+			jslet.ui.MessageBox.prompt('Please input exportting shema: ', 'Input Export Schema', function(button, value){
+				if(button === 'ok' && value) {
+					var fields = Z._exportDataset.getFieldValue('fields');
+					Z._exportDataset.appendRecord();
+					Z._exportDataset.setFieldValue('schema', value);
+					Z._exportDataset.setFieldValue('fields', fields);
+					Z._exportDataset.confirm();
+				}
+			});
+		});
+		
 		jqEl.find('#btnCancel').click(function(event) {
 			owin.close();
 		});

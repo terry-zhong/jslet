@@ -48,7 +48,8 @@ jslet.data.Dataset = function (name) {
 	Z._eof = false;
 	Z._igoreEvent = false;
 	Z._logChanges = true;
-
+	Z._auditLogEnabled = true;
+	
 	Z._modiObject = null;
 	Z._inputtingRecord = {};
 	Z._lockCount = 0;
@@ -2968,10 +2969,11 @@ jslet.data.Dataset.prototype = {
     },
      
 	/**
-	 * Set or get logChanges
-	 * if NOT need send changes to Server, can set logChanges to false  
+	 * If logChanges is false, the changes made by user will not be send to server. 
+	 * If you don't need submit data to server, you can set this property value to false.
 	 * 
-	 * @param {Boolean} logChanges
+	 * @param {Boolean or undefined} logChanges - True: log user changes, otherwise false, default is true.
+	 * @return {this or Boolean}
 	 */
 	logChanges: function (logChanges) {
 		if (logChanges === undefined) {
@@ -2979,8 +2981,23 @@ jslet.data.Dataset.prototype = {
 		}
 
 		this._logChanges = logChanges;
+		return this;
 	},
 
+	/**
+	 * Edit log means the log when user modify records. For some sensitive data, user need audit who & when modify data. 
+	 * 
+	 * @param {Boolean or undefined} logChanges - True: enable audit log, otherwise false.
+	 * @return {this or Boolean}
+	 */
+	auditLogEnabled: function(auditLogEnabled) {
+		if(auditLogEnabled === undefined) {
+			return this._auditLogEnabled;
+		}
+		this.auditLogEnabled = auditLogEnabled? true: false;
+		return this;
+	},
+	
 	/**
 	 * Disable refreshing controls, you often use it in a batch operation;
 	 * After batch operating, use enableControls()
@@ -3193,7 +3210,7 @@ jslet.data.Dataset.prototype = {
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
 		}
-		
+		var auditLogRec = Z._logOldEditValue(fldName);
 		var currRec = Z.getRecord(),
 			dataType = fldObj.getType();
 		if(!fldObj.valueStyle() || valueIndex === undefined) { //jslet.data.FieldValueStyle.NORMAL
@@ -3251,6 +3268,7 @@ jslet.data.Dataset.prototype = {
 			Z.calcContextRule(fldName);
 		}
 		jslet.data.FieldValueCache.clear(currRec, fldName);
+		Z._logNewEditValue(fldName, auditLogRec);
 		Z._updateLookupRelativeFields(fldObj, value);
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
@@ -3259,6 +3277,39 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 
+	_logOldEditValue: function(fldName) {
+		var Z = this;
+		if(!Z._auditLogEnabled || !Z._logChanges) {
+			return null;
+		}
+		var status = Z.changedStatus() || Z._status;
+		if(status !== jslet.data.DataSetStatus.UPDATE) {
+			return null;
+		}
+		var currRec = Z.getRecord(); 
+		var auditLog = currRec[jslet.global.auditLogField];
+		if(!auditLog) {
+			auditLog = {};
+			currRec[jslet.global.auditLogField] = auditLog;
+		}
+		var logRec = auditLog[fldName];
+		if(!logRec) {
+			logRec = {};
+			auditLog[fldName] = logRec;
+		}
+		var oldValue = logRec.o;
+		if(!oldValue) {
+			logRec.o = Z.getFieldText(fldName);
+		}
+		return logRec;
+	},
+	
+	_logNewEditValue: function(fldName, auditLogRec) {
+		if(auditLogRec) {
+			auditLogRec.n = this.getFieldText(fldName);
+		}
+	},
+	
 	clearFollowedValues: function() {
 		this._followedValues = null;
 	},
@@ -5798,6 +5849,8 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setBooleanPropValue('autoRefreshHostDataset');
 		setBooleanPropValue('readOnly');
 		setBooleanPropValue('logChanges');
+		setBooleanPropValue('auditLogEnabled');
+		
 		setPropValue('datasetListener');
 		setPropValue('onFieldChange');
 		setPropValue('onCheckSelectable');

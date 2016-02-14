@@ -23,6 +23,8 @@ jslet.global = {
 	//Used in jslet.data.Dataset_selected
 	selectStateField: '_sel_',
 	
+	auditLogField: '_audit_',
+	
 	//Value separator
 	valueSeparator: ',',
 	
@@ -45,7 +47,7 @@ jslet.global = {
  */
 jslet.global.serverErrorHandler = function(errCode, errMsg) {
 	return false;
-}
+};
 
 /**
  * Global event handler for jQuery.ajax, you can set settings here.
@@ -59,6 +61,6 @@ jslet.global.serverErrorHandler = function(errCode, errMsg) {
 jslet.global.beforeSubmit = function(settings) {
 	
 	return settings;
-}
+};
 
 
