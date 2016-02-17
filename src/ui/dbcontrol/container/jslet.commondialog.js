@@ -105,7 +105,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 
 		var jqFindingValue = jQuery(dlgEl).find('.jl-finddlg-value');
 		jqFindingValue.on('keydown', function(event){
-			if(event.keyCode === 13) {
+			if(event.keyCode === jslet.ui.KeyCode.ENTER) {
 				findData();
 	       		event.stopImmediatePropagation();
 				event.preventDefault();

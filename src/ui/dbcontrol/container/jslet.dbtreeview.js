@@ -427,33 +427,33 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	
 	_doKeydown: function(keyCode){
 		var Z = this, result = false;
-		if (keyCode == 32){//space
+		if (keyCode === jslet.ui.KeyCode.SPACE){//space
 			Z._doCheckBoxClick();
 			result = true;
-		} else if (keyCode == 38) {//KEY_UP
+		} else if (keyCode === jslet.ui.KeyCode.UP) {//KEY_UP
 			Z.listvm.priorRow();
 			result = true;
-		} else if (keyCode == 40) {//KEY_DOWN
+		} else if (keyCode === jslet.ui.KeyCode.DOWN) {//KEY_DOWN
 			Z.listvm.nextRow();
 			result = true;
-		} else if (keyCode == 37) {//KEY_LEFT
+		} else if (keyCode === jslet.ui.KeyCode.LEFT) {//KEY_LEFT
 			if (jslet.locale.isRtl) {
 				Z.listvm.expand();
 			} else {
 				Z.listvm.collapse();
 			}
 			result = true;
-		} else if (keyCode == 39) {//KEY_RIGHT
+		} else if (keyCode === jslet.ui.KeyCode.RIGHT) {//KEY_RIGHT
 			if (jslet.locale.isRtl) {
 				Z.listvm.collapse();
 			} else {
 				Z.listvm.expand();
 			}
 			result = true;
-		} else if (keyCode == 33) {//KEY_PAGEUP
+		} else if (keyCode === jslet.ui.KeyCode.PAGEUP) {//KEY_PAGEUP
 			Z.listvm.priorPage();
 			result = true;
-		} else if (keyCode == 34) {//KEY_PAGEDOWN
+		} else if (keyCode === jslet.ui.KeyCode.PAGEDOWN) {//KEY_PAGEDOWN
 			Z.listvm.nextPage();
 			result = true;
 		}

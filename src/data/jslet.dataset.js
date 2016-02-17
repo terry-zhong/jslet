@@ -4988,6 +4988,7 @@ jslet.data.Dataset.prototype = {
 					ctrl.focus();
 				} finally {
 					jslet.temp.focusing = false;
+					break;
 				}
 			}
 		} //end for
@@ -5164,7 +5165,8 @@ jslet.data.Dataset.prototype = {
 			result.push(arrRec);
 		}
 
-		var context = Z.startSilenceMove(), text;
+		var context = Z.startSilenceMove(), text, dataType,
+			htmlTagRegarExpr = /<\/?[^>]*>/g;
 		try{
 			Z.first();
 			while(!Z.isEof()) {
@@ -5178,7 +5180,8 @@ jslet.data.Dataset.prototype = {
 					fldName = fldObj.name();
 					//If Number field does not have lookup field, return field value, not field text. 
 					//Example: 'amount' field
-					if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+					dataType = fldObj.getType();
+					if(dataType === jslet.data.DataType.NUMBER && !fldObj.lookup()) {
 						text = fldObj.getValue();
 						if(text === null || text === undefined) {
 							text = '';
@@ -5189,6 +5192,9 @@ jslet.data.Dataset.prototype = {
 						text = Z.getFieldText(fldName);
 						if(text === null || text === undefined) {
 							text = '';
+						}
+						if(text && dataType === jslet.data.DataType.STRING) {
+							text = text.replace(htmlTagRegarExpr,''); //Get rid of HTML tag
 						}
 					}
 					arrRec.push(text);
@@ -5206,6 +5212,20 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 
+	/**
+	 * Export dataset as text array.
+	 * 
+	 * Export option pattern:
+	 * {exportHeader: true|false, //export with field labels
+	 *  onlySelected: true|false, //export selected records or not
+	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
+	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
+	 *  }
+	 *  
+	 * @param exportOption {PlanObject} export options
+	 * 
+	 * @return {String} Csv Text. 
+	 */
 	exportTextArray: function(exportOption) {
 		return this.innerExportTextArray(exportOption);
 	},

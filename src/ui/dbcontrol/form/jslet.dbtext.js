@@ -156,24 +156,25 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		event = jQuery.event.fix( event || window.event );
 		var keyCode = event.which;
 		//When press 'enter', write data to dataset.
-		var Z = this.jslet;
-		if(keyCode == 13) {
+		var Z = this.jslet,
+			K = jslet.ui.KeyCode;
+		if(keyCode === K.ENTER) {
 			Z._enterProcessed = true;
 			Z.updateToDataset();
 		}
 		//Process 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown' key when it is editing. 
 		var isEditing = Z._dataset.status() > 0;
-		if(isEditing && (keyCode == 38 || keyCode == 40 || keyCode == 33 || keyCode == 34)) {
+		if(isEditing && (keyCode === K.UP || keyCode === K.DOWN || keyCode === K.PAGEUP || keyCode === K.PAGEDOWN)) {
 			Z._enterProcessed = true;
 			Z.updateToDataset();
 		}
 		var fldObj = Z._dataset.getField(Z._field);
-		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode == 8 || keyCode == 46)) {
+		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode === K.BACkSPACE || keyCode === K.DELETE)) {
 			Z._dataset.editRecord();
 		}
-		if(keyCode === 37 || keyCode === 39) { //Arrow-left, Arrow-right
+		if(keyCode === K.LEFT || keyCode === K.RIGHT) { //Arrow-left, Arrow-right
 			var pos = jslet.ui.textutil.getCursorPos(Z.el);
-			if((keyCode === 37 && pos.begin > 0) || 
+			if((keyCode === K.LEFT && pos.begin > 0) || 
 					(keyCode === 39 && pos.begin < Z.el.value.length)) {
 	       		event.stopImmediatePropagation();
 			}
@@ -199,7 +200,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		Z._dataset.editRecord();
 		//When press 'enter', write data to dataset.
-		if(keyCode == 13) {
+		if(keyCode === jslet.ui.KeyCode.ENTER) {
 			if(!Z._enterProcessed) {
 				Z.updateToDataset();
 			} else {

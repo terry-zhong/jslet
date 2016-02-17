@@ -331,7 +331,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var jqPanel = jQuery(Z.panel),
 			jqPh = jqPanel.find('.jl-combopnl-head');
 		jqPanel.on('keydown', function(event){
-			if(event.keyCode === 27) {
+			if(event.keyCode === jslet.ui.KeyCode.ESCAPE) {
 				Z.closePopup();
 			}
 		});

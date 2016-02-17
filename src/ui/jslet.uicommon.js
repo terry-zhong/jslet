@@ -13,6 +13,49 @@ if(!jslet.ui) {
 jslet.ui.htmlclass = {};
 jslet.ui.GlobalZIndex = 100;
 
+jslet.ui.KeyCode = {
+	BACkSPACE: 8, 
+	TAB: 9,
+	ENTER: 13,
+	SHIFT: 16,
+	CONTROL: 17,
+	ALT: 18,
+
+	CAPSLOCK: 20,
+	ESCAPE: 27,
+	SPACE: 32,
+	PAGEUP: 33,
+	PAGEDOWN: 34,
+	END: 35,
+	HOME: 36,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+	
+	INSERT: 45,
+	DELETE: 46,
+
+	F1: 112,
+	F2: 113,
+	F3: 114,
+	F4: 115,
+	F5: 116,
+	F6: 117,
+	F7: 118,
+	F8: 119,
+	F9: 120,
+	F10: 121,
+	F11: 122,
+	F12: 123,
+
+	IME: 229
+};
+
+for(var i = 65; i < 90; i++) {
+	jslet.ui.KeyCode[String.fromCharCode(i)] = i;
+};
+
 /**
 * Popup Panel. Example: 
 * <pre><code>
@@ -25,15 +68,6 @@ jslet.ui.GlobalZIndex = 100;
 * </code></pre>
 *  
 */
-jslet.ui.KeyCode = {
-	UP: 38,
-	DOWN: 40,
-	LEFT: 37,
-	RIGHT: 39,
-	TAB: 9,
-	ENTER: 13
-};
-
 jslet.ui.PopupPanel = function () {
 	/**
 	 * Event handler when hide popup panel: function(){}
@@ -513,3 +547,4 @@ jslet.scrollbarSize = function() {
 
 	return width;
 };
+

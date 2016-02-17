@@ -90,12 +90,12 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 				return;
 			}
 			var keyCode = event.keyCode;
-			if(keyCode == jslet.ui.KeyCode.UP) {
+			if(keyCode === jslet.ui.KeyCode.UP) {
 				Z.decValue();
 				event.preventDefault();
 				return;
 			}
-			if(keyCode == jslet.ui.KeyCode.DOWN) {
+			if(keyCode === jslet.ui.KeyCode.DOWN) {
 				Z.incValue();
 				event.preventDefault();
 				return;

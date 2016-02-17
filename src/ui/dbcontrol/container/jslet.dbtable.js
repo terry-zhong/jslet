@@ -883,7 +883,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.on('keydown', function (event) {
 			var keyCode = event.which;
 			
-			if(event.ctrlKey && keyCode == 70) { //ctrl + f
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.F) { //ctrl + f
 				if(Z._filterPanel) {
 					Z._filterPanel.hide();
 				}
@@ -915,8 +915,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			console.log(keyCode)
-			if(event.ctrlKey && keyCode == 69) { //ctrl + e
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.E) { //ctrl + e
 				if(!Z._dataset.nextError()) {
 					Z._dataset.firstError();
 				}
@@ -924,7 +923,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			if(event.ctrlKey && keyCode == 67) { //ctrl + c
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
 				var selectedText = Z._dataset.selection.getSelectionText();
 				if(selectedText) {
 					jslet.Clipboard.putText(selectedText);
@@ -932,7 +931,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 				return;
 			}
-			if(event.ctrlKey && keyCode == 65) { //ctrl + a
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.A) { //ctrl + a
 				var fields = [], colCfg, fldName;
 				for(var i = 0, len = Z.innerColumns.length; i < len; i++) {
 					colCfg = Z.innerColumns[i];
@@ -947,7 +946,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			var isTabKey = (keyCode === 9 || keyCode === jslet.global.defaultFocusKeyCode);
+			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
 				var fldName = Z.getFieldByColNum(Z._currColNum),
 					lastColNum, num = null, 
@@ -1054,7 +1053,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z.currColNum(num);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if(keyCode === 37) { //Arrow Left
+			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				var num,
 					lastColNum = Z.innerColumns.length - 1;
 				
@@ -1073,7 +1072,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if( keyCode === 39) { //Arrow Right
+			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
 				var lastColNum = Z.innerColumns.length - 1,
 					num;
 				
@@ -1089,23 +1088,23 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z.currColNum(num);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if (keyCode == 38) {//KEY_UP
+			} else if (keyCode === jslet.ui.KeyCode.UP) {//KEY_UP
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.priorRow();
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if (keyCode == 40) {//KEY_DOWN
+			} else if (keyCode === jslet.ui.KeyCode.DOWN) {//KEY_DOWN
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.nextRow();
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if (keyCode == 33) {//KEY_PAGEUP
+			} else if (keyCode === jslet.ui.KeyCode.PAGEUP) {//KEY_PAGEUP
 				Z.listvm.priorPage();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
-			} else if (keyCode == 34) {//KEY_PAGEDOWN
+			} else if (keyCode === jslet.ui.KeyCode.PAGEDOWN) {//KEY_PAGEDOWN
 				Z.listvm.nextPage();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();

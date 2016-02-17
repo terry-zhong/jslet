@@ -40,12 +40,10 @@
 		instanceOfClass: '[[{0} : {1}]]必须为类：[{2}]的实例!',
 		inArray: '[{0} : {1}]必须在列表中：[{2}]!'
 	};
-		
 	
 	locale.Dataset = {
 		fieldNameRequired: '定义字段时，缺失属性：name！',
 		invalidDatasetField: '无效的数据集字段配置：[{0}]，缺失subDataset属性!',
-		invalidProxyField: '无效的代理字段配置：[{0}]，缺失proxyDataset或者proxyField属性!',
 		invalidDateFieldValue: '字段: [{0}]是日期字段, 但值：[{1}]不是日期型!',
 		invalidNumberFieldValue: '字段: [{0}]是数字型字段, 但值：[{1}]不是数字型!',
 		parentFieldNotSet: '数据集没有设置[parentField]和[keyField]属性, 请用insertRecord()!',

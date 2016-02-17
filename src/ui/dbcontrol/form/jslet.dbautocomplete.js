@@ -221,33 +221,46 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		event = jQuery.event.fix( event || window.event );
 
-		var keyCode = event.which, Z = this.jslet;
-		if(keyCode >= 112 && keyCode <= 123 || keyCode == 16 || keyCode == 17 || keyCode == 18 || //F1-F12, ctrl, shift, alt
-				keyCode == 20 || keyCode == 45 || keyCode == 35 || keyCode == 36 || keyCode == 34 || keyCode == 33) { //CapsLock, Insert, Home, End, PageUp, PageDown 
+		var keyCode = event.which, 
+			Z = this.jslet,
+			K = jslet.ui.KeyCode;
+		if(keyCode >= K.F1 && keyCode <= K.F12 || keyCode === K.SHIFT || keyCode === K.CONTROL || keyCode === K.ALT || 
+				keyCode === K.CAPSLOCK || keyCode === K.INSERT || keyCode === K.HOME || keyCode === K.END || 
+				keyCode === K.PAGEUP || keyCode === K.PAGEDOWN || keyCode === K.LEFT || keyCode === K.RIGHT) { 
 			return;
 		}
-		if ((keyCode == 38 || keyCode == 40) && Z.contentPanel && Z.contentPanel.isPop) {
-			var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
-			lkf = fldObj.lookup(),
-			lkds = lkf.dataset();
-			if (keyCode == 38) { //up arrow
-				lkds.prior();
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
-			}
-			if (keyCode == 40) {//down arrow
-				lkds.next();
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
-			}
+		if(keyCode === K.ESCAPE && Z.contentPanel) {
+			Z.contentPanel.closePopup();
 			return;
 		}
+		if (keyCode === K.UP || keyCode === K.DOWN) {
+			if(Z.contentPanel && Z.contentPanel.isPop) {
+				var fldObj = Z._dataset.getField(Z._lookupField || Z._field),
+				lkf = fldObj.lookup(),
+				lkds = lkf.dataset();
+				if (keyCode === K.UP) { //up arrow
+					lkds.prior();
+					event.preventDefault();
+		       		event.stopImmediatePropagation();
+				}
+				if (keyCode === K.DOWN) {//down arrow
+					lkds.next();
+					event.preventDefault();
+		       		event.stopImmediatePropagation();
+				}
+			} else {
+				if(!Z.tableId()) {
+					Z._invokePopup();
+				}
+			}
+			return;
+		} 
 
-		if (keyCode == 8 || keyCode == 46 || keyCode == 229) {//delete/backspace/ime
-			this.jslet._invokePopup();
+		if (keyCode === K.DELETE || keyCode === K.BACKSPACE || keyCode === K.IME) {
+			Z._invokePopup();
 			return;
 		}
-		if (keyCode != 13 && keyCode != 9) {
+		if (keyCode !== K.ENTER && keyCode !== K.TAB) {
 			Z._invokePopup();
 		} else if (Z.contentPanel) {
 			if(Z.contentPanel.isShowing()) {

@@ -23,9 +23,6 @@
 	};
 	
 	locale.Checker = {
-		fieldNameRequired: 'Property：name when defining field object！',
-		invalidDatasetField: 'Invalid dataset field configuration: [{0}], property: subDataset required!',
-		invalidProxyField: 'Invalid proxy field configuration: [{0}], property: proxyDataset or proxyField!',
 		required: '[{0}] is Required!',
 		requiredBooleanValue: '[{0}] must be a Boolean value!',
 		requiredStringValue: '[{0} : {1}] must be a String value!',
@@ -45,6 +42,8 @@
 	};
 	
 	locale.Dataset = {
+		fieldNameRequired: 'Field name is required when defining field object！',
+		invalidDatasetField: 'Invalid dataset field configuration: [{0}], property: subDataset required!',
 		invalidDateFieldValue: 'Invalid value: [{1}] for DATE field: [{0}]!',
 		invalidNumberFieldValue: 'Invalid value: [{1}] for NUMBER field: [{0}]!',
 		parentFieldNotSet: 'Dataset properties: [parentField] and [keyField] not set, use insertRecord() instead!',
@@ -125,7 +124,7 @@
 	};
 	
 	locale.DBComboSelect = { 
-		find: 'Find: '，
+		find: 'Find: ',
 		cannotSelect: 'Cannot select this item.'
 	};
 	
