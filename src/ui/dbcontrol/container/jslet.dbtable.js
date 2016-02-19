@@ -3306,6 +3306,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(metaName == 'visible') {
 			
 		}
+		if(!Z._readOnly && (metaName == 'readOnly' || metaName == 'disabled')) {
+			var cellEditor = Z.cellEditor();
+			if(cellEditor) {
+				cellEditor.showEditor();
+			}
+		}
 	},
 	
 	refreshControl: function (evt) {

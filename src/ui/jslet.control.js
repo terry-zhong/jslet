@@ -205,11 +205,10 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 	 * There are three type changes: meta changed, data changed, lookup data changed.
 	 * 
 	 * @param {jslet.data.refreshEvent} evt jslet refresh event object;
-	 * @isForce {Boolean} Identify refresh control anyway or not.
 	 * 
 	 * @return {Boolean} if refresh successfully, return true, otherwise false.
 	 */
-	refreshControl: function (evt, isForce) {
+	refreshControl: function (evt) {
 		var Z = this, evtType;
 		if(evt) {
 			evtType = evt.eventType;
@@ -218,12 +217,8 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
-			var metaName = evt.metaName,
-				changeAllRows = evt.changeAllRows;
+			var metaName = evt.metaName;
 			if(Z._field && Z._field == evt.fieldName) {
-				if (!changeAllRows && !isForce) {
-					return false;
-				}
 				Z.doMetaChanged(metaName);
 			} else {
 				if(!Z._field && (metaName == 'visible' || metaName == 'editControl')) {
@@ -408,13 +403,6 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	
 	getText: function(isEditing) {
 		return this._dataset.getFieldText(this._field, isEditing, this._valueIndex); 
-	},
-	
-	/**
-	 * Force refresh control, regardless of which in active record or not.
-	 */
-	forceRefreshControl: function(){
-		this.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(this._field), true);
 	},
 	
 	getFieldError: function() {

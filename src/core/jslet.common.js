@@ -284,7 +284,7 @@ jslet._SCALEFACTOR = '100000000000000000000000000000000000';
  */
 jslet.formatNumber = function(num, pattern) {
 	if (!pattern) {
-		return num;
+		return num + '';
 	}
 	if(!num && num !== 0) {
 		return '';

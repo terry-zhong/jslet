@@ -101,13 +101,6 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override
 	 */
-	forceRefreshControl: function(){
-		this.textCtrl.forceRefreshControl();
-	},
-	
-	/**
-	 * @override
-	 */
 	doMetaChanged: function($super, metaName){
 		$super(metaName);
 		var Z = this;

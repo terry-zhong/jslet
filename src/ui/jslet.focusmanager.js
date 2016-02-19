@@ -112,7 +112,7 @@ jslet.ui.FocusManager.prototype = {
 		
 		function doChangingFocus(ele, reverse) {
 			if(Z._onChangingFocus) {
-				var cancelFocus = Z._onChangingFocus(ele, reverse, Z._activeDataset, Z._activeField, Z._activeValueIndex);
+				var cancelFocus = Z._onChangingFocus(ele, reverse, jslet.data.getDataset(Z._activeDataset), Z._activeField, Z._activeValueIndex);
 				if(!cancelFocus) {
 					return false;
 				}

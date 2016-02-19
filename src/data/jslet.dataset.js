@@ -321,7 +321,7 @@ jslet.data.Dataset.prototype = {
 			fldObj;
 		for(var i = 0, len = fields.length; i < len; i++) {
 			fldObj = fields[i];
-			fldObj._fireMetaChangedEvent('readOnly', false);
+			fldObj._fireMetaChangedEvent('readOnly');
 		}
 		return this;
 	},
@@ -6164,6 +6164,10 @@ jslet.data.DataTransformer.prototype = {
 				}
 			}
 			oldRec[jslet.global.changeStateField] = null;
+			var auditLog = oldRec[jslet.global.auditLogField];
+			if(auditLog) {
+				delete oldRec[jslet.global.auditLogField];
+			}
 			var recInfo = jslet.data.getRecInfo(oldRec);
 			if(recInfo && recInfo.status) {
 				recInfo.status = 0;

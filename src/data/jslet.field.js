@@ -871,10 +871,10 @@ jslet.data.Field.prototype = {
 		}
 	},
 	
-	_fireMetaChangedEvent: function(metaName, changeAllRows) {
+	_fireMetaChangedEvent: function(metaName) {
 		var ds = this.dataset();
 		if (ds) {
-			var evt = jslet.data.RefreshEvent.changeMetaEvent(metaName, this._fieldName, changeAllRows);
+			var evt = jslet.data.RefreshEvent.changeMetaEvent(metaName, this._fieldName);
 			ds.refreshControl(evt);
 		}
 	},
@@ -2263,7 +2263,7 @@ jslet.data.FieldLookup.prototype = {
 //			expr = '"Not set displayFields"';
 //		}
 //		
-		var expr = '[' + this.nameField() + ']';
+		var expr = '[' + (this.nameField() || this.codeField() || this.keyField()) + ']';
 		return expr;
 	},
 
