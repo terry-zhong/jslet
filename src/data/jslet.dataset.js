@@ -1839,10 +1839,7 @@ jslet.data.Dataset.prototype = {
 	 * Insert record after current record, and move cursor to the newly record.
 	 */
 	insertRecord: function () {
-		var Z = this;
-		Z.confirm();
-
-		Z.innerInsert();
+		this.innerInsert();
 	},
 
 	/**
@@ -1850,7 +1847,6 @@ jslet.data.Dataset.prototype = {
 	 */
 	appendRecord: function () {
 		var Z = this;
-		Z.confirm();
 
 		Z._silence++;
 		try {
@@ -2813,14 +2809,18 @@ jslet.data.Dataset.prototype = {
 	 */
 	confirm: function () {
 		var Z = this;
-		if (Z._status == jslet.data.DataSetStatus.BROWSE) {
+		if (Z._status === jslet.data.DataSetStatus.BROWSE) {
+			return true;
+		}
+		if(!Z._dataList || Z._dataList.length ===0) {
+			Z._status = jslet.data.DataSetStatus.BROWSE;
 			return true;
 		}
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECONFIRM);
 		Z._innerValidateData();
 		Z._confirmSubDataset();
 
-		if(Z.status() == jslet.data.DataSetStatus.UPDATE) {
+		if(Z.status() === jslet.data.DataSetStatus.UPDATE) {
 			Z.changedStatus(jslet.data.DataSetStatus.UPDATE);
 		}
 		

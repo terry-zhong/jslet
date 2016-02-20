@@ -232,6 +232,16 @@
 		cancel: ' Cancel '
 	};		
 	
+	locale.InputSettingDialog = {
+		labelLabel: 'Field Name',
+		labelDefaultValue: 'Default Value',
+		labelFocused: 'Focused',
+		labelValueFollow: 'Value Follow',
+		caption: 'Data Input Setting',
+		save: ' Save ',
+		cancel: ' Cancel '
+	};
+			
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

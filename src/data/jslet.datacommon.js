@@ -620,9 +620,7 @@ jslet.data.record2Json = function(records, excludeFields) {
 };
 
 jslet.data.getRecInfo = function(record) {
-	if(!record) {
-		return null;
-	}
+	jslet.Checker.test('jslet.data.getRecInfo#record', record).required();
 	var recInfo = record._jl_;
 	if(!recInfo) {
 		recInfo = {};
@@ -903,7 +901,7 @@ jslet.data.FieldRawValueAccessor = {
 		}
 		
 		if(fldType === jslet.data.DataType.PROXY) {
-			return jslet.toJSON(value);
+			return jslet.JSON.parse(value);
 		}
 
 		if(fldType === jslet.data.DataType.DATE) {
@@ -944,7 +942,7 @@ jslet.data.FieldRawValueAccessor = {
 		}
 		
 		if(fldType === jslet.data.DataType.PROXY) {
-			value = jslet.stringify(value);
+			value = jslet.JSON.stringify(value);
 		}
 		dataRec[fldName] = value;
 	}

@@ -3309,7 +3309,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(!Z._readOnly && (metaName == 'readOnly' || metaName == 'disabled')) {
 			var cellEditor = Z.cellEditor();
 			if(cellEditor) {
-				cellEditor.showEditor();
+				var currFld = cellEditor.currentField();
+				if(currFld == fldName) {
+					cellEditor.showEditor(fldName);
+				}
 			}
 		}
 	},

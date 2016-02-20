@@ -64,6 +64,10 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		_currField = fldName;
 	}
 	
+	this.currentField = function() {
+		return _currField;
+	}
+	
 	this.hideEditor = function() {
 		_editPanel.hide();
 	}
@@ -464,7 +468,7 @@ jslet.ui.ExportDialog.prototype = {
 		return this._exportDataset;
 	},
 	
-	_freshFields: function() {
+	_refreshFields: function() {
 		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
 		var fieldNames = [];
 		
@@ -503,7 +507,7 @@ jslet.ui.ExportDialog.prototype = {
 
 	show: function() {
 		var Z = this;
-		Z._freshFields();
+		Z._refreshFields();
 		var jqEl = jQuery('#' + this._dlgId);
 		var owin = jqEl[0].jslet;
 		var fileName = Z._dataset.description() + '.csv';
@@ -514,3 +518,216 @@ jslet.ui.ExportDialog.prototype = {
 		return owin;
 	}
 }
+
+jslet.ui.InputSettingDialog = function() {
+	this._inputSettingDs;
+	
+	this._hostDataset;
+	
+	this._onClosed;
+	
+	this._onRestoreDefault;
+	
+	this._settings = null;
+	var Z = this;
+	
+	function doProxyFieldChanged(dataRec, proxyFldName, proxyFldObj) {
+		var hostFldObj = jslet.data.getDataset(dataRec['dataset']).getField(proxyFldName);
+		proxyFldObj.dataType(hostFldObj.dataType());
+		proxyFldObj.length(hostFldObj.length());
+		proxyFldObj.scale(hostFldObj.scale());
+		proxyFldObj.editMask(hostFldObj.editMask());
+
+		proxyFldObj.displayFormat(hostFldObj.displayFormat());
+		proxyFldObj.dateFormat(hostFldObj.dateFormat());
+		proxyFldObj.displayControl(hostFldObj.displayControl());
+		proxyFldObj.validChars(hostFldObj.validChars());
+		if(hostFldObj.lookup()) {
+			var hostLkObj = hostFldObj.lookup();
+			var lkObj = new jslet.data.FieldLookup();
+			lkObj.dataset(hostLkObj.dataset());
+			lkObj.keyField(hostLkObj.keyField());
+			lkObj.codeField(hostLkObj.codeField());
+			lkObj.nameField(hostLkObj.nameField());
+			lkObj.displayFields(hostLkObj.displayFields());
+			lkObj.parentField(hostLkObj.parentField());
+			lkObj.onlyLeafLevel(false);
+			proxyFldObj.lookup(lkObj);
+			proxyFldObj.editControl('DBComboSelect');
+		} else {
+			proxyFldObj.lookup(null);
+			var editorObj = hostFldObj.editControl();
+			if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
+				editorObj = {type: 'DBText'};
+			}
+			proxyFldObj.editControl(editorObj);
+		}
+		proxyFldObj.valueStyle(jslet.data.FieldValueStyle.NORMAL);
+	}
+
+	function initialize() {
+		var fldCfg = [{name: 'dataset', type: 'S', length: 30, visible: false},
+		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
+		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
+		              {name: 'parentField', type: 'S', length: 30, visible: false},
+		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
+		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 4},
+		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
+		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
+		              ];
+		
+		this._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, {keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false});
+		var custContextFn = function(fldObj, changingFldName){
+			var dataset = fldObj.dataset();
+			fldObj.disabled(dataset.getFieldValue('isDatasetField'));
+		};
+		
+		this._inputSettingDs.contextRules([{condition: 'true', rules: [
+		     {field: 'defaultValue', customized: custContextFn},
+		     {field: 'focused', customized: custContextFn},
+		     {field: 'valueFollow', customized: custContextFn}
+		]}]);
+		this._inputSettingDs.enableContextRule();
+		var Z = this;
+		this._inputSettingDs.onFieldChanged(function(fldName, fldValue){
+			if(Z._isInit) {
+				return;
+			}
+			if(!Z._settings) {
+				Z._settings = {};
+			}
+			var hostFldName = this.getFieldValue('field');
+			var setting = Z._settings[hostFldName];
+			if(!setting) {
+				setting = {};
+				Z._settings[hostFldName] = setting;
+			}
+			setting[fldName] = fldValue;
+		})
+	}
+	
+	initialize.call(this);
+}
+
+jslet.ui.InputSettingDialog.prototype = {
+		
+	hostDataset: function(hostDataset) {
+		if(hostDataset === undefined) {
+			return this._hostDataset;
+		}
+		this._hostDataset = hostDataset;
+	},
+	
+	onClosed: function(onClosedFn) {
+		if(onClosedFn === undefined) {
+			return this._onClosed;
+		}
+		this._onClosed = onClosedFn;
+	},
+	
+	onRestoreDefault: function(onRestoreDefaultFn) {
+		if(onRestoreDefaultFn === undefined) {
+			return this._onRestoreDefault;
+		}
+		this._onRestoreDefault = onRestoreDefaultFn;
+	},
+	
+	show: function(hostDataset) {
+		jslet.Checker.test('InputSettingDialog.show#hostDataset', hostDataset).required();
+		var Z = this;
+		if(hostDataset !== Z._hostDataset) {
+			Z._hostDataset = hostDataset;
+			Z._isInit = true;
+			try {
+				Z._initializeFields();
+			} finally {
+				Z._isInit = false;
+			}
+		}
+		if(!Z._dlgId) {
+			Z._createDialog();
+		}
+		var tblFields = jQuery('#' + Z._dlgId).find('.jl-isdlg-fields')[0].jslet;
+		tblFields.expandAll();
+		var owin = jslet('#' + Z._dlgId);
+		owin.showModal();
+		owin.setZIndex(999);
+	},
+	
+	_initializeFields: function(hostDs, isKeepFields, parentField) {
+		var Z = this,
+			dataset = Z._inputSettingDs,
+			fldObj;
+		if(!hostDs) {
+			hostDs = jslet.data.getDataset(Z._hostDataset);
+		}
+		var fields = hostDs.getNormalFields();
+		if(!isKeepFields) {
+			dataset.dataList(null);
+		}
+		var isDsFld;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			isDsFld = fldObj.subDataset()? true: false;
+			if(!isDsFld && !fldObj.visible()) {
+				continue;
+			}
+			dataset.appendRecord();
+			dataset.setFieldValue('isDatasetField', isDsFld);
+			
+			dataset.setFieldValue('dataset', hostDs.name());
+			dataset.setFieldValue('field', fldObj.name());
+			dataset.setFieldValue('label', fldObj.label());
+			if(parentField) {
+				dataset.setFieldValue('parentField', parentField);
+			}
+			if(!isDsFld) {
+				dataset.setFieldValue('defaultValue', fldObj.defaultValue());
+				dataset.setFieldValue('focused', fldObj.focused());
+				dataset.setFieldValue('valueFollow', fldObj.valueFollow());
+			}
+			dataset.confirm();
+			if(isDsFld) {
+				this._initializeFields(fldObj.subDataset(), true, fldObj.name());
+			}
+		}
+	},
+	
+	_createDialog: function() {
+		var opt = { type: 'window', caption: jslet.locale.InputSettingDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
+		var owin = jslet.ui.createControl(opt);
+		var html = [
+		            '<div class="form-group form-group-sm">',
+		            '<div class="jl-isdlg-fields" data-jslet="type:\'DBTable\',dataset:\'', this._inputSettingDs.name(), 
+		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
+
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
+		            '<div class="col-sm-3"><button id="btnSave" class="btn btn-default btn-sm">',
+		            jslet.locale.InputSettingDialog.save,
+		            '</button><button id="btnCancel" class="btn btn-default btn-sm">',
+		            jslet.locale.InputSettingDialog.cancel,
+		            '</button></div></div>',
+		            '</div>'];
+		owin.setContent(html.join(''));
+		owin.onClosed(function () {
+			return 'hidden';
+		});
+		this._dlgId = owin.el.id;
+		var jqEl = jQuery(owin.el), 
+			Z = this;
+		jqEl.find('#btnSave').on('click', function(event) {
+			console.log(Z._settings)
+			if(Z._onClosed) {
+				Z._onClosed(Z._settings);
+			}
+			owin.close();
+		});
+		jqEl.find('#btnCancel').on('click', function(event) {
+			owin.close();
+		});
+		
+		jslet.ui.install(owin.el);
+	}
+
+}
+jslet.ui.defaultInputSettingDialog = new jslet.ui.InputSettingDialog();

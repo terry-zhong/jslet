@@ -233,6 +233,16 @@
 		cancel: ' 取消 '
 	};
 	
+	locale.InputSettingDialog = {
+		labelLabel: '字段名',
+		labelDefaultValue: '缺省值',
+		labelFocused: '聚焦',
+		labelValueFollow: '值跟随',
+		caption: '数据录入配置',
+		save: ' 保存 ',
+		cancel: ' 取消 '
+	};
+		
 	if (window.jslet === undefined || jslet === undefined){
 		jslet=window.jslet = function(id){
 			var ele = jQuery(id)[0];

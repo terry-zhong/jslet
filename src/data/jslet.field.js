@@ -19,6 +19,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	jslet.Checker.test('Field#dataType', dataType).isString().required();
 
 	var Z = this;
+	
 	Z._dataset = null;
 	Z._dsName = null;
 	Z._displayOrder = 0;
@@ -203,7 +204,10 @@ jslet.data.Field.prototype = {
 	 */
 	getType: function () {
 		if(this._dataType == jslet.data.DataType.PROXY) {
-			return this._getProxyPropValue('dataType') || jslet.data.DataType.STRING;
+			var result = this._getProxyPropValue('dataType') || jslet.data.DataType.STRING;
+			if(result === jslet.data.DataType.Dataset) {
+				return this._dataType;
+			}
 		}
 		return this._dataType;
 	},

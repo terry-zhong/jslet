@@ -452,3 +452,8 @@
 .jl-expdlg-fields {
 	height: 300px;
 }
+
+.jl-isdlg-fields {
+	width: 650px!important;
+	height: 500px!important;
+}
