@@ -207,6 +207,8 @@ jslet.data.Field.prototype = {
 			var result = this._getProxyPropValue('dataType') || jslet.data.DataType.STRING;
 			if(result === jslet.data.DataType.Dataset) {
 				return this._dataType;
+			} else {
+				return result;
 			}
 		}
 		return this._dataType;

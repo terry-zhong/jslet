@@ -716,7 +716,15 @@ jslet.ui.InputSettingDialog.prototype = {
 		var jqEl = jQuery(owin.el), 
 			Z = this;
 		jqEl.find('#btnSave').on('click', function(event) {
-			console.log(Z._settings)
+			var hostDs = jslet.data.getDataset(Z._hostDataset),
+				fldObj, setting;
+			for(var fldName in Z._settings) {
+				fldObj = hostDs.getField(fldName);
+				setting = Z._settings[fldName];
+				for(var propName in setting) {
+					fldObj[propName](setting[propName]);
+				}
+			}
 			if(Z._onClosed) {
 				Z._onClosed(Z._settings);
 			}

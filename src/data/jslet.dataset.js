@@ -2875,6 +2875,9 @@ jslet.data.Dataset.prototype = {
 		var subDs, oldShowError;
 		for(var i = 0, len = subDatasets.length; i < len; i++) {
 			subDs = subDatasets[i];
+			if(!subDs) {
+				continue;
+			}
 			subDs.confirm();
 			if(subDs.existDatasetError()) {
 				//'Detail Dataset: {0} has error data!'
