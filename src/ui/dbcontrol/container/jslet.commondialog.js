@@ -589,21 +589,27 @@ jslet.ui.InputSettingDialog = function() {
 		]}]);
 		this._inputSettingDs.enableContextRule();
 		var Z = this;
-		this._inputSettingDs.onFieldChanged(function(fldName, fldValue){
+		this._inputSettingDs.onFieldChanged(function(propName, propValue){
 			if(Z._isInit) {
 				return;
 			}
 			if(!Z._settings) {
 				Z._settings = {};
 			}
-			var hostFldName = this.getFieldValue('field');
-			var setting = Z._settings[hostFldName];
-			if(!setting) {
-				setting = {};
-				Z._settings[hostFldName] = setting;
+			var hostDsName = this.getFieldValue('dataset'),
+				hostFldName = this.getFieldValue('field'),
+				dsSetting = Z._settings[hostDsName];
+			if(!dsSetting) {
+				dsSetting = {};
+				Z._settings[hostDsName] = dsSetting;
 			}
-			setting[fldName] = fldValue;
-		})
+			var fldSetting = dsSetting[hostFldName];
+			if(!fldSetting) {
+				fldSetting = {};
+				dsSetting[hostFldName] = fldSetting; 
+			}
+			fldSetting[propName] = propValue;
+		});
 	}
 	
 	initialize.call(this);
@@ -644,11 +650,20 @@ jslet.ui.InputSettingDialog.prototype = {
 				Z._isInit = false;
 			}
 		}
+		var creating = false;
 		if(!Z._dlgId) {
 			Z._createDialog();
+			creating = true;
 		}
 		var tblFields = jQuery('#' + Z._dlgId).find('.jl-isdlg-fields')[0].jslet;
 		tblFields.expandAll();
+		if(creating) {
+			tblFields.onRowClick(function() {
+				if(this.dataset().getFieldValue('isDatasetField')) {
+					this.toggle();
+				}
+			});
+		}
 		var owin = jslet('#' + Z._dlgId);
 		owin.showModal();
 		owin.setZIndex(999);
@@ -716,17 +731,22 @@ jslet.ui.InputSettingDialog.prototype = {
 		var jqEl = jQuery(owin.el), 
 			Z = this;
 		jqEl.find('#btnSave').on('click', function(event) {
-			var hostDs = jslet.data.getDataset(Z._hostDataset),
-				fldObj, setting;
-			for(var fldName in Z._settings) {
-				fldObj = hostDs.getField(fldName);
-				setting = Z._settings[fldName];
-				for(var propName in setting) {
-					fldObj[propName](setting[propName]);
+			if(Z._settings) {
+				var hostDs, fldObj, fldSetting, propSetting;
+				for(var dsName in Z._settings) {
+					hostDs = jslet.data.getDataset(dsName);
+					fldSetting = Z._settings[dsName]; 
+					for(var fldName in fldSetting) {
+						fldObj = hostDs.getField(fldName);
+						propSetting = fldSetting[fldName];
+						for(var propName in propSetting) {
+							fldObj[propName](propSetting[propName]);
+						}
+					}
 				}
-			}
-			if(Z._onClosed) {
-				Z._onClosed(Z._settings);
+				if(Z._onClosed) {
+					Z._onClosed(Z._settings);
+				}
 			}
 			owin.close();
 		});

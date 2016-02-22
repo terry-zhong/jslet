@@ -3570,7 +3570,7 @@ jslet.data.Dataset.prototype = {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [fldName]));
 		}
 		if (fldObj.getType() == jslet.data.DataType.DATASET) {
-			return '[dataset]';
+			return '';
 		}
 		var valueStyle = fldObj.valueStyle(),
 			result = [];

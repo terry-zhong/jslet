@@ -3273,6 +3273,61 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 
+	/**
+	 * Toggle(expand/collapse) the current record expanded status, enabled for tree style table.
+	 */
+	toggle: function() {
+		var Z = this;
+		if(Z._dataset.recordCount() === 0) {
+			return;
+		}
+		var expanded = Z._dataset.expandedByRecno(Z._dataset.recno());
+		if (expanded) {
+			Z.listvm.collapse(function(){
+				Z._fillData();
+			});
+		} else {
+			Z.listvm.expand(function(){
+				Z._fillData();
+			});
+		}
+	},
+	
+	/**
+	 * Expand the current record, enabled for tree style table.
+	 */
+	expand: function() {
+		var Z = this;
+		if(Z._dataset.recordCount() === 0) {
+			return;
+		}
+		var expanded = Z._dataset.expandedByRecno(Z._dataset.recno());
+		if (!expanded) {
+			Z.listvm.expand(function(){
+				Z._fillData();
+			});
+		}
+	},
+	
+	/**
+	 * Collapse the current record, enabled for tree style table.
+	 */
+	collapse: function() {
+		var Z = this;
+		if(Z._dataset.recordCount() === 0) {
+			return;
+		}
+		var expanded = Z._dataset.expandedByRecno(Z._dataset.recno());
+		if (expanded) {
+			Z.listvm.collapse(function(){
+				Z._fillData();
+			});
+		}
+	},
+	
+	/**
+	 * Expand all records, enabled for tree style table.
+	 */
 	expandAll: function () {
 		var Z = this;
 		Z.listvm.expandAll(function () {
@@ -3280,6 +3335,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 	},
 
+	/**
+	 * Collapse all records, enabled for tree style table.
+	 */
 	collapseAll: function () {
 		var Z = this;
 		Z.listvm.collapseAll(function () {
