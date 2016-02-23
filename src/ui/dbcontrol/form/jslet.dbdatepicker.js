@@ -105,17 +105,13 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		if (!Z.contentPanel) {
 			Z.contentPanel = jslet.ui.createControl({ type: 'Calendar', value: dateValue, minDate: minDate, maxDate: maxDate,
 				onDateSelected: function (date) {
+					Z._dataset.setFieldValue(Z._field, new Date(date.getTime()), Z._valueIndex);
 					Z.popup.hide();
-					Z.el.focus();
-					var value = Z.getValue();
-					if(!value) {
-						value = date;
-					} else {
-						value.setFullYear(date.getFullYear());
-						value.setMonth(date.getMonth());
-						value.setDate(date.getDate());
+					try {
+						Z.el.focus();
+					} catch(e) {
+						//Ignore
 					}
-					Z._dataset.setFieldValue(Z._field, new Date(value.getTime()), Z._valueIndex);
 				}
 			}, null, width + 'px', height + 'px', true); //Hide panel first
 		}

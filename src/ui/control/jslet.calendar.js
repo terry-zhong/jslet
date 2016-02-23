@@ -241,14 +241,30 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	incMonth: function(deltaMonth) {
-		var value = this._getNotNullDate();
+		var value = this._getNotNullDate(),
+			oldDate = value.getDate();
 		value.setMonth(value.getMonth() + deltaMonth);
+		if(oldDate >=29) {
+			var newDate = value.getDate();
+			if(oldDate != newDate) {
+				value = new Date(value.getFullYear(), value.getMonth(), 1) - 24*3600*1000;
+				value = new Date(value);
+			}
+		}
 		this.setValue(value);
 	},
 	
 	incYear: function(deltaYear) {
-		var value = this._getNotNullDate();
+		var value = this._getNotNullDate(),
+			oldDate = value.getDate();
 		value.setFullYear(value.getFullYear() + deltaYear);
+		if(oldDate >=29) {
+			var newDate = value.getDate();
+			if(oldDate != newDate) {
+				value = new Date(value.getFullYear(), value.getMonth(), 1) - 24*3600*1000;
+				value = new Date(value);
+			}
+		}
 		this.setValue(value);
 	},
 	

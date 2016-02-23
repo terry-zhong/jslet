@@ -41,6 +41,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._defaultExpr = null;
 	Z._defaultValue = null;
 	Z._label = null;
+	Z._displayLabel = null;
 	Z._tip = null;
 	Z._message = null;
 	Z._displayWidth = 0;
@@ -146,7 +147,7 @@ jslet.data.Field.prototype = {
 	},
 	
 	/**
-	 * Get or set field label.
+	 * Get or set field label, field label can be used to display, configure, export, import data .
 	 * 
 	 * @param {String or undefined} label Field label.
 	 * @return {String or this}
@@ -158,6 +159,25 @@ jslet.data.Field.prototype = {
 		}
 		jslet.Checker.test('Field.label', label).isString();
 		Z._label = label;
+		Z._fireMetaChangedEvent('label');
+		Z._fireGlobalMetaChangedEvent('label');
+		return this;
+	},
+
+	/**
+	 * Get or set field display label, display label is only used to display data.
+	 * In some scenarios, display label can be different from field label.
+	 * 
+	 * @param {String or undefined} label Field label.
+	 * @return {String or this}
+	 */
+	displayLabel: function (displayLabel) {
+		var Z = this;
+		if (displayLabel === undefined) {
+			return Z._displayLabel || Z.label();
+		}
+		jslet.Checker.test('Field.displayLabel', displayLabel).isString();
+		Z._displayLabel = displayLabel;
 		Z._fireMetaChangedEvent('label');
 		Z._fireGlobalMetaChangedEvent('label');
 		return this;
@@ -261,7 +281,7 @@ jslet.data.Field.prototype = {
 		return this;
 	},
 	
-	changeProxyFieldName: function(dataRecord) {
+	changeProxyFieldName: function(dataRecord, isSilence) {
 		var Z = this,
 			fldObj, proxyHostFldName, proxyFldName;
 		
@@ -281,7 +301,9 @@ jslet.data.Field.prototype = {
 			Z._proxyFldObjs[proxyFldName] = newProxyFldObj;
 		}
 		Z._currProxyFieldName = proxyFldName;
-		Z._fireMetaChangedEvent('editControl');
+		if(!isSilence) {
+			Z._fireMetaChangedEvent('editControl');
+		}
 	},
 	
 	_getProxyPropValue: function(propName) {
@@ -1066,6 +1088,10 @@ jslet.data.Field.prototype = {
 				editCtrl = null;
 			}
 		}
+		var oldValue = Z._getProxyPropValue('editControl');
+		if(oldValue && editCtrl && oldValue.type == editCtrl.type) {
+			return this;
+		}
 		if(Z._dataType == jslet.data.DataType.PROXY) {
 			Z._setProxyPropValue('editControl', editCtrl);
 		} else {
@@ -1677,6 +1703,8 @@ jslet.data.Field.prototype = {
 		result.defaultExpr(Z._defaultExpr);
 		result.defaultValue(Z._defaultValue);
 		result.label(Z._label);
+		result.displayLabel(Z._displayLabel);
+		
 		result.shortName(Z._shortName);
 		result.tip(Z._tip);
 		result.displayWidth(Z._displayWidth);
@@ -1802,6 +1830,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('tabIndex');
 	setPropValue('displayOrder');
 	setPropValue('label');
+	setPropValue('displayLabel');
 	setPropValue('shortName');
 	setPropValue('tip');
 

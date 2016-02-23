@@ -145,7 +145,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 		for (i = 0; i < fcnt; i++) {
 			fldObj = visibleFlds[i];
 			c = i % columnCnt;
-			w = Math.round(jslet.ui.textMeasurer.getWidth(fldObj.label()) + startWidth) + 15;
+			w = Math.round(jslet.ui.textMeasurer.getWidth(fldObj.displayLabel()) + startWidth) + 15;
 			if (arrLabelWidth[c] < w) {
 				arrLabelWidth[c] = w;
 			}

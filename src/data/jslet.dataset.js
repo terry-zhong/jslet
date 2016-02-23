@@ -1498,7 +1498,7 @@ jslet.data.Dataset.prototype = {
 				}
 			} //end for
 		} //end if
-		Z._refreshProxyField();
+		Z._refreshProxyField(null, Z._silenc);
 		if (Z._contextRuleEnabled) {
 			this.calcContextRule();
 		}
@@ -3120,7 +3120,7 @@ jslet.data.Dataset.prototype = {
 		if (!dataRec) {
 			dataRec = Z.getRecord();
 		}
-		Z._refreshProxyField(dataRec);
+		Z._refreshProxyField(dataRec, true);
 
 		var k = fldName.indexOf('.'), 
 			subfldName, fldValue = null,
@@ -3265,7 +3265,7 @@ jslet.data.Dataset.prototype = {
 			}
 			Z._followedValues[fldName] = value;
 		}
-		Z._refreshProxyField(currRec);
+		Z._refreshProxyField(currRec, true);
 		//calc other fields' range to use context rule
 		if (Z._contextRuleEnabled) {
 			Z.calcContextRule(fldName);
@@ -3530,7 +3530,7 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		
-		Z._refreshProxyField(currRec);
+		Z._refreshProxyField(currRec, true);
 		if (k > 0) { //Field chain
 			var subFldName = fldName.substr(0, k);
 			fldName = fldName.substr(k + 1);
@@ -4283,7 +4283,7 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * @private
 	 */
-	_refreshProxyField: function(dataRecord) {
+	_refreshProxyField: function(dataRecord, isSilence) {
 		var Z = this;
 		if(!Z._proxyFields || Z.recordCount() === 0) {
 			return;
@@ -4295,7 +4295,7 @@ jslet.data.Dataset.prototype = {
 		var fldObj;
 		for(var i = 0, len = Z._proxyFields.length; i < len; i++) {
 			fldObj = Z._proxyFields[i];
-			fldObj.changeProxyFieldName(dataRecord);
+			fldObj.changeProxyFieldName(dataRecord, isSilence);
 		}
 	},
 	
@@ -5162,7 +5162,7 @@ jslet.data.Dataset.prototype = {
 			arrRec = [];
 			for(i = 0; i < fldCnt; i++) {
 				fldObj = exportFields[i];
-				fldName = fldObj.fullLabel();
+				fldName = fldObj.label();
 				arrRec.push(fldName);
 			}
 			result.push(arrRec);
@@ -5295,140 +5295,6 @@ jslet.data.Dataset.prototype = {
 		return textArr.join('\n');
 	},
 
-//	/**
-//	 * Export data with CSV format.
-//	 * 
-//	 * Export option pattern:
-//	 * {exportHeader: true|false, //export with field labels
-//	 *  onlySelected: true|false, //export selected records or not
-//	 *  includeFields: ['fldName1', 'fldName2',...], //Array of field names which to be exported
-//	 *  excludeFields: ['fldName1', 'fldName2',...]  //Array of field names which not to be exported
-//	 *  }
-//	 *  
-//	 * @param exportOption {PlanObject} export options
-//	 * 
-//	 * @return {String} Csv Text. 
-//	 */
-//	exportCsv: function(exportOption) {
-//		var Z = this;
-//		Z.confirm();
-//		if(Z.existDatasetError()) {
-//			console.warn(jslet.locale.Dataset.cannotConfirm);
-//		}
-//
-//		var exportHeader = true,
-//			onlySelected = false,
-//			includeFields = null,
-//			excludeFields = null,
-//			escapeDate = true;
-//		
-//		if(exportOption && jQuery.isPlainObject(exportOption)) {
-//			if(exportOption.exportHeader !== undefined) {
-//				exportHeader = exportOption.exportHeader? true: false;
-//			}
-//			if(exportOption.onlySelected !== undefined) {
-//				onlySelected = exportOption.onlySelected? true: false;
-//			}
-//			if(exportOption.includeFields !== undefined) {
-//				includeFields = exportOption.includeFields;
-//				jslet.Checker.test('Dataset.exportCsv#exportOption.includeFields', includeFields).isArray();
-//			}
-//			if(exportOption.excludeFields !== undefined) {
-//				excludeFields = exportOption.excludeFields;
-//				jslet.Checker.test('Dataset.exportCsv#exportOption.excludeFields', excludeFields).isArray();
-//			}
-//			if(exportOption.escapeDate !== undefined) {
-//				escapeDate = exportOption.escapeDate? true: false;
-//			}
-//		}
-//		var fldSeperator = ',', surround='"';
-//		var context = Z.startSilenceMove();
-//		try{
-//			Z.first();
-//			var result = [], 
-//				arrRec, 
-//				fldCnt = Z._normalFields.length, 
-//				fldObj, fldName, text, i,
-//				exportFields = [];
-//			for(i = 0; i < fldCnt; i++) {
-//				fldObj = Z._normalFields[i];
-//				fldName = fldObj.name();
-//				if(includeFields && includeFields.length > 0) {
-//					if(includeFields.indexOf(fldName) < 0) {
-//						continue;
-//					}
-//				} else {
-//					if(!fldObj.visible()) {
-//						continue;
-//					}
-//				}
-//				if(excludeFields && excludeFields.length > 0) {
-//					if(excludeFields.indexOf(fldName) >= 0) {
-//						continue;
-//					}
-//				} 
-//				
-//				exportFields.push(fldObj);
-//			}
-//			fldCnt = exportFields.length;
-//			if (exportHeader) {
-//				arrRec = [];
-//				for(i = 0; i < fldCnt; i++) {
-//					fldObj = exportFields[i];
-//					fldName = fldObj.fullLabel();
-//					fldName = surround + fldName + surround;
-//					arrRec.push(fldName);
-//				}
-//				result.push(arrRec.join(fldSeperator));
-//			}
-//			var isDate;
-//			while(!Z.isEof()) {
-//				if (onlySelected && !Z.selected()) {
-//					Z.next();
-//					continue;
-//				}
-//				arrRec = [];
-//				for(i = 0; i < fldCnt; i++) {
-//					fldObj = exportFields[i];
-//					fldName = fldObj.name();
-//					//If Number field does not have lookup field, return field value, not field text. 
-//					//Example: 'amount' field
-//					if(fldObj.getType() === 'N' && !fldObj.lookup()) {
-//						text = fldObj.getValue();
-//						if(text === null || text === undefined) {
-//							text = '';
-//						}
-//						text = surround + text + surround;
-//					} else {
-//						text = Z.getFieldText(fldName);
-//						if(text === null || text === undefined) {
-//							text = '""';
-//						} else {
-//							text = text.replace(/"/g,'""');
-//							var isStartZero = false;
-//							if(text.startsWith('0')) {
-//								isStartZero = true;
-//							}
-//							text = surround + text + surround;
-//							if(!isStartZero) {
-//								isDate = escapeDate && (fldObj.getType() === jslet.data.DataType.DATE);
-//							}
-//							if(isStartZero || isDate) {
-//								text = '=' + text;
-//							}
-//						}
-//					}
-//					arrRec.push(text);
-//				}
-//				result.push(arrRec.join(fldSeperator));
-//				Z.next();
-//			}
-//			return result.join('\n');
-//		}finally{
-//			Z.endSilenceMove(context);
-//		}
-//	},
-//
 	/**
 	 * Export data to CSV file.
 	 * 

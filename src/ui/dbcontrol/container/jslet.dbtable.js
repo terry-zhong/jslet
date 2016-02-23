@@ -1523,7 +1523,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		var ohead, fldName = fldObj.name();
 		ohead = new jslet.ui.TableHead();
-		ohead.label = fldObj.label();
+		ohead.label = fldObj.displayLabel();
 		ohead.field = fldName;
 		ohead.level = level;
 		ohead.colNum = context.lastColNum;
@@ -1553,7 +1553,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				cobj.field = fldName;
 			}
 			if (!cobj.label){
-				cobj.label = fldObj.label();
+				cobj.label = fldObj.displayLabel();
 			}
 			cobj.mergeSame = fldObj.mergeSame();
 			cobj.colNum = ohead.colNum;
@@ -2303,7 +2303,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		var fldObj = Z._dataset.getField(cobj.field);
-		cobj.label = fldObj.label();
+		cobj.label = fldObj.displayLabel();
 		var ochild = oth.childNodes[0];
 		var cellRender = cobj.cellRender || Z._defaultCellRender;
 		if (cellRender && cellRender.createHeader) {

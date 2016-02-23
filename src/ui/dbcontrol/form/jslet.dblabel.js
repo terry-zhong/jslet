@@ -72,7 +72,7 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 				content += '<span class="jl-lbl-required">' + 
 					jslet.ui.DBLabel.REQUIREDCHAR + '</span>';
 			}
-			content += fldObj.label();
+			content += fldObj.displayLabel();
 			Z.el.innerHTML = content || '';
 			return;
 		}
