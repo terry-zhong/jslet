@@ -884,233 +884,280 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var keyCode = event.which;
 			
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.F) { //ctrl + f
-				if(Z._filterPanel) {
-					Z._filterPanel.hide();
-				}
-				if(!Z._hasFindDialog) {
-					return;
-				}
-				if(!Z._findDialog) {
-					Z._findDialog = new jslet.ui.FindDialog(Z);
-				}
-				if(!Z._findDialog.findingField()) {
-					var colCfg = Z.innerColumns[Z._currColNum];
-					if(colCfg.field) {
-						Z._findDialog.findingField(colCfg.field);
-					} else {
-						//Get first column with field name.
-						for(var i = Z._currColNum + 1, len = Z.innerColumns.length; i < len; i++) {
-							colCfg = Z.innerColumns[i];
-							if(colCfg.field) {
-								Z._findDialog.findingField(colCfg.field);
-								break;
-							}
-						}
-					}
-				}
-				if(Z._findDialog.findingField()) {
-					Z._findDialog.show(0, Z.headSectionHt);
-				}
+				Z.showFindDialog();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.E) { //ctrl + e
-				if(!Z._dataset.nextError()) {
-					Z._dataset.firstError();
-				}
+				Z.gotoNextError();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
-				var selectedText = Z._dataset.selection.getSelectionText();
-				if(selectedText) {
-					jslet.Clipboard.putText(selectedText);
-					window.setTimeout(function(){Z.el.focus();}, 5);
-				}
+				Z.copySelection();
 				return;
 			}
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.A) { //ctrl + a
-				var fields = [], colCfg, fldName;
-				for(var i = 0, len = Z.innerColumns.length; i < len; i++) {
-					colCfg = Z.innerColumns[i];
-					fldName = colCfg.field;
-					if(fldName) {
-						fields.push(fldName);
-					}
-				}
-				Z._dataset.selection.selectAll(fields, true);
-				Z._refreshSelection();
+				Z.selectAllCells();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
-				var fldName = Z.getFieldByColNum(Z._currColNum),
-					lastColNum, num = null, 
-					focusedFields = Z._dataset.focusedFields(),
-					editingFields = Z._getEditingFields();
-				if(editingFields && editingFields.indexOf(fldName) >= 0) {
-					if(focusedFields) {
-						focusedFields = focusedFields.slice(0);
-						for(var i = len = focusedFields.length - 1; i >= 0; i--) {
-							if(editingFields.indexOf(focusedFields[i]) < 0) {
-								focusedFields.splice(i, 1);
-							}
-						}
-					}
-					var idx = -1, fields;
-					if(focusedFields) {
-						fields = focusedFields;
-						idx = fields.indexOf(fldName);
-					}
-					if(idx < 0) {
-						fields = editingFields;
-						idx = fields.indexOf(fldName);
-					}
-					if(fields && idx >= 0) {
-						if(idx === 0) {
-							if(Z._dataset.recno() > 0) {
-								Z._dataset.prior();
-								fldName = fields[fields.length - 1];
-							} else {
-								return;
-							}
-						} else {
-							fldName = fields[idx - 1];
-						}
-						num = Z.getColNumByField(fldName);
-					}
-				}
-				if(num === null) {
-					lastColNum = Z.innerColumns.length - 1;
-					if(Z._currColNum === 0) {
-						if(Z._dataset.recno() > 0) {
-							Z._dataset.prior();
-							num = lastColNum;
-						} else {
-							return;
-						}
-					} else {
-						num = Z._currColNum - 1;
-					}
-				}
-				Z.currColNum(num);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
+				Z.tabPrior();
 			} else if(isTabKey) { //TAB Right
-				var fldName = Z.getFieldByColNum(Z._currColNum),
-					lastColNum, num = null, 
-					focusedFields = Z._dataset.focusedFields(),
-					editingFields = Z._getEditingFields();
-					
-				if(editingFields && editingFields.indexOf(fldName) >= 0) {
-					if(focusedFields) {
-						focusedFields = focusedFields.slice(0);
-						for(var i = len = focusedFields.length - 1; i >= 0; i--) {
-							if(editingFields.indexOf(focusedFields[i]) < 0) {
-								focusedFields.splice(i, 1);
-							}
-						}
-					}
-					var idx = -1, fields;
-					if(focusedFields) {
-						fields = focusedFields;
-						idx = fields.indexOf(fldName);
-					}
-					if(idx < 0) {
-						fields = editingFields;
-						idx = fields.indexOf(fldName);
-					}
-					if(fields && idx >= 0) {
-						if(idx === fields.length - 1) {
-							if(Z._dataset.recno() < Z._dataset.recordCount() - 1) {
-								Z._dataset.next();
-								fldName = fields[0];
-							} else {
-								return;
-							}
-						} else {
-							fldName = fields[idx + 1];
-						}
-						num = Z.getColNumByField(fldName);
-					}
-				}
-				if(num === null) {
-					lastColNum = Z.innerColumns.length - 1;
-					if(Z._currColNum < lastColNum) {
-						num = Z._currColNum + 1;
-					} else {
-						if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
-							return;
-						}
-						Z._dataset.next();
-						num = 0;
-					}
-				}
-				Z.currColNum(num);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
+				Z.tabNext();
 			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
-				var num,
-					lastColNum = Z.innerColumns.length - 1;
-				
-				if(Z._currColNum === 0) {
-					if(Z._dataset.recno() > 0) {
-						Z._dataset.prior();
-						num = lastColNum;
-					} else {
-						return;
-					}
-				} else {
-					num = Z._currColNum - 1;
-				}
-				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
-				Z.currColNum(num);
-				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
+				Z.movePriorCell();
 			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
-				var lastColNum = Z.innerColumns.length - 1,
-					num;
-				
-				if(Z._currColNum < lastColNum) {
-					num = Z._currColNum + 1;
-				} else {
-					if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
-						return;
-					}
-					Z._dataset.next();
-					num = 0;
-				}
-				Z.currColNum(num);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
+				Z.moveNextCell();
 			} else if (keyCode === jslet.ui.KeyCode.UP) {//KEY_UP
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.priorRow();
 				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
 			} else if (keyCode === jslet.ui.KeyCode.DOWN) {//KEY_DOWN
 				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
 				Z.listvm.nextRow();
-				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
 			} else if (keyCode === jslet.ui.KeyCode.PAGEUP) {//KEY_PAGEUP
 				Z.listvm.priorPage();
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
 			} else if (keyCode === jslet.ui.KeyCode.PAGEDOWN) {//KEY_PAGEDOWN
 				Z.listvm.nextPage();
-				event.preventDefault();
-	       		event.stopImmediatePropagation();
+			} else {
+				return;
 			}
+			event.preventDefault();
+       		event.stopImmediatePropagation();
 		});		
 	}, // end bind
+	
+	showFindDialog: function() {
+		var Z = this;
+		if(Z._filterPanel) {
+			Z._filterPanel.hide();
+		}
+		if(!Z._hasFindDialog) {
+			return;
+		}
+		if(!Z._findDialog) {
+			Z._findDialog = new jslet.ui.FindDialog(Z);
+		}
+		if(!Z._findDialog.findingField()) {
+			var colCfg = Z.innerColumns[Z._currColNum];
+			if(colCfg.field) {
+				Z._findDialog.findingField(colCfg.field);
+			} else {
+				//Get first column with field name.
+				for(var i = Z._currColNum + 1, len = Z.innerColumns.length; i < len; i++) {
+					colCfg = Z.innerColumns[i];
+					if(colCfg.field) {
+						Z._findDialog.findingField(colCfg.field);
+						break;
+					}
+				}
+			}
+		}
+		if(Z._findDialog.findingField()) {
+			Z._findDialog.show(0, Z.headSectionHt);
+		}		
+	},
+	
+	gotoNextError: function() {
+		var Z = this;
+		if(!Z._dataset.nextError()) {
+			Z._dataset.firstError();
+		}
+	},
+	
+	copySelection: function() {
+		var Z = this,
+			selectedText = Z._dataset.selection.getSelectionText();
+		if(selectedText) {
+			jslet.Clipboard.putText(selectedText);
+			window.setTimeout(function(){Z.el.focus();}, 5);
+		}
+	},
+	
+	selectAllCells: function() {
+		var Z = this,
+			fields = [], colCfg, fldName;
+		for(var i = 0, len = Z.innerColumns.length; i < len; i++) {
+			colCfg = Z.innerColumns[i];
+			fldName = colCfg.field;
+			if(fldName) {
+				fields.push(fldName);
+			}
+		}
+		Z._dataset.selection.selectAll(fields, true);
+		Z._refreshSelection();
+	},
+	
+	tabPrior: function() {
+		var Z = this,
+			fldName = Z.getFieldByColNum(Z._currColNum),
+			lastColNum, num = null, 
+			focusedFields = Z._dataset.focusedFields(),
+			editingFields = Z._getEditingFields();
+		if(editingFields && editingFields.indexOf(fldName) >= 0) {
+			var focusMngr = jslet.ui.focusManager,
+				onChangingFocusFn = focusMngr.onChangingFocus();
+			if(onChangingFocusFn) {
+				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, true, Z._dataset, 
+						focusMngr.activeField(), focusMngr.activeValueIndex());
+				if(!cancelFocus) {
+					return false;
+				}
+			}
+			
+			if(focusedFields) {
+				focusedFields = focusedFields.slice(0);
+				for(var i = len = focusedFields.length - 1; i >= 0; i--) {
+					if(editingFields.indexOf(focusedFields[i]) < 0) {
+						focusedFields.splice(i, 1);
+					}
+				}
+			}
+			var idx = -1, fields;
+			if(focusedFields) {
+				fields = focusedFields;
+				idx = fields.indexOf(fldName);
+			}
+			if(idx < 0) {
+				fields = editingFields;
+				idx = fields.indexOf(fldName);
+			}
+			if(fields && idx >= 0) {
+				if(idx === 0) {
+					if(Z._dataset.recno() > 0) {
+						Z._dataset.prior();
+						fldName = fields[fields.length - 1];
+					} else {
+						return;
+					}
+				} else {
+					fldName = fields[idx - 1];
+				}
+				num = Z.getColNumByField(fldName);
+			}
+		}
+		if(num === null) {
+			lastColNum = Z.innerColumns.length - 1;
+			if(Z._currColNum === 0) {
+				if(Z._dataset.recno() > 0) {
+					Z._dataset.prior();
+					num = lastColNum;
+				} else {
+					return;
+				}
+			} else {
+				num = Z._currColNum - 1;
+			}
+		}
+		Z.currColNum(num);
+	},
+	
+	tabNext: function() {
+		var Z = this,
+			fldName = Z.getFieldByColNum(Z._currColNum),
+			lastColNum, num = null, 
+			focusedFields = Z._dataset.focusedFields(),
+			editingFields = Z._getEditingFields();
+			
+		if(editingFields && editingFields.indexOf(fldName) >= 0) {
+			var focusMngr = jslet.ui.focusManager,
+				onChangingFocusFn = focusMngr.onChangingFocus();
+			if(onChangingFocusFn) {
+				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, false, Z._dataset, 
+						focusMngr.activeField(), focusMngr.activeValueIndex());
+				if(!cancelFocus) {
+					return false;
+				}
+			}
+			
+			if(focusedFields) {
+				focusedFields = focusedFields.slice(0);
+				for(var i = len = focusedFields.length - 1; i >= 0; i--) {
+					if(editingFields.indexOf(focusedFields[i]) < 0) {
+						focusedFields.splice(i, 1);
+					}
+				}
+			}
+			var idx = -1, fields;
+			if(focusedFields) {
+				fields = focusedFields;
+				idx = fields.indexOf(fldName);
+			}
+			if(idx < 0) {
+				fields = editingFields;
+				idx = fields.indexOf(fldName);
+			}
+			if(fields && idx >= 0) {
+				if(idx === fields.length - 1) {
+					if(Z._dataset.recno() < Z._dataset.recordCount() - 1) {
+						Z._dataset.next();
+						fldName = fields[0];
+					} else {
+						return;
+					}
+				} else {
+					fldName = fields[idx + 1];
+				}
+				num = Z.getColNumByField(fldName);
+			}
+		}
+		if(num === null) {
+			lastColNum = Z.innerColumns.length - 1;
+			if(Z._currColNum < lastColNum) {
+				num = Z._currColNum + 1;
+			} else {
+				if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
+					return;
+				}
+				Z._dataset.next();
+				num = 0;
+			}
+		}
+		Z.currColNum(num);
+	},
+	
+	movePriorCell: function() {
+		var Z = this,
+			lastColNum = Z.innerColumns.length - 1,
+			num;
+		
+		if(Z._currColNum === 0) {
+			if(Z._dataset.recno() > 0) {
+				Z._dataset.prior();
+				num = lastColNum;
+			} else {
+				return;
+			}
+		} else {
+			num = Z._currColNum - 1;
+		}
+		Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+		Z.currColNum(num);
+		Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+	},
+	
+	moveNextCell: function() {
+		var Z = this,
+			lastColNum = Z.innerColumns.length - 1,
+			num;
+		
+		if(Z._currColNum < lastColNum) {
+			num = Z._currColNum + 1;
+		} else {
+			if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
+				return;
+			}
+			Z._dataset.next();
+			num = 0;
+		}
+		Z.currColNum(num);
+	},
 	
 	_getEditingFields: function() {
 		var Z = this; 

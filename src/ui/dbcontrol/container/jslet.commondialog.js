@@ -406,7 +406,7 @@ jslet.ui.ExportDialog.prototype = {
 		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
 		            '\'"><div class="form-group form-group-sm">',
 		            '<div class="col-sm-6"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>',
-		            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="btnSave">',
+		            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="jlbtnSave">',
 		            jslet.locale.ExportDialog.saveSchema,
 		            '</button><button class="btn btn-default btn-sm">',
 		            jslet.locale.ExportDialog.deleteSchema,
@@ -418,11 +418,11 @@ jslet.ui.ExportDialog.prototype = {
 		            '<div class="form-group form-group-sm"><label class="control-label col-sm-3">',
 		            jslet.locale.ExportDialog.fileName,
 		            '</label>',
-					'<div class="col-sm-9"><input id="txtExportFile" class="form-control" type="text"></input></div></div>',
+					'<div class="col-sm-9"><input id="jltxtExportFile" class="form-control" type="text"></input></div></div>',
 		            '<div class="form-group form-group-sm"><label class="control-label col-sm-8">&nbsp</label>',
-		            '<div class="col-sm-4"><button id="btnExport" class="btn btn-default btn-sm">',
+		            '<div class="col-sm-4"><button id="jlbtnExport" class="btn btn-default btn-sm">',
 		            jslet.locale.ExportDialog.exportData,
-		            '</button><button id="btnCancel" class="btn btn-default btn-sm">',
+		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
 		            jslet.locale.ExportDialog.cancel,
 		            '</button></div></div>',
 		            '</div>'];
@@ -433,8 +433,8 @@ jslet.ui.ExportDialog.prototype = {
 		var Z = this;
 		this._dlgId = owin.el.id;
 		var jqEl = jQuery(owin.el);
-		jqEl.find('#btnExport').click(function(event) {
-			var jqExpportFile = jqEl.find('#txtExportFile');
+		jqEl.find('#jlbtnExport').click(function(event) {
+			var jqExpportFile = jqEl.find('#jltxtExportFile');
 			var fileName = jqExpportFile.val();
 			if(!fileName || !fileName.trim()) {
 				jslet.showInfo('FileName required!');
@@ -447,7 +447,7 @@ jslet.ui.ExportDialog.prototype = {
 			Z._dataset.exportCsvFile(fileName, {includeFields: fields});
 			owin.close();
 		});
-		jqEl.find('#btnSave').click(function(event) {
+		jqEl.find('#jlbtnSave').click(function(event) {
 			jslet.ui.MessageBox.prompt('Please input exportting shema: ', 'Input Export Schema', function(button, value){
 				if(button === 'ok' && value) {
 					var fields = Z._exportDataset.getFieldValue('fields');
@@ -459,7 +459,7 @@ jslet.ui.ExportDialog.prototype = {
 			});
 		});
 		
-		jqEl.find('#btnCancel').click(function(event) {
+		jqEl.find('#jlbtnCancel').click(function(event) {
 			owin.close();
 		});
 	},
@@ -511,7 +511,7 @@ jslet.ui.ExportDialog.prototype = {
 		var jqEl = jQuery('#' + this._dlgId);
 		var owin = jqEl[0].jslet;
 		var fileName = Z._dataset.description() + '.csv';
-		var jqExpportFile = jqEl.find('#txtExportFile');
+		var jqExpportFile = jqEl.find('#jltxtExportFile');
 		jqExpportFile.val(fileName);
 		owin.showModal();
 		owin.setZIndex(999);
@@ -717,9 +717,9 @@ jslet.ui.InputSettingDialog.prototype = {
 		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
 
 		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
-		            '<div class="col-sm-3"><button id="btnSave" class="btn btn-default btn-sm">',
+		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
 		            jslet.locale.InputSettingDialog.save,
-		            '</button><button id="btnCancel" class="btn btn-default btn-sm">',
+		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
 		            jslet.locale.InputSettingDialog.cancel,
 		            '</button></div></div>',
 		            '</div>'];
@@ -730,7 +730,7 @@ jslet.ui.InputSettingDialog.prototype = {
 		this._dlgId = owin.el.id;
 		var jqEl = jQuery(owin.el), 
 			Z = this;
-		jqEl.find('#btnSave').on('click', function(event) {
+		jqEl.find('#jlbtnSave').on('click', function(event) {
 			if(Z._settings) {
 				var hostDs, fldObj, fldSetting, propSetting;
 				for(var dsName in Z._settings) {
@@ -750,7 +750,7 @@ jslet.ui.InputSettingDialog.prototype = {
 			}
 			owin.close();
 		});
-		jqEl.find('#btnCancel').on('click', function(event) {
+		jqEl.find('#jlbtnCancel').on('click', function(event) {
 			owin.close();
 		});
 		
