@@ -2355,8 +2355,8 @@ jslet.data.Dataset.prototype = {
 			return false;
 		}
 		var currRec = Z.getRecord(),
-			preValue = preRec[fldName],
-			currValue = currRec[fldName],
+			preValue = Z.getFieldValueByRecord(preRec, fldName),
+			currValue = Z.getFieldValueByRecord(currRec, fldName),
 			isSame = false;
 		if(!preValue && preValue !== 0 && !currValue && currValue !== 0) {
 			isSame = true;

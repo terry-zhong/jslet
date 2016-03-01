@@ -93,6 +93,65 @@ jslet.ui.FocusManager.prototype = {
 		return this;
 	},
 	
+	tabPrev: function() {
+		jQuery.tabPrev(this._getContainer(), true, this._doChangingFocus);
+	},
+	
+	tabNext: function() {
+		jQuery.tabNext(this._getContainer(), true, this._doChangingFocus);
+	},
+	
+	_getContainer: function() {
+		var Z = this,
+			jqContainer;
+		if(Z._containerIds && Z._containerIds.length > 0) {
+			var containerId = Z._containerIds[Z._containerIds.length - 1];
+			var jqContainer = jQuery('#' + containerId);
+			if(jqContainer.length === 0) {
+				throw new Error('Not found container: ' + containerId);
+			}
+		} else {
+			jqContainer = jQuery(document);
+		}
+		return jqContainer;
+	},
+	
+	_doChangingFocus: function(ele, reverse) {
+		var Z = this;
+		if(Z._onChangingFocus) {
+			var cancelFocus = Z._onChangingFocus(ele, reverse, jslet.data.getDataset(Z._activeDataset), Z._activeField, Z._activeValueIndex);
+			if(!cancelFocus) {
+				return false;
+			}
+		}
+		if(!Z._activeDataset && !Z._activeField) {
+			return true;
+		}
+		var dsObj = jslet.data.getDataset(Z._activeDataset);
+		if(!dsObj || !dsObj.focusedFields()) {
+			return true;
+		}
+		var focusedFlds = dsObj.mergedFocusedFields();
+		var idx = focusedFlds.indexOf(Z._activeField);
+		if(idx < 0) {
+			return true;
+		}
+		if(!reverse) {
+			if(idx === focusedFlds.length - 1) {
+				return true;
+			} else {
+				dsObj.focusEditControl(focusedFlds[idx + 1]);
+			}
+		} else {
+			if(idx === 0) {
+				return true;
+			} else {
+				dsObj.focusEditControl(focusedFlds[idx - 1]);
+			}
+		}
+		return false;
+	},
+	
 	_initialize: function() {
 		function isTabableElement(ele) {
 			var tagName = ele.tagName;
@@ -152,22 +211,12 @@ jslet.ui.FocusManager.prototype = {
 				if(keyCode !== 9 && !isTabableElement(event.target)) {
 					return;
 				}
-				var jqContainer;
-				if(Z._containerIds && Z._containerIds.length > 0) {
-					var containerId = Z._containerIds[Z._containerIds.length - 1];
-					var jqContainer = jQuery('#' + containerId);
-					if(jqContainer.length === 0) {
-						throw new Error('Not found container: ' + containerId);
-					}
-				} else {
-					jqContainer = jQuery(document);
-				}
 				
 				if(event.shiftKey){
-					jQuery.tabPrev(jqContainer, true, doChangingFocus);
+					Z.tabPrev();
 				}
 				else{
-					jQuery.tabNext(jqContainer, true, doChangingFocus);
+					Z.tabNext();
 				}
 				event.preventDefault();
 	       		event.stopImmediatePropagation();

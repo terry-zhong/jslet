@@ -804,7 +804,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (!ti) {
 			jqEl.attr('tabindex', 0);
 		}
-
+		jqEl.on('focus', function(event) {
+			if(Z._isTabPrev) {
+				jslet.ui.focusManager.tabPrev();
+				Z._isTabPrev = false;
+				return;
+			}
+			if(Z._dataset.recordCount() === 0) {
+				jslet.ui.focusManager.tabNext();
+			} else {
+				var cellEditor = Z.cellEditor();
+				if(cellEditor) {
+					cellEditor.showEditor();
+				}
+			}
+		});
         var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
         var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
         jqEl.on(wheelEvent, function (event) {
@@ -907,9 +921,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
-				Z.tabPrior();
+				Z._isTabPrev = true;
+				if(!Z.tabPrior()) {
+					return;
+				}
 			} else if(isTabKey) { //TAB Right
-				Z.tabNext();
+				Z._isTabPrev = false;
+				if(!Z.tabNext()) {
+					return;
+				}
 			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				Z.movePriorCell();
 			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
@@ -1034,7 +1054,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						Z._dataset.prior();
 						fldName = fields[fields.length - 1];
 					} else {
-						return;
+						return false;
 					}
 				} else {
 					fldName = fields[idx - 1];
@@ -1049,13 +1069,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					Z._dataset.prior();
 					num = lastColNum;
 				} else {
-					return;
+					return false;
 				}
 			} else {
 				num = Z._currColNum - 1;
 			}
 		}
 		Z.currColNum(num);
+		return true;
 	},
 	
 	tabNext: function() {
@@ -1099,7 +1120,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						Z._dataset.next();
 						fldName = fields[0];
 					} else {
-						return;
+						return false;
 					}
 				} else {
 					fldName = fields[idx + 1];
@@ -1113,13 +1134,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				num = Z._currColNum + 1;
 			} else {
 				if(Z._dataset.recno() === Z._dataset.recordCount() - 1) {
-					return;
+					return false;
 				}
 				Z._dataset.next();
 				num = 0;
 			}
 		}
 		Z.currColNum(num);
+		return true;
 	},
 	
 	movePriorCell: function() {

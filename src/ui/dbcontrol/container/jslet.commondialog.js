@@ -43,12 +43,12 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 	_create();
 	
 	this.showEditor = function(fldName, otd) {
+		var dataset = _tableCtrl.dataset();
 		if(!fldName) {
-			_editPanel.hide();
+			_tableCtrl.dataset().focusEditControl(_currField);
 			return;
 		}
-		var dataset = _tableCtrl.dataset(),
-			fldObj = dataset.getField(fldName);
+		var fldObj = dataset.getField(fldName);
 		if(!fldObj || fldObj.disabled() || fldObj.readOnly()) {
 			_editPanel.hide();
 			return;
