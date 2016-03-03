@@ -3271,10 +3271,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr = rowObj.fixed;
 		}
 		var recno = otr.jsletrecno;
+    	var cellEditor = Z.cellEditor();
 		if(recno !== Z._dataset.recno()) {
     		if(Z.prevCell) {
     			Z.prevCell.removeClass('jl-tbl-curr-cell');
     		}
+        	if(cellEditor) {
+       			cellEditor.hideEditor();
+        	}
 			return;
 		}
 		var ocells = otr.cells, otd;
@@ -3291,7 +3295,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         		break;
         	}
 		}
-    	var cellEditor = Z.cellEditor();
     	if(cellEditor) {
    			cellEditor.showEditor(colCfg.field, otd);
     	}

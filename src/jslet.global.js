@@ -23,7 +23,7 @@ jslet.global = {
 	//Used in jslet.data.Dataset_selected
 	selectStateField: '_sel_',
 	
-	auditLogField: '_audit_',
+	auditLogField: 'al',
 	
 	//Value separator
 	valueSeparator: ',',

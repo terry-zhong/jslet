@@ -94,11 +94,11 @@ jslet.ui.FocusManager.prototype = {
 	},
 	
 	tabPrev: function() {
-		jQuery.tabPrev(this._getContainer(), true, this._doChangingFocus);
+		jQuery.tabPrev(this._getContainer(), true, jQuery.proxy(this._doChangingFocus, this));
 	},
 	
 	tabNext: function() {
-		jQuery.tabNext(this._getContainer(), true, this._doChangingFocus);
+		jQuery.tabNext(this._getContainer(), true, jQuery.proxy(this._doChangingFocus, this));
 	},
 	
 	_getContainer: function() {
@@ -168,41 +168,6 @@ jslet.ui.FocusManager.prototype = {
 		}
 		
 		var Z = this;
-		
-		function doChangingFocus(ele, reverse) {
-			if(Z._onChangingFocus) {
-				var cancelFocus = Z._onChangingFocus(ele, reverse, jslet.data.getDataset(Z._activeDataset), Z._activeField, Z._activeValueIndex);
-				if(!cancelFocus) {
-					return false;
-				}
-			}
-			if(!Z._activeDataset && !Z._activeField) {
-				return true;
-			}
-			var dsObj = jslet.data.getDataset(Z._activeDataset);
-			if(!dsObj || !dsObj.focusedFields()) {
-				return true;
-			}
-			var focusedFlds = dsObj.mergedFocusedFields();
-			var idx = focusedFlds.indexOf(Z._activeField);
-			if(idx < 0) {
-				return true;
-			}
-			if(!reverse) {
-				if(idx === focusedFlds.length - 1) {
-					return true;
-				} else {
-					dsObj.focusEditControl(focusedFlds[idx + 1]);
-				}
-			} else {
-				if(idx === 0) {
-					return true;
-				} else {
-					dsObj.focusEditControl(focusedFlds[idx - 1]);
-				}
-			}
-			return false;
-		}
 		
 		function handleHostKeyDown(event) {
 			var focusKeyCode = Z._focusKeyCode || jslet.global.defaultFocusKeyCode || 9;
