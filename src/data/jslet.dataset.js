@@ -100,6 +100,8 @@ jslet.data.Dataset = function (name) {
 
 	Z._onFieldFocusing = null;
 
+	Z._isFireGlobalEvent = true;
+
 	Z._onCheckSelectable = null;
 	
 	Z._datasetListener = null; //
@@ -554,6 +556,17 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
+	 * Identify if firing global event or not when field value or field meta changed.
+	 */
+	isFireGlobalEvent: function(isFireGlobalEvent) {
+		if(isFireGlobalEvent === undefined) {
+			return this._isFireGlobalEvent;
+		}
+		this._isFireGlobalEvent = isFireGlobalEvent? true: false;
+		return this;
+	},
+	
+	/**
 	 * Get dataset fields.
 	 * @return {Array of jslet.data.Field}
 	 */
@@ -773,7 +786,7 @@ jslet.data.Dataset.prototype = {
 			Z.designMode(oldDesignMode);
 		}
 		Z.refreshDisplayOrder();
-		if(Z.designMode()) {
+		if(Z.designMode() && Z.isFireGlobalEvent()) {
 			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
 			if(handler) {
 				handler.call(this, Z, null, 'displayOrder');
@@ -3254,11 +3267,12 @@ jslet.data.Dataset.prototype = {
 				eventFunc.call(Z, fldName, value, valueIndex);
 			}
 		}
-		var globalHandler = jslet.data.globalDataHandler.fieldValueChanged();
-		if(globalHandler) {
-			globalHandler.call(Z, Z, fldName, value, valueIndex);
+		if(Z.isFireGlobalEvent()) {
+			var globalHandler = jslet.data.globalDataHandler.fieldValueChanged();
+			if(globalHandler) {
+				globalHandler.call(Z, Z, fldName, value, valueIndex);
+			}
 		}
-
 		if(fldObj.valueFollow()) {
 			if(!Z._followedValues) {
 				Z._followedValues = {};
@@ -4788,7 +4802,9 @@ jslet.data.Dataset.prototype = {
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			record = dataList[i];
 			recInfo = jslet.data.getRecInfo(record);
-			return recInfo && recInfo.status && recInfo.status !== jslet.data.DataSetStatus.BROWSE;
+			if(recInfo && recInfo.status && recInfo.status !== jslet.data.DataSetStatus.BROWSE) {
+				return true;
+			}
 		}
 		return false;
 	},
@@ -5739,15 +5755,20 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		setBooleanPropValue('readOnly');
 		setBooleanPropValue('logChanges');
 		setBooleanPropValue('auditLogEnabled');
+		setBooleanPropValue('isFireGlobalEvent');
 		
 		setPropValue('datasetListener');
 		setPropValue('onFieldChange');
+		setPropValue('onFieldChanged');
+		setPropValue('onFieldChanging');
 		setPropValue('onCheckSelectable');
 		setPropValue('contextRules');
 	}
-	var globalHandler = jslet.data.globalDataHandler.datasetCreated();
-	if(globalHandler) {
-		globalHandler(dsObj);
+	if(dsObj.isFireGlobalEvent()) {
+		var globalHandler = jslet.data.globalDataHandler.datasetCreated();
+		if(globalHandler) {
+			globalHandler(dsObj);
+		}
 	}
 	return dsObj;
 };

@@ -384,7 +384,7 @@ jslet.ui.ExportDialog.prototype = {
 		    	      {name: 'parent', type: 'S', length: 100, label: 'Field Name'}, 
 		    	    ];
 		var exportLKDs = jslet.data.createDataset('exportLKDs' + jslet.nextId(), fldCfg, 
-				{keyField: 'field', codeField: 'field', nameField: 'label', parentField: 'parent'});
+				{keyField: 'field', codeField: 'field', nameField: 'label', parentField: 'parent', isFireGlobalEvent: false});
 		exportLKDs.onCheckSelectable(function(){
 	        return !this.hasChildren(); 
 	    });
@@ -394,7 +394,7 @@ jslet.ui.ExportDialog.prototype = {
     	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
     	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', visible: false, valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
     	    ];
-    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema'});
+    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
     	if(this._hasSchemaSection) {
 	    	var exportDsClone = this._exportDataset;
 	    	var lkObj = new jslet.data.FieldLookup();
@@ -570,13 +570,16 @@ jslet.ui.InputSettingDialog = function() {
 		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
 		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
 		              {name: 'parentField', type: 'S', length: 30, visible: false},
+		              {name: 'tabIndex', type: 'N', label: 'tabIndex', visible: false},
 		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
 		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 4},
 		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
 		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
 		              ];
 		
-		this._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, {keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false});
+		this._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
+				{keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false, indexFields: 'tabIndex', isFireGlobalEvent: false});
+		
 		var custContextFn = function(fldObj, changingFldName){
 			var dataset = fldObj.dataset();
 			fldObj.disabled(dataset.getFieldValue('isDatasetField'));
@@ -693,6 +696,7 @@ jslet.ui.InputSettingDialog.prototype = {
 			dataset.setFieldValue('dataset', hostDs.name());
 			dataset.setFieldValue('field', fldObj.name());
 			dataset.setFieldValue('label', fldObj.label());
+			dataset.setFieldValue('tabIndex', fldObj.tabIndex());
 			if(parentField) {
 				dataset.setFieldValue('parentField', parentField);
 			}
@@ -716,7 +720,12 @@ jslet.ui.InputSettingDialog.prototype = {
 		            '<div class="jl-isdlg-fields" data-jslet="type:\'DBTable\',dataset:\'', this._inputSettingDs.name(), 
 		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
 
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
+		            '<div class="form-group form-group-sm">',
+		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+		            '<button id="jlbtnUp" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+		            '<button id="jlbtnDown" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+		            '</div>',
+		            '<label class="control-label col-sm-6">&nbsp</label>',
 		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
 		            jslet.locale.InputSettingDialog.save,
 		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
@@ -730,6 +739,31 @@ jslet.ui.InputSettingDialog.prototype = {
 		this._dlgId = owin.el.id;
 		var jqEl = jQuery(owin.el), 
 			Z = this;
+		
+		jqEl.find('#jlbtnUp').on('click', function(event) {
+			var dataset = Z._inputSettingDs;
+			if(dataset.recordCount() === 0) {
+				return;
+			}
+			var idx = dataset.getFieldValue('tabIndex');
+			if(!idx) {
+				idx = dataset.recno();
+			}
+			if(idx === 0) {
+				return;
+			}
+			var context = dataset.startSilenceMove();
+			try {
+				dataset.setFieldValue('tabIndex', idx - 1);
+				dataset.prior();
+				dataset.setFieldValue('tabIndex', idx);
+				dataset.confirm();
+			} finally {
+				dataset.endSilenceMove(context);
+			}
+			dataset.indexFields(dataset.indexFields());
+		});
+		
 		jqEl.find('#jlbtnSave').on('click', function(event) {
 			if(Z._settings) {
 				var hostDs, fldObj, fldSetting, propSetting;

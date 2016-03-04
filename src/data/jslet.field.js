@@ -890,11 +890,11 @@ jslet.data.Field.prototype = {
 	},
 	
 	_fireGlobalMetaChangedEvent: function(metaName) {
-		var ds = this.dataset();
-		if (ds && ds.designMode()) {
+		var dsObj = this.dataset();
+		if (dsObj && dsObj.designMode() && dsObj.isFireGlobalEvent()) {
 			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
 			if(handler) {
-				handler.call(this, ds, this._fieldName, metaName)
+				handler.call(this, dsObj, this._fieldName, metaName)
 			}
 		}
 	},

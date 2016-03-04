@@ -8,7 +8,8 @@
 
 jslet.data.FilterDataset = function(hostDataset) {
 	if(!jslet.data.getDataset('ds_logical_opr_')) {
-		jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.FilterDataset.and, 'or': jslet.locale.FilterDataset.or});
+		var dsObj = jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.FilterDataset.and, 'or': jslet.locale.FilterDataset.or});
+		dsObj.isFireGlobalEvent(false);
 	}
 	
 	if(!jslet.data.getDataset('ds_operator_')) {
@@ -16,7 +17,8 @@ jslet.data.FilterDataset = function(hostDataset) {
 	                  {name: 'name', type: 'S', length: 30, label:'name'},
 	                  {name: 'range', type: 'S', length: 30, label:'range'}];
 		
-		var dsOperator = jslet.data.createDataset('ds_operator_', fldCfg, {keyField: 'code', codeField: 'code', nameField: 'name', autoRefreshHostDataset: true});
+		var dsOperator = jslet.data.createDataset('ds_operator_', fldCfg, 
+				{keyField: 'code', codeField: 'code', nameField: 'name', autoRefreshHostDataset: true, isFireGlobalEvent: false});
 		dsOperator.dataList([{code: '==', name: jslet.locale.FilterDataset.equal, range: 'NDSB'},
 		                     {code: '!=', name: jslet.locale.FilterDataset.notEqual, range: 'NDS'},
 		                     {code: '>', name: jslet.locale.FilterDataset.greatThan, range: 'ND'},
@@ -61,7 +63,7 @@ jslet.data.FilterDataset.prototype = {
             {name: 'parentName', type: 'S', length: 30, label: 'Parent Field Code'}, 
 		];
 		var dsFields = jslet.data.createDataset('ds_fields_' + id, fldCfg, 
-				{keyField: 'name', codeField: 'name', nameField: 'label', parentField: 'parentName', autoRefreshHostDataset: true});
+				{keyField: 'name', codeField: 'name', nameField: 'label', parentField: 'parentName', autoRefreshHostDataset: true, isFireGlobalEvent: false});
 		
 		var fieldLabels = [];
 		Z._appendFields(Z._hostDataset, fieldLabels);
@@ -125,7 +127,7 @@ jslet.data.FilterDataset.prototype = {
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.FilterDataset.logicalOpr, 
             	 lookup: {dataset:"ds_logical_opr_"}, required: true, defaultValue: 'and', tabIndex: 90986} 
 		];
-		var dsFilter = jslet.data.createDataset('dsFilter_' + id, fldCfg);
+		var dsFilter = jslet.data.createDataset('dsFilter_' + id, fldCfg, {isFireGlobalEvent: false});
 		var rule1 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj, changingFldName){
 			var fldName = dsFilter.getFieldValue('field');
 			if(!fldName) {
