@@ -68,6 +68,39 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
+		jqEl.on('keydown', function(event) {
+			var keyCode = event.which;
+			
+			if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
+				if(!Z._itemIds || Z._itemIds.length === 0) {
+					return;
+				}
+				var activeEle = document.activeElement,
+					activeId = activeEle && activeEle.id;
+				
+				var idx = Z._itemIds.indexOf(activeId);
+				if(idx === 0) {
+					return;
+				}
+				document.getElementById(Z._itemIds[idx - 1]).focus();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
+				if(!Z._itemIds || Z._itemIds.length === 0) {
+					return;
+				}
+				var activeEle = document.activeElement,
+					activeId = activeEle && activeEle.id;
+				
+				var idx = Z._itemIds.indexOf(activeId);
+				if(idx === Z._itemIds.length - 1) {
+					return;
+				}
+				document.getElementById(Z._itemIds[idx + 1]).focus();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			}
+		});
 		jqEl.on('click', 'input[type="radio"]', function(event){
 			var ctrl = this;
 			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
@@ -182,7 +215,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				template.push(lkds.getFieldValue(lkf.keyField()));
 				template.push('"><input name="');
 				template.push(Z._field);
-				template.push('" type="radio"  id="');
+				template.push('" type="radio" id="');
 				template.push(itemId);
 				template.push('" ' + (disableOption? ' disabled': '') + '/><label for="');
 				template.push(itemId);

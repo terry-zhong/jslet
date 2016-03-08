@@ -75,6 +75,40 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
+		jqEl.on('keydown', function(event) {
+			var keyCode = event.which;
+			
+			if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
+				if(!Z._itemIds || Z._itemIds.length === 0) {
+					return;
+				}
+				var activeEle = document.activeElement,
+					activeId = activeEle && activeEle.id;
+				
+				var idx = Z._itemIds.indexOf(activeId);
+				if(idx === 0) {
+					return;
+				}
+				document.getElementById(Z._itemIds[idx - 1]).focus();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
+				if(!Z._itemIds || Z._itemIds.length === 0) {
+					return;
+				}
+				var activeEle = document.activeElement,
+					activeId = activeEle && activeEle.id;
+				
+				var idx = Z._itemIds.indexOf(activeId);
+				if(idx === Z._itemIds.length - 1) {
+					return;
+				}
+				document.getElementById(Z._itemIds[idx + 1]).focus();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+			}
+		});
+		
 		jqEl.on('click', 'input[type="checkbox"]', function (event) {
 			var ctrl = this;
 			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
@@ -179,7 +213,8 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z._innerEditFilterExpr = new jslet.Expression(lkds, editFilter);
 		}
 		var disableOption = false,
-			itemId = jslet.nextId(), k = -1;
+			k = -1,
+			itemId;
 		if(Z._hasSelectAllBox && lkCnt > 0) {
 			template.push('<tr>');
 			itemId = jslet.nextId();
@@ -192,7 +227,9 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			template.push(jslet.locale.DBCheckBoxGroup.selectAll);
 			template.push('</label></td>');
 			k = 0;
+			Z._itemIds.push(itemId);
 		}
+		Z.el.innerHTML = '';
 		var oldRecno = lkds.recnoSilence();
 		try {
 			for (var i = 0; i < lkCnt; i++) {
@@ -214,6 +251,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 					template.push('<tr>');
 				}
 				itemId = jslet.nextId();
+				Z._itemIds.push(itemId);
 				template.push('<td style="white-space: nowrap; "><input type="checkbox" value="');
 				template.push(lkds.getFieldValue(lkf.keyField()));
 				template.push('" id="');

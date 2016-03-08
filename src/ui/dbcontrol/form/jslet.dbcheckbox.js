@@ -67,9 +67,11 @@ jslet.ui.DBCheckBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	bind: function () {
 		var Z = this;
-
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
+		if(!jqEl.hasClass('jl-dbcheck')) {
+			jqEl.addClass('jl-dbcheck');
+		}
 		jqEl.on('click', Z._doClick);
 		jqEl.focus(function(event) {
 			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);

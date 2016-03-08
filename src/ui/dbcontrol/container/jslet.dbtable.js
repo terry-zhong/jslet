@@ -883,8 +883,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         		}
             	Z._doCellClick(colCfg);
             	var cellEditor = Z.cellEditor();
-            	if(cellEditor && colCfg.field) {
-            		cellEditor.showEditor(colCfg.field, otd);
+            	if(cellEditor) {
+            		if(Z._isCellEditable(colCfg)) {
+            			cellEditor.showEditor(colCfg.field, otd);
+            		} else {
+            			cellEditor.hideEditor();
+            		}
             	}
         	}
         	if(event.shiftKey || event.ctrlKey) {
@@ -1088,7 +1092,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			
 			if(focusedFields) {
 				focusedFields = focusedFields.slice(0);
-				for(var i = len = focusedFields.length - 1; i >= 0; i--) {
+				for(var i = focusedFields.length - 1; i >= 0; i--) {
 					if(editingFields.indexOf(focusedFields[i]) < 0) {
 						focusedFields.splice(i, 1);
 					}
@@ -2707,13 +2711,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		var Z = otable.jslet;
 		var dataset = Z.dataset();
-		if(dataset.status() && (this.jsletrecno !== dataset.recno())) {
-			dataset.confirm();
+		if(this.jsletrecno !== dataset.recno()) {
+			if(dataset.status()) {
+				dataset.confirm();
+			}
+	
+			var rowno = Z.listvm.recnoToRowno(this.jsletrecno);
+			Z.listvm.setCurrentRowno(rowno);
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 		}
-
-		var rowno = Z.listvm.recnoToRowno(this.jsletrecno);
-		Z.listvm.setCurrentRowno(rowno);
-		Z._dataset.recno(Z.listvm.getCurrentRecno());
 		if (Z._onRowClick) {
 			Z._onRowClick.call(Z, event);
 		}
