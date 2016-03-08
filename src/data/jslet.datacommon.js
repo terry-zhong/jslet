@@ -283,7 +283,7 @@ jslet.data.FieldValidator.prototype = {
 			}
 			regExpObj.lastIndex = 0;
 			if (!regExpObj.test(inputText)) {
-				return this._formatError(fldObj.label(), regular.message);
+				return this._addFieldLabel(fldObj.label(), regular.message);
 			}
 		}
 		
@@ -299,12 +299,12 @@ jslet.data.FieldValidator.prototype = {
 					var actual = k > 0? k: inputText.length,
 						expected = length - scale;
 					if(actual > expected) {
-						return this._formatError(fldObj.label(), 
+						return this._addFieldLabel(fldObj.label(), 
 								jslet.formatString(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]));
 					}
 					actual = k > 0 ? inputText.length - k - 1: 0;
 					if(actual > scale) {
-						return this._formatError(fldObj.label(), 
+						return this._addFieldLabel(fldObj.label(), 
 								jslet.formatString(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]));
 					}
 					value = parseFloat(inputText);

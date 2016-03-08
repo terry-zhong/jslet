@@ -268,6 +268,15 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		this.setValue(value);
 	},
 	
+	_innerSetValue: function(value) {
+		var Z = this,
+			oldValue = Z._getNotNullDate();
+		if(value) { //Overwrite Year/Month/Date part, keep time part.
+			oldValue.setFullYear(value.getFullYear(), value.getMonth(), value.getDate());
+		}
+		Z._value = oldValue;
+	},
+	
 	/**
 	 * Set date value of calendar.
 	 * 
@@ -285,7 +294,7 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 		if (Z._maxDate && value > Z._maxDate) {
 			value = new Date(Z._maxDate.getTime());
 		}
-		Z._value = value;
+		Z._innerSetValue(value);
 		var y = value.getFullYear(), 
 			m = value.getMonth();
 		if (Z._currYear == y && Z._currMonth == m) {
@@ -402,10 +411,10 @@ jslet.ui.Calendar = jslet.Class.create(jslet.ui.Control, {
 			}
 			var el = jslet.ui.findFirstParent(otd, function (node) { return node.jslet; });
 			var Z = el.jslet;
-			Z._value = otd.jslet_date_value;
+			Z._innerSetValue(otd.jslet_date_value);
 			Z._setCurrDateCls();
 			try{
-			otd.firstChild.focus();
+				otd.firstChild.focus();
 			}catch(e){
 			}
 			Z._fireSelectedEvent();

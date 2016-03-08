@@ -922,14 +922,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
 				Z._isTabPrev = true;
-				if(!Z.tabPrior()) {
-					return;
-				}
+				Z.tabPrior();
 			} else if(isTabKey) { //TAB Right
 				Z._isTabPrev = false;
-				if(!Z.tabNext()) {
-					return;
-				}
+				Z.tabNext();
 			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				Z.movePriorCell();
 			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
@@ -1023,13 +1019,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(editingFields && editingFields.indexOf(fldName) >= 0) {
 			var focusMngr = jslet.ui.focusManager,
 				onChangingFocusFn = focusMngr.onChangingFocus();
-			if(onChangingFocusFn) {
-				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, true, Z._dataset, 
-						focusMngr.activeField(), focusMngr.activeValueIndex());
-				if(!cancelFocus) {
-					return false;
-				}
-			}
 			
 			if(focusedFields) {
 				focusedFields = focusedFields.slice(0);
@@ -1047,6 +1036,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if(idx < 0) {
 				fields = editingFields;
 				idx = fields.indexOf(fldName);
+			}
+			if(onChangingFocusFn) {
+				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, true, Z._dataset, 
+						focusMngr.activeField(), fields, focusMngr.activeValueIndex());
+				if(!cancelFocus) {
+					return false;
+				}
 			}
 			if(fields && idx >= 0) {
 				if(idx === 0) {
@@ -1089,13 +1085,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(editingFields && editingFields.indexOf(fldName) >= 0) {
 			var focusMngr = jslet.ui.focusManager,
 				onChangingFocusFn = focusMngr.onChangingFocus();
-			if(onChangingFocusFn) {
-				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, false, Z._dataset, 
-						focusMngr.activeField(), focusMngr.activeValueIndex());
-				if(!cancelFocus) {
-					return false;
-				}
-			}
 			
 			if(focusedFields) {
 				focusedFields = focusedFields.slice(0);
@@ -1113,6 +1102,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if(idx < 0) {
 				fields = editingFields;
 				idx = fields.indexOf(fldName);
+			}
+			if(onChangingFocusFn) {
+				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, false, Z._dataset, 
+						focusMngr.activeField(), fields, focusMngr.activeValueIndex());
+				if(!cancelFocus) {
+					return false;
+				}
 			}
 			if(fields && idx >= 0) {
 				if(idx === fields.length - 1) {
@@ -2717,7 +2713,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		var rowno = Z.listvm.recnoToRowno(this.jsletrecno);
 		Z.listvm.setCurrentRowno(rowno);
-		Z._dataset.recno(Z.listvm.getCurrentRecno())
+		Z._dataset.recno(Z.listvm.getCurrentRecno());
 		if (Z._onRowClick) {
 			Z._onRowClick.call(Z, event);
 		}
@@ -3481,7 +3477,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z.listvm.refreshModel();
 			var recno = Z._dataset.recno(),
 				preRecno = evt.preRecno;
-			
+
 			Z._fillData();
 			Z._keep_silence_ = true;
 			try {

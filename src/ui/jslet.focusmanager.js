@@ -22,9 +22,15 @@ jslet.ui.FocusManager.prototype = {
 	 * Get or set onChangingFocus event handler. 
 	 * 
 	 * @param onChangingFocus {Function} event handler, pattern:
-	 * function doChangingFocus(element, reserve, datasetObj, fieldName) {
+	 * function doChangingFocus(element, reserve, datasetObj, fieldName, focusingFieldList, valueIndex) {
 	 * 		console.log('Changind focus');
 	 * }
+	 * element - {HTML element} focusing html element;
+	 * reserve - {Boolean} if it's focusing prior element, reserve is true, otherwise false;
+	 * datasetObj - {jslet.data.Dataset} current dataset object. If the UI control is not jslet UI control, it's null;
+	 * fieldName - {String} current field name. If the UI control is not jslet UI field control, it's null;
+	 * focusingFieldList - {String[]} focusing field name list. You can use 'focusingFieldList' and 'fieldName' to check the position of field name.  
+	 * valueIndex - {Integer} identify the value index of BETWEEN-style or MULTIPLE-style field.
 	 * 
 	 * focusManager.onChangingFocus(doChangingFocus);
 	 * 
@@ -117,9 +123,11 @@ jslet.ui.FocusManager.prototype = {
 	},
 	
 	_doChangingFocus: function(ele, reverse) {
-		var Z = this;
+		var Z = this,
+			dsObj = jslet.data.getDataset(Z._activeDataset),
+			focusedFlds = dsObj && dsObj.mergedFocusedFields();
 		if(Z._onChangingFocus) {
-			var cancelFocus = Z._onChangingFocus(ele, reverse, jslet.data.getDataset(Z._activeDataset), Z._activeField, Z._activeValueIndex);
+			var cancelFocus = Z._onChangingFocus(ele, reverse, dsObj, Z._activeField, focusedFlds, Z._activeValueIndex);
 			if(!cancelFocus) {
 				return false;
 			}
@@ -127,11 +135,9 @@ jslet.ui.FocusManager.prototype = {
 		if(!Z._activeDataset && !Z._activeField) {
 			return true;
 		}
-		var dsObj = jslet.data.getDataset(Z._activeDataset);
 		if(!dsObj || !dsObj.focusedFields()) {
 			return true;
 		}
-		var focusedFlds = dsObj.mergedFocusedFields();
 		var idx = focusedFlds.indexOf(Z._activeField);
 		if(idx < 0) {
 			return true;

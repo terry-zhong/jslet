@@ -411,7 +411,7 @@ jslet.data.Field.prototype = {
 			if(Z._dataType == jslet.data.DataType.PROXY) {
 				return Z._getProxyPropValue('length') || 10;
 			}
-			return Z._length;
+			return Z._length || 10;
 		}
 		jslet.Checker.test('Field.length', len).isGTEZero();
 		if(Z._dataType == jslet.data.DataType.PROXY) {

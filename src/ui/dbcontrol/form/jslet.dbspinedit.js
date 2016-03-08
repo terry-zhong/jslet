@@ -131,8 +131,6 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jqBtn.blur(function(event) {
 			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
-		
-		
 	},
 	
 	/** 
@@ -314,6 +312,14 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	renderAll: function(){
 		this.refreshControl(jslet.data.RefreshEvent.updateAllEvent(), true);
+	},
+	
+	/**
+	 * @override
+	 */
+	tableId: function($super, tableId){
+		$super(tableId);
+		this.editor.jslet.tableId(tableId);
 	},
 	
 	/**

@@ -79,6 +79,15 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 	},
 
+
+	/**
+	 * @override
+	 */
+	tableId: function ($super, tableId) {
+		$super(tableId);
+		this.textCtrl.tableId(tableId);
+	},
+	
 	/**
 	 * @override
 	 */

@@ -570,7 +570,7 @@ jslet.ui.InputSettingDialog = function() {
 		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
 		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
 		              {name: 'parentField', type: 'S', length: 30, visible: false},
-		              {name: 'tabIndex', type: 'N', label: 'tabIndex', visible: false},
+		              {name: 'tabIndex', type: 'N', label: 'tabIndex', length: 3, visible: false},
 		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
 		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 4},
 		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},

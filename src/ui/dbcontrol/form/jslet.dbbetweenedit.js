@@ -33,6 +33,8 @@ jslet.ui.DBBetweenEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	initialize: function ($super, el, params) {
 		this.allProperties = 'styleClass,dataset,field';
+		this._minEleId = null;
+		this._maxEleId = null;
 
 		$super(el, params);
 	},
@@ -88,21 +90,32 @@ jslet.ui.DBBetweenEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		param.field = Z._field;
 		param.valueIndex = 0;
 		var dbctrl = jslet.ui.createControl(param, minTd);
+		Z._minEleId = dbctrl.el.id;
+		
 		dbctrl.el.style.width = '98%';
-		Z.minElement = dbctrl;
 		Z.addChildControl(dbctrl);
 		
 		param.valueIndex = 1;
 		dbctrl = jslet.ui.createControl(param, maxTd);
 		dbctrl.el.style.width = '98%';
+		Z._maxEleId = dbctrl.el.id;
 		Z.addChildControl(dbctrl);
 	},
 	
 	/**
 	 * @override
 	 */
+	tableId: function($super, tableId){
+		$super(tableId);
+		jslet('#'+ this._minEleId).tableId(tableId);
+		jslet('#'+ this._maxEleId).tableId(tableId);
+	},
+	
+	/**
+	 * @override
+	 */
 	innerFocus: function() {
-		this.minElement.focus();
+		jslet('#'+ this._minEleId).focus();
 	}
 	
 });

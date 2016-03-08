@@ -330,6 +330,8 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		} else {
 			var maxRow = this.getNeedShowRowCount();
 			if(maxRow === 0) {
+				currentRowno = 0;
+				currentRecno = -1;
 				return null;
 			}
 			if (rowno >= maxRow) {
