@@ -63,7 +63,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		
-		Z.allProperties = 'styleClass,dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,beforeSelect,beforeSelectAll,afterSelect,afterSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog,hasFilterDialog';
+		Z.allProperties = 'styleClass,dataset,fixedRows,fixedCols,hasSeqCol,hasSelectCol,reverseSeqCol,seqColHeader,noborder,readOnly,editable,hideHead,disableHeadSort,onlySpecifiedCol,selectBy,rowHeight,onRowClick,onRowDblClick,onSelect,onSelectAll,beforeSelect,beforeSelectAll,afterSelect,afterSelectAll,onCustomSort,onFillRow,onFillCell,treeField,columns,subgroup,aggraded,autoClearSelection,onCellClick,defaultCellRender,hasFindDialog,hasFilterDialog';
 		
 		Z._fixedRows = 0;
 
@@ -79,7 +79,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z._noborder = false;
 		
-		Z._readOnly = true;
+		Z._editable = false;
 
 		Z._hideHead = false;
 		
@@ -188,7 +188,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this;
 		if(rowHeight === undefined) {
 			if(Z._rowHeight === null) {
-				var clsName = Z._readOnly? 'jl-tbl-row': 'jl-tbl-editing-row';
+				var clsName = Z._editable? 'jl-tbl-editing-row': 'jl-tbl-row';
 				Z._rowHeight = parseInt(jslet.ui.getCssValue(clsName, 'height')) || 25;
 			}
 			return Z._rowHeight;
@@ -281,6 +281,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	/**
+	 * @deprecated
+	 * Use onFieldChanged instead.
+	 * 
 	 * Identify the table is read only or not.
 	 * 
 	 * @param {Boolean or undefined} readOnly true(default) - the table is read only, false - otherwise.
@@ -289,13 +292,28 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	readOnly: function(readOnly) {
 		var Z = this;
 		if(readOnly === undefined) {
-			return Z._readOnly;
+			return !Z._editable;
 		}
-		Z._readOnly = readOnly ? true: false;
-		if(!Z._readOnly && !Z._rowHeightChanged) {
+		Z.editable(!readOnly);
+	},
+	
+	/**
+	 * Identify the table is editable or not.
+	 * 
+	 * @param {Boolean or undefined} editable true(default) - the table is editable, false - otherwise.
+	 * @return {Boolean or this}
+	 */
+	editable: function(editable) {
+		var Z = this;
+		if(editable === undefined) {
+			return Z._editable;
+		}
+		Z._editable = editable ? true: false;
+		if(Z._editable && !Z._rowHeightChanged) {
 			Z._rowHeight = null;
 		}
 	},
+	
 	
 	/**
 	 * Identify the table is hidden or not.
@@ -684,7 +702,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	cellEditor: function() {
 		var Z = this;
-		if(Z._readOnly) {
+		if(!Z._editable) {
 			return null;
 		}
 		if(!Z._cellEditor) {
@@ -824,7 +842,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         jqEl.on(wheelEvent, function (event) {
             var originalEvent = event.originalEvent;
             var num = notFF ? originalEvent.wheelDelta / -120 : originalEvent.detail / 3;
-			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
+			if(Z._editable && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
 				Z._dataset.confirm();
 			}
 			var cellEditor = Z.cellEditor();
@@ -1183,7 +1201,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	
 	_getEditingFields: function() {
 		var Z = this; 
-		if(Z._readOnly) {
+		if(!Z._editable) {
 			return null;
 		}
 		var fldName, fldObj,
@@ -1248,7 +1266,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr = currRow.content;
 			jQuery(otr).addClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
 			Z._currRow = currRow;
-			if(!Z._readOnly) {
+			if(Z._editable) {
 				var fldName = Z._editingField;
 				if(fldName) {
 					var fldObj = Z._dataset.getField(fldName);
@@ -1265,6 +1283,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	renderAll: function () {
 		var Z = this;
+		Z._innerDestroy();
 		Z.el.innerHTML = '';
 		Z.listvm.fixedRows = Z._fixedRows;
 		Z._calcParams();
@@ -2093,7 +2112,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._keep_silence_) {
 				return;
 			}
-			if(!Z._readOnly && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
+			if(Z._editable && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
 				Z._dataset.confirm();
 			}
 			var num = Math.round(this.scrollTop / Z.rowHeight());// + Z._fixedRows;
@@ -3226,7 +3245,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_isCurrCellInView: function() {
 		var Z = this;
-		if(!Z._readOnly) {
+		if(Z._editable) {
 			return true;
 		}
 		
@@ -3430,7 +3449,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return;
 		}
 		
-		if(metaName == 'required' && !Z._readOnly && !Z._hideHead) {
+		if(metaName == 'required' && Z._editable && !Z._hideHead) {
 			Z._refreshHeadCell(fldName);
 			return;
 		}
@@ -3438,7 +3457,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(metaName == 'visible') {
 			
 		}
-		if(!Z._readOnly && (metaName == 'readOnly' || metaName == 'disabled')) {
+		if(Z._editable && (metaName == 'readOnly' || metaName == 'disabled')) {
 			var cellEditor = Z.cellEditor();
 			if(cellEditor) {
 				var currFld = cellEditor.currentField();
@@ -3561,7 +3580,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_isCellEditable: function(colCfg){
 		var Z = this;
-		if (Z._readOnly) {
+		if (!Z._editable) {
 			return false;
 		}
 		var fldName = colCfg.field;
@@ -3588,18 +3607,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.renderAll();
 	},
 	
-	/**
-	 * @override
-	 */
-	destroy: function($super){
-		var Z = this, jqEl = jQuery(Z.el);
-		jslet.resizeEventBus.unsubscribe(Z);
-		jqEl.off();
-		Z.listvm.onTopRownoChanged = null;
-		Z.listvm.onVisibleCountChanged = null;
-		Z.listvm.onCurrentRownoChanged = null;
-		Z.listvm = null;
-		
+	_innerDestroy: function() {
+		var Z = this, 
+			jqEl = jQuery(Z.el);
 		Z._currRow = null;
 		
 		Z.leftHeadTbl = null;
@@ -3616,14 +3626,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.rightFootTbl = null;
 		
 		Z.noRecordDiv = null;
-		Z.jqVScrollBar.off();
+		if(Z.jqVScrollBar) {
+			Z.jqVScrollBar.off();
+		}
 		Z.jqVScrollBar = null;
 		
 		var splitter = jqEl.find('.jl-tbl-splitter')[0];
-		splitter._doDragging = null;
-		splitter._doDragEnd = null;
-		splitter._doDragCancel = null;
-
+		if(splitter) {
+			splitter._doDragging = null;
+			splitter._doDragEnd = null;
+			splitter._doDragCancel = null;
+		}
 		Z.parsedHeads = null;
 		Z.prevCell = null;
 		jqEl.find('tr').each(function(){
@@ -3645,7 +3658,22 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if(Z._cellEditor) {
 			Z._cellEditor.destroy();
 			Z._cellEditor = null;
-		}
+		}		
+	},
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		var Z = this, 
+			jqEl = jQuery(Z.el);
+		jslet.resizeEventBus.unsubscribe(Z);
+		jqEl.off();
+		Z.listvm.onTopRownoChanged = null;
+		Z.listvm.onVisibleCountChanged = null;
+		Z.listvm.onCurrentRownoChanged = null;
+		Z.listvm = null;
+		Z._innerDestroy();
 		$super();
 	} 
 });

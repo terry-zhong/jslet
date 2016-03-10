@@ -337,6 +337,10 @@
 	color: green;
 }
 
+.jl-finddlg {
+	z-index: 10!important;
+}
+
 .jl-finddlg .jl-win-body {
 	padding:5px!important;
 }

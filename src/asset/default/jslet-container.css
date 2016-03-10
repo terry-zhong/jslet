@@ -453,7 +453,11 @@
 	height: 300px;
 }
 
+.jl-isdlg {
+	width: 620px;
+}
+
 .jl-isdlg-fields {
-	width: 580px!important;
-	height: 500px!important;
+	width: 100%!important;
+	height: 400px!important;
 }

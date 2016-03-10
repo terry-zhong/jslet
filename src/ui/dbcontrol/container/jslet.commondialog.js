@@ -572,7 +572,7 @@ jslet.ui.InputSettingDialog = function() {
 		              {name: 'parentField', type: 'S', length: 30, visible: false},
 		              {name: 'tabIndex', type: 'N', label: 'tabIndex', length: 3, visible: false},
 		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
-		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 4},
+		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 6},
 		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
 		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
 		              ];
@@ -647,10 +647,12 @@ jslet.ui.InputSettingDialog.prototype = {
 		if(hostDataset !== Z._hostDataset) {
 			Z._hostDataset = hostDataset;
 			Z._isInit = true;
+			Z._inputSettingDs.disableControls();
 			try {
 				Z._initializeFields();
 			} finally {
 				Z._isInit = false;
+				Z._inputSettingDs.enableControls();
 			}
 		}
 		var creating = false;
@@ -713,20 +715,23 @@ jslet.ui.InputSettingDialog.prototype = {
 	},
 	
 	_createDialog: function() {
-		var opt = { type: 'window', caption: jslet.locale.InputSettingDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
+		var opt = { type: 'window', caption: jslet.locale.InputSettingDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade', styleClass: 'jl-isdlg'};
 		var owin = jslet.ui.createControl(opt);
 		var html = [
 		            '<div class="form-group form-group-sm">',
 		            '<div class="jl-isdlg-fields" data-jslet="type:\'DBTable\',dataset:\'', this._inputSettingDs.name(), 
 		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
 
-		            '<div class="form-group form-group-sm">',
-		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
-		            '<button id="jlbtnUp" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
-		            '<button id="jlbtnDown" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
-		            '</div>',
-		            '<label class="control-label col-sm-6">&nbsp</label>',
-		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+//		            '<div class="form-group form-group-sm">',
+//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+//		            '<button id="jlbtnUp" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+//		            '<button id="jlbtnDown" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+//		            '</div>',
+//		            '<label class="control-label col-sm-6">&nbsp</label>',
+//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+		            
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
+		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',		            
 		            jslet.locale.InputSettingDialog.save,
 		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
 		            jslet.locale.InputSettingDialog.cancel,
@@ -740,29 +745,29 @@ jslet.ui.InputSettingDialog.prototype = {
 		var jqEl = jQuery(owin.el), 
 			Z = this;
 		
-		jqEl.find('#jlbtnUp').on('click', function(event) {
-			var dataset = Z._inputSettingDs;
-			if(dataset.recordCount() === 0) {
-				return;
-			}
-			var idx = dataset.getFieldValue('tabIndex');
-			if(!idx) {
-				idx = dataset.recno();
-			}
-			if(idx === 0) {
-				return;
-			}
-			var context = dataset.startSilenceMove();
-			try {
-				dataset.setFieldValue('tabIndex', idx - 1);
-				dataset.prior();
-				dataset.setFieldValue('tabIndex', idx);
-				dataset.confirm();
-			} finally {
-				dataset.endSilenceMove(context);
-			}
-			dataset.indexFields(dataset.indexFields());
-		});
+//		jqEl.find('#jlbtnUp').on('click', function(event) {
+//			var dataset = Z._inputSettingDs;
+//			if(dataset.recordCount() === 0) {
+//				return;
+//			}
+//			var idx = dataset.getFieldValue('tabIndex');
+//			if(!idx) {
+//				idx = dataset.recno();
+//			}
+//			if(idx === 0) {
+//				return;
+//			}
+//			var context = dataset.startSilenceMove();
+//			try {
+//				dataset.setFieldValue('tabIndex', idx - 1);
+//				dataset.prior();
+//				dataset.setFieldValue('tabIndex', idx);
+//				dataset.confirm();
+//			} finally {
+//				dataset.endSilenceMove(context);
+//			}
+//			dataset.indexFields(dataset.indexFields());
+//		});
 		
 		jqEl.find('#jlbtnSave').on('click', function(event) {
 			if(Z._settings) {

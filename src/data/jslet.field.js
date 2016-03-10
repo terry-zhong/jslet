@@ -1570,6 +1570,9 @@ jslet.data.Field.prototype = {
 	valueFollow: function(valueFollow) {
 		var Z = this;
 		if(valueFollow === undefined) {
+			if(Z._formula) { //Formula field can't set value followed or it will cause unpredictable issue.
+				return false;
+			}
 			return Z._valueFollow;
 		}
 		Z._valueFollow = valueFollow? true: false;

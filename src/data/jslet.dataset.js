@@ -103,6 +103,10 @@ jslet.data.Dataset = function (name) {
 	Z._isFireGlobalEvent = true;
 
 	Z._onCheckSelectable = null;
+
+	Z._onDataQueried = null;
+	
+	Z._onDataSubmitted = null;
 	
 	Z._datasetListener = null; //
 	
@@ -503,6 +507,34 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 	
+	/**
+	 * Fired after querying data from server.
+	 * Pattern:
+	 *   function() {}
+	 */
+	onDataQueried: function(onDataQueried) {
+		if (onDataQueried === undefined) {
+			return this._onDataQueried;
+		}
+		
+		this._onDataQueried = onDataQueried;
+		return this;
+	},
+	
+	/**
+	 * Fired after submitting data to server.
+	 * Pattern:
+	 *   function() {}
+	 */
+	onDataSubmitted: function(onDataSubmitted) {
+		if (onDataSubmitted === undefined) {
+			return this._onDataSubmitted;
+		}
+		
+		this._onDataSubmitted = onDataSubmitted;
+		return this;
+	},
+
 	fieldValidator: function() {
 		return this._fieldValidator;
 	},
@@ -4647,6 +4679,9 @@ jslet.data.Dataset.prototype = {
 		if (result.pageCount) {
 			Z._pageCount = result.pageCount;
 		}
+		if(Z._onDataQueried) {
+			Z._onDataQueried.call(Z);
+		}
 
 		var evt = jslet.data.RefreshEvent.changePageEvent();
 		Z.refreshControl(evt);
@@ -4776,6 +4811,9 @@ jslet.data.Dataset.prototype = {
 
 		Z.calcAggradedValue();
 		Z.selection.removeAll();
+		if(Z._onDataSubmitted) {
+			Z._onDataSubmitted.call(Z);
+		}
 		
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
@@ -4908,6 +4946,9 @@ jslet.data.Dataset.prototype = {
 			Z._dataTransformer.refreshSubmittedData(mainData);
 		}
 		Z.calcAggradedValue();
+		if(Z._onDataSubmitted) {
+			Z._onDataSubmitted.call(Z);
+		}
 		Z.refreshControl();
 		Z.refreshLookupHostDataset();
 		if(result && result.info) {

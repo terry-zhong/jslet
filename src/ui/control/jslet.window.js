@@ -566,6 +566,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				ph = jqOffsetP.height();
 			left = offsetP.scrollLeft + Math.round((pw - jqEl.outerWidth()) / 2);
 			top = offsetP.scrollTop + Math.round((ph - jqEl.outerHeight()) / 2);
+			if(left < 0) {
+				left = 0;
+			}
+			if(top < 0) {
+				top = 0;
+			} 
 		}
 
 		Z.top = top ? top : 0;
@@ -856,7 +862,8 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				}
 			}
 		}
-		if (Z.el.style.zIndex < maxIndex || maxIndex === 0) {
+		var styleObj = jqEl.getStyleObject()
+		if (parseInt(styleObj.zIndex) < maxIndex) {
 			Z.setZIndex(maxIndex + 2);
 		}
 	},

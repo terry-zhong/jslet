@@ -235,10 +235,10 @@
 	
 	locale.InputSettingDialog = {
 		labelLabel: '字段名',
-		labelDefaultValue: '缺省值',
-		labelFocused: '聚焦',
-		labelValueFollow: '值跟随',
-		caption: '数据录入配置',
+		labelDefaultValue: '默认值',
+		labelFocused: '录入项',
+		labelValueFollow: '值复制',
+		caption: '录入配置',
 		save: ' 保存 ',
 		cancel: ' 取消 '
 	};

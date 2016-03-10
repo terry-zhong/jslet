@@ -7,14 +7,14 @@
 "use strict";
 
 /**
- * @class DBCombodlg. 
- * Show data on a popup panel, it can display tree style or table style. 
+ * @class DBList. 
+ * Show data on list, it can display tree style or table style. 
  * Example:
  * <pre><code>
- * var jsletParam = {type:"DBCombodlg",dataset:"employee",field:"department", textReadOnly:true};
+ * var jsletParam = {type:"DBList",dataset:"employee",field:"department"};
  * 
  * //1. Declaring:
- * &lt;div data-jslet='type:"DBCombodlg",dataset:"employee",field:"department", textReadOnly:true' />
+ * &lt;div data-jslet='type:"DBList",dataset:"employee",field:"department"' />
  * or
  * &lt;div data-jslet='jsletParam' />
  *  
