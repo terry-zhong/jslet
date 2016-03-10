@@ -83,7 +83,8 @@
 				<file name="jslet.dbcheckbox.js" />
 				<file name="jslet.dbcheckboxgroup.js" />
 			    <file name="jslet.dbcomboselect.js" />
-				<file name="jslet.dblabel.js" />
+			    <file name="jslet.dblist.js" />
+			    <file name="jslet.dblabel.js" />
 				<file name="jslet.dbdatalabel.js" />
 			    <file name="jslet.dbdatepicker.js" />
 			    <file name="jslet.dbtimepicker.js" />
