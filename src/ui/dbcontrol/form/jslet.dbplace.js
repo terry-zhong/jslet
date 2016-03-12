@@ -32,8 +32,9 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	initialize: function ($super, el, params) {
-		this.allProperties = 'styleClass,dataset,field';
+		this.allProperties = 'styleClass,dataset,field,expandChildWidth';
 		this.editControl = null;
+		this._expandChildWidth = true;
 		$super(el, params);
 	},
 
@@ -52,7 +53,14 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		Z.renderAll();
 	},
-
+	
+	expandChildWidth: function(expandChildWidth) {
+		if(expandChildWidth === undefined) {
+			return this._expandChildWidth;
+		}
+		this._expandChildWidth? true: false;
+	},
+	
 	/**
 	 * @override
 	 */
@@ -83,8 +91,13 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		param.dataset = Z._dataset;
 		param.field = Z._field;
+		if(Z._tabIndex || Z._tabIndex === 0) {
+			param.tabIndex = Z._tabIndex;
+		}
 		var dbCtrl = jslet.ui.createControl(param, Z.el);
-		dbCtrl.el.style.width = '100%';
+		if(!Z._expandChildWidth) {
+			dbCtrl.el.style.width = '100%';
+		}
 		Z.addChildControl(dbCtrl);
 		dbCtrl.tableId(Z._tableId);
 	},

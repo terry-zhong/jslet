@@ -211,7 +211,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				}
 				itemId = jslet.nextId();
 				Z._itemIds.push(itemId);
-				template.push('<td style="white-space: nowrap" value="');
+				template.push('<td style="white-space: nowrap;vertical-align:middle" value="');
 				template.push(lkds.getFieldValue(lkf.keyField()));
 				template.push('"><input name="');
 				template.push(Z._field);

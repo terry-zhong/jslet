@@ -793,11 +793,29 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		this.currColNum(colNum);
 	},
 	
+	editorTabIndex: function() {
+		return this._editorTabIndex;
+	},
+	
 	/**
 	* @override
 	*/
 	isValidTemplateTag: function (el) {
 		return el.tagName.toLowerCase() == 'div';
+	},
+	
+	_calcTabIndex: function() {
+		var Z = this,
+			jqEl = jQuery(Z.el);
+		if(Z._editable) {
+			var dsFldObj = Z._dataset.datasetField(),
+				tbIdx = dsFldObj && dsFldObj.tabIndex();
+			if(!tbIdx) {
+				tbIdx = Z.el.tabIndex;
+			}
+			Z._editorTabIndex = tbIdx && tbIdx > 0? tbIdx: 0;
+			Z.el.tabIndex = -1;
+		}
 	},
 	
 	/**
@@ -813,30 +831,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z.charWidth = jslet.global.defaultCharWidth || 12;
 		Z._widthStyleId = jslet.nextId();
 		Z._initializeVm();
-		if(Z.el.tabIndex) {
-			Z._editorTabIndex = Z.el.tabIndex + 1;
-		}
+		Z._calcTabIndex();
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
-		var ti = jqEl.attr('tabindex');
-		if (!ti) {
-			jqEl.attr('tabindex', 0);
-		}
-		jqEl.on('focus', function(event) {
-			if(Z._isTabPrev) {
-				jslet.ui.focusManager.tabPrev();
-				Z._isTabPrev = false;
-				return;
-			}
-			if(Z._dataset.recordCount() === 0) {
-				jslet.ui.focusManager.tabNext();
-			} else {
-				var cellEditor = Z.cellEditor();
-				if(cellEditor) {
-					cellEditor.showEditor();
-				}
-			}
-		});
         var notFF = ((typeof Z.el.onmousewheel) == 'object'); //firefox or nonFirefox browser
         var wheelEvent = (notFF ? 'mousewheel' : 'DOMMouseScroll');
         jqEl.on(wheelEvent, function (event) {
@@ -944,10 +941,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
 				Z._isTabPrev = true;
-				Z.tabPrior();
+				if(!Z.tabPrior()) {
+					return;
+				}
 			} else if(isTabKey) { //TAB Right
 				Z._isTabPrev = false;
-				Z.tabNext();
+				if(!Z.tabNext()) {
+					return;
+				}
 			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				Z.movePriorCell();
 			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
@@ -1655,9 +1656,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			//check and set cell render
 			if (!cobj.cellRender) {
 				if (fldObj.getType() == jslet.data.DataType.BOOLEAN){//data type is boolean
-					if (!Z._isCellEditable(cobj)) {// Not in edit mode
-						cobj.cellRender = jslet.ui.DBTable.boolCellRender;
-					}
+					cobj.cellRender = jslet.ui.DBTable.boolCellRender;
 				} else {
 					if (cobj.field == Z._treeField) {
 						cobj.cellRender = jslet.ui.DBTable.treeCellRender;
@@ -2103,12 +2102,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		});
 		
 		Z.jqVScrollBar = jqEl.find('.jl-tbl-vscroll');
-
-		Z.noRecordDiv = jqEl.find('.jl-tbl-norecord')[0];
 		//The scrollbar width must be set explicitly, otherwise it doesn't work in IE. 
 		Z.jqVScrollBar.width(jslet.scrollbarSize()+1);
 		
-		Z.jqVScrollBar.on('scroll', function () {
+		Z.jqVScrollBar.off().on('scroll', function () {
 			if (Z._keep_silence_) {
 				return;
 			}
@@ -2132,15 +2129,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		});
 
-		jqEl.find('.jl-tbl-contentcol').on('scroll', function () {
+		jqEl.find('.jl-tbl-contentcol').off().on('scroll', function () {
 			if(Z._isCurrCellInView()) {
 				//Avoid focusing the current control
 				jslet.temp.focusing = true;
 				try {
 					Z._showCurrentCell();
+					
 				} finally {
 					jslet.temp.focusing = false;
 				}
+			} else {
+	        	var cellEditor = Z.cellEditor();
+	        	if(cellEditor) {
+	       			cellEditor.hideEditor();
+	        	}
 			}
 			if(Z._filterPanel) {
 				Z._filterPanel.hide();
@@ -2172,6 +2175,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._changeColWidth(Z.currColId, deltaX);
 			splitter.style.display = 'none';
 			splitter.parentNode.jslet.isDraggingColumn = false;
+			var cellEditor = Z.cellEditor();
+			if(cellEditor) {
+				cellEditor.showEditor();
+			}
+
 		};
 
 		splitter._doDragCancel = function () {
@@ -2191,6 +2199,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		Z._changeContentWidth(0);
 
+		Z.noRecordDiv = jqEl.find('.jl-tbl-norecord')[0];
 		Z.noRecordDiv.style.top = Z.headSectionHt + 'px';
 		Z.noRecordDiv.style.left = jqEl.find('.jl-tbl-fixedcol').width() + 5 + 'px';
 		jqEl.find('.jl-tbl-vscroll-head').height(Z.headSectionHt + Z.fixedSectionHt);
@@ -3245,9 +3254,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	_isCurrCellInView: function() {
 		var Z = this;
-		if(Z._editable) {
-			return true;
-		}
+//		if(Z._editable) {
+//			return true;
+//		}
 		
 		var	jqEl = jQuery(Z.el),
 			jqContentPanel = jqEl.find('.jl-tbl-contentcol'),
@@ -3317,7 +3326,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         	}
 		}
     	if(cellEditor) {
-   			cellEditor.showEditor(colCfg.field, otd);
+    		if(Z._isCurrCellInView()) {
+    			cellEditor.showEditor(colCfg.field, otd);
+    		} else {
+    			cellEditor.hideEditor();
+    		}
     	}
 	},
 	

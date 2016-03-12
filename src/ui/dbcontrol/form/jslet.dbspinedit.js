@@ -105,7 +105,8 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			dataset: Z._dataset,
 			field: Z._field,
 			beforeUpdateToDataset: Z.beforeUpdateToDataset,
-			valueIndex: Z._valueIndex
+			valueIndex: Z._valueIndex,
+			tabIndex: Z._tabIndex
 		});
 		
 		var jqBtn = jQuery(upButton);
@@ -131,26 +132,6 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		jqBtn.blur(function(event) {
 			jslet.ui.focusManager.activeDataset(null).activeField(null).activeValueIndex(null);
 		});
-	},
-	
-	/** 
-	 * @override
-	 */ 
-	setTabIndex: function(tabIdx) {
-		var Z = this;
-		if(Z.tableId()) {
-			return;
-		}
-		
-		if(tabIdx !== 0 && !tabIdx) {
-			var fldObj = Z._dataset.getField(Z._field);
-			if(fldObj) {
-				tabIdx = fldObj.tabIndex();
-			}
-		}
-		if(tabIdx === 0 || tabIdx) {
-			Z.textCtrl.el.tabIndex = tabIdx;
-		}	
 	},
 	
 	_isDisabled: function() {

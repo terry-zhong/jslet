@@ -14,7 +14,8 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 	function _create() { 
 		var html = '<div class="form-group form-group-sm jl-tbl-editpanel"><table class="jl-tbl-edittable"><tbody><tr class="jl-tbl-editrow">';
 		var columns = _tableCtrl._sysColumns, colCfg,
-			dsName = tableCtrl.dataset().name(),
+			tblDataset = tableCtrl.dataset(),
+			dsName = tblDataset.name(),
 			left = 1;
 			
 		for(var i = 0, len = columns.length; i < len; i++) {
@@ -22,12 +23,20 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 			left += colCfg.width + 1;
 		}
 		columns = _tableCtrl.innerColumns;
-		var tableId = tableCtrl.el.id;
+		var tableId = tableCtrl.el.id,
+			editorTabIndex = tableCtrl.editorTabIndex(),
+			isBool,
+			alignStr = ';text-align: center';
 		for(var i = 0, len = columns.length; i < len; i++) {
 			colCfg = columns[i];
 			if(colCfg.field) {
-				html += '<td class="jl-edtfld-' + colCfg.field +  '" style="display:none"><div data-jslet=\'type:"DBPlace",dataset:"' + 
-					dsName + '",field:"' + colCfg.field + '", tableId: "' + tableId + '"\' class="' + 
+				isBool = (tblDataset.getField(colCfg.field).dataType() === jslet.data.DataType.BOOLEAN);
+				html += '<td class="jl-edtfld-' + colCfg.field +  '" style="display:none;vertical-align: middle' + (isBool? alignStr: '') + 
+				'"><div data-jslet=\'type:"DBPlace",dataset:"' + dsName + 
+				'",field:"' + colCfg.field + 
+				'", tableId: "' + tableId + 
+				'", expandChildWidth: ' + (isBool? 'false': 'true') + 
+				', tabIndex: "' + editorTabIndex + '"\' class="' + 
 					colCfg.widthCssName + '"></div></td>';
 			}
 		}

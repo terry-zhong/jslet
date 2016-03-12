@@ -218,7 +218,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(Z._hasSelectAllBox && lkCnt > 0) {
 			template.push('<tr>');
 			itemId = jslet.nextId();
-			template.push('<td style="white-space: nowrap; "><input type="checkbox" class="jl-selectall"');
+			template.push('<td style="white-space: nowrap;vertical-align:middle"><input type="checkbox" class="jl-selectall"');
 			template.push(' id="');
 			template.push(itemId);
 			template.push('"/><label for="');

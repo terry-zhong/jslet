@@ -59,7 +59,8 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			dataset: Z._dataset,
 			field: Z._textField || Z._field,
 			enableInvalidTip: true,
-			valueIndex: Z._valueIndex
+			valueIndex: Z._valueIndex,
+			tabIndex: Z._tabIndex
 		});
 		Z.addChildControl(Z.textCtrl);
 		
@@ -119,29 +120,6 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var jqEl = jQuery(Z.el);
 			jqEl.find('button').attr("disabled", flag);
 		}
-		if(!metaName || metaName == 'tabIndex') {
-			Z.setTabIndex();
-		}
-
-	},
-	
-	/** 
-	 * @override
-	 */ 
-	setTabIndex: function(tabIdx) {
-		var Z = this;
-		if(Z.tableId()) {
-			return;
-		}
-		if(tabIdx !== 0 && !tabIdx) {
-			var fldObj = Z._dataset.getField(Z._field);
-			if(fldObj) {
-				tabIdx = fldObj.tabIndex();
-			}
-		}
-		if(tabIdx === 0 || tabIdx) {
-			Z.textCtrl.el.tabIndex = tabIdx;
-		}	
 	},
 	
 	/**

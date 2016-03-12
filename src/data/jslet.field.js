@@ -389,6 +389,10 @@ jslet.data.Field.prototype = {
 	tabIndex: function(tabIndex) {
 		var Z = this;
 		if (tabIndex === undefined) {
+			//If not set tabIndex property, use displayOrder instead.
+			if(Z._tabIndex === null || Z._tabIndex === undefined) {
+				return Z._displayOrder;
+			}
 			return Z._tabIndex;
 		}
 		jslet.Checker.test('Field.tabIndex', tabIndex).isNumber();

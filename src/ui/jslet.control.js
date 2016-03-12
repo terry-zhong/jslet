@@ -312,6 +312,8 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 	
 	_tableId: null,
 	
+	_tabIndex: null,
+	
 	field: function(fldName) {
 		if(fldName === undefined) {
 			return this._field;
@@ -341,6 +343,14 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		this._valueIndex = parseInt(valueIndex);
 	},
 	
+	tabIndex: function(tabIndex) {
+		if(tabIndex === undefined) {
+			return this._tabIndex;
+		}
+		jslet.Checker.test('DBControl.tabIndex', tabIndex).isNumber();
+		this._tabIndex = tabIndex;
+	},
+	
 	/**
 	 * @override
 	 */
@@ -349,6 +359,10 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		var value = ctrlParams.valueIndex;
 		if (value !== undefined) {
 			this.valueIndex(value);
+		}
+		var tbIdx = ctrlParams.tabIndex;
+		if(tbIdx !== undefined) {
+			this.tabIndex(tbIdx);
 		}
 	},
  
@@ -371,11 +385,9 @@ jslet.ui.DBFieldControl = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
-	setTabIndex: function(tabIdx) {
-		var Z = this;
-		if(Z._tableId) {
-			return;
-		}
+	setTabIndex: function() {
+		var Z = this,
+			tabIdx = Z._tabIndex;
 		if(tabIdx !== 0 && !tabIdx) {
 			var fldObj = Z._dataset.getField(Z._field);
 			if(fldObj) {
