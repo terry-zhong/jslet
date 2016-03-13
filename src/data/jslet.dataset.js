@@ -32,7 +32,6 @@ jslet.data.Dataset = function (name) {
 	Z._aborted = false;
 
 	Z._status = 0; // dataset status, optional values: 0:browse;1:created;2:updated;3:deleted;
-	Z._subDatasetFields = null; //Array of dataset field object
 	Z._proxyFields = null;
 	
 	Z._fixedFilter = null;	
@@ -64,9 +63,8 @@ jslet.data.Dataset = function (name) {
 	Z._innerConvertDestFields = null;
 
 	Z._masterDataset = null;
-	Z._detailDatasets = null; // array
-
-	Z._datasetField = null; //jslet.data.Field 
+	Z._masterField = null;
+	Z._detailDatasetFields = null; //Array of dataset field object
 
 	Z._linkedControls = []; //Array of DBControl except DBLabel
 	Z._linkedLabels = []; //Array of DBLabel
@@ -157,7 +155,6 @@ jslet.data.Dataset.prototype = {
 		jslet.data.dataModule.unset(name);
 		jslet.data.dataModule.set(name, this);
 		this._name = name;
-		Z._datasetField = jslet.data.datasetRelationManager.getHostFieldObject(name); //jslet.data.Field 
 		return this;
 	},
 	
@@ -384,6 +381,53 @@ jslet.data.Dataset.prototype = {
 	 */
 	pageCount: function() {
 		return this._pageCount;
+	},
+	
+	/**
+	 * Get or set master dataset for "Detail Dataset".
+	 * This property is for internal use. 
+	 * 
+	 * @param {String or undefined} masterDataset - master dataset name.
+	 * @return {this or String}
+	 */
+	masterDataset: function(masterDataset) {
+		if(masterDataset === undefined) {
+			if(this._masterDataset) {
+				return jslet.data.getDataset(this._masterDataset);
+			} else {
+				return null;
+			}
+		}
+		this._masterDataset = masterDataset;
+		return this;
+	},
+	
+	/**
+	 * Get or set master field name for "Detail Dataset".
+	 * This property is for internal use. 
+	 * 
+	 * @param {String or undefined} masterField - master field name.
+	 * @return {this or String}
+	 */
+	masterField: function(masterField) {
+		if(masterField === undefined) {
+			return this._masterField;
+		}
+		jslet.Checker.test('Dataset.masterField', masterField).isString();
+		this._masterField = masterField;
+		return this;
+	},
+	
+	/**
+	 * Get master field object.
+	 * 
+	 * @return {jslet.data.Field} master field object.
+	 */
+	getMasterFieldObject: function() {
+		if(this._masterField) {
+			return this.masterDataset().getField(this._masterField);
+		}
+		return null;
 	},
 	
 	/**
@@ -698,21 +742,6 @@ jslet.data.Dataset.prototype = {
 		this.calcFocusedFields();
 	},
 	
-	/**
-	 * Set or get datasetField object, use internally.
-	 * 
-	 * @param {Field} datasetField, "dataset field" in master dataset.
-	 * @return {jslet.data.Field or this}
-	 */
-	datasetField: function(fldObj) {
-		if (fldObj === undefined) {
-			return this._datasetField;
-		}
-		jslet.Checker.test('Dataset.datasetField#fldObj', fldObj).isClass(jslet.data.Field.className);
-		this._datasetField = fldObj;
-		return this;
-	},
-
 	addFields: function(arrFldObj) {
 		jslet.Checker.test('Dataset.addFields#arrFldObj', arrFldObj).required().isArray();
 		for(var i = 0, len = arrFldObj.length; i < len; i++) {
@@ -741,10 +770,10 @@ jslet.data.Dataset.prototype = {
 		}
 		var dataType = fldObj.dataType();
 		if (dataType == jslet.data.DataType.DATASET) {
-			if (!Z._subDatasetFields) {
-				Z._subDatasetFields = [];
+			if (!Z._detailDatasetFields) {
+				Z._detailDatasetFields = [];
 			}
-			Z._subDatasetFields.push(fldObj);
+			Z._detailDatasetFields.push(fldObj);
 		}
 		if (dataType == jslet.data.DataType.PROXY) {
 			if (!Z._proxyFields) {
@@ -838,9 +867,9 @@ jslet.data.Dataset.prototype = {
 			fldObj = Z.getField(fldName);
 		if (fldObj) {
 			if (fldObj.dataType() == jslet.data.DataType.DATASET) {
-				var k = Z._subDatasetFields.indexOf(fldObj);
+				var k = Z._detailDatasetFields.indexOf(fldObj);
 				if (k >= 0) {
-					Z._subDatasetFields.splice(k, 1);
+					Z._detailDatasetFields.splice(k, 1);
 				}
 			}
 			var i = Z._fields.indexOf(fldObj);
@@ -1533,10 +1562,10 @@ jslet.data.Dataset.prototype = {
 		var preno = Z._recno;
 		Z._recno = recno;
 		
-		if (Z._recno != preno && Z._subDatasetFields && Z._subDatasetFields.length > 0) {
+		if (Z._recno != preno && Z._detailDatasetFields && Z._detailDatasetFields.length > 0) {
 			var fldObj, subds;
-			for (var i = 0, len = Z._subDatasetFields.length; i < len; i++) {
-				fldObj = Z._subDatasetFields[i];
+			for (var i = 0, len = Z._detailDatasetFields.length; i < len; i++) {
+				fldObj = Z._detailDatasetFields[i];
 				subds = fldObj.subDataset();
 				if (subds) {
 					subds._initialize(true);
@@ -1971,13 +2000,12 @@ jslet.data.Dataset.prototype = {
 		Z.confirm();
 
 		Z.selection.removeAll();
-		var mfld = Z._datasetField, mds = null;
-		if (mfld) {
-			mds = mfld.dataset();
-			if (!mds.hasRecord()) {
+		var dsMaster = Z.masterDataset();
+		if (dsMaster) {
+			if (!dsMaster.hasRecord()) {
 				throw new Error(jslet.locale.Dataset.insertMasterFirst);
 			}
-			mds.editRecord();
+			dsMaster.editRecord();
 		}
 
 		Z._aborted = false;
@@ -2568,9 +2596,9 @@ jslet.data.Dataset.prototype = {
 
 			Z._modiObject = {};
 			jQuery.extend(Z._modiObject, Z.getRecord());
-			var mfld = Z._datasetField;
-			if (mfld && mfld.dataset()) {
-				mfld.dataset().editRecord();
+			var dsMaster = Z.masterDataset();
+			if (dsMaster) {
+				dsMaster.editRecord();
 			}
 
 			Z.status(jslet.data.DataSetStatus.UPDATE);
@@ -2627,9 +2655,9 @@ jslet.data.Dataset.prototype = {
 		Z.dataList().splice(k, 1);
 		Z._refreshInnerRecno();
 		
-		var mfld = Z._datasetField;
-		if (mfld && mfld.dataset()) {
-			mfld.dataset().editRecord();
+		var dsMaster = Z.masterDataset();
+		if (dsMaster) {
+			dsMaster.editRecord();
 		}
 
 		Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -2653,7 +2681,7 @@ jslet.data.Dataset.prototype = {
 		
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSCROLL);	
 		Z.refreshLookupHostDataset();
-		var detailFields = Z._subDatasetFields;
+		var detailFields = Z._detailDatasetFields;
 		if(detailFields) {
 			var subFldObj, subDs;
 			for(var i = 0, len = detailFields.length; i < len; i++) {
@@ -2891,17 +2919,16 @@ jslet.data.Dataset.prototype = {
 			jslet.data.FieldError.clearRecordError(Z.getRecord());
 			Z.errorMessage();
 		}
-		var masterFld = Z._datasetField;
-		if (masterFld) {
-			var masterDs = masterFld.dataset();
-			var masterFldName = masterFld.name();
+		var dsMaster = Z.masterDataset();
+		if (dsMaster) {
+			var masterFldName = Z.masterField();
 			if(hasError) {
 				//'Detail Dataset: {0} has error data!'
-				masterDs.addFieldError(masterFldName, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
+				dsMaster.addFieldError(masterFldName, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
 			} else {
-				masterDs.addFieldError(masterFldName, null);
+				dsMaster.addFieldError(masterFldName, null);
 			}
-			masterDs.refreshControl(evt);
+			dsMaster.refreshControl(evt);
 		}
 
 		return !hasError;
@@ -5443,22 +5470,22 @@ jslet.data.Dataset.prototype = {
 	dataList: function (datalst) {
 		var Z = this;
 		if (datalst === undefined) {
-			if(Z._datasetField) {
-				return Z._datasetField.getValue();
+			if(Z._masterField) {
+				return Z.masterDataset().getFieldValue(Z._masterField);
 			}
 			return Z._dataList;
 		}
 		jslet.Checker.test('Dataset.dataList', datalst).isArray();
-		if(Z._datasetField) {
+		if(Z._masterField) {
 			if(datalst === null) {
 				datalst = [];
 			}
-			Z._datasetField.setValue(datalst);
+			Z.masterDataset().setFieldValue(Z._masterField, datalst);
 		} else {
 			Z._dataList = datalst;
 		}
 		Z._initialize();
-		var fields = Z._subDatasetFields;
+		var fields = Z._detailDatasetFields;
 		if(fields) {
 			var fldObj, subDs;
 			for(var i = 0, len = fields.length; i < len; i++) {
@@ -5542,7 +5569,7 @@ jslet.data.Dataset.prototype = {
 		}
 		var result = {master: mainDs};
 		var details = null, detail;
-		var detailFields = Z._subDatasetFields;
+		var detailFields = Z._detailDatasetFields;
 		if(detailFields) {
 			var subFldObj, subDs;
 			for(var i = 0, len = detailFields.length; i < len; i++) {
@@ -5638,14 +5665,13 @@ jslet.data.Dataset.prototype = {
 	destroy: function () {
 		var Z = this;
 		Z._masterDataset = null;
-		Z._detailDatasets = null;
+		Z._masterField = null;
 		Z._fields = null;
 		Z._linkedControls = null;
 		Z._innerFilter = null;
 		Z._innerFindCondition = null;
 		Z._sortingFields = null;
 		Z._innerFormularFields = null;
-		Z._datasetField = null;
 		
 		jslet.data.dataModule.unset(Z._name);
 		jslet.data.datasetRelationManager.removeDataset(Z._name);		
@@ -5736,7 +5762,7 @@ jslet.data.createDataset = function(dsName, fieldConfig, dsCfg) {
 		fldCfg = fieldConfig[i];
 		jslet.Checker.test('Dataset.createDataset#fieldCfg', fldCfg).isPlanObject();
 		
-		fldCfg.dsName = dsName;
+		fldCfg.datasetName = dsName;
 		fldObj = jslet.data.createField(fldCfg);
 		arrFldObj.push(fldObj);
 	}
@@ -5909,7 +5935,7 @@ jslet.data.ChangeLog.prototype = {
 	
 	_getChangedRecords: function() {
 		var dsObj = this._dataset;
-		var masterFldObj = dsObj.datasetField(),
+		var masterFldObj = dsObj.getMasterFieldObject(),
 		  	chgRecords;
 		if(masterFldObj) {
 			var masterFldName = masterFldObj.name(),
@@ -6038,7 +6064,7 @@ jslet.data.DataTransformer.prototype = {
 		if(!submittedData || submittedData.length === 0) {
 			return;
 		}
-		var masterFldObj = dsObj.datasetField(), chgLogs;
+		var masterFldObj = dsObj.getMasterFieldObject(), chgLogs;
 		if(!masterFldObj) {
 			chgLogs = dsObj._changeLog._changedRecords;
 		} else {

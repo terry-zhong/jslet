@@ -36,8 +36,8 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 				'",field:"' + colCfg.field + 
 				'", tableId: "' + tableId + 
 				'", expandChildWidth: ' + (isBool? 'false': 'true') + 
-				', tabIndex: "' + editorTabIndex + '"\' class="' + 
-					colCfg.widthCssName + '"></div></td>';
+				(editorTabIndex? ', tabIndex: ' + editorTabIndex: '')
+				+ '\' class="' + colCfg.widthCssName + '"></div></td>';
 			}
 		}
 		html += '</tr></tbody></table></div>';

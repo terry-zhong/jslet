@@ -808,12 +808,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this,
 			jqEl = jQuery(Z.el);
 		if(Z._editable) {
-			var dsFldObj = Z._dataset.datasetField(),
-				tbIdx = dsFldObj && dsFldObj.tabIndex();
+			var masterFldObj = Z._dataset.getMasterFieldObject(),
+				tbIdx = null;
+			if(masterFldObj) {
+				tbIdx = masterFldObj.tabIndex();
+			}
 			if(!tbIdx) {
 				tbIdx = Z.el.tabIndex;
 			}
-			Z._editorTabIndex = tbIdx && tbIdx > 0? tbIdx: 0;
+			Z._editorTabIndex = tbIdx && tbIdx > 0? tbIdx: null;
 			Z.el.tabIndex = -1;
 		}
 	},

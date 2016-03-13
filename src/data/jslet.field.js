@@ -21,7 +21,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	var Z = this;
 	
 	Z._dataset = null;
-	Z._dsName = null;
+	Z._datasetName = null;
 	Z._displayOrder = 0;
 	Z._tabIndex = null;
 	Z._fieldName = fieldName;
@@ -59,7 +59,7 @@ jslet.data.Field = function (fieldName, dataType) {
 	
 	Z._displayControl = null;
 	Z._editControl = null;
-	Z._subDataset = null;
+	Z._detailDataset = null;
 	Z._urlExpr = null;
 	Z._innerUrlExpr = null;
 	Z._urlTarget = null;
@@ -114,7 +114,7 @@ jslet.data.Field.prototype = {
 			jslet.Checker.test('Field.dataset', dataset).isClass(jslet.data.Dataset.className);
 		}
 		if(dataset) {
-			Z._dsName = dataset.name();
+			Z._datasetName = dataset.name();
 		}
 		Z._removeRelation();
 		Z._dataset = dataset;
@@ -391,7 +391,7 @@ jslet.data.Field.prototype = {
 		if (tabIndex === undefined) {
 			//If not set tabIndex property, use displayOrder instead.
 			if(Z._tabIndex === null || Z._tabIndex === undefined) {
-				return Z._displayOrder;
+				return Z._displayOrder + 1;
 			}
 			return Z._tabIndex;
 		}
@@ -1109,43 +1109,53 @@ jslet.data.Field.prototype = {
 	_addRelation: function() {
 		var Z = this, 
 			lkObj = Z.lookup(),
-			lkDsName;
-		if(!Z._dataset || (Z.getType() != jslet.data.DataType.DATASET && !lkObj)) {
+			lkDsName,
+			hostDsName = Z._datasetName;
+		if(!hostDsName || (Z.getType() != jslet.data.DataType.DATASET && !lkObj)) {
 			return;
 		}
 		
-		var hostDs = Z._dataset.name(),
-			hostField = Z._fieldName,
+		var hostField = Z._fieldName,
 			relationType;
 		if(Z.getType() == jslet.data.DataType.DATASET) {
-			if(Z._subDataset) {
-				lkDsName = Z._getDatasetName(Z._subDataset);
+			if(Z._detailDataset) {
+				lkDsName = Z._getDatasetName(Z._detailDataset);
 				relationType = jslet.data.DatasetType.DETAIL;
-				jslet.data.datasetRelationManager.addRelation(hostDs, hostField, lkDsName, relationType);
+				jslet.data.datasetRelationManager.addRelation(hostDsName, hostField, lkDsName, relationType);
+				var detailDsObj = jslet.data.getDataset(Z._detailDataset);
+				if(detailDsObj) {
+					detailDsObj.masterDataset(hostDsName);
+					detailDsObj.masterField(hostField);
+				}
 			}
 		} else {
 			lkDsName = Z._getDatasetName(lkObj._dataset);
 			relationType = jslet.data.DatasetType.LOOKUP;
-			jslet.data.datasetRelationManager.addRelation(hostDs, hostField, lkDsName, relationType);
+			jslet.data.datasetRelationManager.addRelation(hostDsName, hostField, lkDsName, relationType);
 		}
 	},
 	
 	_removeRelation: function() {
 		var Z = this,
-			lkObj = Z.lookup();
-		if(!Z._dataset || (!Z._subDataset && !lkObj)) {
+			lkObj = Z.lookup(),
+			hostDsName = Z._datasetName;
+		if(!hostDsName || (!Z._detailDataset && !lkObj)) {
 			return;
 		}
-		var hostDs = Z._dataset.name(),
-			hostField = Z._fieldName,
+		var hostField = Z._fieldName,
 			relationType, lkDsName;
 
-		if(Z._subDataset) {
-			lkDsName = Z._getDatasetName(Z._subDataset);
+		if(Z._detailDataset) {
+			lkDsName = Z._getDatasetName(Z._detailDataset);
+			var detailDsObj = jslet.data.getDataset(Z._detailDataset);
+			if(detailDsObj) {
+				detailDsObj.masterDataset(null);
+				detailDsObj.masterField(null);
+			}
 		} else {
 			lkDsName = Z._getDatasetName(lkObj._dataset);
 		}
-		jslet.data.datasetRelationManager.removeRelation(hostDs, hostField, lkDsName);
+		jslet.data.datasetRelationManager.removeRelation(hostDsName, hostField, lkDsName);
 	},
 		
 	/**
@@ -1182,8 +1192,16 @@ jslet.data.Field.prototype = {
 	_getDatasetName: function(dsObjOrName) {
 		return jslet.isString(dsObjOrName)? dsObjOrName: dsObjOrName.name();
 	},
-	
-	_subDsParsed: false,
+
+	/**
+	 * Set or get sub dataset.
+	 * 
+	 * @param {jslet.data.Dataset or undefined} subdataset
+	 * @return {jslet.data.Dataset or this}
+	 */
+	subDataset: function (subDataset) {
+		return this.detailDataset(subDataset);
+	},
 	
 	/**
 	 * Set or get sub dataset.
@@ -1191,42 +1209,34 @@ jslet.data.Field.prototype = {
 	 * @param {jslet.data.Dataset or undefined} subdataset
 	 * @return {jslet.data.Dataset or this}
 	 */
-	subDataset: function (subdataset) {
+	detailDataset: function (detailDataset) {
 		var Z = this;
-		if (subdataset === undefined) {
-			if(!Z._subDsParsed && Z._subDataset) {
-				Z.subDataset(Z._subDataset);
-				if(!Z._subDsParsed) {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._subDataset]));
+		if (detailDataset === undefined) {
+			if(Z._detailDataset && jslet.isString(Z._detailDataset)) {
+				Z.detailDataset(Z._detailDataset);
+				if(jslet.isString(Z._detailDataset)) {
+					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._detailDataset]));
 				}
 			}
-			return Z._subDataset;
+			return Z._detailDataset;
 		}
 		
-		var oldSubDsName = Z._getDatasetName(Z._subDataset),
-		 	newSubDsName = Z._getDatasetName(subdataset);
-		var subDsObj = subdataset;
-		if (jslet.isString(subDsObj)) {
-			subDsObj = jslet.data.getDataset(subDsObj);
-			if(!subDsObj && jslet.data.onCreatingDataset) {
-				jslet.data.onCreatingDataset(subdataset, jslet.data.DatasetType.DETAIL, null, Z._dsName); //1 - sub dataset
-			}
-		}
-		Z._subDataset = subdataset;
-		if(!Z._dataset) {
-			return this;
-		}
 		Z._removeRelation();
-		if(subDsObj) {
-			jslet.Checker.test('Field.subDataset', subDsObj).isClass(jslet.data.Dataset.className);		
-			if (Z._subDataset && Z._subDataset.datasetField) {
-				Z._subDataset.datasetField(null);
+		if (jslet.isString(detailDataset)) {
+			var dtlDsObj = jslet.data.getDataset(detailDataset);
+			if(!dtlDsObj) {
+				Z._detailDataset = detailDataset;
+				if(jslet.data.onCreatingDataset) {
+					jslet.data.onCreatingDataset(detailDataset, jslet.data.DatasetType.DETAIL, null, Z._datasetName);
+				}
+				Z._addRelation();
+				return this;
 			}
-			Z._subDataset = subDsObj;
-			Z._subDsParsed = true;
+			detailDataset = dtlDsObj;
 		} else {
-			Z._subDsParsed = false;
+			jslet.Checker.test('Field.detailDataset', detailDataset).isClass(jslet.data.Dataset.className);
 		}
+		Z._detailDataset = detailDataset;
 		Z._addRelation();
 		return this;
 	},
@@ -1730,8 +1740,8 @@ jslet.data.Field.prototype = {
 		if (Z._lookup) {
 			result.lookup(Z._lookup.clone(newDataset.name()));
 		}
-		if(Z._subDataset) {
-			result.subDataset(Z._subDataset);
+		if(Z._detailDataset) {
+			result.detailDataset(Z._subDataset);
 		}
 		result.displayControl(Z._displayControl);
 		result.editControl(Z._editControl);
@@ -1795,8 +1805,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 		console.error(cfg);
 		throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNameRequired));
 	}
-	var dtype = cfg.type;
-	if (dtype === null) {
+	var dtype = cfg.type || cfg.dataType;
+	if (dtype === null || dtype === undefined) {
 		dtype = jslet.data.DataType.STRING;
 	} else {
 		dtype = dtype.toUpperCase();
@@ -1812,14 +1822,11 @@ jslet.data.createField = function (fieldConfig, parent) {
 	
 	var fldObj = new jslet.data.Field(cfg.shortName || fldName, dtype);
 	
-	if(fieldConfig.dsName) {
-		fldObj._dsName = fieldConfig.dsName;
+	if(fieldConfig.datasetName) {
+		fldObj._datasetName = fieldConfig.datasetName;
 	}
 	function setPropValue(propName) {
 		var propValue = cfg[propName];
-//		if(propValue === undefined) {
-//			propValue = cfg[propName.toLowerCase()];
-//		}
 		if (propValue !== undefined) {
 			fldObj[propName](propValue);
 		}
@@ -1849,9 +1856,9 @@ jslet.data.createField = function (fieldConfig, parent) {
 		return fldObj;
 	}
 	if (dtype == jslet.data.DataType.DATASET){
-		var subds = cfg.subDataset || cfg.subdataset;
-		if (subds) {
-			fldObj.subDataset(subds);
+		var detailDs = cfg.detailDataset || cfg.subDataset || cfg.subdataset;
+		if (detailDs) {
+			fldObj.detailDataset(detailDs);
 		} else {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDatasetField, [fldName]));
 		}
@@ -1942,7 +1949,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 				}
 			}
 		}
-		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg, fldObj._dsName));
+		fldObj.lookup(jslet.data.createFieldLookup(lkfCfg, fldObj._datasetName));
 	}
 	if (cfg.children){
 		var fldChildren = [], 
@@ -2016,15 +2023,15 @@ jslet.data.createDateField = function(fldName, parent) {
  * Create dataset field object.
  * 
  * @param {String} fldName Field name.
- * @param {jslet.data.Dataset} subDataset Detail dataset object.
+ * @param {jslet.data.Dataset} detailDataset Detail dataset object.
  * @param {jslet.data.Field} parent (Optional)Parent field object. It must be a 'Group' field.
  * @return {jslet.data.Field}
  */
-jslet.data.createDatasetField = function(fldName, subDataset, parent) {
-	jslet.Checker.test('createDatasetField#subDataset', subDataset).required();
+jslet.data.createDatasetField = function(fldName, detailDataset, parent) {
+	jslet.Checker.test('createDatasetField#detailDataset', detailDataset).required();
 
 	var fldObj = new jslet.data.Field(fldName, jslet.data.DataType.DATASET, parent);
-	fldObj.subDataset(subDataset);
+	fldObj.detailDataset(detailDataset);
 	fldObj.visible(false);
 	return fldObj;
 };
@@ -2136,7 +2143,7 @@ jslet.data.FieldLookup.prototype = {
 		if (typeof(lkDsObj) == 'string') {
 			lkDsObj = jslet.data.getDataset(lkDsObj);
 			if(!lkDsObj && jslet.data.onCreatingDataset) {
-				jslet.data.onCreatingDataset(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset, Z._hostDatasetName); //1 - lookup dataset, 2 - subdataset
+				jslet.data.onCreatingDataset(lkdataset, jslet.data.DatasetType.LOOKUP, Z._realDataset, Z._hostDatasetName); //1 - lookup dataset, 2 - detailDataset
 			}
 		}
 		if(lkDsObj) {

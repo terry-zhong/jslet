@@ -969,16 +969,6 @@ jslet.data.DatasetRelationManager = function() {
 			}
 		}
 		relations.push({hostDataset: hostDsName, hostField: hostFldName, lookupOrDetailDataset: lookupOrDetailDsName, relationType: relationType});
-		//If reation type is DETAIL, set 'datasetField' property of detail dataset.
-		if(relationType == jslet.data.DatasetType.DETAIL) {
-			var detailDs = jslet.data.getDataset(lookupOrDetailDsName);
-			if(detailDs) {
-				var fldObj = this.getHostFieldObject(lookupOrDetailDsName);
-				if(fldObj) {
-					detailDs.datasetField(fldObj);
-				}
-			}
-		}
 	};
 	
 	this.removeRelation = function(hostDsName, hostFldName, lookupOrDetailDsName) {
