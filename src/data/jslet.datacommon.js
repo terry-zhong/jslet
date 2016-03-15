@@ -847,6 +847,25 @@ jslet.data.FieldError = {
 		return false;
 	},
 	
+	getFirstErrorField: function(record, checkingFields) {
+		var recInfo = jslet.data.getRecInfo(record);
+		if(!recInfo) {
+			return false;
+		}
+		var errObj = recInfo.error;
+		if(errObj) {
+			for(var fldName in errObj) {
+				if(checkingFields && checkingFields.indexOf(fldName) < 0) {
+					continue;
+				}
+				if(errObj[fldName]) {
+					return fldName;
+				}
+			}
+		}
+		return null;
+	},
+	
 	clearFieldError: function(dataset, fldName) {
 		var dataList = dataset.dataList();
 		if(!dataList) {

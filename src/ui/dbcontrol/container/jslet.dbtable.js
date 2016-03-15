@@ -943,12 +943,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
 			if(event.shiftKey && isTabKey) { //Shift TAB Left
-				Z._isTabPrev = true;
 				if(!Z.tabPrior()) {
 					return;
 				}
 			} else if(isTabKey) { //TAB Right
-				Z._isTabPrev = false;
 				if(!Z.tabNext()) {
 					return;
 				}
@@ -1067,7 +1065,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, true, Z._dataset, 
 						focusMngr.activeField(), fields, focusMngr.activeValueIndex());
 				if(!cancelFocus) {
-					return false;
+					return true;
 				}
 			}
 			if(fields && idx >= 0) {
@@ -1133,7 +1131,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				var cancelFocus = onChangingFocusFn(document.activeElement || Z.el, false, Z._dataset, 
 						focusMngr.activeField(), fields, focusMngr.activeValueIndex());
 				if(!cancelFocus) {
-					return false;
+					return true;
 				}
 			}
 			if(fields && idx >= 0) {
@@ -3256,12 +3254,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	_isCurrCellInView: function() {
-		var Z = this;
-//		if(Z._editable) {
-//			return true;
-//		}
-		
-		var	jqEl = jQuery(Z.el),
+		var Z = this,
+			jqEl = jQuery(Z.el),
 			jqContentPanel = jqEl.find('.jl-tbl-contentcol'),
 			contentPanel = jqContentPanel[0],
 			borderW = (Z._noborder ? 0: 2),

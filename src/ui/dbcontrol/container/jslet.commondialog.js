@@ -47,6 +47,13 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		jslet.ui.install(jqPanel[0]);
 		_editPanel = jqPanel;
 		jqPanel.height(_tableCtrl.rowHeight());
+		jqPanel.on('keydown', function(event) {
+			var keyCode = event.which;
+			//prevent to fire dbtable's ctrl+c
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
+	       		event.stopImmediatePropagation();
+			}
+		});
 	}
 	
 	_create();
