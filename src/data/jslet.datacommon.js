@@ -430,7 +430,7 @@ jslet.data.FieldValidator.prototype = {
 		if (fldObj.customValidator()) {
 			var msg = fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
 			if(msg) {
-				this._addFieldLabel(fldObj.label(), msg);
+				return this._addFieldLabel(fldObj.label(), msg);
 			}
 		}
 		

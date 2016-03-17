@@ -444,11 +444,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			return Z._currColNum;
 		}
 		var oldColNum = Z._currColNum;
-//		if(oldColNum === currColNum) {
-//			return;
-//		}
 		Z._currColNum = currColNum;
-		Z._adjustCurrentCellPos(oldColNum > currColNum);
+		if(oldColNum !== currColNum) {
+			Z._adjustCurrentCellPos(oldColNum > currColNum);
+		}
 		Z._showCurrentCell();
 		if(Z._findDialog) {
 			var colCfg = Z.innerColumns[currColNum];
@@ -817,8 +816,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				tbIdx = Z.el.tabIndex;
 			}
 			Z._editorTabIndex = tbIdx && tbIdx > 0? tbIdx: null;
-			Z.el.tabIndex = -1;
 		}
+		Z.el.tabIndex = -1;
 	},
 	
 	/**
@@ -3216,6 +3215,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		return null;
 	},
 
+	_getCurrCellEl: function() {
+		var Z = this,
+			contentRow = Z._currRow.content,
+			cells = contentRow.cells, 
+			cellEl, colCfg;
+		for(var i = 0, len = cells.length; i < len; i++) {
+			cellEl = cells[i];
+			colCfg = cellEl.jsletColCfg;
+			if(colCfg && colCfg.colNum === Z._currColNum) {
+				return cellEl;
+			}
+		}
+		return null;
+	},
+	
 	_adjustCurrentCellPos: function(isLeft) {
 		var Z = this,
 			jqEl = jQuery(Z.el),
@@ -3223,33 +3237,19 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			contentPanel = jqContentPanel[0],
 			oldScrLeft = contentPanel.scrollLeft;
 		if(Z._currColNum < Z._fixedCols) { //If current cell is in fixed content area
-			contentPanel.scrollLeft = 0;
 			return;
 		}
-		var borderW = (Z._noborder ? 0: 2);
-		if(isLeft) {
-			if(oldScrLeft === 0) {
-				return;
-			}
-			
-			var currColLeft = 0;
-			for(var i = Z._fixedCols, len = Z.innerColumns.length; i < Z._currColNum; i++) {
-				currColLeft += (Z.innerColumns[i].width + borderW); //"2" is the cell border's width(left+right)
-			}
-			if(currColLeft < oldScrLeft) {
-				contentPanel.scrollLeft = currColLeft; 
-			}
-		} else {
-			var containerWidth = jqContentPanel.innerWidth() - 20,
-				contentWidth = jqContentPanel.find('.jl-tbl-content-div').width(),
-				scrWidth = 0;
-			for(var i = Z.innerColumns.length - 1; i > Z._currColNum; i--) {
-				scrWidth += (Z.innerColumns[i].width + borderW); //"2" is the cell border's width(left+right)
-			}
-			currColLeft = contentWidth - scrWidth - containerWidth;
-			if(currColLeft > oldScrLeft) {
-				contentPanel.scrollLeft = (currColLeft >= 0? currColLeft: 0);
-			}
+		var currTd = Z._getCurrCellEl(),
+			currTdLeft = currTd.offsetLeft,
+			currTdWidth = currTd.offsetWidth,
+			containerWidth = contentPanel.clientWidth,
+			containerLeft = contentPanel.scrollLeft;
+		if(currTdLeft < containerLeft) {
+			contentPanel.scrollLeft = currTdLeft;
+			return;
+		}
+		if(currTdLeft + currTdWidth > containerLeft + containerWidth) {
+			contentPanel.scrollLeft = currTdLeft + currTdWidth - containerWidth;
 		}
 	},
 

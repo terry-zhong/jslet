@@ -3759,9 +3759,6 @@ jslet.data.Dataset.prototype = {
 		var value = Z._textToValue(fldObj, inputText, valueIndex);
 		if(value !== undefined) {
 			Z.setFieldValue(fldName, value, valueIndex);
-		} else {
-			var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
-			Z.refreshControl(evt);
 		}
 	},
 
@@ -3796,6 +3793,8 @@ jslet.data.Dataset.prototype = {
 		var invalidMsg = Z._fieldValidator.checkInputText(fldObj, inputText);
 		if (invalidMsg) {
 			Z.setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
+			var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
+			Z.refreshControl(evt);
 			return undefined;
 		} else {
 			Z.setFieldError(fldObj.name(), null, valueIndex);
