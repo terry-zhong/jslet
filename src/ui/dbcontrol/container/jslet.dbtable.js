@@ -931,7 +931,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				return false;
 			}
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
-				Z.copySelection();
+				Z.copySelection(false);
 				return;
 			}
 			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.A) { //ctrl + a
@@ -1010,9 +1010,20 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	},
 	
-	copySelection: function() {
-		var Z = this,
-			selectedText = Z._dataset.selection.getSelectionText();
+	copySelection: function(fitExcel) {
+		var Z = this, 
+			selectedText;
+		if(fitExcel) {
+			selectedText = Z._dataset.selection.getSelectionText('"', true, '\t');
+		} else {
+			selectedText = Z._dataset.selection.getSelectionText('', false, '\t');
+		}
+		if(!selectedText) {
+			var fldName = Z.getFieldByColNum(Z._currColNum);
+			if(fldName) {
+				selectedText = Z._dataset.getFieldText(fldName);
+			}
+		}
 		if(selectedText) {
 			jslet.Clipboard.putText(selectedText);
 			window.setTimeout(function(){Z.el.focus();}, 5);

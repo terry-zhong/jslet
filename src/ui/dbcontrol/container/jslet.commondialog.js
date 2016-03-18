@@ -329,18 +329,29 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		this._currFilterExpr = null;
 	},
 	
+	_clearFilterBtnStyle: function() {
+		var jqPanel = jQuery(this._panel);
+		jQuery(this._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', '').removeClass('jl-tbl-filter-hasfilter');
+		jqPanel.find('.jl-filter-panel-clearall').attr('title', '');
+		this._currFilterExpr = null;
+	},
+	
 	checkFilterBtnStyle: function() {
 		var Z = this;
 		if(!Z._currFilterExpr) {
 			return;
 		}
-		var dsFilterExpr = Z._dbtable.dataset().filter();
-		if(dsFilterExpr == Z._currFilterExpr) {
+		var dsHost = Z._dbtable.dataset(),
+			dsFilterExpr = dsHost.filter();
+		if(dsHost.filtered() && dsFilterExpr == Z._currFilterExpr) {
 			return;
 		}
 		Z._clearFilterBtnStyle();
-		var filterText = Z._filterDatasetObj.getFilterExprText();
 		var dsFilter = Z._filterDataset;
+		if(!dsFilterExpr || !dsHost.filtered()) {
+			dsFilter.dataList(null);
+		}
+		var filterText = Z._filterDatasetObj.getFilterExprText();
 		jQuery(Z._dbtable.el).find('button.jl-tbl-filter').each(function(){
 			var fldName = this.getAttribute('jsletfilterfield');
 			var jqFilterBtn = jQuery(this);

@@ -94,7 +94,17 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	displayFields: function(displayFields) {
 		if(displayFields === undefined) {
-			return this._displayFields;
+			var dispFields = this._displayFields;
+			if(dispFields) {
+				return dispFields;
+			} else {
+				var dataset = this._dataset;
+				var dispField = dataset.nameField() || dataset.codeField() || dataset.keyField();
+				if(dispField) {
+					return '[' + dispField + ']';
+				}
+				jslet.Checker.test('DBTreeView.displayFields', dispField).required();
+			}
 		}
 		displayFields = jQuery.trim(displayFields);
 		jslet.Checker.test('DBTreeView.displayFields', displayFields).required().isString();
@@ -260,7 +270,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		var ti = jqEl.attr('tabindex');
 		if (!ti) {
-			jqEl.attr('tabindex', 0);
+			jqEl.attr('tabindex', -1);
 		}
 		jqEl.keydown(function(event){
 			if (Z._doKeydown(event.which)) {
@@ -297,7 +307,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	renderAll: function () {
 		var Z = this,
 			jqEl = jQuery(Z.el);
-		Z.evaluator = new jslet.Expression(Z._dataset, Z._displayFields);
+		Z.evaluator = new jslet.Expression(Z._dataset, Z.displayFields());
 		
 		jqEl.html('');
 		Z.oldWidth = jqEl.width();

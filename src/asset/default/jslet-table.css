@@ -67,7 +67,7 @@
 
 
 .jl-scrollbar-hidden {
-	width: 0;
+	display:none;
 }
 
 .jl-tbl-fixedcol {

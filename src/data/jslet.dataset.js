@@ -5303,7 +5303,12 @@ jslet.data.Dataset.prototype = {
 							text = '';
 						}
 						if(text && dataType === jslet.data.DataType.STRING) {
-							text = text.replace(htmlTagRegarExpr,''); //Get rid of HTML tag
+							var replaceFn = text.replace;
+							if(replaceFn) {
+								text = replaceFn(htmlTagRegarExpr,''); //Get rid of HTML tag
+							} else {
+								text += '';
+							}
 						}
 					}
 					arrRec.push(text);

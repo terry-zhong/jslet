@@ -1240,11 +1240,12 @@ jslet.data.DataSelection.prototype = {
 	 * 
 	 * @return {String}
 	 */
-	getSelectionText: function(seperator) {
+	getSelectionText: function(surround, encodeSpecialData, seperator) {
 		if(!seperator) {
 			seperator = '\t';
 		}
-		var surround='"';
+		surround = surround? surround: '';
+		encodeSpecialData = encodeSpecialData? true: false;
 		var dataset = this._dataset,
 			result = [], 
 			context = dataset.startSilenceMove(),
@@ -1281,7 +1282,7 @@ jslet.data.DataSelection.prototype = {
 								isStartZero = true;
 							}
 							text = surround + text + surround;
-							if(isStartZero || dataType === jslet.data.DataType.DATE) {
+							if(encodeSpecialData && (isStartZero || dataType === jslet.data.DataType.DATE)) {
 								text = '=' + text;
 							}
 						}
@@ -1289,7 +1290,9 @@ jslet.data.DataSelection.prototype = {
 					
 					textRec.push(text); 
 				} //End for
-				result.push(textRec.join(seperator));
+				if(textRec.length > 0) {
+					result.push(textRec.join(seperator));
+				}
 				dataset.next(); 
 			} 
 		} finally { 
