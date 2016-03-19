@@ -156,7 +156,7 @@ jslet.ui.PopupPanel = function () {
 			left += winWidth - left - w - 1;
 		}
 		if(top + h > winHeight) {
-			top -= (h + ajustY);
+			top -= (h + 2 + ajustY);
 		}
 		if(left < 0) {
 			left = 1;

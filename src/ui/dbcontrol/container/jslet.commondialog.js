@@ -124,6 +124,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 		var dlgEl = _dialog.el;
 
 		var jqFindingValue = jQuery(dlgEl).find('.jl-finddlg-value');
+		var isStart = true;
 		jqFindingValue.on('keydown', function(event){
 			if(event.keyCode === jslet.ui.KeyCode.ENTER) {
 				findData();
@@ -131,6 +132,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 				event.preventDefault();
 				return false;
 			}
+			isStart = true;
 		});
 		
 		var jqFind = jQuery(dlgEl).find('.jl-finddlg-find');
@@ -138,18 +140,24 @@ jslet.ui.FindDialog = function (dbContainer) {
 			findData();
 		});
 
-		var isStart = false;
 		function findData() {
 			if(_dataset.recordCount() < 2) {
 				return;
 			}
-			var found = _dataset.findByField(_findingField, jqFindingValue.val(), true, true, 'any');
-			if(!found && !isStart) {
-				isStart = true;
-				_dataset.findByField(_findingField, jqFindingValue.val(), false, true, 'any');
-				return;
+			var findingValue = jqFindingValue.val(),
+				currRecno = 0;
+			if(!isStart) {
+				currRecno = _dataset.recno() + 1;
 			}
-			isStart = false;
+			_findingField = "name,workerid"
+			var found = _dataset.findByField(_findingField, findingValue, currRecno, true, 'any');
+			isStart = !found;
+			if(!found) {
+				if(currRecno > 0) { //If not found, find from the first position.
+					findData();
+				}
+			}
+			return found;
 		}
 	}
 	

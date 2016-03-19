@@ -3792,7 +3792,8 @@ jslet.data.Dataset.prototype = {
 		}
 		var invalidMsg = Z._fieldValidator.checkInputText(fldObj, inputText);
 		if (invalidMsg) {
-			Z.setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
+			var fldName = fldObj.name();
+			Z.setFieldError(fldName, invalidMsg, valueIndex, inputText);
 			var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 			Z.refreshControl(evt);
 			return undefined;
@@ -3884,21 +3885,25 @@ jslet.data.Dataset.prototype = {
 	},
 
 	/**
-	 * Find record with specified field name and value
+	 * Find record with specified field name and value. If found, move cursor the found record.
 	 * 
-	 * @param {String} fldName - field name
+	 * <pre><code>
+	 *   dsFoo.findByField('name', 'Tom'); // return true
+	 *   dsFoo.findByField('id,name', '5');
+	 *   dsFoo.findByField('id,name', 'Jack');
+	 *   dsFoo.findByField(['id', 'name'], '7');
+	 *   
+	 * </code></pre>
+	 * 
+	 * @param {String} fieldNameOrFieldArray - field name or field name array.
 	 * @param {Object} findingValue - finding value
-	 * @param {Boolean} fromCurrentPosition Identify whether finding data from current position or not.
+	 * @param {Boolean} startRecno start position to find value.
 	 * @param {Boolean} findingByText - Identify whether finding data with field text, default is with field value
 	 * @param {String} matchType null or undefined - match whole value, 'first' - match first, 'last' - match last, 'any' - match any
 	 * @return {Boolean} 
 	 */
-	findByField: function (fldName, findingValue, fromCurrentPosition, findingByText, matchType) {
-		var Z = this,
-			fldObj = Z.getField(fldName);
-		if(!fldObj) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
-		}
+	findByField: function (fieldNameOrFieldArray, findingValue, startRecno, findingByText, matchType) {
+		var Z = this;
 		Z.confirm();
 		
 		function matchValue(matchType, value, findingValue) {
@@ -3916,69 +3921,54 @@ jslet.data.Dataset.prototype = {
 			}
 		}
 		
-		var byText = true;
-		if(fldObj.getType() === 'N' && !fldObj.lookup()) {
-			byText = false;
+		var records = Z._ignoreFilter? Z.dataList(): Z.filteredDataList();
+		if(records.length === 0) {
+			return false;
 		}
-		var value, i;
-		if(Z._ignoreFilter) {
-			if(!Z.hasData()) {
-				return false;
+		
+		var fields = fieldNameOrFieldArray;
+		if(jslet.isString(fieldNameOrFieldArray)) {
+			fields = fieldNameOrFieldArray.split(',');
+		}
+		var byTextArray = [],
+			fldCnt = fields.length,
+			fldName, fldObj;
+		for(var i = 0; i < fldCnt; i++) {
+			fldName = fields[i];
+			fldObj = Z.getField(fldName);
+			if(!fldObj) {
+				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
-			var records = Z.dataList(),
-				len = records.length,
-				dataRec;
-			var start = 0;
-			if(fromCurrentPosition) {
-				var currRec = Z.getRecord();
-				if(Z._lastFindingValue && Z._lastFindingValue === findingValue) {
-					start = records.indexOf(currRec) + 1;
-				}
-				Z._lastFindingValue = findingValue;
+			var byText = true;
+			if(fldObj.getType() === 'N' && !fldObj.lookup()) {
+				byText = false;
 			}
-			for(i = start; i < len; i++) {
-				dataRec = records[i];
-				if(findingByText && byText) {
+			byTextArray[i] = byText;
+		}
+		var start = !Z._ignoreFilter && startRecno? startRecno: 0;
+		var dataRec, foundRecno = -1, value;
+		for(var i = start, len = records.length; i < len; i++) {
+			dataRec = records[i];
+			
+			for(var j = 0; j < fldCnt; j++) {
+				fldName = fields[j];
+				if(findingByText && byTextArray[j]) {
 					value = Z.getFieldTextByRecord(dataRec, fldName);
 				} else {
 					value = Z.getFieldValueByRecord(dataRec, fldName);
 				}
 				if (matchValue(matchType, value, findingValue)) {
-					Z._ignoreFilterRecno = i;
-					return true;
-				}
-			}
-			return false;
-		}
-		if (Z.recordCount() === 0) {
-			return false;
-		}
-
-		var foundRecno = -1, oldRecno = Z.recno();
-		try {
-			var cnt = Z.recordCount(),
-				start = 0;
-			if(fromCurrentPosition) {
-				start = Z.recno();
-				if(Z._lastFindingValue && Z._lastFindingValue === findingValue) {
-					start =  Z.recno() + 1;
-				}
-				Z._lastFindingValue = findingValue;
-			}
-			for (i = start; i < cnt; i++) {
-				Z.recnoSilence(i);
-				if(findingByText && byText) {
-					value = Z.getFieldText(fldName);
-				} else {
-					value = Z.getFieldValue(fldName);
-				}
-				if (matchValue(matchType, value, findingValue)) {
-					foundRecno = Z._recno;
+					foundRecno = i;
+					if(Z._ignoreFilter) { // Only used in value converting, so does not need to move cursor.
+						Z._ignoreFilterRecno = i;
+						return true;
+					}
 					break;
 				}
 			}
-		} finally {
-			Z.recnoSilence(oldRecno);
+			if(foundRecno >= 0) {
+				break;
+			}
 		}
 		if (foundRecno >= 0) {// can fire scroll event
 			Z._gotoRecno(foundRecno);

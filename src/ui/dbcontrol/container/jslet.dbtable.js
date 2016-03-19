@@ -916,32 +916,34 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         });
 
 		jqEl.on('keydown', function (event) {
-			var keyCode = event.which;
-			
-			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.F) { //ctrl + f
+			var keyCode = event.which,
+				ctrlKey = event.ctrlKey,
+				shiftKey = event.shiftKey,
+				altKey = event.altKey;
+			if(Z._hasFindDialog && ctrlKey && keyCode === jslet.ui.KeyCode.F) { //ctrl + f
 				Z.showFindDialog();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.E) { //ctrl + e
+			if(ctrlKey && keyCode === jslet.ui.KeyCode.E) { //ctrl + e
 				Z.gotoNextError();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
-			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
+			if(ctrlKey && keyCode === jslet.ui.KeyCode.C) { //ctrl + c
 				Z.copySelection(false);
 				return;
 			}
-			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.A) { //ctrl + a
+			if(ctrlKey && keyCode === jslet.ui.KeyCode.A) { //ctrl + a
 				Z.selectAllCells();
 				event.preventDefault();
 	       		event.stopImmediatePropagation();
 				return false;
 			}
 			var isTabKey = (keyCode === jslet.ui.KeyCode.TAB || keyCode === jslet.global.defaultFocusKeyCode);
-			if(event.shiftKey && isTabKey) { //Shift TAB Left
+			if(shiftKey && isTabKey) { //Shift TAB Left
 				if(!Z.tabPrior()) {
 					return;
 				}
@@ -950,15 +952,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					return;
 				}
 			} else if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
-				Z.movePriorCell();
+				Z.movePriorCell(ctrlKey, shiftKey, altKey);
 			} else if( keyCode === jslet.ui.KeyCode.RIGHT) { //Arrow Right
-				Z.moveNextCell();
+				Z.moveNextCell(ctrlKey, shiftKey, altKey);
 			} else if (keyCode === jslet.ui.KeyCode.UP) {//KEY_UP
-				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+				Z._doBeforeSelect(ctrlKey, shiftKey, altKey);
 				Z.listvm.priorRow();
-				Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+				Z._processSelection(ctrlKey, shiftKey, altKey);
 			} else if (keyCode === jslet.ui.KeyCode.DOWN) {//KEY_DOWN
-				Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+				Z._doBeforeSelect(ctrlKey, shiftKey, altKey);
 				Z.listvm.nextRow();
 			} else if (keyCode === jslet.ui.KeyCode.PAGEUP) {//KEY_PAGEUP
 				Z.listvm.priorPage();
@@ -1174,7 +1176,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		return true;
 	},
 	
-	movePriorCell: function() {
+	movePriorCell: function(ctrlKey, shiftKey, altKey) {
 		var Z = this,
 			lastColNum = Z.innerColumns.length - 1,
 			num;
@@ -1189,9 +1191,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else {
 			num = Z._currColNum - 1;
 		}
-		Z._doBeforeSelect(event.ctrlKey, event.shiftKey, event.altKey);
+		Z._doBeforeSelect(ctrlKey, shiftKey, altKey);
 		Z.currColNum(num);
-		Z._processSelection(event.ctrlKey, event.shiftKey, event.altKey);
+		Z._processSelection(ctrlKey, shiftKey, altKey);
 	},
 	
 	moveNextCell: function() {

@@ -316,8 +316,17 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = Z.lookupDs();
 
-		var template = ['<div class="jl-combopnl-tip" style="display:none">Can not select this item</div><div class="jl-combopnl-head"><div class="col-xs-12 jl-nospacing">',
-		                '<input class="form-control" type="text" size="20"></input></div></div>',
+		var template = ['<div class="jl-combopnl-tip" style="display:none">Can not select this item</div>',
+		                '<div class="jl-combopnl-head"><label class="col-xs-3"></label>',
+		                '<div class="col-xs-9 input-group input-group-sm">',
+		                
+		                '<input class="form-control" type="text" size="20"></input>',
+		                '<span class="input-group-btn">',
+		                '<button class="jl-combopnl-search btn btn-secondary" type="button"><i class="fa fa-search"></i></button>',
+		                '<button class="jl-combopnl-closesearch btn btn-secondary" type="button"><i class="fa fa-times"></i></button>',
+		                '</span>',
+		                '</div></div>',
+		              
 			'<div class="jl-combopnl-content',
 			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
 			'"></div>',
@@ -331,13 +340,25 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var jqPanel = jQuery(Z.panel),
 			jqPh = jqPanel.find('.jl-combopnl-head');
 		jqPanel.on('keydown', function(event){
-			if(event.keyCode === jslet.ui.KeyCode.ESCAPE) {
+			var keyCode = event.which;
+			console.log(keyCode)
+			if(keyCode === jslet.ui.KeyCode.ESCAPE) {
 				Z.closePopup();
+			}
+			if(event.ctrlKey && keyCode === jslet.ui.KeyCode.F) {
+				jqPanel.find('.jl-combopnl-head').slideDown();
+				Z.searchBoxEle.focus();
+				event.preventDefault();
+	       		event.stopImmediatePropagation();
+				return false;
 			}
 		});
 		Z.searchBoxEle = jqPh.find('input')[0];
 		jQuery(Z.searchBoxEle).on('keydown', jQuery.proxy(Z._findData, Z));
 		
+		jqPanel.find('.jl-combopnl-closesearch').click(function() {
+			jqPanel.find('.jl-combopnl-head').slideUp();
+		});
 		var jqContent = jqPanel.find('.jl-combopnl-content');
 		if (Z.isMultiple()) {
 			jqContent.addClass('jl-combopnl-content-nofooter').removeClass('jl-combopnl-content-nofooter');
@@ -349,7 +370,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		} else {
 			jqContent.addClass('jl-combopnl-content-nofooter');
 		}
-
 		var contentPanel = jqContent[0];
 
 		//create popup content
