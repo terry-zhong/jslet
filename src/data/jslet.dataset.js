@@ -683,14 +683,17 @@ jslet.data.Dataset.prototype = {
 	 * @param {String[]} fieldNameArray array of field name
 	 */
 	setVisibleFields: function(fieldNameArray) {
+		if(!fieldNameArray) {
+			return;
+		}
+		if(jslet.isString(fieldNameArray)) {
+			fieldNameArray = fieldNameArray.split(',');
+		}
 		jslet.Checker.test('Dataset.setVisibleFields#fieldNameArray', fieldNameArray).isArray();
 		this._travelField(this._fields, function(fldObj) {
 			fldObj.visible(false);
 			return false; //Identify if cancel traveling or not
 		});
-		if(!fieldNameArray) {
-			return;
-		}
 		for(var i = 0, len = fieldNameArray.length; i < len; i++) {
 			var fldName = jQuery.trim(fieldNameArray[i]);
 			var fldObj = this.getField(fldName);
@@ -3709,7 +3712,7 @@ jslet.data.Dataset.prototype = {
 		if(!convert) {
 			throw new Error('Can\'t find any field value converter!');
 		}
-		var text = convert.valueToText.call(Z, fldObj, value, isEditing);
+		var text = convert.valueToText(fldObj, value, isEditing);
 		//Put display value into cache
 		if(!isEditing) {
 			jslet.data.FieldValueCache.put(currRec, fldName, text, valueIndex);
@@ -3750,10 +3753,6 @@ jslet.data.Dataset.prototype = {
 		var fType = fldObj.getType();
 		if (fType == jslet.data.DataType.DATASET) {
 			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
-		}
-		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
-		if(!convert) {
-			throw new Error('Can\'t find any field value converter!');
 		}
 		
 		var value = Z._textToValue(fldObj, inputText, valueIndex);
@@ -3802,7 +3801,10 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
-		var value = convert.textToValue.call(Z, fldObj, inputText, valueIndex);
+		if(!convert) {
+			throw new Error('Can\'t find any field value converter!');
+		}
+		var value = convert.textToValue(fldObj, inputText, valueIndex);
 		return value;
 	},
 	
@@ -4219,61 +4221,6 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 	
-	/**
-	 * @private
-	 */
-	_convertFieldValue: function (srcField, srcValues, destFields) {
-		var Z = this;
-
-		if (destFields === null) {
-			throw new Error('NOT set destFields in method: ConvertFieldValue');
-		}
-		var isExpr = destFields.indexOf('[') > -1;
-		if (isExpr) {
-			if (destFields != Z._convertDestFields) {
-				Z._innerConvertDestFields = new jslet.Expression(this,
-						destFields);
-				Z._convertDestFields = destFields;
-			}
-		}
-		if (typeof (srcValues) != 'string') {
-			srcValues += '';
-		}
-		var separator = jslet.global.valueSeparator;
-		var values = srcValues.split(separator), valueCnt = values.length - 1;
-		Z._ignoreFilter = true;
-		try {
-			if (valueCnt === 0) {
-				if (!Z.findByField(srcField, values[0])) {
-					return null;
-				}
-				if (isExpr) {
-					return Z._innerConvertDestFields.eval();
-				} else {
-					return Z.getFieldValue(destFields);
-				}
-			}
-	
-			var fldcnt, destValue = '';
-			for (var i = 0; i <= valueCnt; i++) {
-				if (!Z.findByField(srcField, values[i])) {
-					return null;
-				}
-				if (isExpr) {
-					destValue += Z._innerConvertDestFields.eval();
-				} else {
-					destValue += Z.getFieldValue(destFields);
-				}
-				if (i != valueCnt) {
-					destValue += separator;
-				}
-			}
-			return destValue;
-		} finally {
-			Z._ignoreFilter = false;
-		}
-	},
-
 	/**
 	 * Set or get context rule
 	 * 
@@ -5295,7 +5242,7 @@ jslet.data.Dataset.prototype = {
 						if(text && dataType === jslet.data.DataType.STRING) {
 							var replaceFn = text.replace;
 							if(replaceFn) {
-								text = replaceFn(htmlTagRegarExpr,''); //Get rid of HTML tag
+								text = replaceFn.call(text, htmlTagRegarExpr, ''); //Get rid of HTML tag
 							} else {
 								text += '';
 							}

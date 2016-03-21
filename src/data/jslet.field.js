@@ -434,19 +434,27 @@ jslet.data.Field.prototype = {
 	 * @return {Integer}
 	 */
 	getEditLength: function () {
-		var Z = this;
-		var lkObj = Z.lookup();
+		var Z = this,
+			lkObj = Z.lookup(),
+			len = Z.length();
 		if (lkObj) {
-			var codeFld = lkObj.codeField();
-			var lkds = lkObj.dataset();
+			var codeFld = lkObj.codeField(),
+				nameFld = lkObj.nameField(),
+				lkds = lkObj.dataset();
 			if (lkds && codeFld) {
 				var lkf = lkds.getField(codeFld);
 				if (lkf) {
-					return lkf.getEditLength();
+					len = lkf.getEditLength();
 				}
+				if(nameFld) {
+					lkf = lkds.getField(nameFld);
+					if(lkf) {
+						len = Math.max(len, lkf.getEditLength());
+					}
+				}
+				return len;
 			}
 		}
-		var len = Z.length();
 		if(Z.getType() === jslet.data.DataType.NUMBER && Z.scale() > 0) {
 			return len + 1; // 1 for decimal point
 		}

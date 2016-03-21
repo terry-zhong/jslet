@@ -124,7 +124,7 @@
 	};
 	
 	locale.DBComboSelect = { 
-		find: 'Find: ',
+		find: 'Press Ctrl + F to find data!',
 		cannotSelect: 'Cannot select this item.'
 	};
 	

@@ -149,7 +149,6 @@ jslet.ui.FindDialog = function (dbContainer) {
 			if(!isStart) {
 				currRecno = _dataset.recno() + 1;
 			}
-			_findingField = "name,workerid"
 			var found = _dataset.findByField(_findingField, findingValue, currRecno, true, 'any');
 			isStart = !found;
 			if(!found) {

@@ -468,15 +468,15 @@ jslet.data.NumberValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 	},
 
 	valueToText: function(fldObj, value, isEditing) {
-		var Z = this;
+		var dataset = fldObj.dataset();
 		if (fldObj.unitConverted()) {
-			value = value * Z._unitConvertFactor;
+			value = value * dataset._unitConvertFactor;
 		}
 
 		if (!isEditing) {
 			var rtnText = jslet.formatNumber(value, fldObj.displayFormat());
-			if (fldObj.unitConverted() && Z._unitName) {
-				rtnText += Z._unitName;
+			if (fldObj.unitConverted() && dataset._unitName) {
+				rtnText += dataset._unitName;
 			}
 			return rtnText;
 		} else {
@@ -531,32 +531,93 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 		}
 		var value = '',
 			lkFldObj = fldObj.lookup(),
-			lkDs = lkFldObj.dataset();
+			dsLookup = lkFldObj.dataset(),
+			keyFldName = lkFldObj.keyField(),
+			codeFldName = lkFldObj.codeField(),
+			nameFldName = lkFldObj.nameField();
 		
-		value = lkDs._convertFieldValue(
-				lkFldObj.codeField(), inputText, lkFldObj.keyField());
+		value = this._convertFieldValue(dsLookup, codeFldName, inputText, keyFldName);
 		if (value === null) {
-			var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
-			fldObj.dataset().setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
-			lkDs.first();
-			return undefined;
+			if(nameFldName !== codeFldName) {
+				value = this._convertFieldValue(dsLookup, nameFldName, inputText, keyFldName);
+			}
+			if (value === null) {
+				var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
+				fldObj.dataset().setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
+				dsLookup.first();
+				return undefined;
+			}
 		}
 		return value;
 	},
 	
 	valueToText: function(fldObj, value, isEditing) {
 		var lkFldObj = fldObj.lookup(),
-			lkds = lkFldObj.dataset(),
+			dsLookup = lkFldObj.dataset(),
 			result;
 		if (!isEditing) {
-			result = lkds._convertFieldValue(lkFldObj.keyField(), value,
+			result = this._convertFieldValue(dsLookup, lkFldObj.keyField(), value,
 					lkFldObj.displayFields());
 		} else {
-			result = lkds._convertFieldValue(lkFldObj.keyField(), value, 
+			result = this._convertFieldValue(dsLookup, lkFldObj.keyField(), value, 
 					'[' + lkFldObj.codeField() + ']');
 		}
 		return result;
+	},
+	
+	/**
+	 * @private
+	 */
+	_convertFieldValue: function (dsLookup, srcField, srcValues, destFields) {
+		if (destFields === null) {
+			throw new Error('NOT set destFields in method: ConvertFieldValue');
+		}
+		var isExpr = destFields.indexOf('[') > -1;
+		if (isExpr) {
+			if (destFields != dsLookup._convertDestFields) {
+				dsLookup._innerConvertDestFields = new jslet.Expression(dsLookup,
+						destFields);
+				dsLookup._convertDestFields = destFields;
+			}
+		}
+		if (typeof (srcValues) != 'string') {
+			srcValues += '';
+		}
+		var separator = jslet.global.valueSeparator;
+		var values = srcValues.split(separator), valueCnt = values.length - 1;
+		dsLookup._ignoreFilter = true;
+		try {
+			if (valueCnt === 0) {
+				if (!dsLookup.findByField(srcField, values[0])) {
+					return null;
+				}
+				if (isExpr) {
+					return dsLookup._innerConvertDestFields.eval();
+				} else {
+					return dsLookup.getFieldValue(destFields);
+				}
+			}
+	
+			var fldcnt, destValue = '';
+			for (var i = 0; i <= valueCnt; i++) {
+				if (!dsLookup.findByField(srcField, values[i])) {
+					return null;
+				}
+				if (isExpr) {
+					destValue += dsLookup._innerConvertDestFields.eval();
+				} else {
+					destValue += dsLookup.getFieldValue(destFields);
+				}
+				if (i != valueCnt) {
+					destValue += separator;
+				}
+			}
+			return destValue;
+		} finally {
+			dsLookup._ignoreFilter = false;
+		}
 	}
+	
 });
 
 jslet.data._valueConverters = {};

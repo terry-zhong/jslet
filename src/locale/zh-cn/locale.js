@@ -125,7 +125,7 @@
 	};
 
 	locale.DBComboSelect = { 
-		find: '查找',
+		find: '按Ctrl+F查找数据!',
 		cannotSelect: '不能选择此项！'
 	};
 

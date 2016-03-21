@@ -285,7 +285,8 @@ jslet.ui.DBComboSelectPanel.prototype = {
 //		}
 		Z.popup.setContent(Z.panel, '100%', '100%');
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
-		jQuery(Z.panel).find(".jl-combopnl-head input").focus();
+		Z._showTips(jslet.locale.DBComboSelect.find);
+		Z._focus();
 	},
 
 	closePopup: function () {
@@ -358,6 +359,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		
 		jqPanel.find('.jl-combopnl-closesearch').click(function() {
 			jqPanel.find('.jl-combopnl-head').slideUp();
+			Z._focus();
 		});
 		var jqContent = jqPanel.find('.jl-combopnl-content');
 		if (Z.isMultiple()) {
@@ -441,13 +443,13 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		}
 		var Z = this;
 		var findFldName = Z.comboSelectObj.searchField, 
-			findValue = this.searchBoxEle.value;
-		if (!findValue) {
+			findingValue = this.searchBoxEle.value;
+		if (!findingValue) {
 			return;
 		}
 		var eventFunc = jslet.getFunction(Z.comboSelectObj.onGetSearchField);
 		if (eventFunc) {
-			findFldName = eventFunc.call(findValue);
+			findFldName = eventFunc.call(findingValue);
 		}
 		var findFldNames = null;
 		if(!findFldName) {
@@ -462,23 +464,37 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			findFldNames = findFldName.split(',');
 		}
 		if(!findFldNames || findFldNames.length === 0) {
-			console.warn('Search field NOT specified! Can\'t search data!')
+			console.warn('Search field NOT specified! Can\'t search data!');
 			return;
 		}
-		var lkds = Z.lookupDs(), fldObj;
-		for(var i = 0, len = findFldNames.length; i < len; i++) {
-			findFldName = findFldNames[i];
-			fldObj = lkds.getField(findFldName);
-			if(!fldObj) {
-				console.warn('Field Name: ' + findFldName + ' NOT exist!');
-				return;
-			}
-			if(lkds.find('like([' + findFldName + '],"%' + findValue + '%")')) {
-				break;
-			}
+		var lkds = Z.lookupDs();
+		var	currRecno = lkds.recno() + 1;
+		var found = lkds.findByField(findFldNames, findingValue, currRecno, true, 'any');
+		if(!found) {
+			lkds.findByField(findFldNames, findingValue, 0, true, 'any');
 		}
+		return;
+		
 	},
 
+	_focus: function() {
+		var Z = this;
+		window.setTimeout(function(){
+			var dbCtrl = Z.otable || Z.otree;
+			if(dbCtrl) {
+				dbCtrl.el.focus();
+			}
+		}, 10);
+	},
+	
+	_showTips: function (tips) {
+		var jqPanel = jQuery(this.panel);
+		jqPanel.find('.jl-combopnl-tip').html(tips).slideDown();
+		window.setTimeout(function() {
+			jqPanel.find('.jl-combopnl-tip').slideUp();
+		}, 1500);
+	},
+	
 	_confirmSelect: function () {
 		var Z = this;
 		var fldValue = Z.comboSelectObj.getValue(),
@@ -488,11 +504,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			lookupDs = Z.lookupDs();
 		
 		if(!lookupDs.checkSelectable()) {
-			var jqPanel = jQuery(Z.panel);
-			jqPanel.find('.jl-combopnl-tip').html(jslet.locale.DBComboSelect.cannotSelect).slideDown();
-			window.setTimeout(function() {
-				jqPanel.find('.jl-combopnl-tip').slideUp();
-			}, 2000);
+			Z._showTips(jslet.locale.DBComboSelect.cannotSelect);
 			return;
 		}
 		if (isMulti) {
