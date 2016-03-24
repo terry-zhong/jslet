@@ -153,9 +153,9 @@
 }
  
 .jl-cal-disable a{
-    color: #bbb;!important
+    color: #bbb!important;
 }
 
 .jl-cal-disable a:hover {
-    background-color: rgb(245, 245, 245);!important
+    background-color: rgb(245, 245, 245)!important;
 }

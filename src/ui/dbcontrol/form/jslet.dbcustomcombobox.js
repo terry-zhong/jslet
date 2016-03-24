@@ -47,11 +47,11 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('input-group')) {
-			jqEl.addClass('input-group');
+			jqEl.addClass('input-group input-group-sm');
 		}
 		var btnCls = Z.comboButtonCls ? Z.comboButtonCls:'fa-caret-down'; 
 		var s = '<input type="text" class="form-control">' + 
-    	'<div class="input-group-btn"><button class="btn btn-default btn-sm" tabindex="-1"><i class="fa ' + btnCls + '"></i></button></div>'; 
+    	'<span class="input-group-btn jl-comb-btn-group"><button class="btn btn-default btn-sm " tabindex="-1"><i class="fa ' + btnCls + '"></i></button></span>'; 
 		jqEl.html(s);
 		var dbtext = jqEl.find('[type="text"]')[0];
 		Z.textCtrl = new jslet.ui.DBText(dbtext, {
@@ -64,7 +64,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 		});
 		jQuery(dbtext).on('keydown', function(event) {
 			var keyCode = event.which;
-			if(keyCode === jslet.ui.KeyCode.BACkSPACE && !this.value) {
+			if(keyCode === jslet.ui.KeyCode.BACKSPACE && !this.value) {
 				Z.buttonClick();
 			};
 		});

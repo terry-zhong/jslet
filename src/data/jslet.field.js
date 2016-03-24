@@ -1172,40 +1172,52 @@ jslet.data.Field.prototype = {
 	 * @param {jslet.data.FieldLookup or undefined} lkFld lookup field Object.
 	 * @return {jslet.data.FieldLookup or this}
 	 */
-	lookup: function (lkFldObj) {
+	lookup: function (lookupObj) {
 		var Z = this;
-		if (lkFldObj === undefined){
+		if (lookupObj === undefined){
 			if(Z._dataType == jslet.data.DataType.PROXY) {
 				return Z._getProxyPropValue('lookup');
 			}
 			return Z._lookup;
 		}
-		jslet.Checker.test('Field.lookup', lkFldObj).isClass(jslet.data.FieldLookup.className);		
+		jslet.Checker.test('Field.lookup', lookupObj).isClass(jslet.data.FieldLookup.className);		
 		Z._removeRelation();
 		
 		if(Z._dataType == jslet.data.DataType.PROXY) {
-			Z._setProxyPropValue('lookup', lkFldObj);
+			Z._setProxyPropValue('lookup', lookupObj);
 		} else {
-			Z._lookup = lkFldObj;
+			Z._lookup = lookupObj;
 		}
-		if(lkFldObj) {
-			lkFldObj.hostField(Z);
+		if(lookupObj) {
+			lookupObj.hostField(Z);
 			Z._addRelation();
 		}
 		Z._clearFieldCache();		
 		Z._fireColumnUpdatedEvent();
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 	
+	/**
+	 * Fire lookup setting changed event.
+	 */
+	_fireLookupChangedEvent: function() {
+		var Z = this;
+		if(!Z._dataset) {
+			return;
+		}
+		var fldName = this.name();
+		var lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName, true);
+		this._dataset.refreshControl(lookupEvt);
+	},
+
 	_getDatasetName: function(dsObjOrName) {
 		return jslet.isString(dsObjOrName)? dsObjOrName: dsObjOrName.name();
 	},
 
 	/**
-	 * Set or get sub dataset.
-	 * 
-	 * @param {jslet.data.Dataset or undefined} subdataset
-	 * @return {jslet.data.Dataset or this}
+	 * @deprecated
+	 * Use detailDataset instead.
 	 */
 	subDataset: function (subDataset) {
 		return this.detailDataset(subDataset);
@@ -2120,6 +2132,17 @@ jslet.data.FieldLookup.prototype = {
 	},
 	
 	/**
+	 * Fire lookup setting changed event.
+	 */
+	_fireLookupChangedEvent: function() {
+		var Z = this;
+		if(!Z._hostField) {
+			return;
+		}
+		Z._hostField._fireLookupChangedEvent();
+	},
+
+	/**
 	 * Get or set lookup dataset.
 	 * 
 	 * @param {jslet.data.Dataset or undefined} dataset Lookup dataset.
@@ -2157,6 +2180,7 @@ jslet.data.FieldLookup.prototype = {
 		if(lkDsObj) {
 			Z._dataset = lkDsObj;
 			Z._dsParsed = true;
+			Z._fireLookupChangedEvent();
 		} else {
 			Z._dataset = lkdataset;
 			Z._dsParsed = false;
@@ -2197,6 +2221,7 @@ jslet.data.FieldLookup.prototype = {
 
 		jslet.Checker.test('FieldLookup.keyField', keyFldName).isString();
 		Z._keyField = jQuery.trim(keyFldName);
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 
@@ -2215,6 +2240,7 @@ jslet.data.FieldLookup.prototype = {
 
 		jslet.Checker.test('FieldLookup.codeField', codeFldName).isString();
 		Z._codeField = jQuery.trim(codeFldName);
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 	
@@ -2226,6 +2252,7 @@ jslet.data.FieldLookup.prototype = {
 
 		jslet.Checker.test('FieldLookup.codeFormat', format).isString();
 		Z._codeFormat = jQuery.trim(format);
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 
@@ -2244,6 +2271,7 @@ jslet.data.FieldLookup.prototype = {
 
 		jslet.Checker.test('FieldLookup.nameField', nameFldName).isString();
 		Z._nameField = jQuery.trim(nameFldName);
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 
@@ -2262,6 +2290,7 @@ jslet.data.FieldLookup.prototype = {
 
 		jslet.Checker.test('FieldLookup.parentField', parentFldName).isString();
 		Z._parentField = jQuery.trim(parentFldName);
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 
@@ -2285,6 +2314,7 @@ jslet.data.FieldLookup.prototype = {
 				Z._hostField._clearFieldCache();
 			}
 		}
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 	
@@ -2351,6 +2381,7 @@ jslet.data.FieldLookup.prototype = {
 			return Z._onlyLeafLevel;
 		}
 		Z._onlyLeafLevel = flag ? true: false;
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 
@@ -2373,6 +2404,7 @@ jslet.data.FieldLookup.prototype = {
 		if (Z._editFilter != editFilter) {
 			Z._editFilter = editFilter;
 		}
+		Z._fireLookupChangedEvent();
 		return this;
 	},
 	
@@ -2390,6 +2422,7 @@ jslet.data.FieldLookup.prototype = {
 		}
 		
 		Z._editItemDisabled = editItemDisabled? true: false;
+		Z._fireLookupChangedEvent();
 		return this;
 	}
 	

@@ -678,16 +678,15 @@ jslet.ui.InputSettingDialog.prototype = {
 	show: function(hostDataset) {
 		jslet.Checker.test('InputSettingDialog.show#hostDataset', hostDataset).required();
 		var Z = this;
-		if(hostDataset !== Z._hostDataset) {
-			Z._hostDataset = hostDataset;
-			Z._isInit = true;
-			Z._inputSettingDs.disableControls();
-			try {
-				Z._initializeFields();
-			} finally {
-				Z._isInit = false;
-				Z._inputSettingDs.enableControls();
-			}
+		Z._hostDataset = hostDataset;
+		Z._isInit = true;
+		Z._settings = null;
+		Z._inputSettingDs.disableControls();
+		try {
+			Z._initializeFields();
+		} finally {
+			Z._isInit = false;
+			Z._inputSettingDs.enableControls();
 		}
 		var creating = false;
 		if(!Z._dlgId) {

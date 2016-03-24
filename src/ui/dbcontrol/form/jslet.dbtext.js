@@ -169,7 +169,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 			Z.updateToDataset();
 		}
 		var fldObj = Z._dataset.getField(Z._field);
-		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode === K.BACkSPACE || keyCode === K.DELETE)) {
+		if (!fldObj.readOnly() && !fldObj.disabled() && (keyCode === K.BACKSPACE || keyCode === K.DELETE)) {
 			Z._dataset.editRecord();
 		}
 		if(keyCode === K.LEFT || keyCode === K.RIGHT) { //Arrow-left, Arrow-right

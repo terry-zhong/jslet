@@ -199,13 +199,26 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	/**
 	 * @override
 	 */
-	destroy: function($super){
+	doLookupChanged: function (isMetaChanged) {
+		if(isMetaChanged) {
+			this._destroyPopPanel();
+		}
+	},
+	
+	_destroyPopPanel: function() {
 		var Z = this;
 		if (Z._contentPanel){
 			Z._contentPanel.destroy();
 			Z._contentPanel = null;
 		}
-		jslet.ui.PopupPanel.excludedElement = null;
+		jslet.ui.PopupPanel.excludedElement = null;		
+	},
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		this._destroyPopPanel();
 		$super();
 	}
 });
@@ -317,11 +330,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			showType = Z.showStyle.toLowerCase(),
 			lkds = Z.lookupDs();
 
-		var template = ['<div class="jl-combopnl-tip" style="display:none">Can not select this item</div>',
-		                '<div class="jl-combopnl-head"><label class="col-xs-3"></label>',
-		                '<div class="col-xs-9 input-group input-group-sm">',
+		var template = ['<div class="jl-combopnl-tip" style="display:none"></div>',
+		                '<div class="jl-combopnl-head"><label class="col-xs-4"></label>',
+		                '<div class="col-xs-8 input-group input-group-sm">',
 		                
-		                '<input class="form-control" type="text" size="20"></input>',
+		                '<input class="form-control" type="text" size="10"></input>',
 		                '<span class="input-group-btn">',
 		                '<button class="jl-combopnl-search btn btn-secondary" type="button"><i class="fa fa-search"></i></button>',
 		                '<button class="jl-combopnl-closesearch btn btn-secondary" type="button"><i class="fa fa-times"></i></button>',
@@ -342,7 +355,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			jqPh = jqPanel.find('.jl-combopnl-head');
 		jqPanel.on('keydown', function(event){
 			var keyCode = event.which;
-			console.log(keyCode)
 			if(keyCode === jslet.ui.KeyCode.ESCAPE) {
 				Z.closePopup();
 			}
@@ -386,7 +398,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			};
 
 			if (!Z.isMultiple()) {
-				treeparam.onItemDblClick = jQuery.proxy(Z._confirmSelect, Z);
+				treeparam.onItemClick = jQuery.proxy(Z._confirmSelect, Z);
 			}
 			treeparam.correlateCheck = Z.comboSelectObj.correlateCheck();
 			window.setTimeout(function(){
@@ -396,7 +408,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, 
 					hasFindDialog: false, hasFilterDialog: false };
 			if (!Z.isMultiple()) {
-				tableparam.onRowDblClick = jQuery.proxy(Z._confirmSelect, Z);
+				tableparam.onRowClick = jQuery.proxy(Z._confirmSelect, Z);
 			}
 			window.setTimeout(function(){
 				Z.otable = jslet.ui.createControl(tableparam, contentPanel, '100%', '100%');

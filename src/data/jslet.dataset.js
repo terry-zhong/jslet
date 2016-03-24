@@ -3924,7 +3924,7 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		var records = Z._ignoreFilter? Z.dataList(): Z.filteredDataList();
-		if(records.length === 0) {
+		if(!records || records.length === 0) {
 			return false;
 		}
 		
@@ -4410,16 +4410,13 @@ jslet.data.Dataset.prototype = {
 			for (var i = 0, cnt = Z.recordCount(); i < cnt; i++) {
 				Z.recnoSilence(i);
 
-				if (onSelectAll) {
-					var flag = onSelectAll(this, selected);
-					if (flag !== undefined && !flag) {
-						continue;
-					}
-				}
 				Z.selected(selected);
 			}
 		} finally {
 			Z.recnoSilence(oldRecno);
+		}
+		if (onSelectAll) {
+			onSelectAll(this, selected);
 		}
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERSELECTALL);
 		if (!noRefresh) {
@@ -5053,15 +5050,9 @@ jslet.data.Dataset.prototype = {
 	 * Refresh lookup field.
 	 * 
 	 * @param {String} fldName field name.
-	 * @param {Integer} recno (Optional) if recno >=0, only refresh the current record control specified by 'recno', otherwise refresh whole field. 
 	 */
-	refreshLookupField: function(fldName, recno) {
-		var lookupEvt;
-		if(recno === undefined) {
-			lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName);
-		} else {
-			lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName, recno);
-		}
+	refreshLookupField: function(fldName) {
+		var lookupEvt = jslet.data.RefreshEvent.lookupEvent(fldName);
 		this.refreshControl(lookupEvt);
 	},
 	
@@ -5129,11 +5120,9 @@ jslet.data.Dataset.prototype = {
 	
 	handleLookupDatasetChanged: function(fldName) {
 		var Z = this;
-		if(Z._inContextRule) {
-			Z.refreshLookupField(fldName, Z.recno());
-		} else {
+		Z.refreshLookupField(fldName);
+		if(!Z._inContextRule) {
 			jslet.data.FieldValueCache.clearAll(Z, fldName);
-			Z.refreshLookupField(fldName);
 		}
 		//Don't use the following code, is will cause DBAutoComplete control issues.
 		//this.refreshControl(jslet.data.RefreshEvent.updateColumnEvent(fldName));

@@ -14,7 +14,7 @@ jslet.ui.htmlclass = {};
 jslet.ui.GlobalZIndex = 100;
 
 jslet.ui.KeyCode = {
-	BACkSPACE: 8, 
+	BACKSPACE: 8, 
 	TAB: 9,
 	ENTER: 13,
 	SHIFT: 16,

@@ -164,8 +164,8 @@ jslet.data.RefreshEvent = {
 		return {eventType: jslet.data.RefreshEvent.ERROR, message: errMessage};
 	},
 	
-	lookupEvent: function(fieldName, recno) {
-		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName, recno: recno};
+	lookupEvent: function(fieldName, isMetaChanged) {
+		return {eventType: jslet.data.RefreshEvent.UPDATELOOKUP, fieldName: fieldName, isMetaChanged: isMetaChanged};
 	},
 	
 	aggradedEvent: function() {

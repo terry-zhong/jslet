@@ -231,7 +231,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		//Lookup data changed
 		if(evtType == jslet.data.RefreshEvent.UPDATELOOKUP && evt.fieldName == Z._field) {
-			Z.doLookupChanged();
+			Z.doLookupChanged(evt.isMetaChanged);
 			return true;
 		}
 

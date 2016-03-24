@@ -427,16 +427,29 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		Z.contentPanel.showPopup(x, y, 0, h);
 	},
 	
-	/**
-	 * @override
-	 */
-	destroy: function($super){
+	_destroyPopPanel: function() {
 		var Z = this;
-		jQuery(Z.el).off();
 		if (Z.contentPanel){
 			Z.contentPanel.destroy();
 			Z.contentPanel = null;
 		}
+	},
+		
+	/**
+	 * @override
+	 */
+	doLookupChanged: function (isMetaChanged) {
+		if(isMetaChanged) {
+			this._destroyPopPanel();
+		}
+	},
+	
+	/**
+	 * @override
+	 */
+	destroy: function($super){
+		this._destroyPopPanel();
+		jQuery(this.el).off();
 		$super();
 	}
 	
