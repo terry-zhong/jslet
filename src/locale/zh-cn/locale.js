@@ -87,6 +87,10 @@
 		falseText: ''
 	};
 
+	locale.Control = {
+		duplicatedId: 'HTML元素的ID：{0} 重复！重复的ID会导致不可预知的问题，请去除重复！'
+	};
+	
 	locale.DBControl = {
 		datasetNotFound: '找不到数据集： {0}, 请先定义并设置其名称!',
 		expectedProperty: '请先设置属性值: {0}!',

@@ -2638,24 +2638,27 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		var leftHeadObj = Z.leftHeadTbl.createTHead(),
 			rightHeadObj = Z.rightHeadTbl.createTHead(),
-			leftHeadCells = leftHeadObj.rows[0].cells,// jQuery(leftHeadObj).find('th'),
-			rightHeadCells =  rightHeadObj.rows[0].cells,// jQuery(rightHeadObj).find('th'),
-			allHeadCells = [], oth;
-
-		for (var i = 0, cnt = leftHeadCells.length; i < cnt; i++){
-			oth = leftHeadCells[i];
-			if (oth.jsletColCfg) {
-				allHeadCells[allHeadCells.length] = oth;
+			leftHeadCells, rightHeadCells,
+			allHeadCells = [], oth,
+			rowCnt = leftHeadObj.rows.length;
+		for(var r = 0; r < rowCnt; r++) {
+			leftHeadCells = leftHeadObj.rows[r].cells;
+			for (var i = 0, cnt = leftHeadCells.length; i < cnt; i++){
+				oth = leftHeadCells[i];
+				if (oth.jsletColCfg) {
+					allHeadCells[allHeadCells.length] = oth;
+				}
 			}
 		}
-
-		for (var i = 0, cnt = rightHeadCells.length; i < cnt; i++){
-			oth = rightHeadCells[i];
-			if (oth.jsletColCfg) {
-				allHeadCells[allHeadCells.length] = oth;
+		for(var r = 0; r < rowCnt; r++) {
+			rightHeadCells =  rightHeadObj.rows[r].cells;
+			for (var i = 0, cnt = rightHeadCells.length; i < cnt; i++){
+				oth = rightHeadCells[i];
+				if (oth.jsletColCfg) {
+					allHeadCells[allHeadCells.length] = oth;
+				}
 			}
 		}
-
 		var len = sortFields.length, sortDiv, 
 			cellCnt = allHeadCells.length;
 		for (var i = 0; i < cellCnt; i++) {

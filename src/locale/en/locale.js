@@ -86,6 +86,10 @@
 		falseText: ''		
 	};
 	
+	locale.Control = {
+		duplicatedId: 'Duplicated HTML element ID：{0}. Duplicated element id would cause unpredictable issues.'
+	};
+		
 	locale.DBControl = {
 		datasetNotFound: 'Can not find the dataset: {0}!',
 		expectedProperty: 'Property value: {0} expected!',
