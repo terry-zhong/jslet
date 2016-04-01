@@ -680,9 +680,22 @@ jslet.ui.install = function (pElement, onJsletReady) {
 	}
 	htmlTags = jQuery(pElement).find('*[data-jslet]');
 
-	var cnt = htmlTags.length, el;
+	var cnt = htmlTags.length, el, id, 
+		existIds = jslet.existIds;
+	if(!existIds) {
+		existIds = {};
+		jslet.existIds = existIds;
+	}
 	for (var i = 0; i < cnt; i++) {
 		el = htmlTags[i];
+		id = el.id;
+		if(id) {
+			if(existIds[id]) {
+				console.warn(jslet.formatString(jslet.locale.Control.duplicatedId, [id]));
+			} else {
+				existIds[id] = 1;
+			}
+		}
 		jslet.ui.bindControl(el);
 	}
 	if(onJsletReady){
