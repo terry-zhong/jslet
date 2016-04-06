@@ -1419,10 +1419,16 @@ jslet.data.Field.prototype = {
 	 * 
 	 * @param {Function} validator Validator function.
 	 * Pattern:
-	 *   function(fieldObj, fldValue){}
-	 *   //fieldObj: jslet.data.Field, Field object
+	 *   function(fieldObj, fldValue, validateAjax){}
+	 *   //fldObj: jslet.data.Field, Field object
 	 *   //fldValue: Object, Field value
+	 *   //serverValidateFn: the function which can post data to server for validating.
 	 *   //return: String, if validate failed, return error message, otherwise return null; 
+	 *   
+	 *   For example: 
+	 *   fldObj.customValidator(function(fldObj, fldValue, serverValidateFn) {
+	 *   	return serverValidateFn('/xx/check.do', {fieldValue: fldValue});
+	 *   });
 	 */
 	customValidator: function (validator) {
 		var Z = this;

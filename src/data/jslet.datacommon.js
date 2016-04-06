@@ -428,7 +428,7 @@ jslet.data.FieldValidator.prototype = {
 		}
 		//Customized validation
 		if (fldObj.customValidator()) {
-			var msg = fldObj.customValidator().call(fldObj.dataset(), fldObj, value);
+			var msg = fldObj.customValidator().call(fldObj.dataset(), fldObj, value, jslet.data.serverValidator);
 			if(msg) {
 				return this._addFieldLabel(fldObj.label(), msg);
 			}
@@ -436,6 +436,65 @@ jslet.data.FieldValidator.prototype = {
 		
 		return null;
 	}
+};
+
+/**
+ * The common function to validate data at server side.
+ * 
+ * @param {String} url - Validating url to connect to server.
+ * @param {Object} reqData - request data to post to server to validate.
+ */
+jslet.data.serverValidator = function(url, reqData) {
+	var ajaxSetting;
+	if(jslet.global.beforeSubmit) {
+		ajaxSetting = jslet.global.beforeSubmit({url: url});
+	}
+	if(!ajaxSetting) {
+		ajaxSetting = {}
+	}
+	ajaxSetting.type = 'POST';
+	ajaxSetting.async = false;
+	ajaxSetting.contentType = 'application/json';
+	ajaxSetting.mimeType = 'application/json';
+	ajaxSetting.dataType = 'json';
+	if(typeof reqData === 'object') {
+		reqData = jslet.JSON.stringify(reqData);
+	}
+	ajaxSetting.data = reqData;
+	var result = null;
+	jQuery.ajax(url, ajaxSetting)
+	.done(function(data, textStatus, jqXHR) {
+		if(data) {
+			var errorCode = data.errorCode;
+			if (errorCode) {
+				result = data.errorMessage;
+			} else {
+				if(jslet.isString(data)) {
+					result = data;
+				} else {
+					result = data.result;
+				}
+			}
+		} else {
+			result = null;
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {
+		var data = jqXHR.responseJSON,
+			result;
+		if(data && data.errorCode) {
+			result = data.errorMessage;
+		} else {
+			var errorCode = textStatus,
+				errorMessage = textStatus;
+			if(textStatus == 'error') {
+				errorCode = '0000';
+				errorMessage = jslet.locale.Common.ConnectError;
+			}
+			result = errorMessage;
+		}
+	})
+	return result;
 };
 
 /*Start of field value converter*/

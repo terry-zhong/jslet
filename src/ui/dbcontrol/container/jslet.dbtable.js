@@ -903,7 +903,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
             	var cellEditor = Z.cellEditor();
             	if(cellEditor) {
             		if(Z._isCellEditable(colCfg)) {
-            			cellEditor.showEditor(colCfg.field, otd);
+            			var fldName = colCfg.field;
+            			cellEditor.showEditor(fldName, otd);
+            			if(colCfg.isBoolColumn) {
+            				window.setTimeout(function() {
+                				Z._dataset.setFieldValue(fldName, !Z._dataset.getFieldValue(fldName));
+            				}, 5);
+            			}
             		} else {
             			cellEditor.hideEditor();
             		}
@@ -1260,6 +1266,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z.listvm.onCurrentRownoChanged = function (preRowno, rowno) {
 			if (Z._dataset.recordCount() === 0) {
+				Z._currRow = null;
 				return;
 			}
 			Z._dataset.recno(Z.listvm.getCurrentRecno())
@@ -1657,6 +1664,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			if (!cobj.label){
 				cobj.label = fldObj.displayLabel();
+			}
+			if(fldObj.getType() === jslet.data.DataType.BOOLEAN) {
+				cobj.isBoolColumn = true;
 			}
 			cobj.mergeSame = fldObj.mergeSame();
 			cobj.colNum = ohead.colNum;
@@ -2307,10 +2317,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 		var currField = Z.getFieldByColNum(Z._currColNum);
-		var headRows = Z.rightHeadTbl.createTHead().rows;
-		Z._changeColNum(headRows[headRows.length - 1], srcStart, srcEnd, destStart, destEnd);
 		var dataRows = Z.rightContentTbl.tBodies[0].rows;
 		Z._changeColNum(dataRows[0], srcStart, srcEnd, destStart, destEnd);
+		var headRows = Z.rightHeadTbl.createTHead().rows;
 		moveOneTableColumn(headRows, rowIndex, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(Z.rightFixedTbl.tBodies[0].rows, 0, srcStart, srcEnd, destStart, destEnd);
 		moveOneTableColumn(dataRows, 0, srcStart, srcEnd, destStart, destEnd);
@@ -2730,11 +2739,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 	}, // end _doSelectBoxClick
 
-	_doCellClick: function () {
+	_doCellClick: function (colCfg) {
 		var Z = this;
 		if (Z._onCellClick) {
-			var colNum = Z._currColNum;
-			Z._onCellClick.call(Z, Z.innerColumns[colNum]);
+			Z._onCellClick.call(Z, colCfg);
 		}
 	},
 	
@@ -3233,8 +3241,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 
 	_getCurrCellEl: function() {
-		var Z = this,
-			contentRow = Z._currRow.content,
+		var Z = this;
+		if(!Z._currRow) {
+			return null;
+		}
+		var contentRow = Z._currRow.content,
 			cells = contentRow.cells, 
 			cellEl, colCfg;
 		for(var i = 0, len = cells.length; i < len; i++) {
@@ -3248,8 +3259,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	_adjustCurrentCellPos: function(isLeft) {
-		var Z = this,
-			jqEl = jQuery(Z.el),
+		var Z = this;
+		if(!Z._currRow) {
+			return;
+		}
+		var jqEl = jQuery(Z.el),
 			jqContentPanel = jqEl.find('.jl-tbl-contentcol'),
 			contentPanel = jqContentPanel[0],
 			oldScrLeft = contentPanel.scrollLeft;
@@ -3385,9 +3399,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._keep_silence_ = true;
 		try {
 			var scrBar = Z.jqVScrollBar[0];
-			if(scrBar.scrollTop != sw) {
+			window.setTimeout(function() {
 				scrBar.scrollTop = sw;
-			}
+			}, 10);
 		} finally {
 			Z._keep_silence_ = false;
 		}
@@ -3512,6 +3526,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL) {
 			Z.listvm.refreshModel();
 			Z._updateSortFlag(true);
+			if(Z._dataset.recordCount() === 0) {
+				Z._currRow = null;
+			}
 			Z._fillData();
 			Z._showCurrentRow(true);
 			if(Z._filterPanel) {
@@ -3540,6 +3557,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		} else if (evtType == jslet.data.RefreshEvent.DELETE) {
 			Z.listvm.refreshModel();
 			Z._fillData();
+			if(Z._dataset.recordCount() === 0) {
+				Z._currRow = null;
+			}
 		} else if (evtType == jslet.data.RefreshEvent.SELECTRECORD) {
 			if (!Z._hasSelectCol) {
 				return;
@@ -3638,7 +3658,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this, 
 			jqEl = jQuery(Z.el);
 		Z._currRow = null;
-		
+		Z.listvm.reset();
 		Z.leftHeadTbl = null;
 		Z.rightHeadTbl = null;
 		jQuery(Z.rightHeadTbl).off();
@@ -3696,11 +3716,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			jqEl = jQuery(Z.el);
 		jslet.resizeEventBus.unsubscribe(Z);
 		jqEl.off();
-		Z.listvm.onTopRownoChanged = null;
-		Z.listvm.onVisibleCountChanged = null;
-		Z.listvm.onCurrentRownoChanged = null;
-		Z.listvm = null;
 		Z._innerDestroy();
+		Z.listvm.destroy();
+		Z.listvm = null;
 		$super();
 	} 
 });

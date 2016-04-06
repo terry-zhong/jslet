@@ -36,7 +36,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		return true;
 	};
 	initial();
-		
+	
 	this.refreshModel = function (expandLevel) {
 		if (!isTree) {
 			return;
@@ -661,10 +661,21 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		this._updateParentState(pNode, newState);
 	};
 	
+	this.reset = function() {
+		visibleCount = 0;
+		visibleStartRow = 0;
+		visibleEndRow = 0;
+		needShowRows = null;
+		allRows = null;
+		currentRowno = 0;
+		currentRecno = 0;
+		this.fixedRows = 0;
+	};
+	
 	this.destroy = function(){
 		dataset = null;
 		allRows = null;
-	
+		this.reset();
 		this.onTopRownoChanged = null;
 		this.onVisibleCountChanged = null;
 		this.onCurrentRownoChanged = null;
