@@ -1,16 +1,16 @@
-/* ========================================================================
- * Jslet framework: jslet.datacommon.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+ 
 /**
  * keep all dataset object,
  * key for dataset name, value for dataset object
  */
 "use strict";
-
 jslet.data.dataModule = new jslet.SimpleMap();
 /**
  * Get dataset object with dataset name.

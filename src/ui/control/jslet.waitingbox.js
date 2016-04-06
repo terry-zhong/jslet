@@ -1,10 +1,10 @@
-/* ========================================================================
- * Jslet framework: jslet.waitingbox.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
  * @class WaitingBox. Example:
@@ -17,6 +17,7 @@
  * @param {String} overlayColor Overlay color
  * @param {Boolean} tipsAtNewLine Tips is at new line or not. If false, tips and waiting icon is at the same line.
  */
+"use strict";
 jslet.ui.WaitingBox = function (container, overlayColor, tipsAtNewLine) {
 	var overlay = new jslet.ui.OverlayPanel(container);
 	var s = '<div class="jl-waitingbox jl-round4"><b class="jl-waitingbox-icon"></b>';

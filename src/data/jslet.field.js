@@ -1,17 +1,18 @@
-/* ========================================================================
- * Jslet framework: jslet.field.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
-
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+ 
 /**
  * @class Field 
  * 
  * @param {String} fieldName Field name
  * @param {jslet.data.DataType} dataType Data type of field
  */
+"use strict";
 jslet.data.Field = function (fieldName, dataType) {
 	jslet.Checker.test('Field#fieldName', fieldName).isString();
 	fieldName = jQuery.trim(fieldName);
@@ -2179,6 +2180,7 @@ jslet.data.FieldLookup.prototype = {
 		}
 		if(lkDsObj) {
 			Z._dataset = lkDsObj;
+			Z._dataset.autoRefreshHostDataset(true);
 			Z._dsParsed = true;
 			Z._fireLookupChangedEvent();
 		} else {

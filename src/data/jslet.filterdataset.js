@@ -1,11 +1,12 @@
-/* ========================================================================
- * Jslet framework: jslet.filterdataset.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
+"use strict";
 jslet.data.FilterDataset = function(hostDataset) {
 	if(!jslet.data.getDataset('ds_logical_opr_')) {
 		var dsObj = jslet.data.createEnumDataset('ds_logical_opr_', {'and': jslet.locale.FilterDataset.and, 'or': jslet.locale.FilterDataset.or});

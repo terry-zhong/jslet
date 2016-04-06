@@ -1,3 +1,11 @@
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
+ *
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
 if(!jslet.ui) {
 	jslet.ui = {};
 }

@@ -1,14 +1,15 @@
-/* ========================================================================
- * Jslet framework: jslet.listviewmodel.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
  * Inner Class for DBTable and DBTreeView control
  */
+"use strict";
 jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it's tree model
 	var visibleCount = 0,
 		visibleStartRow = 0,

@@ -6,6 +6,26 @@
  * ======================================================================== */
 "use strict";
 
+if (window.jslet === undefined || jslet === undefined){
+	/**
+	 * Root object/function of jslet framework. Example:
+	 * <pre><code>
+	 * var jsletObj = jslet('#tab');
+	 * </code></pre>
+	 * @param {String} Html tag id, like '#id'
+	 * 
+	 * @return {Object} jslet object of the specified Html tag
+	 */
+    jslet=window.jslet = function(id){
+        var ele = jQuery(id)[0];
+        return (ele && ele.jslet) ? ele.jslet : null;
+    };
+}
+
+if(typeof locale === 'object' && !jslet.locale) {
+	jslet.locale = locale;
+}
+
 if (!jslet.rootUri) {
     var ohead = document.getElementsByTagName('head')[0], 
         uri = ohead.lastChild.src;

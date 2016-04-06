@@ -1,27 +1,12 @@
-/* ========================================================================
- * Jslet framework: jslet.common.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
 "use strict";
-
-if (window.jslet === undefined || jslet === undefined){
-	/**
-	 * Root object/function of jslet framework. Example:
-	 * <pre><code>
-	 * var jsletObj = jslet('#tab');
-	 * </code></pre>
-	 * @param {String} Html tag id, like '#id'
-	 * 
-	 * @return {Object} jslet object of the specified Html tag
-	 */
-    jslet=window.jslet = function(id){
-        var ele = jQuery(id)[0];
-        return (ele && ele.jslet) ? ele.jslet : null;
-    };
-}
-
 jslet._AUTOID = 0;
 jslet.nextId = function(){
 	return 'jslet' + (jslet._AUTOID++);

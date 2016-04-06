@@ -1,15 +1,28 @@
-/* ========================================================================
- * Jslet framework: jslet.locale.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
  * Chinese language pack
  */
-(function () {
+"use strict";
+(function (root, factory) {
+    if (typeof define === 'function') {
+    	if(define.amd) {
+	        define('jslet-locale', null, factory);
+	    } else {
+	    	define(function(require,exports,module) {
+	    		module.exports = factory();
+	    	});
+	    }
+    } else {
+        jslet.locale = factory();
+    }
+})(this, function () {
 	var locale = {};
 	locale.isRtl = false;//false: direction = 'ltr', true: direction = 'rtl'
 	
@@ -246,12 +259,6 @@
 		save: ' 保存 ',
 		cancel: ' 取消 '
 	};
-		
-	if (window.jslet === undefined || jslet === undefined){
-		jslet=window.jslet = function(id){
-			var ele = jQuery(id)[0];
-			return (ele && ele.jslet)?ele.jslet:null;
-		};
-	}
-	jslet.locale = locale;
-})();
+	
+	return locale;
+});

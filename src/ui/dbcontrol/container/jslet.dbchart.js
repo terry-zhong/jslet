@@ -1,10 +1,10 @@
-﻿/* ========================================================================
- * Jslet framework: jslet.dbchart.js
+﻿/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
  * @class DBChart, show data as a chart. There are five chart type: column, bar, line, area, pie  
@@ -28,6 +28,7 @@
  *
  * </code></pre>
  */
+"use strict";
 jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 	chartTypes: ['line', 'bar', 'stackbar', 'pie'],
 	legendPositions: ['none', 'top', 'bottom', 'left', 'right'],

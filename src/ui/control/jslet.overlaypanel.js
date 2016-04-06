@@ -1,10 +1,10 @@
-/* ========================================================================
- * Jslet framework: jslet.overlaypanel.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
 * @class Overlay panel. Example:
@@ -17,6 +17,7 @@
 * @param {Html Element} container Html Element that OverlayPanel will cover.
 * @param {String} color Color String.
 */
+"use strict";
 jslet.ui.OverlayPanel = function (container, color) {
 	var odiv = document.createElement('div');
 	jQuery(odiv).addClass('jl-overlay').on('click', function(event){

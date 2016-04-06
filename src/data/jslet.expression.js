@@ -1,23 +1,12 @@
-/* ========================================================================
- * Jslet framework: jslet.expression.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-
-/**
- * @class Expression. Example:
- * <pre><code>
- * var expr = new jslet.Expression(dsEmployee, '[name] == "Bob"');
- * expr.eval();//return true or false
- * 
- * </code></pre>
- * 
- * @param {jselt.data.Dataset} dataset dataset that use to evalute.
- * @param {String} expre Expression
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
  */
-"use strict";
 
+"use strict";
 jslet.Expression = function(dataset, expr) {
 	jslet.Checker.test('jslet.Expression#dataset', dataset).required();
 	jslet.Checker.test('jslet.Expression#expr', expr).required().isString();

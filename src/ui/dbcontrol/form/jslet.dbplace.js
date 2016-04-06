@@ -1,10 +1,10 @@
-﻿/* ========================================================================
- * Jslet framework: jslet.dbplace.js
+﻿/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-"use strict";
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
 
 /**
  * @class DBPlace. 
@@ -27,6 +27,7 @@
  *
  * </code></pre>
  */
+"use strict";
 jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override

@@ -1,17 +1,12 @@
-/* ========================================================================
- * Jslet framework: jslet.dataset.js
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
  *
- * Copyright (c) 2014 Jslet Group(https://github.com/jslet/jslet/)
- * Licensed under MIT (https://github.com/jslet/jslet/LICENSE.txt)
- * ======================================================================== */
-
-/**
- * @class Dataset
- * 
- * @param {String} name dataset's name that must be unique in jslet.data.dataModule variable.
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
  */
-"use strict";
 
+"use strict";
 jslet.data.Dataset = function (name) {
 	
 	var Z = this;
@@ -1181,6 +1176,9 @@ jslet.data.Dataset.prototype = {
 			Z._createIndexCfg(idxFld.fieldName, idxFld.order);
 		} //end for
 
+		if(Z._sortingFields.length === 0) {
+			return;
+		}
 		var currRec = Z.getRecord(), 
 		flag = Z.isContextRuleEnabled();
 		if (flag) {
@@ -5457,7 +5455,7 @@ jslet.data.Dataset.prototype = {
 		}
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z._recno = -1;
-		Z.indexFields(Z.indexFields());
+		Z._sortByFields();
 		Z.filter(null);
 		if(Z.filtered() || Z.fixedFilter()) {
 			Z._doFilterChanged();			
