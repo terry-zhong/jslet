@@ -687,6 +687,7 @@ jslet.ui.InputSettingDialog.prototype = {
 			Z._initializeFields();
 		} finally {
 			Z._isInit = false;
+			Z._inputSettingDs.first();
 			Z._inputSettingDs.enableControls();
 		}
 		var creating = false;

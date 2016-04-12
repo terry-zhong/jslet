@@ -703,6 +703,9 @@ jslet.ui.install = function (pElement, onJsletReady) {
 		onJsletReady();
 		//jslet.ui.onReady();
 	}
+	if(jslet.global.afterInstall) {
+		jslet.global.afterInstall(pElement);
+	}
 };
 
 ///**

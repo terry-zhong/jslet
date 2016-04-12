@@ -83,4 +83,7 @@ jslet.global.beforeSubmit = function(settings) {
 	return settings;
 };
 
+jslet.global.afterInstall = function(container) {
+	
+};
 

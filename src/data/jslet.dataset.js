@@ -110,6 +110,7 @@ jslet.data.Dataset = function (name) {
 	Z._readOnly = false;
 	Z._aggradedValues = null;
 	Z._afterScrollDebounce = jslet.debounce(Z._innerAfterScrollDebounce, 30);
+	Z._calcAggradedValueDebounce = jslet.debounce(Z.calcAggradedValue, 200);
 	Z._onlyChangedSubmitted = false;
 	Z.selection = new jslet.data.DataSelection(Z);
 	Z._changeLog = new jslet.data.ChangeLog(Z);
@@ -120,6 +121,8 @@ jslet.data.Dataset = function (name) {
 	
 	Z._lastFindingValue = null;
 	Z._inContextRule = false;
+	Z._aggradedFields = null;
+	Z._aggradingCount = 0;
 	
 	this.name(name);
 };
@@ -277,29 +280,6 @@ jslet.data.Dataset.prototype = {
 		}
 		jslet.data.FieldValueCache.removeCache(result);
 		return result;
-	},
-	
-	/**
-	 * Add specified fields of source dataset into this dataset.
-	 * 
-	 * @param {jslet.data.Dataset} srcDataset New dataset's name.
-	 * @param {Array of String} fieldNames a list of field names which will be copied to this dataset.
-	 */
-	addFieldFromDataset: function(srcDataset, fieldNames) {
-		jslet.Checker.test('Dataset.addFieldFromDataset#srcDataset', srcDataset).required().isClass(jslet.data.Dataset.className);
-		jslet.Checker.test('Dataset.addFieldFromDataset#fieldNames', fieldNames).isArray();
-		var fldObj, fldName, 
-			srcFields = srcDataset.getFields();
-		for(var i = 0, cnt = srcFields.length; i < cnt; i++) {
-			fldObj = srcFields[i];
-			fldName = fldObj.name();
-			if (fieldNames) {
-				if (fieldNames.indexOf(fldName) < 0) {
-					continue;
-				}
-			}
-			this.addField(fldObj.clone(fldName, this));
-		}
 	},
 	
 	/**
@@ -742,10 +722,12 @@ jslet.data.Dataset.prototype = {
 	
 	addFields: function(arrFldObj) {
 		jslet.Checker.test('Dataset.addFields#arrFldObj', arrFldObj).required().isArray();
+		var Z = this;
 		for(var i = 0, len = arrFldObj.length; i < len; i++) {
-			this.addField(arrFldObj[i], true);
+			Z.addField(arrFldObj[i], true);
 		}
-		this.refreshDisplayOrder();
+		Z.refreshDisplayOrder();
+		Z.refreshAggradedFields();
 	},
 	
 	/**
@@ -797,8 +779,34 @@ jslet.data.Dataset.prototype = {
 		
 		if(!batchMode) {
 			Z.refreshDisplayOrder();
+			Z.refreshAggradedFields();
 		}
 		return Z;
+	},
+	
+	/**
+	 * Add specified fields of source dataset into this dataset.
+	 * 
+	 * @param {jslet.data.Dataset} srcDataset New dataset's name.
+	 * @param {Array of String} fieldNames a list of field names which will be copied to this dataset.
+	 */
+	addFieldFromDataset: function(srcDataset, fieldNames) {
+		jslet.Checker.test('Dataset.addFieldFromDataset#srcDataset', srcDataset).required().isClass(jslet.data.Dataset.className);
+		jslet.Checker.test('Dataset.addFieldFromDataset#fieldNames', fieldNames).isArray();
+		var fldObj, fldName, 
+			srcFields = srcDataset.getFields();
+		for(var i = 0, cnt = srcFields.length; i < cnt; i++) {
+			fldObj = srcFields[i];
+			fldName = fldObj.name();
+			if (fieldNames) {
+				if (fieldNames.indexOf(fldName) < 0) {
+					continue;
+				}
+			}
+			this.addField(fldObj.clone(fldName, this), true);
+		}
+		Z.refreshDisplayOrder();
+		Z.refreshAggradedFields();
 	},
 	
 	refreshDisplayOrder: function() {
@@ -889,11 +897,27 @@ jslet.data.Dataset.prototype = {
 			}
 			
 			removeFormulaField(fldObj);
-			
+			Z.refreshAggradedFields();
 		}
 		return Z;
 	},
 
+	refreshAggradedFields: function() {
+		var Z = this;
+		Z._aggradedFields = null;
+		var fields = Z.getNormalFields(), 
+			fldObj, aggradedFields = [];
+		for(var i = 0, len = fields.length; i< len; i++) {
+			fldObj = fields[i];
+			if(fldObj.aggraded()) {
+				aggradedFields.push(fldObj);
+			}
+		}
+		if(aggradedFields.length > 0) {
+			Z._aggradedFields = aggradedFields;
+		}
+	},
+	
 	/**
 	 * Get field object by name.
 	 * 
@@ -1378,7 +1402,7 @@ jslet.data.Dataset.prototype = {
 				Z._refreshInnerRecno();
 			}
 			Z.first();
-			Z.calcAggradedValue();		
+			Z._calcAggradedValueDebounce.call(Z);		
 		}
 		finally {
 			Z.enableControls();
@@ -2215,19 +2239,40 @@ jslet.data.Dataset.prototype = {
 	 */
 	checkAggraded: function(fldName) {
 		var Z = this,
-			fldObj;
-		if(fldName) {
-			fldObj = Z.getField(fldName);
-			return fldObj.aggraded();
+			aggrFields = Z._aggradedFields;
+		if(!aggrFields || aggrFields.length === 0) {
+			return false;
 		}
-		var fields = Z.getNormalFields();
-		for(var i = 0, len = fields.length; i< len; i++) {
-			fldObj = fields[i];
-			if(fldObj.aggraded()) {
+		if(!fldName) {
+			return true;
+		}
+		var fldObj;
+		for(var i = 0, len = aggrFields.length; i < len; i++) {
+			if(aggrFields[i].name() === fldName) {
 				return true;
 			}
 		}
 		return false;
+	},
+	
+	/**
+	 * Disable aggrade value. It's used for improving performance for batch operating, especially for huge data.
+	 */
+	disableAggrading: function() {
+		this._aggradingCount++;
+	},
+	
+	/**
+	 * Enable aggrade value.
+	 */
+	enableAggrading: function() {
+		var Z = this;
+		if(Z._aggradingCount > 0) {
+			Z._aggradingCount--;
+			if(Z._aggradingCount === 0) {
+				Z._calcAggradedValueDebounce.call(Z);
+			}
+		}
 	},
 	
 	/**
@@ -2236,32 +2281,34 @@ jslet.data.Dataset.prototype = {
 	 */
 	calcAggradedValue: function(fldName) {
 		var Z = this;
-		if(!Z.checkAggraded(fldName)) {
+		
+		if(Z._aggradingCount > 0 || !Z.checkAggraded(fldName)) {
 			return;
 		}
-		var fields = Z.getNormalFields(), 
-			fldObj, aggradedBy,
-			aggradedFields = [],
+		console.log('calc aggraded value')
+		var aggrFields = Z._aggradedFields,
+			fldObj, aggradedBy, fldName,
 			arrAggradeBy = [],
-			aggradedValues = null;
-		for(var i = 0, len = fields.length; i< len; i++) {
-			fldObj = fields[i];
-			if(fldObj.aggraded()) {
-				aggradedBy = fldObj.aggradedBy();
-				if(fldObj.getType() !== jslet.data.DataType.NUMBER && !aggradedBy) {
-					if(!aggradedValues) {
-						aggradedValues = {};
-					}
-					aggradedValues[fldObj.name()] = {count: Z.recordCount(), sum: 0};
-				} else {
-					aggradedFields.push(fldObj);
+			aggradedValues = null,
+			notCalcFields = [],
+			isNum;
+		for(var i = 0, len = aggrFields.length; i < len; i++) {
+			fldObj = aggrFields[i];
+			aggradedBy = fldObj.aggradedBy();
+			isNum = fldObj.getType() === jslet.data.DataType.NUMBER;
+			if((!isNum || isNum && fldObj.lookup()) && !aggradedBy) {
+				if(!aggradedValues) {
+					aggradedValues = {};
 				}
-				if(aggradedBy && arrAggradeBy.indexOf(aggradedBy) === -1) {
-					arrAggradeBy.push({aggradedBy: aggradedBy, values: [], exists: false});
-				}
+				fldName = fldObj.name();
+				aggradedValues[fldName] = {count: Z.recordCount(), sum: 0};
+				notCalcFields.push(fldName);
+			}
+			if(aggradedBy && arrAggradeBy.indexOf(aggradedBy) === -1) {
+				arrAggradeBy.push({aggradedBy: aggradedBy, values: [], exists: false});
 			}
 		}
-		if(aggradedFields.length === 0) {
+		if(aggrFields.length === notCalcFields.length) {
 			Z.aggradedValues(aggradedValues);			
 			return;
 		}
@@ -2311,7 +2358,7 @@ jslet.data.Dataset.prototype = {
 		}
 		
 		var oldRecno = Z.recnoSilence(),
-			fldCnt = aggradedFields.length, 
+			fldCnt = aggrFields.length, 
 			fldName, value, totalValue,
 			aggradedValueObj;
 		try{
@@ -2320,8 +2367,11 @@ jslet.data.Dataset.prototype = {
 				updateAggrByValues(arrAggradeBy);
 				
 				for(var i = 0; i < fldCnt; i++) {
-					fldObj = aggradedFields[i];
+					fldObj = aggrFields[i];
 					fldName = fldObj.name();
+					if(notCalcFields.indexOf(fldName) >= 0) {
+						continue;
+					}
 					aggradedBy = fldObj.aggradedBy();
 					if(aggradedBy && existAggrBy(arrAggradeBy, aggradedBy)) {
 						continue;
@@ -2347,7 +2397,7 @@ jslet.data.Dataset.prototype = {
 		}
 		var scale;
 		for(var i = 0; i < fldCnt; i++) {
-			fldObj = aggradedFields[i];
+			fldObj = aggrFields[i];
 			fldName = fldObj.name();
 			scale = fldObj.scale() || 0;
 			aggradedValueObj = aggradedValues[fldName];
@@ -2501,20 +2551,12 @@ jslet.data.Dataset.prototype = {
 		if (!Z._parentField) {
 			return false;
 		}
-		var context = Z.startSilenceMove();
-		var keyValue = Z.keyValue();
-		try {
-			Z.next();
-			if (!Z.isEof()) {
-				var pValue = Z.parentValue();
-				if (pValue == keyValue) {
-					return true;
-				}
+		if(Z._recno < Z.recordCount() - 1) {
+			if (Z.parentValue(Z._recno + 1) === Z.keyValue()) {
+				return true;
 			}
-			return false;
-		} finally {
-			Z.endSilenceMove(context);
 		}
+		return false;
 	},
 	
 	/** 
@@ -2676,7 +2718,7 @@ jslet.data.Dataset.prototype = {
 				this.calcContextRule();
 			}
 		}
-		Z.calcAggradedValue();
+		Z._calcAggradedValueDebounce.call(Z);
 		var evt = jslet.data.RefreshEvent.deleteEvent(preRecno);
 		Z.refreshControl(evt);
 		
@@ -2915,7 +2957,7 @@ jslet.data.Dataset.prototype = {
 			Z._changeLog.log();
 		}
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCONFIRM);
-		Z.calcAggradedValue();
+		Z._calcAggradedValueDebounce.call(Z);
 		evt = jslet.data.RefreshEvent.updateRecordEvent();
 		Z.refreshControl(evt);
 		if(hasError) {
@@ -3007,7 +3049,7 @@ jslet.data.Dataset.prototype = {
 				this.calcContextRule();
 			}
 
-			Z.calcAggradedValue();
+			Z._calcAggradedValueDebounce.call(Z);
 			evt = jslet.data.RefreshEvent.deleteEvent(no);
 			Z.refreshControl(evt);
 			Z.status(jslet.data.DataSetStatus.BROWSE);
@@ -3025,7 +3067,7 @@ jslet.data.Dataset.prototype = {
 		}
 
 		Z._refreshProxyField();
-		Z.calcAggradedValue();
+		Z._calcAggradedValueDebounce.call(Z);
 		Z.status(jslet.data.DataSetStatus.BROWSE);
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERCANCEL);
 
@@ -3359,7 +3401,8 @@ jslet.data.Dataset.prototype = {
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
 		Z.updateFormula(fldName);
-		Z.calcAggradedValue(fldName);
+//		Z.calcAggradedValue(fldName);
+		Z._calcAggradedValueDebounce.call(Z);
 		return this;
 	},
 
@@ -3787,15 +3830,15 @@ jslet.data.Dataset.prototype = {
 			}
 			return undefined;
 		}
+		var fldName = fldObj.name();
 		var invalidMsg = Z._fieldValidator.checkInputText(fldObj, inputText);
 		if (invalidMsg) {
-			var fldName = fldObj.name();
 			Z.setFieldError(fldName, invalidMsg, valueIndex, inputText);
 			var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 			Z.refreshControl(evt);
 			return undefined;
 		} else {
-			Z.setFieldError(fldObj.name(), null, valueIndex);
+			Z.setFieldError(fldName, null, valueIndex);
 		}
 		
 		var convert = fldObj.customValueConverter() || jslet.data.getValueConverter(fldObj);
@@ -3803,31 +3846,37 @@ jslet.data.Dataset.prototype = {
 			throw new Error('Can\'t find any field value converter!');
 		}
 		var value = convert.textToValue(fldObj, inputText, valueIndex);
+		if(Z.getFieldError(fldName, valueIndex)) {
+			var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
+			Z.refreshControl(evt);
+		}
 		return value;
 	},
 	
 	/**
 	 * Get key value of current record
 	 * 
+	 * @param {Integer} recno recno optional, if not specified, it will get key value of current record.
 	 * @return {Object} Key value
 	 */
-	keyValue: function () {
+	keyValue: function (recno) {
 		if (!this._keyField || this.recordCount() === 0) {
 			return null;
 		}
-		return this.getFieldValue(this._keyField);
+		return this.getFieldValueByRecno(recno, this._keyField);
 	},
 
 	/**
 	 * Get parent record key value of current record
+	 * @param {Integer} recno recno optional, if not specified, it will get parent key value of current record.
 	 * 
 	 * @return {Object} Parent record key value.
 	 */
-	parentValue: function () {
+	parentValue: function (recno) {
 		if (!this._parentField || this.recordCount() === 0) {
 			return null;
 		}
-		return this.getFieldValue(this._parentField);
+		return this.getFieldValueByRecno(recno, this._parentField);
 	},
 
 	/**
@@ -4774,7 +4823,7 @@ jslet.data.Dataset.prototype = {
 		var Z = dataset;
 		Z._dataTransformer.refreshSubmittedData(mainData);
 
-		Z.calcAggradedValue();
+		Z._calcAggradedValueDebounce.call(Z);
 		Z.selection.removeAll();
 		if(Z._onDataSubmitted) {
 			Z._onDataSubmitted.call(Z);
@@ -4910,7 +4959,7 @@ jslet.data.Dataset.prototype = {
 			var newRec, oldRec, len;
 			Z._dataTransformer.refreshSubmittedData(mainData);
 		}
-		Z.calcAggradedValue();
+		Z._calcAggradedValueDebounce.call(Z);
 		if(Z._onDataSubmitted) {
 			Z._onDataSubmitted.call(Z);
 		}
@@ -5461,7 +5510,6 @@ jslet.data.Dataset.prototype = {
 			Z._doFilterChanged();			
 		}
 		Z.first();
-		Z.calcAggradedValue();	
 		Z.refreshControl(jslet.data.RefreshEvent._updateAllEvent);
 		Z.refreshLookupHostDataset();
 	},
@@ -5618,6 +5666,7 @@ jslet.data.Dataset.prototype = {
 		Z._innerFindCondition = null;
 		Z._sortingFields = null;
 		Z._innerFormularFields = null;
+		z._aggradedFields = null;
 		
 		jslet.data.dataModule.unset(Z._name);
 		jslet.data.datasetRelationManager.removeDataset(Z._name);		

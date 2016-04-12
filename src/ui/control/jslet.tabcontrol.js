@@ -10,7 +10,7 @@
  * @class TabControl. Example:
  * <pre><code>
  * var jsletParam = {type: "TabControl", 
- *		selectedIndex: 1, 
+ *		activeIndex: 1, 
  *		onCreateContextMenu: doCreateContextMenu, 
  *		items: [
  *			{header: "one", userIFrame: true, url: "http://www.google.com", iconClass: "tabIcon"},
@@ -32,6 +32,23 @@
  * </code></pre>
  */
 "use strict";
+/**
+* Tab Item
+*/
+jslet.ui.TabItem = function () {
+	var Z = this;
+	Z.id = null; //{String} Element Id
+	Z.index = -1; //{Integer} TabItem index
+	Z.header = null; //{String} Head of tab item
+	Z.closable = false; //{Boolean} Can be closed or not
+	Z.disabled = false; //{Boolean} 
+	Z.useIFrame = false; //{Boolean}
+	Z.height = '100%';
+	Z.url = null; //{String} 
+	Z.contentId = null; //{String} 
+	Z.content = null; //{String} 
+};
+
 jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	/**
 	 * @override
@@ -39,15 +56,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	initialize: function ($super, el, params) {
 		var Z = this;
 		Z.el = el;
-		Z.allProperties = 'styleClass,selectedIndex,newable,closable,items,onAddTabItem,onSelectedChanged,onRemoveTabItem,onCreateContextMenu';
+		Z.allProperties = 'styleClass,activeIndex,newable,closable,items,onAddTabItem,onActiveIndexChanged,onRemoveTabItem,onCreateContextMenu,onContentLoading,onContentLoaded';
 		
-		Z._selectedIndex = 0;
+		Z._activeIndex = -1;
 		
 		Z._newable = true;
 		
 		Z._closable = true;
 		
-		Z._onSelectedChanged = null;
+		Z._onActiveIndexChanged = null;
 		
 		Z._onAddTabItem = null;
 		
@@ -63,28 +80,46 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		
 		Z._leftIndex = 0;
 		Z._rightIndex = 0;
-
+		Z._maxHeaderWidth = 160;
 		Z._tabControlWidth = jQuery(Z.el).width();
+		Z._tabControlHeight = jQuery(Z.el).height();
+		Z._contextItemIndex = 0;
+		
+		Z._onContentLoading = null;
+		Z._onContentLoaded = null;
 		jslet.resizeEventBus.subscribe(this);
 		$super(el, params);
 	},
 
 	/**
-	 * Get or set selected tab item index.
+	 * Get or set active tab item index.
 	 * 
-	 * @param {Integer or undefined} index selected tabItem index.
+	 * @param {Integer or undefined} index active tabItem index.
 	 * @param {this or Integer}
 	 */
-	selectedIndex: function(index) {
+	activeIndex: function(index) {
 		if(index === undefined) {
-			return this._selectedIndex;
+			return this._activeIndex;
 		}
-		jslet.Checker.test('TabControl.selectedIndex', index).isGTEZero();
+		jslet.Checker.test('TabControl.activeIndex', index).isGTEZero();
 		if(this._ready) {
-			this._chgSelectedIndex(index);
+			this._chgActiveIndex(index);
 		} else {
-			this._selectedIndex = index;
+			this._activeIndex = index;
 		}
+	},
+	
+	/**
+	 * Get active tab item config.
+	 * 
+	 * @return {jslet.ui.TabItem}
+	 */
+	activeItem: function() {
+		var items = this._items;
+		if(items && items.length > 0) {
+			return this._items[this._activeIndex || 0];
+		}
+		return null;
 	},
 	
 	/**
@@ -136,23 +171,23 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 *   //oldIndex: Integer
 	 *   //newIndex: Integer
 	 *   
-	 * @param {Function or undefined} onSelectedChanged tab item selected event handler.
+	 * @param {Function or undefined} onActiveIndexChanged tab item active event handler.
 	 * @return {this or Function} 
 	 */
-	onSelectedChanged: function(onSelectedChanged) {
-		if(onSelectedChanged === undefined) {
-			return this._onSelectedChanged;
+	onActiveIndexChanged: function(onActiveIndexChanged) {
+		if(onActiveIndexChanged === undefined) {
+			return this._onActiveIndexChanged;
 		}
-		jslet.Checker.test('TabControl.onSelectedChanged', onSelectedChanged).isFunction();
-		this._onSelectedChanged = onSelectedChanged;
+		jslet.Checker.test('TabControl.onActiveIndexChanged', onActiveIndexChanged).isFunction();
+		this._onActiveIndexChanged = onActiveIndexChanged;
 	},
 
 	/**
 	 * Fired after remove a tab item.
 	 * Pattern: 
-	 *  function(tabIndex, selected){}
+	 *  function(tabIndex, active){}
 	 *  //tabIndex: Integer
-	 *  //selected: Boolean Identify if the removing item is active
+	 *  //active: Boolean Identify if the removing item is active
 	 *  //return: Boolean, false - cancel removing tab item, true - remove tab item. 
 	 *   
 	 * @param {Function or undefined} onRemoveTabItem tab item removed event handler.
@@ -181,6 +216,42 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		jslet.Checker.test('TabControl.onCreateContextMenu', onCreateContextMenu).isFunction();
 		this._onCreateContextMenu = onCreateContextMenu;
+	},
+	 
+	/**
+	 * Fired before loading content of tab item;
+	 * Pattern: 
+	 *   function(contentId, itemCfg){}
+	 *   //contentId: {String} the content element's id.
+	 *   //itemCfg: {Plan Object} tab item config
+	 *   
+	 * @param {Function or undefined} onContentLoading before loading tab panel content handler.
+	 * @return {this or Function} 
+	 */
+	onContentLoading: function(onContentLoading) {
+		if(onContentLoading === undefined) {
+			return this._onContentLoading;
+		}
+		jslet.Checker.test('TabControl.onContentLoading', onContentLoading).isFunction();
+		this._onContentLoading = onContentLoading;
+	},
+	 
+	/**
+	 * Fired after loading content of tab item;
+	 * Pattern: 
+	 *   function(contentId, itemCfg){}
+	 *   //contentId: {String} the content element's id.
+	 *   //itemCfg: {Plan Object} tab item config
+	 *   
+	 * @param {Function or undefined} onContentLoading after loading tab panel content handler.
+	 * @return {this or Function} 
+	 */
+	onContentLoaded: function(onContentLoaded) {
+		if(onContentLoaded === undefined) {
+			return this._onContentLoaded;
+		}
+		jslet.Checker.test('TabControl.onContentLoaded', onContentLoaded).isFunction();
+		this._onContentLoaded = onContentLoaded;
 	},
 	 
 	/**
@@ -213,11 +284,14 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 * @override
 	 */
 	renderAll: function () {
-		var Z = this,
-			template = [
+		var Z = this;
+		Z._createContextMenu();
+
+		var	template = [
 			'<div class="jl-tab-header jl-unselectable"><div class="jl-tab-container jl-unselectable"><ul class="jl-tab-list">',
 			Z._newable ? '<li><a href="javascript:;" class="jl-tab-inner"><span class="jl-tab-new">+</span></a></li>' : '',
-			'</ul></div><a class="jl-tab-left jl-hidden"><span class="jl-nav-btn glyphicon glyphicon-circle-arrow-left"></span></a><a class="jl-tab-right  jl-hidden"><span class="jl-nav-btn glyphicon glyphicon-circle-arrow-right"></span></a></div><div class="jl-tab-items jl-round5"></div>'];
+			'</ul></div><a class="jl-tab-left jl-hidden"><span class="jl-nav-btn fa fa-arrow-circle-left"></span></a><a class="jl-tab-right jl-hidden"><span class="jl-nav-btn fa fa-arrow-circle-right"></span></a></div>',
+			'<div class="jl-tab-panels jl-round5"></div>'];
 
 		var jqEl = jQuery(Z.el);
 		if (!jqEl.hasClass('jl-tabcontrol'))
@@ -235,19 +309,19 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				}
 				if (!itemCfg) {
 					itemCfg = new jslet.ui.TabItem();
-					itemCfg.header = 'new tab';
+					itemCfg.header = jslet.locale.TabControl.newTab;
 					itemCfg.closable = true;
 				}
 				Z.addTabItem(itemCfg);
 				Z._calcItemsWidth();
-				Z.selectedIndex(Z._items.length - 1);
+				Z.activeIndex(Z._items.length - 1);
 			};
 		}
 
 		var jqNavBtn = jqEl.find('.jl-tab-left');
 		
 		jqNavBtn.on("click",function (event) {
-			Z._setVisiTabItems(Z._leftIndex - 1)
+			Z._setVisiTabItems(Z._leftIndex - 1);
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			return false;
@@ -278,20 +352,26 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				oitem = Z._items[i];
 				Z._renderTabItem(oitem);
 			}
+			Z._activeIndex = 0;
 		}
 		Z._calcItemsWidth();
 		Z._ready = true;
-		Z._chgSelectedIndex(Z._selectedIndex);
-		Z._createContextMenu();
+		Z._chgActiveIndex(Z._activeIndex);
 	},
 
 	addItem: function (itemCfg) {
 		this._items[this._items.length] = itemCfg;
 	},
 
-	tabLabel: function(index, label) {
-		jslet.Checker.test('tabLabel#index', index).isGTEZero();
-		jslet.Checker.test('tabLabel#label', label).required().isString();
+	/**
+	 * Change tab item's header
+	 * 
+	 * @param {Integer} index - tab item index.
+	 * @param {String} header - tab item header.
+	 */
+	tabHeader: function(index, header) {
+		jslet.Checker.test('tabHeader#index', index).isGTEZero();
+		jslet.Checker.test('tabHeader#label', header).required().isString();
 		
 		var Z = this;
 		var itemCfg = Z._getTabItemCfg(index);
@@ -299,28 +379,34 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			return;
 		}
 
-		itemCfg.label(label);
+		itemCfg.header = header;
 		var jqEl = jQuery(Z.el);
-		var panelContainer = jqEl.find('.jl-tab-items')[0];
+		var panelContainer = jqEl.find('.jl-tab-list')[0];
 		var nodes = panelContainer.childNodes;
-		jQuery(nodes[index]).find('.jl-tab-title').html(label);
+		jQuery(nodes[index]).find('.jl-tab-title').html(header);
 		Z._calcItemsWidth();
 	},
 	
+	/**
+	 * Disable tab item.
+	 * 
+	 * @param {Integer} index - tab item index.
+	 * @param {Boolean} disabled - true - disabled, false - otherwise.
+	 */
 	tabDisabled: function(index, disabled) {
-		jslet.Checker.test('tabLabel#index', index).isGTEZero();
+		jslet.Checker.test('tabDisabled#index', index).isGTEZero();
 		var Z = this;
 		var itemCfg = Z._getTabItemCfg(index);
 		if(!itemCfg) {
 			return;
 		}
-		if(index == Z._selectedIndex) {
+		if(index == Z._activeIndex) {
 			console.warn('Cannot set current tab item to disabled.');
 			return;
 		}
 		itemCfg.disabled(disabled);
 		var jqEl = jQuery(Z.el);
-		var panelContainer = jqEl.find('.jl-tab-items')[0];
+		var panelContainer = jqEl.find('.jl-tab-panels')[0];
 		var nodes = panelContainer.childNodes;
 		var jqItem = jQuery(nodes[index]);
 		if(disabled) {
@@ -330,20 +416,33 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		}
 	},
 	
+	_checkTabItemCount: function() {
+		var Z = this,
+			jqTabPanels = jQuery(Z.el).find('.jl-tab-panels');
+		if(!Z._items || Z._items.length === 0) {
+			if(!jqTabPanels.hasClass('jl-hidden')) {
+				jqTabPanels.addClass('jl-hidden');
+			}
+		} else {
+			jqTabPanels.removeClass('jl-hidden');
+
+		} 
+	},
+	
 	/**
-	 * Change selected tab item.
+	 * Change active tab item.
 	 * 
 	 * @param {Integer} index Tab item index which will be toggled to.
 	 */
-	_chgSelectedIndex: function (index) {
+	_chgActiveIndex: function (index) {
 		var Z = this;
 	
 		var itemCfg = Z._getTabItemCfg(index);
 		if(!itemCfg || itemCfg.disabled) {
 			return;
 		}
-		if (Z._onSelectedChanged) {
-			var canChanged = Z._onSelectedChanged.call(Z, Z._selectedIndex, index);
+		if (Z._onActiveIndexChanged) {
+			var canChanged = Z._onActiveIndexChanged.call(Z, Z._activeIndex, index);
 			if (canChanged !== undefined && !canChanged) {
 				return;
 			}
@@ -355,24 +454,24 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			nodes = oul.childNodes,
 			cnt = nodes.length - (Z._newable ? 2 : 1);
 
-		var itemContainer = jqEl.find('.jl-tab-items')[0],
+		var itemContainer = jqEl.find('.jl-tab-panels')[0],
 			item, 
 			items = itemContainer.childNodes;
 		for (var i = 0; i <= cnt; i++) {
 			oli = jQuery(nodes[i]);
 			item = items[i];
 			if (i == index) {
-				oli.addClass('jl-tab-selected');
+				oli.addClass('jl-tab-active');
 				item.style.display = 'block';
 			}
 			else {
-				oli.removeClass('jl-tab-selected');
+				oli.removeClass('jl-tab-active');
 				item.style.display = 'none';
 			}
 		}
-		Z._selectedIndex = index;
+		Z._activeIndex = index;
 		if(index < Z._leftIndex || index >= Z._rightIndex) {
-			Z._setVisiTabItems(null, Z._selectedIndex);
+			Z._setVisiTabItems(null, Z._activeIndex);
 		}
 	},
 	
@@ -389,11 +488,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			jqEl =jQuery(Z.el),
 			nodes = jqEl.find('.jl-tab-list').children();
 		Z._itemsWidth = [];
+		Z._totalItemsWidth = 0;
 		nodes.each(function(index){
-			Z._itemsWidth[index] = jQuery(this).outerWidth() + 5;
+			var w = jQuery(this).outerWidth() + 5;
+			Z._itemsWidth[index] = w;
+			Z._totalItemsWidth += w;
 		});
 
 		Z._containerWidth = jqEl.find('.jl-tab-container').innerWidth();
+		Z._setNavBtnVisible();
 	},
 	
 	_setVisiTabItems: function(leftIndex, rightIndex) {
@@ -444,7 +547,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			jqEl = jQuery(Z.el),
 			jqBtnLeft = jqEl.find('.jl-tab-left'),
 			isHidden = jqBtnLeft.hasClass('jl-hidden');
-		if(Z._leftIndex > 0) {
+		if(Z._leftIndex > 0 && Z._totalItemsWidth > Z._containerWidth) {
 			if(isHidden) {
 				jqBtnLeft.removeClass('jl-hidden');
 			}
@@ -456,7 +559,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var jqBtnRight = jqEl.find('.jl-tab-right');
 		var isHidden = jqBtnRight.hasClass('jl-hidden');
 		var totalCnt = Z._itemsWidth.length;
-		if(Z._rightIndex < totalCnt - 1) {
+		if(Z._rightIndex < totalCnt - 1 && Z._totalItemsWidth > Z._containerWidth) {
 			if(isHidden) {
 				jqBtnRight.removeClass('jl-hidden');
 			}
@@ -471,12 +574,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			canClose = Z._closable && itemCfg.closable,
 			tmpl = ['<a href="javascript:;" class="jl-tab-inner' + (canClose? ' jl-tab-close-loc': '')
-			        + '" onclick="javascript:this.blur();"><span class="jl-tab-title '];
+			        + '" onclick="javascript:this.blur();" title="' + itemCfg.header + '"><span class="jl-tab-title '];
 
 		tmpl.push('">');
 		tmpl.push(itemCfg.header);
 		tmpl.push('</span>');
-		tmpl.push('<span href="javascript:;" class="close jl-tab-close' + (!canClose || itemCfg.disabled? ' jl-hidden': '') + '">x</span>');
+		tmpl.push('<span class="fa fa-times close jl-tab-close' + (!canClose || itemCfg.disabled? ' jl-hidden': '') + '"></span>');
 		tmpl.push('</a>');
 		var oli = document.createElement('li');
 		if(itemCfg.disabled) {
@@ -496,6 +599,19 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		if (canClose) {
 			jQuery(oli).find('.jl-tab-close').click(Z._doCloseBtnClick);
 		}
+		if(Z.contextMenu && !itemCfg.disabled) {
+			oli.oncontextmenu = function (event) {
+				var k = 0;
+				var items = jQuery(Z.el).find('.jl-tab-list li').each(function() {
+					if(this === event.currentTarget) {
+						Z._contextItemIndex = k;
+						return false;
+					}
+					k++;
+				});
+				Z.contextMenu.showContextMenu(event, Z);
+			};
+		}
 	},
 
 	_changeTabItem: function (event) {
@@ -507,7 +623,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				break;
 			}
 		}
-		this.jslet._chgSelectedIndex(index);
+		this.jslet._chgActiveIndex(index);
 	},
 
 	_doCloseBtnClick: function (event) {
@@ -537,10 +653,10 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			jqEl = jQuery(Z.el),
 			jqHead = jqEl.find('.jl-tab-header'),
 			h = itemCfg.height;
-		h = h ? h: 300;
+		h = h ? h: '100%';
 
-		if (itemCfg.content || itemCfg.divId) {
-			var ocontent = itemCfg.content ? itemCfg.content : jQuery('#'+itemCfg.divId)[0];
+		if (itemCfg.content || itemCfg.contentId) {
+			var ocontent = itemCfg.content ? itemCfg.content : jQuery('#'+itemCfg.contentId)[0];
 			if (ocontent) {
 				var pNode = ocontent.parentNode;
 				if (pNode && pNode != odiv) {
@@ -552,38 +668,139 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 
-		if (itemCfg.url) {
-			if (itemCfg.useIFrame) {
-				var s = '<iframe scrolling="yes" frameborder="0" src="' + 
-				itemCfg.url + 
-				'" style="width: 100%;height:' + h  + 'px;"></iframe>';
+		var url = itemCfg.url;
+		if (url) {
+			if (itemCfg.useIFrame || itemCfg.useIFrame === undefined) {
+				var id = jslet.nextId(); 
+				var s = '<iframe id="' + id + '"scrolling="yes" frameborder="0" src="' + 
+				url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id + 
+				'" style="width: 100%;height:' + h  + ';"></iframe>';
 				jqDiv.html(s);
+				itemCfg.contentId = id;
+				if(Z._onContentLoading) {
+					Z._onContentLoading.call(Z, id, itemCfg);
+				}
 			}
 		}
 	},
-
 
 	/**
 	 * Add tab item dynamically.
 	 * 
 	 * @param {Object} newItemCfg Tab item configuration
-	 * @param {Boolean} notRefreshRightIdx Improve performance purpose. If you need add a lot of tab item, you can set this parameter to true. 
+	 * @param {Boolean} noDuplicate Identify if the same "tabItem.id" can be added or not, default is true. 
 	 */
-	addTabItem: function (newItemCfg, notRefreshRightIdx) {
-		var Z = this;
-		Z._items.push(newItemCfg);
-		Z._renderTabItem(newItemCfg);
-		if(!notRefreshRightIdx) {
-			Z._calcItemsWidth();
-			Z._chgSelectedIndex(Z._selectedIndex + 1);
+	addTabItem: function (newItemCfg, noDuplicate) {
+		var Z = this,
+			tabItems = Z._items,
+			newId = newItemCfg.id;
+		if(!newId) {
+			newId = jslet.nextId();
+			newItemCfg.id = newId;
 		}
+		if((noDuplicate === undefined || noDuplicate) && newId) {
+			for(var i = 0, len = tabItems.length; i < len; i++) {
+				if(newId === tabItems[i].id) {
+					Z.activeIndex(i);
+					return;
+				}
+			}
+		}
+		tabItems.push(newItemCfg);
+		Z._renderTabItem(newItemCfg);
+		Z._calcItemsWidth();
+		Z._chgActiveIndex(tabItems.length - 1);
+		Z._checkTabItemCount();
 	},
 
+	/**
+	 * set the specified tab item to loaded state. It will fire the "onContentLoaded" event.
+	 * 
+	 * @param {String} tabItemId - tab item id.
+	 */
+	setContentLoadedState: function(tabItemId) {
+		var Z = this;
+		if(!Z._onContentLoaded) {
+			return;
+		}
+		var	tabItems = Z._items,
+			contentId = null,
+			itemCfg;
+		for(var i = 0, len = tabItems.length; i < len; i++) {
+			itemCfg = tabItems[i];
+			if(tabItemId === itemCfg.id) {
+				contentId = itemCfg.contentId;
+				break;
+			}
+		}
+		if(!contentId) {
+			return;
+		}
+		Z._onContentLoaded.call(Z, contentId, itemCfg);
+	},
+	
+	/**
+	 * Set tab item to changed state or not.
+	 * 
+	 * @param {String} tabItemId - tab item id.
+	 * @param {Boolean} changed - changed state.
+	 */
+	setContentChangedState: function(tabItemId, changed) {
+		var Z = this,
+			tabItems = Z._items,
+			itemCfg,
+			idx = -1;
+		for(var i = 0, len = tabItems.length; i < len; i++) {
+			itemCfg = tabItems[i];
+			if(tabItemId === itemCfg.id) {
+				idx = i;
+				break;
+			}
+		}
+		if(idx < 0) {
+			return;
+		}
+		itemCfg.changed = changed;
+		var header = itemCfg.header,
+			hasChangedFlag = (header.charAt(0) === '*');
+		if(changed) {
+			if(!hasChangedFlag) {
+				header = '*' + header;
+				Z.tabHeader(idx, header);
+			}
+		} else {
+			if(hasChangedFlag) {
+				header = header.substring(1);
+				Z.tabHeader(idx, header);
+			}
+		}
+	},
+	
+	/**
+	 * Identify which exists changed tab item or not.
+	 */
+	hasChanged: function() {
+		var Z = this,
+			tabItems = Z._items,
+			itemCfg,
+			idx = -1;
+		for(var i = 0, len = tabItems.length; i < len; i++) {
+			itemCfg = tabItems[i];
+			if(itemCfg.changed) {
+				return true;
+			}
+		}
+		return false;
+	},
+	
 	_renderTabItem: function(itemCfg) {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			oul = jqEl.find('.jl-tab-list')[0],
-			panelContainer = jqEl.find('.jl-tab-items')[0];
+			panelContainer = jqEl.find('.jl-tab-panels')[0];
+		if(!itemCfg.id) {
+			itemCfg.id = jslet.nextId();
+		}
 		Z._createHeader(oul, itemCfg);
 		Z._createBody(panelContainer, itemCfg);
 	},
@@ -593,38 +810,61 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 * 
 	 * @param {Integer} tabIndex Tab item index
 	 */
-	removeTabItem: function (tabIndex) {
-		var Z = this,
-			jqEl = jQuery(Z.el),
-			oli, 
-			oul = jqEl.find('.jl-tab-list')[0],
-			nodes = oul.childNodes,
-			cnt = nodes.length - (Z._newable ? 2 : 1);
-		if (tabIndex > cnt || tabIndex < 0) {
+	removeTabItem: function (tabIndex, isBatch) {
+		var Z = this;
+		if (tabIndex >= Z._items.length || tabIndex < 0) {
 			return;
 		}
-		oli = jQuery(nodes[tabIndex]);
-		var selected = oli.hasClass('jl-tab-selected');
+		var itemCfg = Z._items[tabIndex];
+		if(itemCfg.changed) {
+            jslet.ui.MessageBox.confirm(jslet.locale.TabControl.contentChanged, jslet.locale.MessageBox.confirm, function(button){
+				if(button === 'ok') {
+					Z._innerRemoveTabItem(tabIndex, isBatch);
+				}
+            });
+		} else {
+			Z._innerRemoveTabItem(tabIndex, isBatch);
+		}
+	},
+
+	_innerRemoveTabItem: function (tabIndex, isBatch) {
+		var Z = this,
+			jqEl = jQuery(Z.el),
+			oul = jqEl.find('.jl-tab-list')[0],
+			nodes = oul.childNodes,
+			cnt = nodes.length - (Z._newable ? 2 : 1),
+			oli = jQuery(nodes[tabIndex]);
+		var active = oli.hasClass('jl-tab-active');
 		if (Z._onRemoveTabItem) {
-			var canRemoved = Z._onRemoveTabItem.call(Z, tabIndex, selected);
+			var canRemoved = Z._onRemoveTabItem.call(Z, tabIndex, active);
 			if (!canRemoved) {
 				return;
 			}
 		}
-		oul.removeChild(oli[0]);
-		Z._items.splice(tabIndex, 1);
-		var panelContainer = jqEl.find('.jl-tab-items')[0];
-		nodes = panelContainer.childNodes;
-		panelContainer.removeChild(nodes[tabIndex]);
-		Z._calcItemsWidth();
-
-		if (selected) {
-			cnt--;
-			tabIndex = Z._getNextValidIndex(tabIndex, tabIndex >= cnt)
-			if (tabIndex >= 0) {
-				Z._chgSelectedIndex(tabIndex);
+		oli.find('.jl-tab-close').hide();
+		oli.animate({width:'toggle'},200, function() {
+			var elItem = oli[0]; 
+			elItem.oncontextmenu = null;
+			oul.removeChild(elItem);
+			Z._items.splice(tabIndex, 1);
+			var panelContainer = jqEl.find('.jl-tab-panels')[0];
+			nodes = panelContainer.childNodes;
+			var tabPanel = nodes[tabIndex];
+			panelContainer.removeChild(tabPanel);
+			if(!isBatch) {
+				Z._calcItemsWidth();
+				Z._checkTabItemCount();
 			}
-		}
+			if (active) {
+				cnt--;
+				tabIndex = Z._getNextValidIndex(tabIndex, tabIndex >= cnt)
+				if (tabIndex >= 0) {
+					Z._chgActiveIndex(tabIndex);
+				} else {
+					Z._activeIndex = -1;
+				}
+			}
+		});
 	},
 
 	_getNextValidIndex: function(start, isLeft) {
@@ -636,7 +876,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				}
 			}
 		} else {
-			for(var i = start + 1, len = Z._items.length; i < len; i++) {
+			for(var i = start, len = Z._items.length; i < len; i++) {
 				if(!Z._items[i].disabled) {
 					return i;
 				}
@@ -646,15 +886,33 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	/**
+	 * Reload the active tab panel.
+	 */
+	reload: function() {
+		var Z = this,
+			currIdx = Z._contextItemIndex,
+			itemCfg = Z._items[currIdx];
+		if(itemCfg && itemCfg.contentId) {
+			var jqFrame = jQuery('#' + itemCfg.contentId);
+			if(Z._onContentLoading) {
+				Z._onContentLoading.call(Z, jqFrame.attr('id'), itemCfg);
+			}
+			
+			if(jqFrame.attr('src')) {
+				jqFrame.attr('src', itemCfg.url);
+			}
+		}
+	},
+	
+	/**
 	 * Close the current active tab item  if this tab item is closable.
 	 */
 	close: function () {
 		var Z = this,
-			currIdx = Z._selectedIndex,
-			oitem = Z._items[currIdx];
-		if (oitem && currIdx >= 0 && oitem.closable && !oitem.disabled) {
+			currIdx = Z._contextItemIndex,
+			itemCfg = Z._items[currIdx];
+		if (itemCfg && currIdx >= 0 && itemCfg.closable && !itemCfg.disabled) {
 			Z.removeTabItem(currIdx);
-			Z._calcItemsWidth();
 		}
 	},
 
@@ -666,13 +924,22 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		for (var i = Z._items.length - 1; i >= 0; i--) {
 			oitem = Z._items[i];
 			if (oitem.closable && !oitem.disabled) {
-				if (Z._selectedIndex == i) {
+				if (Z._contextItemIndex == i) {
 					continue;
 				}
-				Z.removeTabItem(i);
+				Z.removeTabItem(i, true);
 			}
 		}
 		Z._calcItemsWidth();
+		Z._checkTabItemCount();
+	},
+	
+	/**
+	 * Close all closable tab item.
+	 */
+	closeAll: function() {
+		this.closeOther();
+		this.close();
 	},
 	
 	/**
@@ -681,7 +948,9 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 */
 	checkSizeChanged: function(){
 		var Z = this,
-			currWidth = jQuery(Z.el).width();
+			jqEl = jQuery(Z.el),
+			currWidth = jqEl.width(),
+			currHeight = jqEl.height();
 		if ( Z._tabControlWidth != currWidth){
 			Z._tabControlWidth = currWidth;
 			Z._calcItemsWidth();
@@ -691,12 +960,16 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	
 	_createContextMenu: function () {
 		var Z = this;
+		Z.contextMenu = null;
 		if (!jslet.ui.Menu || !Z._closable) {
 			return;
 		}
 		var menuCfg = { type: 'Menu', onItemClick: Z._menuItemClick, items: [
+   			{ id: 'reload', name: jslet.locale.TabControl.reload},
 			{ id: 'close', name: jslet.locale.TabControl.close},
-			{ id: 'closeOther', name: jslet.locale.TabControl.closeOther}]};
+			{ id: 'closeOther', name: jslet.locale.TabControl.closeOther},
+			{ id: 'closeAll', name: jslet.locale.TabControl.closeAll}]
+			};
 		if (Z._onCreateContextMenu) {
 			Z._onCreateContextMenu.call(Z, menuCfg.items);
 		}
@@ -705,22 +978,17 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			return;
 		}
 		Z.contextMenu = jslet.ui.createControl(menuCfg);
-
-		var head = jQuery(Z.el).find('.jl-tab-container')[0];
-
-		head.oncontextmenu = function (event) {
-			var evt = event || window.event;
-			Z.contextMenu.showContextMenu(evt, Z);
-		};
 	},
 
-	_menuItemClick: function (menuid, checked) {
-		if (menuid == 'close') {
+	_menuItemClick: function (menuId, checked) {
+		if(menuId === 'reload') {
+			this.reload();
+		} else if (menuId === 'close') {
 			this.close();
-		} else {
-			if (menuid == 'closeOther') {
-				this.closeOther();
-			}
+		} else if (menuId === 'closeOther') {
+			this.closeOther();
+		} else if (menuId === 'closeAll') {
+			this.closeAll();
 		}
 	},
 
@@ -753,22 +1021,4 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 
 jslet.ui.register('TabControl', jslet.ui.TabControl);
 jslet.ui.TabControl.htmlTemplate = '<div></div>';
-
-/**
-* Tab Item
-*/
-jslet.ui.TabItem = function () {
-	var Z = this;
-	Z.id = null; //{String} Element Id
-	Z.index = -1; //{Integer} TabItem index
-	Z.header = null; //{String} Head of tab item
-	Z.closable = false; //{Boolean} Can be closed or not
-	Z.disabled = false; //{Boolean} 
-	Z.useIFrame = false; //{Boolean}
-	Z.height = 100;
-	Z.url = null; //{String} 
-	Z.divId = null; //{String} 
-	Z.content = null; //{String} 
-};
-
 

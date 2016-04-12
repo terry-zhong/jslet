@@ -377,32 +377,38 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return;
 		}
 		
-		var lkds = lkFld.dataset(),
-			editFilter = lkFld.editFilter();
-		var eventFunc = jslet.getFunction(Z._beforePopup);
-		if (eventFunc) {
-			eventFunc.call(Z, lkds, inputValue, editFilter);
-		} else if (inputValue) {
-			var filter = Z._getFilterFields(lkFld, inputValue);
-			if(editFilter) {
-				if(filter) {
-					filter = '(' + editFilter + ') && (' + filter + ')';
-				} else {
-					filter = editFilter;
+		var oldFlag = lkFld.autoRefreshHostDataset();
+		lkFld.autoRefreshHostDataset(false);
+		try {
+			var lkds = lkFld.dataset(),
+				editFilter = lkFld.editFilter();
+			var eventFunc = jslet.getFunction(Z._beforePopup);
+			if (eventFunc) {
+				eventFunc.call(Z, lkds, inputValue, editFilter);
+			} else if (inputValue) {
+				var filter = Z._getFilterFields(lkFld, inputValue);
+				if(editFilter) {
+					if(filter) {
+						filter = '(' + editFilter + ') && (' + filter + ')';
+					} else {
+						filter = editFilter;
+					}
 				}
-			}
-			lkds.filter(filter);
-			lkds.filtered(true);
-		} else {
-			if(editFilter) {
-				lkds.filter(editFilter);
+				lkds.filter(filter);
 				lkds.filtered(true);
 			} else {
-				lkds.filter(null);
-				if(!lkds.fixedFilter()) {
-					lkds.filtered(false);
+				if(editFilter) {
+					lkds.filter(editFilter);
+					lkds.filtered(true);
+				} else {
+					lkds.filter(null);
+					if(!lkds.fixedFilter()) {
+						lkds.filtered(false);
+					}
 				}
 			}
+		} finally {
+			lkFld.autoRefreshHostDataset(oldFlag);
 		}
 		//Clear field value which specified by 'lookupField'.
 		if(Z._lookupField) {

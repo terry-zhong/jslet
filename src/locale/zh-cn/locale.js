@@ -182,9 +182,13 @@
 		uncheckAll: '全部不选'
 	};
 
-	locale.TabControl ={ 
+	locale.TabControl ={
+		reload: '刷新',
 		close: '关闭',
-		closeOther: '关闭其它'
+		closeOther: '关闭其它',
+		closeAll: '关闭全部',
+		newTab: '新页签',
+		contentChanged: '数据有修改，是否确定要关闭？'
 	};
 
 	locale.DBTable = { 

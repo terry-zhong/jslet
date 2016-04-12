@@ -1657,6 +1657,9 @@ jslet.data.Field.prototype = {
 		}
 		
 		Z._aggraded = aggraded? true: false;
+		if(Z._dataset) {
+			Z._dataset.refreshAggradedFields();
+		}
 		Z._fireGlobalMetaChangedEvent('aggraded');
 		return this;
 	},

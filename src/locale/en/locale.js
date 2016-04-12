@@ -181,9 +181,13 @@
 		uncheckAll: 'Unselect All'
 	};
 	
-	locale.TabControl ={ 
+	locale.TabControl ={
+		reload: 'Reload',
 		close: 'Close',
-		closeOther: 'Close Other'
+		closeOther: 'Close Other',
+		closeAll: 'Close All',
+		newTab: 'New Tab',
+		contentChanged: 'Data changed! Close this tab without saving?'
 	};
 	
 	locale.DBTable = { 

@@ -1208,7 +1208,9 @@ jslet.ui.MessageBox = function () {
 				inputHtml.push('></textarea>');
 			}
 		}
-		message = message.replace('\n', '<br />');
+		if(message) {
+			message = message.replace('\n', '<br />');
+		}
 		var html = ['<div class="jl-msg-container">', iconHtml, '<div class="' + (hasInput? 'jl-msg-message-noicon': 'jl-msg-message') + '">',
 					message, inputHtml.join(''), '</div>', '</div>',
 					'<div class="jl-msg-tool"><div>', btnHtml.join(''), '</div></div>'
@@ -1251,9 +1253,9 @@ jslet.ui.MessageBox = function () {
 		
 		owin.showModal();
 		owin.setZIndex(99981);
-		var k = 0;
+		var k = btnCount - 1;
 		if (jslet.locale.isRtl) {
-			k = btnCount - 1;
+			k = 0;
 		}
 		var toolBtn = toolBar.childNodes[k];
 		toolBtn && toolBtn.focus();
