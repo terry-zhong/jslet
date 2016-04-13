@@ -405,10 +405,11 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			return;
 		}
 		itemCfg.disabled(disabled);
-		var jqEl = jQuery(Z.el);
-		var panelContainer = jqEl.find('.jl-tab-panels')[0];
-		var nodes = panelContainer.childNodes;
-		var jqItem = jQuery(nodes[index]);
+		var jqEl = jQuery(Z.el),
+			jqPanels = jqEl.find('.jl-tab-panels'),
+			panelContainer = jqPanels[0],
+			nodes = panelContainer.childNodes,
+			jqItem = jQuery(nodes[index]);
 		if(disabled) {
 			jqItem.addClass('jl-tab-disabled');
 		} else {
@@ -670,11 +671,12 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 
 		var url = itemCfg.url;
 		if (url) {
+			itemCfg.url = url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id;
 			if (itemCfg.useIFrame || itemCfg.useIFrame === undefined) {
 				var id = jslet.nextId(); 
-				var s = '<iframe id="' + id + '"scrolling="yes" frameborder="0" src="' + 
-				url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id + 
-				'" style="width: 100%;height:' + h  + ';"></iframe>';
+				var s = '<iframe id="' + id + '"scrolling="yes" frameborder="0" allowtransparency="true" src="' + 
+				itemCfg.url + 
+				'" style="width: 100%;height:' + h  + ';background-color:transparent"></iframe>';
 				jqDiv.html(s);
 				itemCfg.contentId = id;
 				if(Z._onContentLoading) {
