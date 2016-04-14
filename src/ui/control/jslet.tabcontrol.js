@@ -110,6 +110,34 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	/**
+	 * Get or set active tab item id.
+	 * 
+	 * @param {String or undefined} itemId active tabItem id.
+	 * @param {this or String}
+	 */
+	activeItemId: function(itemId) {
+		var Z = this;
+		if(itemId === undefined) {
+			var itemCfg = Z._items[this._activeIndex];
+			if(itemCfg) {
+				return itemCfg.id;
+			}
+			return null;
+		}
+		jslet.Checker.test('TabControl.activeItemId', itemId).isString();
+		if(this._ready) {
+			var items = Z._items;
+			for(var i = 0, len = items.length; i < len; i++) {
+				if(itemId === items[i].id) {
+					this._chgActiveIndex(i);
+					break;
+				}
+			}
+		}
+		return this;
+	},
+	
+	/**
 	 * Get active tab item config.
 	 * 
 	 * @return {jslet.ui.TabItem}
@@ -185,8 +213,8 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	/**
 	 * Fired after remove a tab item.
 	 * Pattern: 
-	 *  function(tabIndex, active){}
-	 *  //tabIndex: Integer
+	 *  function(tabItemIndex, active){}
+	 *  //tabItemIndex: Integer
 	 *  //active: Boolean Identify if the removing item is active
 	 *  //return: Boolean, false - cancel removing tab item, true - remove tab item. 
 	 *   
@@ -808,37 +836,37 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	/**
-	 * Remove tab item with tabIndex
+	 * Remove tab item with tabItemIndex
 	 * 
-	 * @param {Integer} tabIndex Tab item index
+	 * @param {Integer} tabItemIndex Tab item index
 	 */
-	removeTabItem: function (tabIndex, isBatch) {
+	removeTabItem: function (tabItemIndex, isBatch) {
 		var Z = this;
-		if (tabIndex >= Z._items.length || tabIndex < 0) {
+		if (tabItemIndex >= Z._items.length || tabItemIndex < 0) {
 			return;
 		}
-		var itemCfg = Z._items[tabIndex];
+		var itemCfg = Z._items[tabItemIndex];
 		if(itemCfg.changed) {
             jslet.ui.MessageBox.confirm(jslet.locale.TabControl.contentChanged, jslet.locale.MessageBox.confirm, function(button){
 				if(button === 'ok') {
-					Z._innerRemoveTabItem(tabIndex, isBatch);
+					Z._innerRemoveTabItem(tabItemIndex, isBatch);
 				}
             });
 		} else {
-			Z._innerRemoveTabItem(tabIndex, isBatch);
+			Z._innerRemoveTabItem(tabItemIndex, isBatch);
 		}
 	},
 
-	_innerRemoveTabItem: function (tabIndex, isBatch) {
+	_innerRemoveTabItem: function (tabItemIndex, isBatch) {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			oul = jqEl.find('.jl-tab-list')[0],
 			nodes = oul.childNodes,
 			cnt = nodes.length - (Z._newable ? 2 : 1),
-			oli = jQuery(nodes[tabIndex]);
+			oli = jQuery(nodes[tabItemIndex]);
 		var active = oli.hasClass('jl-tab-active');
 		if (Z._onRemoveTabItem) {
-			var canRemoved = Z._onRemoveTabItem.call(Z, tabIndex, active);
+			var canRemoved = Z._onRemoveTabItem.call(Z, Z._items[tabItemIndex], active);
 			if (!canRemoved) {
 				return;
 			}
@@ -848,10 +876,10 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			var elItem = oli[0]; 
 			elItem.oncontextmenu = null;
 			oul.removeChild(elItem);
-			Z._items.splice(tabIndex, 1);
+			Z._items.splice(tabItemIndex, 1);
 			var panelContainer = jqEl.find('.jl-tab-panels')[0];
 			nodes = panelContainer.childNodes;
-			var tabPanel = nodes[tabIndex];
+			var tabPanel = nodes[tabItemIndex];
 			panelContainer.removeChild(tabPanel);
 			if(!isBatch) {
 				Z._calcItemsWidth();
@@ -859,9 +887,9 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			}
 			if (active) {
 				cnt--;
-				tabIndex = Z._getNextValidIndex(tabIndex, tabIndex >= cnt)
-				if (tabIndex >= 0) {
-					Z._chgActiveIndex(tabIndex);
+				tabItemIndex = Z._getNextValidIndex(tabItemIndex, tabItemIndex >= cnt)
+				if (tabItemIndex >= 0) {
+					Z._chgActiveIndex(tabItemIndex);
 				} else {
 					Z._activeIndex = -1;
 				}

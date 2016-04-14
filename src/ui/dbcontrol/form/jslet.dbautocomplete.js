@@ -377,11 +377,11 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return;
 		}
 		
-		var oldFlag = lkFld.autoRefreshHostDataset();
-		lkFld.autoRefreshHostDataset(false);
+		var lkds = lkFld.dataset(),
+			oldFlag = lkds.autoRefreshHostDataset();
+		lkds.autoRefreshHostDataset(false);
 		try {
-			var lkds = lkFld.dataset(),
-				editFilter = lkFld.editFilter();
+			var	editFilter = lkFld.editFilter();
 			var eventFunc = jslet.getFunction(Z._beforePopup);
 			if (eventFunc) {
 				eventFunc.call(Z, lkds, inputValue, editFilter);
@@ -408,7 +408,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 				}
 			}
 		} finally {
-			lkFld.autoRefreshHostDataset(oldFlag);
+			lkds.autoRefreshHostDataset(oldFlag);
 		}
 		//Clear field value which specified by 'lookupField'.
 		if(Z._lookupField) {
