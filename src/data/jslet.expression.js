@@ -43,7 +43,6 @@ jslet.Expression.prototype = {
 			fldName = stag[0];
 
 			if (!fldName || fldName.endsWith('(')) {
-				console.log(fldName);
 				continue;
 			}
 

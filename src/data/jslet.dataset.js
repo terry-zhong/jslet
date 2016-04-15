@@ -1967,10 +1967,25 @@ jslet.data.Dataset.prototype = {
 		return this;
 	},
 	
+	/**
+	 * Get or set the current record is expanded or not.
+	 * 
+	 * @param {Boolean or undefined} expanded - true - expanded, false - collapsed.
+	 * 
+	 * @param {Boolean or this}
+	 */
 	expanded: function(expanded) {
-		this.expandedByRecno(this.recno(), expanded);
+		return this.expandedByRecno(this.recno(), expanded);
 	},
 	
+	/**
+	 * Get or set the specified record is expanded or not.
+	 * 
+	 * @param {Integer} recno - record number.
+	 * @param {Boolean or undefined} expanded - true - expanded, false - collapsed.
+	 * 
+	 * @param {Boolean or this}
+	 */
 	expandedByRecno: function(recno, expanded) {
 		jslet.Checker.test('dataset.expandedByRecno', recno).required().isNumber();
 		var record = this.getRecord(recno);
@@ -1987,20 +2002,79 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
+	 * Get or set the specified record is inserted or not.
+	 * 
+	 * @param {Integer} recno - record number.
+	 * @param {Boolean or undefined} inserted - true - inserted, false - not changed.
+	 * 
+	 * @param {Boolean or this}
+	 */
+	insertedByRecno: function(recno, inserted) {
+		if(inserted === undefined) {
+			return this.changedStatusByRecno(recno) === jslet.data.DataSetStatus.INSERT;
+		}
+		if(inserted) {
+			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.INSERT);
+		} else {
+			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.BROWSE);
+		}
+		return this;
+	},
+	
+	/**
+	 * Get or set the specified record is updated or not.
+	 * 
+	 * @param {Integer} recno - record number.
+	 * @param {Boolean or undefined} updated - true - updated, false - not changed.
+	 * 
+	 * @param {Boolean or this}
+	 */
+	updatedByRecno: function(recno, updated) {
+		if(updated === undefined) {
+			return this.changedStatusByRecno(recno) === jslet.data.DataSetStatus.UPDATE;
+		}
+		if(updated) {
+			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.UPDATE);
+		} else {
+			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.BROWSE);
+		}
+		return this;
+	},
+	
+	/**
 	 * @private
 	 */
 	changedStatus: function(status) {
-		var record = this.getRecord();
-		if(!record) {
-			return null;
-		}
-		var recInfo = jslet.data.getRecInfo(record);		
 		if(status === undefined) {
+			return this.changedStatusByRecno(this._recno, status);
+		}
+		this.changedStatusByRecno(this._recno, status);
+	},
+	
+	/**
+	 * @private
+	 */
+	changedStatusByRecno: function(recno, status) {
+		var Z = this;
+		if(status === undefined) {
+			var record = Z.getRecord(recno);
+			if(!record) {
+				return null;
+			}
+			var recInfo = jslet.data.getRecInfo(record);		
 			if(!recInfo) {
 				return jslet.data.DataSetStatus.BROWSE;
 			}
 			return recInfo.status;
 		}
+		if(!Z._logChanges) {
+			return;
+		}
+		var record = Z.getRecord(recno);
+		if(!record) {
+			return null;
+		}
+		var recInfo = jslet.data.getRecInfo(record);		
 		var	oldStatus = recInfo.status;
 		if(status === jslet.data.DataSetStatus.DELETE) {
 			recInfo.status = status;
@@ -2010,8 +2084,8 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 		if(oldStatus != status) {
-			if (this._contextRuleEnabled) {
-				this.calcContextRule();
+			if (Z._contextRuleEnabled) {
+				Z.calcContextRule();
 			}
 			recInfo.status = status;
 		}
@@ -2285,7 +2359,6 @@ jslet.data.Dataset.prototype = {
 		if(Z._aggradingCount > 0 || !Z.checkAggraded(fldName)) {
 			return;
 		}
-		console.log('calc aggraded value')
 		var aggrFields = Z._aggradedFields,
 			fldObj, aggradedBy, fldName,
 			arrAggradeBy = [],
@@ -2832,6 +2905,17 @@ jslet.data.Dataset.prototype = {
 			}
 			
 		} //end for i
+		if(Z._masterDataset && Z._masterField) {
+			var masterDsObj = jslet.data.getDataset(Z._masterDataset),
+				masterFldObj = masterDsObj.getField(Z._masterField);
+			if(Z.existRecordError()) {
+				//'Detail Dataset: {0} has error data!'
+				masterDsObj.addFieldError(Z._masterField, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
+			} else {
+				masterDsObj.addFieldError(Z._masterField, null);
+			}
+		}
+
 		if(firstInvalidField) {
 			Z.focusEditControl(firstInvalidField);
 		}
@@ -2942,9 +3026,8 @@ jslet.data.Dataset.prototype = {
 			return true;
 		}
 		Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFORECONFIRM);
-		Z._innerValidateData();
 		Z._confirmDetailDataset();
-
+		Z._innerValidateData();
 		if(Z.status() === jslet.data.DataSetStatus.UPDATE) {
 			Z.changedStatus(jslet.data.DataSetStatus.UPDATE);
 		}
@@ -3114,7 +3197,7 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * Edit log means the log when user modify records. For some sensitive data, user need audit who & when modify data. 
 	 * 
-	 * @param {Boolean or undefined} logChanges - True: enable audit log, otherwise false.
+	 * @param {Boolean or undefined} auditLogEnabled - True: enable audit log, otherwise false.
 	 * @return {this or Boolean}
 	 */
 	auditLogEnabled: function(auditLogEnabled) {
@@ -4849,9 +4932,11 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * Identify dataset has changed records.
 	 */
-	hasChangedData: function() {
+	hasChangedData: function(noConfirm) {
 		var Z = this;
-		Z.confirm();
+		if(!noConfirm) {
+			Z.confirm();
+		}
 		var dataList = Z.dataList(), record, recInfo;
 		if(!dataList) {
 			return false;
@@ -5550,8 +5635,11 @@ jslet.data.Dataset.prototype = {
 	 * @return {Object} Dataset snapshot.
 	 */
 	exportSnapshot: function() {
-		var Z = this,
-			mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), dataList: Z.dataList(), changedRecords: Z._changeLog._changedRecords};
+		var Z = this;
+		if(Z.dataList() === 0) {
+			return null;
+		}
+		var	mainDs = {name: Z.name(), recno: Z.recno(), status: Z.status(), dataList: Z.dataList(), changedRecords: Z._changeLog._changedRecords};
 		var indexFields = Z.indexFields();
 		if(indexFields) {
 			mainDs.indexFields = indexFields;

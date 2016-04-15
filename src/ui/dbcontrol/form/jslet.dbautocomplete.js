@@ -180,28 +180,26 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return;
 		}
 		if (Z.contentPanel && Z.contentPanel.isShowing()) {
-			window.setTimeout(function(){
-				if(Z._isSelecting) {
-					return;
+			if(Z._isSelecting) {
+				return;
+			}
+			var value = Z.el.value, canBlur = true;
+			if(!Z._lookupField) {
+				var fldObj = Z._dataset.getField(Z._field),
+					lkf = fldObj.lookup(),
+					lkds = lkf.dataset();
+				if(value.length > 0 && lkds.recordCount() === 0) {
+					canBlur = false;
 				}
-				var value = Z.el.value, canBlur = true;
-				if(!Z._lookupField) {
-					var fldObj = Z._dataset.getField(Z._field),
-						lkf = fldObj.lookup(),
-						lkds = lkf.dataset();
-					if(value.length > 0 && lkds.recordCount() === 0) {
-						canBlur = false;
-					}
-				}
-				if (Z.contentPanel && Z.contentPanel.isShowing()) {
-					Z.contentPanel.closePopup();
-				}
-				Z.updateToDataset();
-				Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
-				if(!canBlur) {
-					Z.el.focus();
-				}
-			}, 200);
+			}
+			if (Z.contentPanel && Z.contentPanel.isShowing()) {
+				Z.contentPanel.closePopup();
+			}
+			Z.updateToDataset();
+			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
+			if(!canBlur) {
+				Z.el.focus();
+			}
 		} else {
 			Z.updateToDataset();
 			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));

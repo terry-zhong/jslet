@@ -886,7 +886,6 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				Z._checkTabItemCount();
 			}
 			if (active) {
-				cnt--;
 				tabItemIndex = Z._getNextValidIndex(tabItemIndex, tabItemIndex >= cnt)
 				if (tabItemIndex >= 0) {
 					Z._chgActiveIndex(tabItemIndex);
@@ -937,12 +936,14 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	/**
 	 * Close the current active tab item  if this tab item is closable.
 	 */
-	close: function () {
-		var Z = this,
-			currIdx = Z._contextItemIndex,
-			itemCfg = Z._items[currIdx];
-		if (itemCfg && currIdx >= 0 && itemCfg.closable && !itemCfg.disabled) {
-			Z.removeTabItem(currIdx);
+	close: function (tabItemIndex) {
+		var Z = this;
+		if(tabItemIndex === undefined) {
+			tabItemIndex = Z._activeIndex;
+		}
+		var itemCfg = Z._items[tabItemIndex];
+		if (itemCfg && tabItemIndex >= 0 && itemCfg.closable && !itemCfg.disabled) {
+			Z.removeTabItem(tabItemIndex);
 		}
 	},
 
@@ -1014,7 +1015,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		if(menuId === 'reload') {
 			this.reload();
 		} else if (menuId === 'close') {
-			this.close();
+			this.close(this._contextItemIndex);
 		} else if (menuId === 'closeOther') {
 			this.closeOther();
 		} else if (menuId === 'closeAll') {
