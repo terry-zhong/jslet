@@ -3524,6 +3524,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 			Z._showCurrentRow(true);
 		} else if (evtType == jslet.data.RefreshEvent.UPDATEALL) {
+			if(!Z.listvm) {
+				return;
+			}
 			Z.listvm.refreshModel();
 			Z._updateSortFlag(true);
 			if(Z._dataset.recordCount() === 0) {

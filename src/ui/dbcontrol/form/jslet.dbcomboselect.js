@@ -37,7 +37,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'styleClass,dataset,field,textField,searchField,popupHeight,popupWidth,showStyle,textReadOnly,onGetSearchField,correlateCheck';
+		Z.allProperties = 'styleClass,dataset,field,textField,searchField,popupHeight,popupWidth,showStyle,textReadOnly,onGetSearchField,correlateCheck,autoSelected';
 		Z._textField = null;
 		
 		Z._showStyle = 'auto';
@@ -53,6 +53,8 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		Z._onGetSearchField = null;
 		
 		Z._correlateCheck = false;
+		
+		Z._autoSelected = true;
 		
 		$super(el, params);
 	},
@@ -128,12 +130,31 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		}
 		this._onGetSearchField = onGetSearchField;
 	},
-		
+	
+	/**
+	 * Identify if correlate check the tree nodes or not.
+	 * 
+	 * @param {Boolean} correlateCheck 
+	 * @return {Boolean or this}
+	 */
 	correlateCheck: function(correlateCheck) {
 		if(correlateCheck === undefined) {
 			return this._correlateCheck;
 		}
 		this._correlateCheck = correlateCheck;
+	},
+	
+	/**
+	 * Automatically select the finding record when searching record.
+	 * 
+	 * @param {Boolean} autoSelected true - Automatically select record, false - otherwise.
+	 * @return {Boolean or this}
+	 */
+	autoSelected: function(autoSelected) {
+		if(autoSelected === undefined) {
+			return this._autoSelected;
+		}
+		this._autoSelected = autoSelected;
 	},
 	
 	/**
@@ -233,7 +254,8 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
 	Z.onCustomButtonClick = null;
 	Z.popupWidth = 350;
 	Z.popupHeight = 350;
-
+	Z._isShowing = false;
+	
 	var otree, otable, showType, valueSeperator = ',', lkf, lkds, self = this;
 	Z.comboSelectObj = comboSelectObj;
 
@@ -245,8 +267,11 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
 	
 	Z.popup = new jslet.ui.PopupPanel();
 	Z.popup.onHidePopup = function() {
+		Z._isShowing = false;
+		Z._restoreLkDsEvent();
 		Z.comboSelectObj && Z.comboSelectObj.focus();
 	};
+	Z._confirmSelectDebounce = jslet.debounce(this._confirmSelect, 50);
 };
 
 jslet.ui.DBComboSelectPanel.prototype = {
@@ -261,6 +286,9 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		
 	showPopup: function (left, top, ajustX, ajustY) {
 		var Z = this;
+		if(Z._isShowing) {
+			return;
+		}
 		Z._initSelected();
 		var showType = Z.showStyle.toLowerCase();
 		if (!Z.panel) {
@@ -290,13 +318,8 @@ jslet.ui.DBComboSelectPanel.prototype = {
 				Z.popupWidth = 500;
 			}
 		}
-//		var jqPanel = jQuery(Z.panel),
-//		jqPh = jqPanel.find('.jl-combopnl-head');
-//		if(Z.lookupDs().recordCount() < 20) {
-//			jqPh.hide();
-//		} else {
-//			jqPh.show();
-//		}
+		Z._setLookupDsEvent();
+		Z._isShowing = true;
 		Z.popup.setContent(Z.panel, '100%', '100%');
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
 		Z._showTips(jslet.locale.DBComboSelect.find);
@@ -305,17 +328,51 @@ jslet.ui.DBComboSelectPanel.prototype = {
 
 	closePopup: function () {
 		var Z = this;
-		var fldObj = Z.dataset.getField(Z.field),
-			lkfld = fldObj.lookup();
-		if(Z.isMultiple() && lkfld.onlyLeafLevel()) {
-			Z.lookupDs().onCheckSelectable(null);
-		}
-		
 		Z.popup.hide();
 		var dispCtrl = Z.otree ? Z.otree : Z.otable;
 		if(dispCtrl) {
 			dispCtrl.dataset().removeLinkedControl(dispCtrl);
 		}
+	},
+	
+	_setLookupDsEvent: function() {
+		var Z = this;
+		if(Z.isMultiple()) {
+			var fldObj = Z.dataset.getField(Z.field),
+				lkfld = fldObj.lookup();
+			var lkDs = lkfld.dataset();
+			Z._oldLkDsCheckSelectable = null;
+			if(lkfld.onlyLeafLevel()) {
+				Z._oldLkDsCheckSelectable = lkDs.onCheckSelectable();
+				lkDs.onCheckSelectable(function(){
+					return !this.hasChildren();
+				});
+			}
+
+			var lkDs = Z.lookupDs();
+			Z._oldLkDsListener = lkDs.datasetListener();
+			lkDs.datasetListener(function(eventType) {
+				if(Z._oldLkDsListener) {
+					Z._oldLkDsListener.call(lkDs, eventType);
+				}
+				if(eventType === jslet.data.DatasetEvent.AFTERSELECT) {
+					Z._confirmSelectDebounce.call(Z);
+				}
+			});
+		}
+		
+	},
+	
+	_restoreLkDsEvent: function() {
+		var Z = this;
+		if(Z.isMultiple()) {
+			var fldObj = Z.dataset.getField(Z.field),
+				lkfld = fldObj.lookup();
+			var lkDs = lkfld.dataset();
+			lkDs.onCheckSelectable(Z._oldLkDsCheckSelectable? Z._oldLkDsCheckSelectable: null);
+			lkDs.datasetListener(Z._oldLkDsListener? Z._oldLkDsListener: null);
+		}
+		
 	},
 	
 	_create: function () {
@@ -334,22 +391,13 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var template = ['<div class="jl-combopnl-tip" style="display:none"></div>',
 		                '<div class="jl-combopnl-head"><label class="col-xs-4"></label>',
 		                '<div class="col-xs-8 input-group input-group-sm">',
-		                
 		                '<input class="form-control" type="text" size="10"></input>',
 		                '<span class="input-group-btn">',
 		                '<button class="jl-combopnl-search btn btn-secondary" type="button"><i class="fa fa-search"></i></button>',
 		                '<button class="jl-combopnl-closesearch btn btn-secondary" type="button"><i class="fa fa-times"></i></button>',
 		                '</span>',
 		                '</div></div>',
-		              
-			'<div class="jl-combopnl-content',
-			Z.isMultiple() ? ' jl-combopnl-multiselect': '',
-			'"></div>',
-			'<div class="jl-combopnl-footer" style="display:none"><button class="jl-combopnl-footer-cancel btn btn-default btn-sm" >',
-			jslet.locale.MessageBox.cancel,
-			'</button><button class="jl-combopnl-footer-ok btn btn-default btn-sm" >',
-			jslet.locale.MessageBox.ok,
-			'</button></div>'];
+		                '<div class="jl-combopnl-content"></div>'];
 
 		Z.panel.innerHTML = template.join('');
 		var jqPanel = jQuery(Z.panel),
@@ -374,22 +422,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			jqPanel.find('.jl-combopnl-head').slideUp();
 			Z._focus();
 		});
-		var jqContent = jqPanel.find('.jl-combopnl-content');
-		if (Z.isMultiple()) {
-			jqContent.addClass('jl-combopnl-content-nofooter').removeClass('jl-combopnl-content-nofooter');
-			var pnlFoot = jqPanel.find('.jl-combopnl-footer')[0];
-			pnlFoot.style.display = 'block';
-			var jqFoot = jQuery(pnlFoot);
-			jqFoot.find('.jl-combopnl-footer-cancel').click(jQuery.proxy(Z.closePopup, Z));
-			jqFoot.find('.jl-combopnl-footer-ok').click(jQuery.proxy(Z._confirmSelect, Z));
-		} else {
-			jqContent.addClass('jl-combopnl-content-nofooter');
-		}
-		var contentPanel = jqContent[0];
+		var contentPanel = jqPanel.find('.jl-combopnl-content')[0];
 
 		//create popup content
 		if (showType == 'tree') {
-			var treeparam = { 
+			var treeParam = { 
 				type: 'DBTreeView', 
 				dataset: lkds, 
 				readOnly: false, 
@@ -399,20 +436,20 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			};
 
 			if (!Z.isMultiple()) {
-				treeparam.onItemClick = jQuery.proxy(Z._confirmSelect, Z);
+				treeParam.onItemClick = jQuery.proxy(Z._confirmAndClose, Z);
 			}
-			treeparam.correlateCheck = Z.comboSelectObj.correlateCheck();
+			treeParam.correlateCheck = Z.comboSelectObj.correlateCheck();
 			window.setTimeout(function(){
-				Z.otree = jslet.ui.createControl(treeparam, contentPanel, '100%', '100%');
+				Z.otree = jslet.ui.createControl(treeParam, contentPanel, '100%', '100%');
 			}, 1);
 		} else {
-			var tableparam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, 
+			var tableParam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: Z.isMultiple(), hasSeqCol: false, 
 					hasFindDialog: false, hasFilterDialog: false };
 			if (!Z.isMultiple()) {
-				tableparam.onRowClick = jQuery.proxy(Z._confirmSelect, Z);
+				tableParam.onRowClick = jQuery.proxy(Z._confirmAndClose, Z);
 			}
 			window.setTimeout(function(){
-				Z.otable = jslet.ui.createControl(tableparam, contentPanel, '100%', '100%');
+				Z.otable = jslet.ui.createControl(tableParam, contentPanel, '100%', '100%');
 			}, 1);
 		}
 		return Z.panel;
@@ -437,15 +474,20 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			}
 			return;
 		}
-		lkds.selectAll(false);
-		if (fldValue) {
-			var arrKeyValues = fldValue;
-			if(!jslet.isArray(fldValue)) {
-				arrKeyValues = fldValue.split(jslet.global.valueSeparator);
+		lkds.disableControls();
+		try {
+			lkds.selectAll(false);
+			if (fldValue) {
+				var arrKeyValues = fldValue;
+				if(!jslet.isArray(fldValue)) {
+					arrKeyValues = fldValue.split(jslet.global.valueSeparator);
+				}
+				for (var i = 0, len = arrKeyValues.length; i < len; i++){
+					lkds.selectByKeyValue(true, arrKeyValues[i]);
+				}
 			}
-			for (var i = 0, len = arrKeyValues.length; i < len; i++){
-				lkds.selectByKeyValue(true, arrKeyValues[i]);
-			}
+		} finally {
+			lkds.enableControls();
 		}
 	},
 
@@ -484,7 +526,10 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var	currRecno = lkds.recno() + 1;
 		var found = lkds.findByField(findFldNames, findingValue, currRecno, true, 'any');
 		if(!found) {
-			lkds.findByField(findFldNames, findingValue, 0, true, 'any');
+			found = lkds.findByField(findFldNames, findingValue, 0, true, 'any');
+		}
+		if(found && Z.comboSelectObj.autoSelected()) {
+			lkds.select(true);
 		}
 		return;
 		
@@ -516,10 +561,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			isMulti = Z.isMultiple(),
 			lookupDs = Z.lookupDs();
 		
-		if(!lookupDs.checkSelectable()) {
-			Z._showTips(jslet.locale.DBComboSelect.cannotSelect);
-			return;
-		}
 		if (isMulti) {
 			fldValue = lookupDs.selectedKeyValues();
 		} else {
@@ -530,11 +571,16 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if (!isMulti && Z.comboSelectObj._afterSelect) {
 			Z.comboSelectObj._afterSelect(Z.dataset, lookupDs);
 		}
-		Z.closePopup();
+	},
+	
+	_confirmAndClose: function () {
+		this._confirmSelect();
+		this.closePopup();
 	},
 
 	destroy: function(){
 		var Z = this;
+		Z._restoreLkDsEvent();
 		if (Z.otree){
 			Z.otree.destroy();
 			Z.otree = null;
@@ -545,10 +591,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		}
 		Z.comboSelectObj = null;
 		
-		var jqPanel = jQuery(Z.panel),
-			jqFoot = jqPanel.find('.jl-combopnl-footer');
-		jqFoot.find('.jl-combopnl-footer-cancel').off();
-		jqFoot.find('.jl-combopnl-footer-ok').off();
 		jQuery(Z.searchBoxEle).off();
 		Z.fieldObject = null;
 		

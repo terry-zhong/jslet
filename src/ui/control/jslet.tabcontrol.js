@@ -892,6 +892,10 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				} else {
 					Z._activeIndex = -1;
 				}
+			} else {
+				if(Z._activeIndex > tabItemIndex) {
+					Z._activeIndex--;
+				}
 			}
 		});
 	},
@@ -969,8 +973,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	 * Close all closable tab item.
 	 */
 	closeAll: function() {
-		this.closeOther();
-		this.close();
+		var Z = this, oitem;
+		for (var i = Z._items.length - 1; i >= 0; i--) {
+			oitem = Z._items[i];
+			if (oitem.closable && !oitem.disabled) {
+				Z.removeTabItem(i, true);
+			}
+		}
+		Z._calcItemsWidth();
+		Z._checkTabItemCount();
 	},
 	
 	/**

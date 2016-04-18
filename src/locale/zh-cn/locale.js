@@ -60,7 +60,7 @@
 		invalidDateFieldValue: '字段: [{0}]是日期字段, 但值：[{1}]不是日期型!',
 		invalidNumberFieldValue: '字段: [{0}]是数字型字段, 但值：[{1}]不是数字型!',
 		parentFieldNotSet: '数据集没有设置[parentField]和[keyField]属性, 请用insertRecord()!',
-		detailDsHasError: '明细数据有这只queryUrl属性! 用法: yourDataset.queryUrl(yourUrl)',
+		detailDsHasError: '明细数据: {0}有错误!',
 		submitUrlRequired: '数据集集：{0} 存在错误数据!',
 		queryUrlRequired: '数据集没没有这只submitUrl属性! 用法: yourDataset.submitUrl(yourUrl)',
 		cannotFocusControl: '无法移动焦点到此控件，请检查此控件是否disabled!',
