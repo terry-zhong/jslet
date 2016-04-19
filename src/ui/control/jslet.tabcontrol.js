@@ -699,11 +699,11 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 
 		var url = itemCfg.url;
 		if (url) {
-			itemCfg.url = url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id;
+			url = url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id;
 			if (itemCfg.useIFrame || itemCfg.useIFrame === undefined) {
 				var id = jslet.nextId(); 
 				var s = '<iframe id="' + id + '"scrolling="yes" frameborder="0" allowtransparency="true" src="' + 
-				itemCfg.url + 
+					url + 
 				'" style="width: 100%;height:' + h  + ';background-color:transparent"></iframe>';
 				jqDiv.html(s);
 				itemCfg.contentId = id;
@@ -728,9 +728,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			newId = jslet.nextId();
 			newItemCfg.id = newId;
 		}
+		var itemCfg;
 		if((noDuplicate === undefined || noDuplicate) && newId) {
 			for(var i = 0, len = tabItems.length; i < len; i++) {
-				if(newId === tabItems[i].id) {
+				itemCfg = tabItems[i];
+				if(newId === itemCfg.id) {
+					if(itemCfg.url !== newItemCfg.url) {
+						itemCfg.url = newItemCfg.url;
+						Z.reloadTabItem(itemCfg);
+					}
 					Z.activeIndex(i);
 					return;
 				}
@@ -925,15 +931,23 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			currIdx = Z._contextItemIndex,
 			itemCfg = Z._items[currIdx];
-		if(itemCfg && itemCfg.contentId) {
-			var jqFrame = jQuery('#' + itemCfg.contentId);
+		Z.reloadTabItem(itemCfg);
+	},
+	
+	reloadTabItem: function(itemCfg) {
+		var Z = this;
+		if(!itemCfg) {
+			return;
+		}
+		var contentId = itemCfg.contentId
+		if(contentId) {
+			var jqFrame = jQuery('#' + contentId);
 			if(Z._onContentLoading) {
 				Z._onContentLoading.call(Z, jqFrame.attr('id'), itemCfg);
 			}
-			
-			if(jqFrame.attr('src')) {
-				jqFrame.attr('src', itemCfg.url);
-			}
+			var url = itemCfg.url;
+			url = url + (url.indexOf('?') >= 0 ? '&': '?') + 'jlTabItemId=' + itemCfg.id;
+			jqFrame.attr('src', url);
 		}
 	},
 	

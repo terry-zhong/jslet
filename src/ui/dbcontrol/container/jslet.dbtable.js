@@ -1744,12 +1744,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z.hasFixedCol){
 			var w = 0;
 			for(var i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
-				w += Z._sysColumns[i].width;
+				w += Z._sysColumns[i].width + 1;
 			}
 			for(var i = 0; i < Z._fixedCols; i++){
-				w += Z.innerColumns[i].width;
+				w += Z.innerColumns[i].width + 1;
 			}
-			Z.fixedColWidth = w + 4;
+			Z.fixedColWidth = w + 1;
 		} else {
 			Z.fixedColWidth = 0;
 		}
