@@ -26,7 +26,7 @@ jslet._initialModules = [
 //message for i18n
 	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
 	   //js-lib
-	{name: 'jquery', src: '../dist/lib/jquery-1.11.0.js', baseOnLoader: true },
+	{name: 'jquery', src: '../dist/lib/jquery-2.2.3.js', baseOnLoader: true },
 
 	//Bootstrap
 	{name: 'bootstrap-js', src: '../dist/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },

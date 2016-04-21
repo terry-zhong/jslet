@@ -1,4 +1,4 @@
-/*!
+/*
  * Jslet Javascript Framework v4.0.0
  * https://github.com/jslet/jslet/
  *
@@ -32,10 +32,10 @@
 }
 
 .jl-win-header-sm {
-	padding:2px 10px;
+	padding:2px 10px!important;
 }
 
-.jl-win-title {
+.jl-win-caption {
     float: left;
 	cursor: move;
 }

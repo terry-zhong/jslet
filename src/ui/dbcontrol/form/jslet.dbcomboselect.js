@@ -269,7 +269,9 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
 	Z.popup.onHidePopup = function() {
 		Z._isShowing = false;
 		Z._restoreLkDsEvent();
-		Z.comboSelectObj && Z.comboSelectObj.focus();
+		if(Z.comboSelectObj) {
+			Z.comboSelectObj.focus();
+		}
 	};
 	Z._confirmSelectDebounce = jslet.debounce(this._confirmSelect, 50);
 };
@@ -349,7 +351,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 				});
 			}
 
-			var lkDs = Z.lookupDs();
+			lkDs = Z.lookupDs();
 			Z._oldLkDsListener = lkDs.datasetListener();
 			lkDs.datasetListener(function(eventType) {
 				if(Z._oldLkDsListener) {
@@ -507,14 +509,16 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			findFldName = eventFunc.call(findingValue);
 		}
 		var findFldNames = null;
+		var lkds = Z.lookupDs();
 		if(!findFldName) {
-			var lkFldObj = Z.fieldObject.lookup(),
-				codeFldName = lkFldObj.codeField(),
-				nameFldName = lkFldObj.nameField();
-			 
 			findFldNames = [];
-			codeFldName && findFldNames.push(codeFldName);
-			nameFldName && codeFldName != nameFldName && findFldNames.push(nameFldName);
+			var fields = lkds.getNormalFields(), fldObj;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				if(fldObj.visible()) {
+					findFldNames.push(fldObj.name());
+				}
+			}
 		} else {
 			findFldNames = findFldName.split(',');
 		}
@@ -522,7 +526,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			console.warn('Search field NOT specified! Can\'t search data!');
 			return;
 		}
-		var lkds = Z.lookupDs();
 		var	currRecno = lkds.recno() + 1;
 		var found = lkds.findByField(findFldNames, findingValue, currRecno, true, 'any');
 		if(!found) {
@@ -531,6 +534,10 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if(found && Z.comboSelectObj.autoSelected()) {
 			lkds.select(true);
 		}
+		if(!found) {
+			Z._showTips(jslet.locale.DBComboSelect.notFound);
+		}
+		event.currentTarget.focus();
 		return;
 		
 	},

@@ -216,7 +216,7 @@ jslet.ui.DBControl = jslet.Class.create(jslet.ui.Control, {
 		if(evt) {
 			evtType = evt.eventType;
 		} else {
-			evtType = jslet.data.RefreshEvent.UPDATEALL
+			evtType = jslet.data.RefreshEvent.UPDATEALL;
 		}
 		// Meta changed 
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
@@ -516,7 +516,9 @@ jslet.ui._evalParams = function (ctrlParams) {
 			p = '{' + p +'}';
 		}
 		try {
+			/* jshint ignore:start */
 			ctrlParams = new Function('return ' + p)();
+			/* jshint ignore:end */
 			if(ctrlParams['var']) {
 				ctrlParams = ctrlParams['var'];
 			}

@@ -17,9 +17,9 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		var columns = _tableCtrl._sysColumns, colCfg,
 			tblDataset = tableCtrl.dataset(),
 			dsName = tblDataset.name(),
-			left = 1;
+			left = 1, i, len;
 			
-		for(var i = 0, len = columns.length; i < len; i++) {
+		for(i = 0, len = columns.length; i < len; i++) {
 			colCfg = columns[i];
 			left += colCfg.width + 1;
 		}
@@ -28,7 +28,7 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 			editorTabIndex = tableCtrl.editorTabIndex(),
 			isBool,
 			alignStr = ';text-align: center';
-		for(var i = 0, len = columns.length; i < len; i++) {
+		for(i = 0, len = columns.length; i < len; i++) {
 			colCfg = columns[i];
 			if(colCfg.field) {
 				isBool = (tblDataset.getField(colCfg.field).dataType() === jslet.data.DataType.BOOLEAN);
@@ -37,8 +37,8 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 				'",field:"' + colCfg.field + 
 				'", tableId: "' + tableId + 
 				'", expandChildWidth: ' + (isBool? 'false': 'true') + 
-				(editorTabIndex? ', tabIndex: ' + editorTabIndex: '')
-				+ '\' class="' + colCfg.widthCssName + '"></div></td>';
+				(editorTabIndex? ', tabIndex: ' + editorTabIndex: '') + 
+				'\' class="' + colCfg.widthCssName + '"></div></td>';
 			}
 		}
 		html += '</tr></tbody></table></div>';
@@ -79,20 +79,20 @@ jslet.ui.TableCellEditor = function(tableCtrl) {
 		jqEditor.show();
 		_tableCtrl.dataset().focusEditControl(fldName);
 		_currField = fldName;
-	}
+	};
 	
 	this.currentField = function() {
 		return _currField;
-	}
+	};
 	
 	this.hideEditor = function() {
 		_editPanel.hide();
-	}
+	};
 	
 	this.destroy = function() { 
 		_tableCtrl = null; 
-	} 
-} 
+	};
+};
 
 /**
  * Find dialog for DBTable and DBTreeView control
@@ -231,7 +231,7 @@ jslet.ui.DBTableFilterPanel = function(tblCtrl) {
 	Z._jqFilterBtn = null;
 	Z._currFieldName = null;
 	Z._currFilterExpr = null;
-}
+};
 
 jslet.ui.DBTableFilterPanel.prototype = {
 	
@@ -337,13 +337,6 @@ jslet.ui.DBTableFilterPanel.prototype = {
 		this._currFilterExpr = null;
 	},
 	
-	_clearFilterBtnStyle: function() {
-		var jqPanel = jQuery(this._panel);
-		jQuery(this._dbtable.el).find('.jl-tbl-filter-hasfilter').attr('title', '').removeClass('jl-tbl-filter-hasfilter');
-		jqPanel.find('.jl-filter-panel-clearall').attr('title', '');
-		this._currFilterExpr = null;
-	},
-	
 	checkFilterBtnStyle: function() {
 		var Z = this;
 		if(!Z._currFilterExpr) {
@@ -403,13 +396,13 @@ jslet.ui.DBTableFilterPanel.prototype = {
  */
 jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
 	this._dataset = jslet.data.getDataset(dataset);
-	this._exportDataset;
+	this._exportDataset = null;
 	this._hasSchemaSection = (hasSchemaSection === undefined || hasSchemaSection ? true: false);
 	
-	this._dlgId;
+	this._dlgId = null;
 	
 	this._initialize();
-}
+};
 
 jslet.ui.ExportDialog.prototype = {
 	_initialize: function() {
@@ -424,12 +417,12 @@ jslet.ui.ExportDialog.prototype = {
 	        return !this.hasChildren(); 
 	    });
 		
-		var fldCfg = [
+		var expFldCfg = [
     	      //{name: 'schemaId', type: 'S', length: 30, label: 'Export Schema ID'}, 
     	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
     	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', visible: false, valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
     	    ];
-    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), fldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
+    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
     	if(this._hasSchemaSection) {
 	    	var exportDsClone = this._exportDataset;
 	    	var lkObj = new jslet.data.FieldLookup();
@@ -552,22 +545,22 @@ jslet.ui.ExportDialog.prototype = {
 		owin.setZIndex(999);
 		return owin;
 	}
-}
+};
 
 jslet.ui.InputSettingDialog = function() {
-	this._inputSettingDs;
+	this._inputSettingDs = null;
 	
-	this._hostDataset;
+	this._hostDataset = null;
 	
-	this._onClosed;
+	this._onClosed = null;
 	
-	this._onRestoreDefault;
+	this._onRestoreDefault = null;
 	
 	this._settings = null;
 	var Z = this;
 	
 	function doProxyFieldChanged(dataRec, proxyFldName, proxyFldObj) {
-		var hostFldObj = jslet.data.getDataset(dataRec['dataset']).getField(proxyFldName);
+		var hostFldObj = jslet.data.getDataset(dataRec.dataset).getField(proxyFldName);
 		proxyFldObj.dataType(hostFldObj.dataType());
 		proxyFldObj.length(hostFldObj.length());
 		proxyFldObj.scale(hostFldObj.scale());
@@ -612,7 +605,7 @@ jslet.ui.InputSettingDialog = function() {
 		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
 		              ];
 		
-		this._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
+		Z._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
 				{keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false, indexFields: 'tabIndex', isFireGlobalEvent: false});
 		
 		var custContextFn = function(fldObj, changingFldName){
@@ -620,14 +613,13 @@ jslet.ui.InputSettingDialog = function() {
 			fldObj.disabled(dataset.getFieldValue('isDatasetField'));
 		};
 		
-		this._inputSettingDs.contextRules([{condition: 'true', rules: [
-		     {field: 'defaultValue', customized: custContextFn},
-		     {field: 'focused', customized: custContextFn},
-		     {field: 'valueFollow', customized: custContextFn}
+		Z._inputSettingDs.contextRules([{"condition": "true", "rules": [
+		     {"field": 'defaultValue', "customized": custContextFn},
+		     {"field": 'focused', "customized": custContextFn},
+		     {"field": 'valueFollow', "customized": custContextFn}
 		]}]);
-		this._inputSettingDs.enableContextRule();
-		var Z = this;
-		this._inputSettingDs.onFieldChanged(function(propName, propValue){
+		Z._inputSettingDs.enableContextRule();
+		Z._inputSettingDs.onFieldChanged(function(propName, propValue){
 			if(Z._isInit) {
 				return;
 			}
@@ -651,7 +643,7 @@ jslet.ui.InputSettingDialog = function() {
 	}
 	
 	initialize.call(this);
-}
+};
 
 jslet.ui.InputSettingDialog.prototype = {
 		
@@ -830,6 +822,6 @@ jslet.ui.InputSettingDialog.prototype = {
 		
 		jslet.ui.install(owin.el);
 	}
+};
 
-}
 jslet.ui.defaultInputSettingDialog = new jslet.ui.InputSettingDialog();

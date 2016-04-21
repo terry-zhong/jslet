@@ -31,7 +31,7 @@ var _initialModules = [
 	{ name: 'jslet-treeview', src: '../src/asset/{theme}/jslet-treeview.css', baseOnLoader: true },
 	{ name: 'jslet-table', src: '../src/asset/{theme}/jslet-table.css', baseOnLoader: true },
    //js-lib
-	{name: 'jquery', src: '../src/lib/jquery-1.11.0.js', baseOnLoader: true },
+	{name: 'jquery', src: '../src/lib/jquery-2.2.3.js', baseOnLoader: true },
 
 	//Bootstrap
 	{name: 'bootstrap-js', src: '../src/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },

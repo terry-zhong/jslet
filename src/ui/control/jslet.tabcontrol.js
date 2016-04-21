@@ -362,7 +362,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		jqNavBtn = jqEl.find('.jl-tab-right');
 
 		jqNavBtn.on("click",function (event) {
-			Z._setVisiTabItems(Z._leftIndex + 1)
+			Z._setVisiTabItems(Z._leftIndex + 1);
 			event.stopImmediatePropagation();
 			event.preventDefault();
 			return false;
@@ -529,7 +529,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 	
 	_setVisiTabItems: function(leftIndex, rightIndex) {
-		var Z = this, w;
+		var Z = this, w, i, len;
 		if(!leftIndex && leftIndex !== 0) {
 			if(!rightIndex) {
 				return;
@@ -539,7 +539,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			}
 			w = Z._itemsWidth[rightIndex];
 			Z._leftIndex = rightIndex;
-			for(var i = rightIndex - 1; i >= 0; i--) {
+			for(i = rightIndex - 1; i >= 0; i--) {
 				w += Z._itemsWidth[i];
 				if(w > Z._containerWidth) {
 					Z._leftIndex = i + 1;
@@ -553,7 +553,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		}
 		w = 0;
 		Z._rightIndex = leftIndex;
-		for(var i = leftIndex, len = Z._itemsWidth.length; i < len; i++) {
+		for(i = leftIndex, len = Z._itemsWidth.length; i < len; i++) {
 			w += Z._itemsWidth[i];
 			if(w > Z._containerWidth) {
 				Z._rightIndex = i - 1;
@@ -562,7 +562,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			Z._rightIndex = i;
 		}
 		var leftPos = 0;
-		for(var i = 0; i < Z._leftIndex; i++) {
+		for(i = 0; i < Z._leftIndex; i++) {
 			leftPos += Z._itemsWidth[i];
 		}
 		leftPos += 5;
@@ -586,8 +586,8 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 		var jqBtnRight = jqEl.find('.jl-tab-right');
-		var isHidden = jqBtnRight.hasClass('jl-hidden');
 		var totalCnt = Z._itemsWidth.length;
+		isHidden = jqBtnRight.hasClass('jl-hidden');
 		if(Z._rightIndex < totalCnt - 1 && Z._totalItemsWidth > Z._containerWidth) {
 			if(isHidden) {
 				jqBtnRight.removeClass('jl-hidden');
@@ -602,13 +602,13 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	_createHeader: function (parent, itemCfg) {
 		var Z = this,
 			canClose = Z._closable && itemCfg.closable,
-			tmpl = ['<a href="javascript:;" class="jl-tab-inner' + (canClose? ' jl-tab-close-loc': '')
-			        + '" onclick="javascript:this.blur();" title="' + itemCfg.header + '"><span class="jl-tab-title '];
+			tmpl = ['<a href="javascript:;" class="jl-tab-inner' + (canClose? ' jl-tab-close-loc': '') + 
+			        '" onclick="javascript:this.blur();" title="' + itemCfg.header + '"><span class="jl-tab-title '];
 
 		tmpl.push('">');
 		tmpl.push(itemCfg.header);
 		tmpl.push('</span>');
-		tmpl.push('<span class="fa fa-times close jl-tab-close' + (!canClose || itemCfg.disabled? ' jl-hidden': '') + '"></span>');
+		tmpl.push('<span class="fa fa-times close jl-tab-close' + (!canClose || itemCfg.disabled? ' jl-hidden': '') + '"></span><span style="clear:both"></span>');
 		tmpl.push('</a>');
 		var oli = document.createElement('li');
 		if(itemCfg.disabled) {
@@ -892,7 +892,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 				Z._checkTabItemCount();
 			}
 			if (active) {
-				tabItemIndex = Z._getNextValidIndex(tabItemIndex, tabItemIndex >= cnt)
+				tabItemIndex = Z._getNextValidIndex(tabItemIndex, tabItemIndex >= cnt);
 				if (tabItemIndex >= 0) {
 					Z._chgActiveIndex(tabItemIndex);
 				} else {
@@ -907,15 +907,15 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 	},
 
 	_getNextValidIndex: function(start, isLeft) {
-		var Z = this;
+		var Z = this, i, len;
 		if(isLeft) {
-			for(var i = start - 1; i >= 0; i--) {
+			for(i = start - 1; i >= 0; i--) {
 				if(!Z._items[i].disabled) {
 					return i;
 				}
 			}
 		} else {
-			for(var i = start, len = Z._items.length; i < len; i++) {
+			for(i = start, len = Z._items.length; i < len; i++) {
 				if(!Z._items[i].disabled) {
 					return i;
 				}
@@ -939,7 +939,7 @@ jslet.ui.TabControl = jslet.Class.create(jslet.ui.Control, {
 		if(!itemCfg) {
 			return;
 		}
-		var contentId = itemCfg.contentId
+		var contentId = itemCfg.contentId;
 		if(contentId) {
 			var jqFrame = jQuery('#' + contentId);
 			if(Z._onContentLoading) {

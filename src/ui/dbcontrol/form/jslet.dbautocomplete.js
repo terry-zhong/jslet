@@ -69,6 +69,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		jslet.Checker.test('DBAutoComplete.lookupField', lookupField).isString();
 		this._lookupField = lookupField;
+		return this;
 	},
    
 	/**
@@ -83,6 +84,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		jslet.Checker.test('DBAutoComplete.minChars', minChars).isGTEZero();
 		this._minChars = parseInt(minChars);
+		return this;
 	},
    
 	/**
@@ -97,6 +99,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		}
 		jslet.Checker.test('DBAutoComplete.minDelay', minDelay).isGTEZero();
 		this._minDelay = parseInt(minDelay);
+		return this;
 	},
    
 	/**
@@ -114,6 +117,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		matchMode = matchMode.toLowerCase();
 		checker.testValue(matchMode).inArray(this.MatchModes);
 		this._matchMode = matchMode;
+		return this;
 	},
    
 	/**
@@ -128,6 +132,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return this._beforePopup;
 		}
 		this._beforePopup = beforePopup;
+		return this;
 	},
 	
 	/**
@@ -137,11 +142,13 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 	 * @return {this or String}
 	 */
 	filterFields: function(filterFields) {
+		var Z = this;
 		if(filterFields === undefined) {
 			return Z._filterFields;
 		}
 		jslet.Checker.test('DBAutoComplete.filterFields', filterFields).isString();
 		Z._filterFields = filterFields;
+		return this;
 	},
 	
 	/**
@@ -157,6 +164,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			return this._onGetFilterField;
 		}
 		this._onGetFilterField = onGetFilterField;
+		return this;
 	},
 	
 	/**
@@ -185,8 +193,8 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 			}
 			var value = Z.el.value, canBlur = true;
 			if(!Z._lookupField) {
-				var fldObj = Z._dataset.getField(Z._field),
-					lkf = fldObj.lookup(),
+				fldObj = Z._dataset.getField(Z._field);
+				var	lkf = fldObj.lookup(),
 					lkds = lkf.dataset();
 				if(value.length > 0 && lkds.recordCount() === 0) {
 					canBlur = false;
@@ -356,7 +364,7 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 		for(var i = 0, len = arrFields.length; i < len; i++) {
 			fldName = arrFields[i];
 			if(i > 0) {
-				result += ' || '
+				result += ' || ';
 			}
 			result += 'like([' + fldName + '],"' + filterValue + '")';
 		}

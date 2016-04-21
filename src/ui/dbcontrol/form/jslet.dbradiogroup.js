@@ -70,16 +70,16 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		jqEl.on('keydown', function(event) {
-			var keyCode = event.which;
+			var keyCode = event.which, idx, activeEle, activeId;
 			
 			if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				if(!Z._itemIds || Z._itemIds.length === 0) {
 					return;
 				}
-				var activeEle = document.activeElement,
-					activeId = activeEle && activeEle.id;
+				activeEle = document.activeElement;
+				activeId = activeEle && activeEle.id;
 				
-				var idx = Z._itemIds.indexOf(activeId);
+				idx = Z._itemIds.indexOf(activeId);
 				if(idx === 0) {
 					return;
 				}
@@ -90,10 +90,10 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				if(!Z._itemIds || Z._itemIds.length === 0) {
 					return;
 				}
-				var activeEle = document.activeElement,
-					activeId = activeEle && activeEle.id;
+				activeEle = document.activeElement;
+				activeId = activeEle && activeEle.id;
 				
-				var idx = Z._itemIds.indexOf(activeId);
+				idx = Z._itemIds.indexOf(activeId);
 				if(idx === Z._itemIds.length - 1) {
 					return;
 				}

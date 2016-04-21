@@ -42,7 +42,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		
 		Z._enableInvalidTip = true;
 		
-		Z._innerEditFilterExpr;
+		Z._innerEditFilterExpr = null;
 		
 		$super(el, params);
 	},
@@ -333,9 +333,9 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!Z.el.multiple && value === Z.el.value) {
 			return;
 		}
-		var optCnt = Z.el.options.length, 
+		var i, optCnt = Z.el.options.length, 
 			opt;
-		for (var i = 0; i < optCnt; i++) {
+		for (i = 0; i < optCnt; i++) {
 			opt = Z.el.options[i];
 			if (opt) {
 				opt.selected = false;
@@ -362,7 +362,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var vcnt = arrValue.length - 1, selected;
 			Z._skipRefresh = true;
 			try {
-				for (var i = 0; i < optCnt; i++) {
+				for (i = 0; i < optCnt; i++) {
 					opt = Z.el.options[i];
 
 					for (var j = vcnt; j >= 0; j--) {

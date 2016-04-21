@@ -6,10 +6,10 @@
  * Released under the MIT license
  */
 
-"use strict";
 /**
  * the below code from prototype.js(http://prototypejs.org/) 
  */
+"use strict";
 jslet.toArray = function(iterable) {
 	if (!iterable) {
 		return [];
@@ -47,6 +47,7 @@ jslet.keys = function(object) {
 	return results;
 };
 
+/* jshint ignore:start */
 jslet.extend(Function.prototype,
 		(function() {
 			var slice = Array.prototype.slice;
@@ -233,3 +234,4 @@ jslet.Class = (function() {
 	};
 })();
 /* end Prototype code */
+/* jshint ignore:start */

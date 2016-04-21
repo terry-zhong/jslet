@@ -419,7 +419,9 @@ jslet.data.ContextRuleMeta.prototype = {
 			return Z._range;
 		}
 		if (jslet.isString(range)) {
+			/* jshint ignore:start */
 			Z._range = new Function('return ' + range);
+			/* jshint ignore:end */
 		} else {
 			Z._range = range;
 		}
@@ -444,7 +446,9 @@ jslet.data.ContextRuleMeta.prototype = {
 		}
 		
 		if (jslet.isString(regularExpr)) {
-			Z._range = new Function('return ' + regularExpr);
+			/* jshint ignore:start */
+			Z._regularExpr = new Function('return ' + regularExpr);
+			/* jshint ignore:end */
 		} else {
 			Z._regularExpr = regularExpr;
 		}
@@ -818,7 +822,7 @@ jslet.data.ContextRuleEngine.prototype = {
 			hasRule = true;
 		}
 		//if exists 'status' condition
-		var ruleStatus = ruleObj.status()
+		var ruleStatus = ruleObj.status();
 		if(ruleStatus !== undefined) {
 			var dsStatus = 'other', 
 				changedStatus = this._dataset.changedStatus();
@@ -839,7 +843,7 @@ jslet.data.ContextRuleEngine.prototype = {
 			if(!hasRule) {
 				matched = true;
 			}
-			matched = (matched && ruleSelected === (this._dataset.selected()? true: false))
+			matched = (matched && ruleSelected === (this._dataset.selected()? true: false));
 		}
 		if(matched) {
 			var ruleEnv = null;
@@ -852,7 +856,7 @@ jslet.data.ContextRuleEngine.prototype = {
 					}
 				}
 			}
-			this._evalRuleItems(ruleObj.rules(), changingFldName? true: false)
+			this._evalRuleItems(ruleObj.rules(), changingFldName? true: false);
 		}
 	},
 	
@@ -957,16 +961,17 @@ jslet.data.ContextRuleEngine.prototype = {
 		var lkDsObj = fieldLookup.dataset();
 		lkDsObj.autoRefreshHostDataset(true);
 		var ruleFilter = ruleLookup.filter();
+		var fldName;
 		if(ruleFilter !== undefined) {
-			for(var fldName in this._ruleEnv) {
+			for(fldName in this._ruleEnv) {
 				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
 			}
 			lkDsObj.filter(ruleFilter);
 			lkDsObj.filtered(true);
 		}
-		var ruleFilter = ruleLookup.fixedFilter();
+		ruleFilter = ruleLookup.fixedFilter();
 		if(ruleFilter !== undefined) {
-			for(var fldName in this._ruleEnv) {
+			for(fldName in this._ruleEnv) {
 				ruleFilter = ruleFilter.replace('${' + fldName + '}', this._ruleEnv[fldName]);
 			}
 			lkDsObj.fixedFilter(ruleFilter);

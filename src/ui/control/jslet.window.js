@@ -538,10 +538,10 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				btnMax = jqMax[0];
 			jqMax.click(function (event) {
 				if (Z._state != 'max') {
-					btnMax.innerHTML = '■'
+					btnMax.innerHTML = '■';
 					Z.maximize();
 				} else {
-					btnMax.innerHTML = '□'
+					btnMax.innerHTML = '□';
 					Z.restore();
 				}
 				event = jQuery.event.fix( event || window.event );
@@ -579,7 +579,6 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		Z.left = left ? left : 0;
 		Z.el.style.left = Z.left + 'px';
 		Z.el.style.top = Z.top + 'px';
-		var jqEl = jQuery(Z.el);
 		if(Z._animation == 'slide') {
 			jqEl.slideDown();
 		} else if(Z._animation == 'fade') {
@@ -863,7 +862,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				}
 			}
 		}
-		var styleObj = jqEl.getStyleObject()
+		var styleObj = jqEl.getStyleObject();
 		if (parseInt(styleObj.zIndex) < maxIndex) {
 			Z.setZIndex(maxIndex + 2);
 		}
@@ -1166,9 +1165,9 @@ jslet.ui.MessageBox = function () {
 		}
 
 		var btnCount = buttons.length;
-		var btnHtml = [], btnName;
+		var btnHtml = [], btnName, i;
 		if (jslet.locale.isRtl){
-			for (var i = btnCount - 1; i >=0; i--) {
+			for (i = btnCount - 1; i >=0; i--) {
 				btnName = buttons[i];
 				btnHtml.push('<button class="jl-msg-button btn btn-default btn-xs" ');
 				btnHtml.push(' data-jsletname="');
@@ -1178,7 +1177,7 @@ jslet.ui.MessageBox = function () {
 				btnHtml.push('</button>');
 			}
 		} else {
-			for (var i = 0; i < btnCount; i++) {
+			for (i = 0; i < btnCount; i++) {
 				btnName = buttons[i];
 				btnHtml.push('<button class="jl-msg-button btn btn-default btn-xs" ');
 				btnHtml.push('" data-jsletname="');
@@ -1225,25 +1224,23 @@ jslet.ui.MessageBox = function () {
 		} else {
 			inputCtrl = jqEl.find('.jl-msg-container textarea')[0];
 		}
-		var obtn;
-		for (var i = 0; i < btnCount; i++) {
-			obtn = toolBar.childNodes[i];
-			obtn.onclick = function () {
-				btnName = jQuery(this).attr('data-jsletname');
-				var value = null;
-				if (hasInput && btnName == 'ok') {
-					value = inputCtrl.value;
-					if (validateFn && !validateFn(value)) {
-						inputCtrl.focus();
-						return;
-					}
+		
+		jQuery(toolBar).on('click', 'button', function(event) {
+			var obtn = event.currentTarget;
+			var btnName = jQuery(obtn).attr('data-jsletname');
+			var value = null;
+			if (hasInput && btnName == 'ok') {
+				value = inputCtrl.value;
+				if (validateFn && !validateFn(value)) {
+					inputCtrl.focus();
+					return;
 				}
-				owin.close();
-				if (callbackFn) {
-					callbackFn(btnName, value);
-				}
-			};
-		}
+			}
+			owin.close();
+			if (callbackFn) {
+				callbackFn(btnName, value);
+			}
+		});
 
 		owin.onClosed(function () {
 			if (callbackFn) {
@@ -1258,7 +1255,9 @@ jslet.ui.MessageBox = function () {
 			k = 0;
 		}
 		var toolBtn = toolBar.childNodes[k];
-		toolBtn && toolBtn.focus();
+		if(toolBtn) {
+			toolBtn.focus();
+		}
 		return owin;
 	};
 };
@@ -1277,9 +1276,9 @@ jslet.ui.MessageBox.alert = function (message, caption, callbackFn, timeout) {
 	var owin = omsgBox.show(message, caption, 'info', ['ok'], callbackFn);
 	if(timeout) {
 		timeout = parseInt(timeout);
-		if(timeout !== NaN) {
+		if(window.isNaN(timeout)) {
 			window.setTimeout(function() {
-				owin.close()
+				owin.close();
 			}, timeout);
 		}
 	}
@@ -1299,9 +1298,9 @@ jslet.ui.MessageBox.error = function (message, caption, callbackFn, timeout) {
 	var owin = omsgBox.show(message, caption, 'error', ['ok'], callbackFn);
 	if(timeout) {
 		timeout = parseInt(timeout);
-		if(timeout !== NaN) {
+		if(window.isNam(timeout)) {
 			window.setTimeout(function() {
-				owin.close()
+				owin.close();
 			}, timeout);
 		}
 	}

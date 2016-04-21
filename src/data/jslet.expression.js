@@ -17,7 +17,7 @@ jslet.Expression = function(dataset, expr) {
 	if (typeof dataset == 'string') {
 		this._dataset = jslet.data.getDataset(dataset);
 		if (!this._dataset) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
+			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dataset]));
 		}
 	}else{
 		jslet.Checker.test('jslet.Expression#dataset', dataset).isClass(jslet.data.Dataset.className);
@@ -142,7 +142,10 @@ jslet.Expression.prototype = {
 			return context.mainds.inChildrenAndSelf(fldName, parentValue, onlyDirectChild);
 		};
 		var inChildrenAndSelf = inchildrenandself;
-		return eval(this._parsedExpr);
+		/* jshint ignore:start */
+		return eval(this._parsedExpr); //Don't use window.eval
+		/* jshint ignore:end */
+
 	},
 	
 	destroy: function() {

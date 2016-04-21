@@ -13,12 +13,11 @@
 		function initialize(){
 			//Globel variable
 			tabCfg = {type: "TabControl", 
-				selectedIndex: 1, 
 				onCreateContextMenu: doCreateContextMenu, 
 				items: [
-					{header: "User IFrame", useIFrame: true, closable: true, url: "calendar.html", iconClass: "tabIcon"},
-					{header: "User Panel Id1", closable: true, divId: "p2"},
-					{header: "Disabled Pane",closable:true,divId:"p3",disabled:true},
+					{header: "User IFrame", useIFrame: true, closable: true, url: "calendar.html", iconClass: "tabIcon", height: '600px'},
+					{header: "User Panel Id1", closable: true, contentId: "p2"},
+					{header: "Disabled Pane",closable:true, contentId: "p3",disabled:true},
 					{header: "Page Four ",closable:true},
 					{header: "Page Five",closable:true}
 				]};

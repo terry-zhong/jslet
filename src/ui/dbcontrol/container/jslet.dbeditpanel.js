@@ -35,7 +35,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * Array of edit field configuration, prototype: [{field: "field1", colSpan: 2, rowSpan: 1}, ...]
 		 */
-		Z._fields;
+		Z._fields = null;
 		
 		Z._hasLabel = true;
 		
@@ -85,6 +85,8 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.Checker.test('DBEditPanel.fields.field', fldCfg.field).isString().required();
 			jslet.Checker.test('DBEditPanel.fields.labelCols', fldCfg.colSpan).isNumber().between(1,3);
 			jslet.Checker.test('DBEditPanel.fields.dataCols', fldCfg.colSpan).isNumber().between(1,11);
+			jslet.Checker.test('DBEditPanel.fields.prefix', fldCfg.suffix).isArray();
+			jslet.Checker.test('DBEditPanel.fields.suffix', fldCfg.suffix).isArray();
 			fldCfg.inFirstCol = fldCfg.inFirstCol ? true: false;
 			fldCfg.showLine = fldCfg.showLine ? true: false;
 			fldCfg.visible = (fldCfg.visible === undefined || fldCfg.visible) ? true: false;
@@ -109,13 +111,14 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	_calcLayout: function () {
 		var Z = this,
 			allFlds = Z._dataset.getNormalFields(), 
-			fldLayouts, fldObj;
+			fldLayouts, fldObj, i, layoutcnt,
+			fcnt = allFlds.length;
 		
 		if (!Z._onlySpecifiedFields) {
 			fldLayouts = [];
-			var fldName, found, editFld, maxFld, visible,
-				layoutcnt = Z._fields ? Z._fields.length : 0;
-			for (var i = 0, fcnt = allFlds.length; i < fcnt; i++) {
+			var fldName, found, editFld, maxFld, visible;
+			layoutcnt = Z._fields ? Z._fields.length : 0;
+			for (i = 0; i < fcnt; i++) {
 				fldObj = allFlds[i];
 				fldName = fldObj.name();
 				visible = fldObj.visible();
@@ -151,13 +154,13 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 
 		//calc row, col
 		var layout, r = 0, c = 0, colsInRow = 0, itemCnt;
-		for (var i = 0, cnt = fldLayouts.length; i < cnt; i++) {
+		for (i = 0, layoutcnt = fldLayouts.length; i < layoutcnt; i++) {
 			layout = fldLayouts[i];
 			if(!layout.labelCols) {
 				layout._innerLabelCols = Z._labelCols;
 			}
 			if(!layout.dataCols) {
-				layout._innerDataCols = dftDataCols
+				layout._innerDataCols = dftDataCols;
 			} else {
 				layout._innerDataCols = layout.dataCols;	
 			}

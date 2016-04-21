@@ -59,7 +59,8 @@ jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(expandChildWidth === undefined) {
 			return this._expandChildWidth;
 		}
-		this._expandChildWidth? true: false;
+		this._expandChildWidth = expandChildWidth? true: false;
+		return this;
 	},
 	
 	/**

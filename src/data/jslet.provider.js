@@ -36,7 +36,7 @@ jslet.data.DataProvider = function() {
 			settings = jslet.global.beforeSubmit({url: url});
 		}
 		if(!settings) {
-			settings = {}
+			settings = {};
 		}
 		settings.type = 'POST';
 		settings.contentType = 'application/json';
@@ -82,7 +82,7 @@ jslet.data.DataProvider = function() {
 			defer.reject(result, this);
 		})
 		.always(function(dataOrJqXHR, textStatus, jqXHRorErrorThrown) {
-			if(jQuery.isFunction(dataOrJqXHR.done)) { //fail
+			if(dataOrJqXHR && jQuery.isFunction(dataOrJqXHR.done)) { //fail
 				var data = dataOrJqXHR.responseJSON,
 					result;
 				if(data && data.errorCode) {

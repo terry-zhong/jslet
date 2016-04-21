@@ -214,7 +214,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					}
 				}
 
-				var vcnt = arrValue.length - 1;
+				var j, vcnt = arrValue.length - 1;
 				for (i = 0; i < optCnt; i++) {
 					opt = Z.el.options[i];
 					for (j = vcnt; j >= 0; j--) {
@@ -257,7 +257,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 			}
 		} else {
 			var opts = jQuery(Z.el).find('option'),
-				optCnt = opts.length - 1;
+				optCnt = opts.length - 1, opt;
 			value = [];
 			for (var i = 0; i <= optCnt; i++) {
 				opt = opts[i];

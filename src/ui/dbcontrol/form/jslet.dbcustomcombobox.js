@@ -67,7 +67,7 @@ jslet.ui.DBCustomComboBox = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var keyCode = event.which;
 			if(keyCode === jslet.ui.KeyCode.BACKSPACE && !this.value) {
 				Z.buttonClick();
-			};
+			}
 		});
 		
 		Z.addChildControl(Z.textCtrl);

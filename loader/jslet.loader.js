@@ -31,7 +31,7 @@ var _initialModules = [
 	{ name: 'jslet-treeview', src: '../src/asset/{theme}/jslet-treeview.css', baseOnLoader: true },
 	{ name: 'jslet-table', src: '../src/asset/{theme}/jslet-table.css', baseOnLoader: true },
    //js-lib
-	{name: 'jquery', src: '../src/lib/jquery-1.11.0.js', baseOnLoader: true },
+	{name: 'jquery', src: '../src/lib/jquery-2.2.3.js', baseOnLoader: true },
 
 	//Bootstrap
 	{name: 'bootstrap-js', src: '../src/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },
@@ -67,7 +67,7 @@ var _initialModules = [
 	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule', 'filterdataset'], baseOnLoader: true },
 	
 //ui
-	{ name: 'focusmanager', src: '../src/ui/jslet.focusmanager.js', deps: ['common'], baseOnLoader: true },	
+	{ name: 'focusmanager', src: '../src/ui/jslet.focusmanager.js', deps: ['jquery'], baseOnLoader: true },	
 	{ name: 'basecontrol', src: '../src/ui/jslet.control.js', deps: ['class'], baseOnLoader: true },
 	{ name: 'dnd', src: '../src/ui/jslet.dnd.js', deps: ['common'], baseOnLoader: true },
 	{ name: 'editmask', src: '../src/ui/jslet.editmask.js', deps: ['common'], baseOnLoader: true },
@@ -75,7 +75,6 @@ var _initialModules = [
 	{ name: 'resizeeventbus', src: '../src/ui/jslet.resizeeventbus.js', deps: ['common'], baseOnLoader: true },
 
 	{ name: 'uicore', deps: ['basecontrol','dnd','editmask','uicommon','resizeeventbus','bootstrap', 'focusmanager'], baseOnLoader: true },
-
 //control
 	{ name: 'overlaypanel', src: '../src/ui/control/jslet.overlaypanel.js', deps: ['uicore'], baseOnLoader: true },
 	{ name: 'waitingbox', src: '../src/ui/control/jslet.waitingbox.js', deps: ['uicore','jslet-container','jslet-calendar'], baseOnLoader: true },
@@ -152,7 +151,7 @@ var _initialModules = [
 
 //default theme and lang,used for css and message text
 jslet._theme = 'default';
-jslet._lang = 'zh-cn';
+jslet._lang = 'en';
 
 
 if (!jslet.loaderUri) {

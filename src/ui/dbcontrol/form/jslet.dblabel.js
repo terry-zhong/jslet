@@ -86,7 +86,7 @@ jslet.ui.DBLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(subType  && subType == 'error' && 
 			(metaName && metaName == subType)) {
 			var errObj = Z.getFieldError();
-			var content = errObj && errObj.message;
+			content = errObj && errObj.message;
 			Z.el.innerHTML = content || '';
 			return;
 		}

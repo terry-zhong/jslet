@@ -106,7 +106,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 		Z._onRowDblClick = null;
 		
-		Z._onCellClick;
+		Z._onCellClick = null;
 		
 		Z._onCustomSort = null; 
 		
@@ -1065,7 +1065,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			
 			if(focusedFields) {
 				focusedFields = focusedFields.slice(0);
-				for(var i = len = focusedFields.length - 1; i >= 0; i--) {
+				for(var i = focusedFields.length - 1; i >= 0; i--) {
 					if(editingFields.indexOf(focusedFields[i]) < 0) {
 						focusedFields.splice(i, 1);
 					}
@@ -1269,7 +1269,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				Z._currRow = null;
 				return;
 			}
-			Z._dataset.recno(Z.listvm.getCurrentRecno())
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 			if (Z._currRow) {
 				if (Z._currRow.fixed) {
 					jQuery(Z._currRow.fixed).removeClass(jslet.ui.htmlclass.TABLECLASS.currentrow);
@@ -1409,7 +1409,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				var startColNum = colCfg.colNum,
 					endColNum = colCfg.colNum + colCfg.colSpan, fldName;
 				
-				for(var colNum = startColNum; colNum < endColNum; colNum++) {
+				for(colNum = startColNum; colNum < endColNum; colNum++) {
 					fldName = Z.innerColumns[colNum].field;
 					fields.push(fldName);
 				}
@@ -1430,7 +1430,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			fields = Z._getSelectionFields(0, Z.innerColumns.length - 1);
 		var currRecno = Z._dataset.recno();
 		if(hasShiftKey) {
-			var fields;
 			if(Z._preTmpRecno >= 0) {
 				Z._dataset.selection.remove(Z._preRecno || 0, Z._preTmpRecno, fields, true);
 			}
@@ -1467,14 +1466,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._sysColumns.push(cobj);
 		}
 		//prepare data columns
-		var tmpColumns = [];
+		var tmpColumns = [], fldObj;
 		if (Z._columns) {
-			for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
-				cobj = Z._columns[i];
+			for(var k = 0, colCnt2 = Z._columns.length; k < colCnt2; k++){
+				cobj = Z._columns[k];
 				if (!cobj.field){
 					cobj.disableHeadSort = true;
 				} else {
-					var fldObj = Z._dataset.getField(cobj.field);
+					fldObj = Z._dataset.getField(cobj.field);
 					if(!fldObj) {
 						throw new Error('Not found Field: ' + cobj.field);
 					}
@@ -1483,22 +1482,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				tmpColumns.push(cobj);
 			}
 		}
-		if (!Z._onlySpecifiedCol) {
-			
-			function getColumnObj(fldName) {
-				if (Z._columns){
-					for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
-						cobj = Z._columns[i];
-						if (cobj.field && cobj.field == fldName){
-							return cobj;
-						}
+		function getColumnObj(fldName) {
+			if (Z._columns){
+				for(var m = 0, colCnt1 = Z._columns.length; m < colCnt1; m++){
+					cobj = Z._columns[m];
+					if (cobj.field && cobj.field == fldName){
+						return cobj;
 					}
 				}
-				return null;
 			}
-			
-			var fldObj, fldName,fields = Z._dataset.getFields();
-			for (var i = 0, fldcnt = fields.length; i < fldcnt; i++) {
+			return null;
+		}
+		var i, fldcnt, colCnt, fldName;
+		if (!Z._onlySpecifiedCol) {
+			var fields = Z._dataset.getFields();
+			for (i = 0, fldcnt = fields.length; i < fldcnt; i++) {
 				fldObj = fields[i];
 				fldName = fldObj.name();
 				if (fldObj.visible()) {
@@ -1512,7 +1510,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				} // end if visible
 			} // end for
 			if (Z._columns){
-				for(var i = 0, colCnt = Z._columns.length; i < colCnt; i++){
+				for(i = 0, colCnt = Z._columns.length; i < colCnt; i++){
 					cobj = Z._columns[i];
 					if (!cobj.field){
 						continue;
@@ -1527,8 +1525,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 						var isUnique = true;
 						// cobj.field is not a child of a groupfield, we need check if the topmost parent field is duplicate or not 
 						if (cobj.field != fldName){
-							for(var k = 0; k < tmpColumns.length; k++){
-								if (tmpColumns[k].field == fldName){
+							for(var n = 0; n < tmpColumns.length; n++){
+								if (tmpColumns[n].field == fldName){
 									isUnique = false;
 									break;
 								}
@@ -1553,9 +1551,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		
 		Z.innerHeads = [];
 		Z.innerColumns = [];
-		var ohead, fldName, label, context = {lastColNum: 0, depth: 0};
+		var ohead, label, 
+			context = {lastColNum: 0, depth: 0};
 		
-		for(var i = 0, colCnt = tmpColumns.length; i < colCnt; i++){
+		for(i = 0, colCnt = tmpColumns.length; i < colCnt; i++){
 			cobj = tmpColumns[i];
 			fldName = cobj.field;
 			if (!fldName){
@@ -1583,9 +1582,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		Z._calcHeadSpan();
 	
 		//check fixedCols property
-		var colCnt = 0, preColCnt = 0, 
-		fixedColNum = Z._fixedCols - Z._sysColumns.length;
-		for(var i = 1, len = Z.innerHeads.length; i < len; i++){
+		var preColCnt = 0, len,
+			fixedColNum = Z._fixedCols - Z._sysColumns.length;
+		colCnt = 0;
+		for(i = 1, len = Z.innerHeads.length; i < len; i++){
 			ohead = Z.innerHeads[i];
 			colCnt += ohead.colSpan;
 			if (fixedColNum <= preColCnt || fixedColNum == colCnt) {
@@ -1651,8 +1651,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			context.lastColNum ++;
 			var cobj, found = false;
 			var len = Z._columns ? Z._columns.length: 0;
-			for(var i = 0; i < len; i++){
-				cobj = Z._columns[i];
+			for(var k = 0; k < len; k++){
+				cobj = Z._columns[k];
 				if (cobj.field == fldName){
 					found = true;
 					break;
@@ -1742,11 +1742,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		Z.hasFixedCol = Z._sysColumns.length > 0 || Z._fixedCols > 0;
 		if (Z.hasFixedCol){
-			var w = 0;
-			for(var i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
+			var w = 0, i, cnt;
+			for(i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
 				w += Z._sysColumns[i].width + 1;
 			}
-			for(var i = 0; i < Z._fixedCols; i++){
+			for(i = 0, cnt = Z._fixedCols; i < cnt; i++){
 				w += Z.innerColumns[i].width + 1;
 			}
 			Z.fixedColWidth = w + 1;
@@ -1781,7 +1781,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			}
 		}
 		if(found) {
-			cssRule.style['width'] = width + 'px';
+			cssRule.style.width = width + 'px';
 		}
 		return found;
 	},
@@ -1864,13 +1864,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		
 		function generateWidthStyle() {
-			var colObj, cssName,
+			var colObj, cssName, i, len,
 				styleHtml = ['<style type="text/css" id="' + Z._widthStyleId + '">\n'];
-			for(var i = 0, len = Z._sysColumns.length; i < len; i++) {
+			for(i = 0, len = Z._sysColumns.length; i < len; i++) {
 				colObj = Z._sysColumns[i];
 				styleHtml.push('.' + colObj.widthCssName +'{width:' + colObj.width + 'px}\n');
 			}
-			for(var i = 0, len = Z.innerColumns.length; i< len; i++) {
+			for(i = 0, len = Z.innerColumns.length; i< len; i++) {
 				colObj = Z.innerColumns[i];
 				styleHtml.push('.' + colObj.widthCssName +'{width:' + colObj.width + 'px}\n');
 			}
@@ -2063,7 +2063,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				currCellIndex = currCell.cellIndex;
 			
 			if(!checkDropable(currCell)) { 
-				return
+				return;
 			}
 			var destField = this.parentNode.jsletColCfg.field;
 			if(!destField) {
@@ -2237,9 +2237,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			var cobj, 
 				colNo = 0, 
 				srcCells = [],
-				destCells = [];
+				destCells = [], i, len;
 			
-			for(var i = 0, len = cells.length; i < len; i++) {
+			for(i = 0, len = cells.length; i < len; i++) {
 				cobj = cells[i];
 				if(colNo >= srcStart && colNo <= srcEnd) {
 					srcCells.push(cobj);
@@ -2253,15 +2253,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				
 				colNo += cobj.colSpan || 1;
 			}
-			
+			var destCell;
 			if(srcStart > destStart) {	
-				var destCell = destCells[0];
-				for(var i = 0, len = srcCells.length; i < len; i++) {
+				destCell = destCells[0];
+				for(i = 0, len = srcCells.length; i < len; i++) {
 					jQuery(srcCells[i]).insertBefore(destCell);
 				}
 			} else {
-				var destCell = destCells[destCells.length - 1];
-				for(var i = srcCells.length; i >= 0; i--) {
+				destCell = destCells[destCells.length - 1];
+				for(i = srcCells.length; i >= 0; i--) {
 					jQuery(srcCells[i]).insertAfter(destCell);
 				}
 			}
@@ -2337,9 +2337,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			colNo = 0, 
 			srcCells = [],
 			destCells = [],
-			cells = rowObj.cells;
+			cells = rowObj.cells, i, len;
 		
-		for(var i = 0, len = cells.length; i < len; i++) {
+		for(i = 0, len = cells.length; i < len; i++) {
 			cobj = cells[i];
 			if(colNo >= srcStart && colNo <= srcEnd) {
 				srcCells.push(cobj);
@@ -2357,21 +2357,21 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			firstDestColNum= destCells[0].jsletColCfg.colNum,
 			k = 0, colCfg;
 		if(srcStart > destStart) {
-			for(var i = srcStart; i <= srcEnd; i++) {
+			for(i = srcStart; i <= srcEnd; i++) {
 				colCfg = cells[i].jsletColCfg;
 				colCfg.colNum = firstDestColNum + (k++);
 			}
-			for(var i = destStart; i < srcStart; i++) {
+			for(i = destStart; i < srcStart; i++) {
 				colCfg = cells[i].jsletColCfg;
 				colCfg.colNum = colCfg.colNum + srcCellLen;
 			}
 		} else {
 			var newStart = firstDestColNum - srcCellLen + destCellLen;
-			for(var i = srcStart; i <= srcEnd; i++) {
+			for(i = srcStart; i <= srcEnd; i++) {
 				colCfg = cells[i].jsletColCfg;
 				colCfg.colNum = newStart + (k++);
 			}
-			for(var i = srcEnd + 1; i <= destEnd; i++) {
+			for(i = srcEnd + 1; i <= destEnd; i++) {
 				colCfg = cells[i].jsletColCfg;
 				colCfg.colNum = colCfg.colNum - srcCellLen;
 			}
@@ -2494,15 +2494,15 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		if (Z._hideHead) {
 			return;
 		}
-		var otr, otrLeft = null, cobj, otrRight, otd, oth,
+		var otr, otrLeft = null, cobj, otrRight, otd, oth, i, cnt,
 			leftHeadObj = Z.leftHeadTbl.createTHead(),
 			rightHeadObj = Z.rightHeadTbl.createTHead();
-		for(var i = 0; i < Z.maxHeadRows; i++){
+		for(i = 0; i < Z.maxHeadRows; i++){
 			leftHeadObj.insertRow(-1);
 			rightHeadObj.insertRow(-1);
 		}
 		otr = leftHeadObj.rows[0];
-		for(var i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
+		for(i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
 			cobj = Z._sysColumns[i];
 			cobj.rowSpan = Z.maxHeadRows;
 			Z._createHeadCell(otr, cobj);
@@ -2524,7 +2524,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		travHead(Z.innerHeads);
 		var jqTr1, jqTr2, h= Z.headRowHeight();
-		for(var i = 0; i <= Z.maxHeadRows; i++){
+		for(i = 0; i <= Z.maxHeadRows; i++){
 			jqTr1 = jQuery(leftHeadObj.rows[i]);
 			jqTr2 = jQuery(rightHeadObj.rows[i]);
 			jqTr1.height(h);
@@ -2536,16 +2536,16 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 
 	getTotalWidth: function(isLeft){
 		var Z= this,
-		totalWidth = 0;
+			totalWidth = 0, i, cnt;
 		if(!isLeft) {
-			for(var i = Z._fixedCols, cnt = Z.innerColumns.length; i < cnt; i++){
+			for(i = Z._fixedCols, cnt = Z.innerColumns.length; i < cnt; i++){
 				totalWidth += Z.innerColumns[i].width;
 			}
 		} else {
-			for(var i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
+			for(i = 0, cnt = Z._sysColumns.length; i < cnt; i++){
 				totalWidth += Z._sysColumns[i].width;
 			}
-			for(var i = 0, cnt = Z._fixedCols; i < cnt; i++){
+			for(i = 0, cnt = Z._fixedCols; i < cnt; i++){
 				totalWidth += Z.innerColumns[i].width;
 			}
 		}
@@ -2649,20 +2649,20 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var leftHeadObj = Z.leftHeadTbl.createTHead(),
 			rightHeadObj = Z.rightHeadTbl.createTHead(),
 			leftHeadCells, rightHeadCells,
-			allHeadCells = [], oth,
+			allHeadCells = [], oth, i, cnt, r,
 			rowCnt = leftHeadObj.rows.length;
-		for(var r = 0; r < rowCnt; r++) {
+		for(r = 0; r < rowCnt; r++) {
 			leftHeadCells = leftHeadObj.rows[r].cells;
-			for (var i = 0, cnt = leftHeadCells.length; i < cnt; i++){
+			for (i = 0, cnt = leftHeadCells.length; i < cnt; i++){
 				oth = leftHeadCells[i];
 				if (oth.jsletColCfg) {
 					allHeadCells[allHeadCells.length] = oth;
 				}
 			}
 		}
-		for(var r = 0; r < rowCnt; r++) {
+		for(r = 0; r < rowCnt; r++) {
 			rightHeadCells =  rightHeadObj.rows[r].cells;
-			for (var i = 0, cnt = rightHeadCells.length; i < cnt; i++){
+			for (i = 0, cnt = rightHeadCells.length; i < cnt; i++){
 				oth = rightHeadCells[i];
 				if (oth.jsletColCfg) {
 					allHeadCells[allHeadCells.length] = oth;
@@ -2671,7 +2671,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		var len = sortFields.length, sortDiv, 
 			cellCnt = allHeadCells.length;
-		for (var i = 0; i < cellCnt; i++) {
+		for (i = 0; i < cellCnt; i++) {
 			oth = allHeadCells[i];
 			sortDiv = jQuery(oth).find('.jl-tbl-sorter')[0];
 			if (sortDiv) {
@@ -2680,7 +2680,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		var fldName, sortFlag, sortObj, 
 			k = 1;
-		for (var i = 0; i < len; i++) {
+		for (i = 0; i < len; i++) {
 			sortObj = sortFields[i];
 			for (var j = 0; j < cellCnt; j++) {
 				oth = allHeadCells[j];
@@ -2824,7 +2824,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 		}
 		var otr, oth, colCfg, isfirstCol, 
-			startRow = 0,
+			startRow = 0, j,
 			fldCnt = Z.innerColumns.length;
 		if (onlyRefreshContent){
 			startRow = rightBody.rows.length;
@@ -2839,13 +2839,13 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				otr.ondblclick = Z._doRowDblClick;
 				otr.onclick = Z._doRowClick;
 				var sysColLen = Z._sysColumns.length;
-				for(var j = 0; j < sysColLen; j++){
+				for(j = 0; j < sysColLen; j++){
 					colCfg = Z._sysColumns[j];
 					Z._renderCell(otr, colCfg, j === 0);
 				}
 				
 				isfirstCol = sysColLen === 0;
-				for (var j = 0; j < Z._fixedCols; j++) {
+				for(j = 0; j < Z._fixedCols; j++) {
 					colCfg = Z.innerColumns[j];
 					Z._renderCell(otr, colCfg, isfirstCol && j === 0);
 				}
@@ -2855,7 +2855,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr.style.height = rh + 'px';
 			otr.ondblclick = Z._doRowDblClick;
 			otr.onclick = Z._doRowClick;
-			for (var j = Z._fixedCols; j < fldCnt; j++) {
+			for (j = Z._fixedCols; j < fldCnt; j++) {
 				colCfg = Z.innerColumns[j];
 				Z._renderCell(otr, colCfg, j == Z._fixedCols);
 			}
@@ -2881,7 +2881,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var hasLeft = Z._fixedCols > 0 || Z._sysColumns.length > 0,
 			leftBody,
 			rightBody,
-			otr, colCfg;
+			otr, colCfg, j, len;
 		if (hasLeft) {
 			leftBody = Z.leftFootTbl.tBodies[0];
 		}
@@ -2899,19 +2899,19 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr = leftBody.insertRow(-1);
 			otr.style.height = Z.rowHeight() + 'px';
 
-			for(var j = 0, len = Z._sysColumns.length; j < len; j++) {
+			for(j = 0, len = Z._sysColumns.length; j < len; j++) {
 				colCfg = Z._sysColumns[j];
 				otr.appendChild(createCell(colCfg));
 			}
 			
-			for (var j = 0; j < Z._fixedCols; j++) {
+			for(j = 0; j < Z._fixedCols; j++) {
 				colCfg = Z.innerColumns[j];
 				otr.appendChild(createCell(colCfg));
 			}
 		}
 		otr = rightBody.insertRow(-1);
 		otr.style.height = Z.rowHeight() + 'px';
-		for (var j = Z._fixedCols, len = Z.innerColumns.length; j < len; j++) {
+		for (j = Z._fixedCols, len = Z.innerColumns.length; j < len; j++) {
 			colCfg = Z.innerColumns[j];
 			otr.appendChild(createCell(colCfg));
 		}
@@ -3023,7 +3023,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			rightBody = Z.rightContentTbl.tBodies[0];
 		}
 		
-		var otr, colCfg, isfirstCol, recNo = -1, cells, clen, otd,
+		var otr, colCfg, isfirstCol, recNo = -1, cells, clen, otd, j, 
 			fldCnt = Z.innerColumns.length,
 			allCnt = Z.listvm.getNeedShowRowCount() - Z.listvm.getVisibleStartRow(),
 			fixedRows = hasLeft ? leftBody.rows : null,
@@ -3055,7 +3055,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 				}
 				cells = otr.childNodes;
 				clen = cells.length;
-				for (var j = 0; j < clen; j++) {
+				for (j = 0; j < clen; j++) {
 					otd = cells[j];
 					Z._fillCell(recNo, otd, sameValueNodes, isFirst);
 				}
@@ -3071,7 +3071,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otr = contentRows[i];
 			cells = otr.childNodes;
 			clen = cells.length;
-			for (var j = 0; j < clen; j++) {
+			for (j = 0; j < clen; j++) {
 				otd = cells[j];
 				Z._fillCell(recNo, otd, sameValueNodes, isFirst);
 			} //end for data content field
@@ -3147,7 +3147,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			idx = Z.listvm.recnoToRowno(Z._dataset.recno()) - Z.listvm.getVisibleStartRow();
 		}
 
-		var otr, cells, otd, recNo, colCfg;
+		var otr, cells, otd, recNo, colCfg, j, clen;
 
 		if (hasLeft) {
 			otr = fixedBody.rows[idx];
@@ -3159,8 +3159,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (Z._onFillRow) {
 				Z._onFillRow.call(Z, otr, Z._dataset);
 			}
-			var ocheck
-			for (var j = 0, clen = cells.length; j < clen; j++) {
+			var ocheck;
+			for (j = 0, clen = cells.length; j < clen; j++) {
 				otd = cells[j];
 				colCfg = otd.jsletColCfg;
 				if (colCfg && colCfg.isSeqCol) {
@@ -3186,7 +3186,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		// fill content table
 		cells = otr.childNodes;
-		for (var j = 0, clen = cells.length; j < clen; j++) {
+		for (j = 0, clen = cells.length; j < clen; j++) {
 			otd = cells[j];
 			Z._fillCell(recNo, otd);
 		}
@@ -3291,11 +3291,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			contentPanel = jqContentPanel[0],
 			borderW = (Z._noborder ? 0: 2),
 			oldScrLeft = contentPanel.scrollLeft,
-			currColLeft = 0;
+			currColLeft = 0, i, len;
 		if(Z._currColNum < Z._fixedCols) { //If current cell is in fixed content area
 			return true;
 		}
-		for(var i = Z._fixedCols, len = Z.innerColumns.length; i < Z._currColNum; i++) {
+		for(i = Z._fixedCols, len = Z.innerColumns.length; i < Z._currColNum; i++) {
 			currColLeft += (Z.innerColumns[i].width + borderW); //"2" is the cell border's width(left+right)
 		}
 		if(currColLeft < oldScrLeft) {
@@ -3304,7 +3304,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 		var containerWidth = jqContentPanel.innerWidth(),
 			contentWidth = jqContentPanel.find('.jl-tbl-content-div').width(),
 			scrWidth = 0;
-		for(var i = Z.innerColumns.length - 1; i > Z._currColNum; i--) {
+		for(i = Z.innerColumns.length - 1; i > Z._currColNum; i--) {
 			scrWidth += (Z.innerColumns[i].width + borderW); //"2" is the cell border's width(left+right)
 		}
 		currColLeft = contentWidth - scrWidth - containerWidth;
@@ -3339,10 +3339,10 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         	}
 			return;
 		}
-		var ocells = otr.cells, otd;
+		var ocells = otr.cells, otd, colCfg, found = false;
 		for(var i = 0, len = ocells.length; i < len; i++) {
 			otd = ocells[i];
-        	var colCfg = otd.jsletColCfg;
+        	colCfg = otd.jsletColCfg;
         	if(colCfg && colCfg.colNum == Z._currColNum) {
         		if(Z.prevCell) {
         			Z.prevCell.removeClass('jl-tbl-curr-cell');
@@ -3350,10 +3350,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
         		var jqCell = jQuery(otd);
         		jqCell.addClass('jl-tbl-curr-cell');
         		Z.prevCell = jqCell;
+        		found = true;
         		break;
         	}
 		}
-    	if(cellEditor) {
+    	if(cellEditor && found) {
     		if(Z._isCurrCellInView()) {
     			cellEditor.showEditor(colCfg.field, otd);
     		} else {
@@ -3510,7 +3511,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	refreshControl: function (evt) {
-		var Z = this, 
+		var Z = this, i, cnt, otr, otd, checked, ocheckbox, col, recno,
 			evtType = evt.eventType;
 		if (evtType == jslet.data.RefreshEvent.CHANGEMETA) {
 			Z._doMetaChanged(evt.metaName, evt.fieldName);
@@ -3547,8 +3548,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._fillData();
 		} else if (evtType == jslet.data.RefreshEvent.INSERT) {
 			Z.listvm.refreshModel();
-			var recno = Z._dataset.recno(),
-				preRecno = evt.preRecno;
+			recno = Z._dataset.recno();
+			var	preRecno = evt.preRecno;
 
 			Z._fillData();
 			Z._keep_silence_ = true;
@@ -3567,12 +3568,12 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (!Z._hasSelectCol) {
 				return;
 			}
-			var col = 0;
+			col = 0;
 			if (Z._hasSeqCol) {
 				col++;
 			}
-			var recno = evt.recno, otr, otd, checked, ocheckbox;
-			for(var i = 0, cnt = recno.length; i < cnt; i++){
+			recno = evt.recno;
+			for(i = 0, cnt = recno.length; i < cnt; i++){
 				otr = Z._getLeftRowByRecno(recno[i]);
 				if (!otr) {
 					continue;
@@ -3587,17 +3588,17 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if (!Z._hasSelectCol) {
 				return;
 			}
-			var col = 0;
+			col = 0;
 			if (Z._hasSeqCol) {
 				col++;
 			}
 			var leftFixedBody = Z.leftFixedTbl.tBodies[0],
 				leftContentBody = Z.leftContentTbl.tBodies[0],
-				checked, recno, otr, otd, ocheckbox, rec,
+				rec,
 				oldRecno = Z._dataset.recno();
 
 			try {
-				for (var i = 0, cnt = leftFixedBody.rows.length; i < cnt; i++) {
+				for (i = 0, cnt = leftFixedBody.rows.length; i < cnt; i++) {
 					otr = leftFixedBody.rows[i];
 					if (otr.style.display == 'none') {
 						break;
@@ -3610,7 +3611,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 					ocheckbox.defaultChecked = checked;
 				}
 
-				for (var i = 0, cnt = leftContentBody.rows.length; i < cnt; i++) {
+				for (i = 0, cnt = leftContentBody.rows.length; i < cnt; i++) {
 					otr = leftContentBody.rows[i];
 					if (otr.style.display == 'none') {
 						break;

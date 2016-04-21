@@ -52,7 +52,7 @@ jslet.ui.DBText = jslet.Class.create(jslet.ui.DBFieldControl, {
 		 */
 		Z.oldValue = null;
 		Z.editMask = null;
-		Z._position;
+		Z._position = null;
 		$super(el, params);
 	},
 

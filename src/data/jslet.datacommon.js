@@ -20,7 +20,7 @@ jslet.data.dataModule = new jslet.SimpleMap();
  */
 jslet.data.getDataset = function (dsName) {
 	if(jslet.isString(dsName)) {
-		return jslet.data.dataModule.get(dsName)
+		return jslet.data.dataModule.get(dsName);
 	}
 	return dsName;
 };
@@ -450,7 +450,7 @@ jslet.data.serverValidator = function(url, reqData) {
 		ajaxSetting = jslet.global.beforeSubmit({url: url});
 	}
 	if(!ajaxSetting) {
-		ajaxSetting = {}
+		ajaxSetting = {};
 	}
 	ajaxSetting.type = 'POST';
 	ajaxSetting.async = false;
@@ -493,7 +493,7 @@ jslet.data.serverValidator = function(url, reqData) {
 			}
 			result = errorMessage;
 		}
-	})
+	});
 	return result;
 };
 
@@ -712,14 +712,6 @@ jslet.data.getValueConverter = function(fldObj) {
  * @return {String} Json String. 
  */
 jslet.data.record2Json = function(records, excludeFields) {
-	if(!window.JSON || !JSON) {
-		alert('Your browser does not support JSON!');
-		return;
-	}
-	if(excludeFields) {
-		jslet.Checker.test('record2Json#excludeFields', excludeFields).isArray();		
-	}
-	
 	function record2JsonFilter(key, value) {
 		if(key == '_jl_') {
 			return undefined;
@@ -736,6 +728,14 @@ jslet.data.record2Json = function(records, excludeFields) {
 		return value;		
 	}
 	
+	if(!window.JSON || !JSON) {
+		console.error('Your browser does not support JSON!');
+		return;
+	}
+	if(excludeFields) {
+		jslet.Checker.test('record2Json#excludeFields', excludeFields).isArray();		
+	}
+	
 	return JSON.stringify(records, record2JsonFilter);
 };
 
@@ -747,7 +747,7 @@ jslet.data.getRecInfo = function(record) {
 		record._jl_ = recInfo;
 	}
 	return recInfo;
-}
+};
 
 /*Field value cache manager*/
 jslet.data.FieldValueCache = {
@@ -805,8 +805,8 @@ jslet.data.FieldValueCache = {
 		var rec, cacheObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
-			var recInfo = jslet.data.getRecInfo(rec), 
-				cacheObj = recInfo.cache;
+			recInfo = jslet.data.getRecInfo(rec);
+			cacheObj = recInfo.cache;
 			if(cacheObj) {
 				delete cacheObj[fieldName];
 			}
@@ -815,7 +815,7 @@ jslet.data.FieldValueCache = {
 	
 	removeCache: function(record) {
 		var recInfo = jslet.data.getRecInfo(record);
-		delete recInfo['cache'];
+		delete recInfo.cache;
 	},
 	
 	removeAllCache: function(dataset) {
@@ -830,7 +830,7 @@ jslet.data.FieldValueCache = {
 				continue;
 			}
 			recInfo = jslet.data.getRecInfo(rec); 
-			delete recInfo['cache'];
+			delete recInfo.cache;
 		}
 	}
 };
@@ -867,7 +867,7 @@ jslet.data.FieldError = {
 	
 	putDetailError: function(record, fldName, errorCount) {
 		var recInfo = jslet.data.getRecInfo(record), 
-		errObj = recInfo.error;
+			errObj = recInfo.error;
 		if(!errObj) {
 			errObj = {};
 			recInfo.error = errObj;
@@ -877,13 +877,10 @@ jslet.data.FieldError = {
 			fldErrObj = {};
 			errObj[fldName] = fldErrObj;
 		}
-		if(!valueIndex) {
-			valueIndex = 0;
-		}
-		var errMsgObj = fldErrObj[valueIndex+""];
+		var errMsgObj = fldErrObj["0"];
 		if(!errMsgObj) {
 			errMsgObj = {errorCount: 0};
-			fldErrObj[valueIndex+""] = errMsgObj;
+			fldErrObj["0"] = errMsgObj;
 		}
 		errMsgObj.errorCount += errorCount;
 		if(errMsgObj.errorCount <= 0) {
@@ -923,7 +920,7 @@ jslet.data.FieldError = {
 			delete fldErrObj[valueIndex+""];
 			var found = false;
 			for(var idx in fldErrObj) {
-				foutnd = true;
+				found = true;
 				break;
 			}
 			if(!found) {
@@ -994,8 +991,8 @@ jslet.data.FieldError = {
 		var rec, errObj, recInfo;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
-			var recInfo = jslet.data.getRecInfo(rec), 
-				errObj = recInfo.error;
+			recInfo = jslet.data.getRecInfo(rec);
+			errObj = recInfo.error;
 			if(errObj) {
 				delete errObj[fldName];
 			}
@@ -1005,7 +1002,7 @@ jslet.data.FieldError = {
 	clearRecordError: function(record) {
 		var recInfo = jslet.data.getRecInfo(record);
 		if(recInfo) {
-			delete recInfo['error'];
+			delete recInfo.error;
 		}
 	},
 	
@@ -1019,7 +1016,7 @@ jslet.data.FieldError = {
 			rec = dataList[i];
 			recInfo = jslet.data.getRecInfo(rec);
 			if(recInfo) {
-				delete recInfo['error'];
+				delete recInfo.error;
 			}
 		}
 	}
@@ -1085,7 +1082,7 @@ jslet.data.FieldRawValueAccessor = {
 		}
 		dataRec[fldName] = value;
 	}
-}
+};
 
 jslet.data.DatasetRelationManager = function() {
 	var relations= [];
@@ -1181,7 +1178,7 @@ jslet.data.DatasetRelationManager = function() {
 				}
 			}
 		} //end for i	
-	}
+	};
 };
 jslet.data.datasetRelationManager = new jslet.data.DatasetRelationManager();
 
@@ -1206,13 +1203,13 @@ jslet.emptyPromise = {
 		}
 		return this;
 	}
-}
+};
 
 jslet.data.displayOrderComparator = function(fldObj1, fldObj2) {
 	var order1 = fldObj1.displayOrder();
 	var order2 = fldObj2.displayOrder();
 	return order1 - order2;
-}
+};
 
 /**
  * Data selection class.
@@ -1220,8 +1217,8 @@ jslet.data.displayOrderComparator = function(fldObj1, fldObj2) {
 jslet.data.DataSelection = function(dataset) {
 	this._dataset = dataset;
 	this._selection = [];
-	this._onChanged;
-}
+	this._onChanged = null;
+};
 
 jslet.data.DataSelection.prototype = {
 	/**
@@ -1241,7 +1238,7 @@ jslet.data.DataSelection.prototype = {
 				fields.push(fldName);
 			}
 		}
-		this.add(0, this._dataset.recordCount() - 1, fields, fireEvent)
+		this.add(0, this._dataset.recordCount() - 1, fields, fireEvent);
 	},
 	
 	/**
@@ -1441,14 +1438,14 @@ jslet.data.DataSelection.prototype = {
 			this._selection.push(selObj);
 		}
 	}
-}
+};
 
 jslet.data.GlobalDataHandler = function() {
 	var Z = this;
 	Z._datasetMetaChanged = null;
 	Z._fieldMetaChanged = null;
 	Z._fieldValueChanged = null;
-}
+};
 
 jslet.data.GlobalDataHandler.prototype = {
 		
@@ -1529,7 +1526,6 @@ jslet.data.GlobalDataHandler.prototype = {
 		jslet.Checker.test('globalDataHandler.fieldValueChanged', fieldValueChanged).isFunction();
 		Z._fieldValueChanged = fieldValueChanged;
 	}
-	
-}
+};
 
 jslet.data.globalDataHandler = new jslet.data.GlobalDataHandler();

@@ -55,7 +55,7 @@ jslet.ui.KeyCode = {
 
 for(var i = 65; i < 90; i++) {
 	jslet.ui.KeyCode[String.fromCharCode(i)] = i;
-};
+}
 
 /**
 * Popup Panel. Example: 

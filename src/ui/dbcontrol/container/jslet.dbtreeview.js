@@ -334,15 +334,15 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		jqEl.find('.jl-tree-container').off();
 		jqEl.find('.jl-tree-scrollbar').off();
 			
-		var lines = [];
-		for(var i = 0; i < 5; i++){//Default cells for lines is 5
+		var lines = [], i, cnt;
+		for(i = 0; i < 5; i++){//Default cells for lines is 5
 			lines.push('<td class="jl-tree-lines" ');
 			lines.push(jslet.ui.DBTreeView.NODETYPE);
 			lines.push('="0"></td>');
 		}
 		var s = lines.join(''),
 			tmpl = ['<div class="jl-tree-container">'];
-		for(var i = 0, cnt = Z.nodeCount; i < cnt; i++){
+		for(i = 0, cnt = Z.nodeCount; i < cnt; i++){
 			tmpl.push('<table class="jl-tree-nodes" cellpadding="0" cellspacing="0"><tr>');
 			tmpl.push(s);
 			tmpl.push('<td class="jl-tree-expander" ');
@@ -410,7 +410,7 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		Z.listvm.fixedRows=0;
 		
 		Z.listvm.onTopRownoChanged=function(rowno){
-			var rowno = Z.listvm.getCurrentRowno();
+			rowno = Z.listvm.getCurrentRowno();
 			Z._fillData();
 			Z._doCurrentRowChanged(rowno);
 			Z._syncScrollBar(rowno);
@@ -650,27 +650,27 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			cells = row.cells, 
 			cellCnt = cells.length, 
 			requiredCnt = item.level + 4,
-			otd;
+			otd, i, cnt;
 		Z._dataset.recnoSilence(Z.listvm.getCurrentRecno());
 		row.jsletrowno = rowNo;
 		if (cellCnt < requiredCnt){
-			for(var i = 1, cnt = requiredCnt - cellCnt; i <= cnt; i++){
+			for(i = 1, cnt = requiredCnt - cellCnt; i <= cnt; i++){
 				otd = row.insertCell(0);
 				jQuery(otd).addClass('jl-tree-lines').attr('jsletline', 1);
 			}
 		}
 		if (cellCnt >= requiredCnt){
-			for( var i = 0, cnt = cellCnt - requiredCnt; i < cnt; i++){
+			for(i = 0, cnt = cellCnt - requiredCnt; i < cnt; i++){
 				cells[i].style.display = 'none';
 			}
-			for(var i = cellCnt - requiredCnt; i < requiredCnt; i++){
+			for(i = cellCnt - requiredCnt; i < requiredCnt; i++){
 				cells[i].style.display = '';
 			}
 		}
 		cellCnt = cells.length;
 		//Line
 		var pitem = item, k = 1, totalWidth = Z.iconWidth * item.level;
-		for(var i = item.level; i >0; i--){
+		for(i = item.level; i > 0; i--){
 			otd = row.cells[cellCnt- 4 - k++];
 			pitem = pitem.parent;
 			if (pitem.islast) {
@@ -717,11 +717,11 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			clsName = 'jl-tree-icon',
 			iconClsId = null;
 
+		var isLeaf = !(item.children && item.children.length > 0);
 		if(Z._iconClassField || Z._onGetIconClass) {
 			if(Z._iconClassField) {
 				iconClsId = Z._dataset.getFieldValue(Z._iconClassField);
 			} else if (Z._onGetIconClass) {
-				var isLeaf = !(item.children && item.children.length > 0);
 				iconClsId = Z._onGetIconClass.call(Z, Z._dataset.keyValue(), item.level, isLeaf); //keyValue, level, isLeaf
 			}
 			if (iconClsId) {

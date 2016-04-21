@@ -168,7 +168,7 @@ jslet.ui.DBInspector = jslet.Class.create(jslet.ui.DBControl, {
 			otd = otr.insertCell(-1);
 		}
 		
-		var oldRowNo = -1, oldC = -1, rowNo, odiv, oLabel, fldName, editor, fldCtrl, dbCtrl;
+		var oldRowNo = -1, oldC = -1, rowNo, odiv, oLabel, editor, fldCtrl, dbCtrl;
 		Z.preRowIndex = -1;
 		for (i = 0; i < fcnt; i++) {
 			fldObj = visibleFlds[i];

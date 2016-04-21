@@ -42,15 +42,15 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 		/**
 		 * {String} Lookup field name.
 		 */
-		Z.lookupField;
+		Z.lookupField = null;
 		/**
 		 * {String} Lookup field value.
 		 */
-		Z.lookupValue;
+		Z.lookupValue = null;
 		/**
 		 * {String} Return field name.
 		 */
-		Z.returnField;
+		Z.returnField = null;
 		
 		$super(el, params);
 	},
@@ -83,7 +83,7 @@ jslet.ui.DBLookupLabel = jslet.Class.create(jslet.ui.DBControl, {
 		var Z = this;
 		var result = Z.dataset.lookup(Z.lookupField, Z.lookupValue,
 				Z.returnField);
-		if (result == null) {
+		if (result === null) {
 			result = 'NOT found: ' + Z.lookupValue;
 		}
 		Z.el.innerHTML = result;

@@ -254,7 +254,7 @@ jslet.ui.DBRating = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	destroy: function($super){
-		var jqEl = jQuery(Z.el);
+		var jqEl = jQuery(this.el);
 		jqEl.off();
 		
 		$super();

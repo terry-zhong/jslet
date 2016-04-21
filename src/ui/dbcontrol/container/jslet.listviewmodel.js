@@ -44,27 +44,27 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		if(expandLevel === undefined) {
 			expandLevel = -1;
 		}
-		var ds = dataset, 
+		var dsObj = dataset, 
 			hiddenCnt = 0, 
 			recno, 
-			allCnt = ds.recordCount(), 
+			allCnt = dsObj.recordCount(), 
 			childCnt, 
 			result = [], 
 			pId,
-			oldRecno = ds.recnoSilence();
+			oldRecno = dsObj.recnoSilence();
 		try {
-			ds.recnoSilence(this.fixedRows);
+			dsObj.recnoSilence(this.fixedRows);
 			var level = 0, 
 				pnodes = [], 
 				node, pnode, 
 				tmpNode, tmpKeyValue,
-				currRec, keyValue;
-			for(var recno = 0, recCnt = ds.recordCount(); recno < recCnt; recno++) {
-				ds.recnoSilence(recno);
-				keyValue = ds.keyValue();
+				currRec, keyValue, recCnt;
+			for(recno = 0, recCnt = dsObj.recordCount(); recno < recCnt; recno++) {
+				dsObj.recnoSilence(recno);
+				keyValue = dsObj.keyValue();
 				level = 0;
 				pnode = null;
-				pId = ds.parentValue();
+				pId = dsObj.parentValue();
 				for(var m = pnodes.length - 1; m>=0; m--) {
 					tmpNode = pnodes[m];
 					tmpKeyValue = tmpNode.keyvalue; 
@@ -82,12 +82,12 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 						pnodes.pop();
 					}
 				}
-				currRec = ds.getRecord();
+				currRec = dsObj.getRecord();
 				var expanded = true;
 				if(expandLevel >= 0 && level <= expandLevel) {
 					expanded = true;
 				} else { 
-					expanded = ds.expanded();
+					expanded = dsObj.expanded();
 				}
 				node = { parent: pnode, recno: recno, keyvalue: keyValue, expanded: expanded, isbold: 0, level: level };
 				pnodes.push(node);
@@ -104,7 +104,7 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				
 			} //end for recno
 		} finally {
-			ds.recnoSilence(oldRecno);
+			dsObj.recnoSilence(oldRecno);
 		}
 		allRows = result;
 		this._setLastFlag(result);

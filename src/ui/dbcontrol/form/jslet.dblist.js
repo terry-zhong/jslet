@@ -112,11 +112,11 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 			if(isMulti) {
 				treeParam.afterCheckBoxClick = function() {
 					Z.updateToDataset();
-				}
+				};
 			} else {
 				treeParam.onItemClick = function() {
 					Z.updateToDataset();
-				}
+				};
 			}
 	
 			window.setTimeout(function() {

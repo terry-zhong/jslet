@@ -77,16 +77,16 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z.renderAll();
 		var jqEl = jQuery(Z.el);
 		jqEl.on('keydown', function(event) {
-			var keyCode = event.which;
+			var keyCode = event.which, idx, activeEle, activeId;
 			
 			if(keyCode === jslet.ui.KeyCode.LEFT) { //Arrow Left
 				if(!Z._itemIds || Z._itemIds.length === 0) {
 					return;
 				}
-				var activeEle = document.activeElement,
-					activeId = activeEle && activeEle.id;
+				activeEle = document.activeElement;
+				activeId = activeEle && activeEle.id;
 				
-				var idx = Z._itemIds.indexOf(activeId);
+				idx = Z._itemIds.indexOf(activeId);
 				if(idx === 0) {
 					return;
 				}
@@ -97,10 +97,10 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 				if(!Z._itemIds || Z._itemIds.length === 0) {
 					return;
 				}
-				var activeEle = document.activeElement,
-					activeId = activeEle && activeEle.id;
+				activeEle = document.activeElement;
+				activeId = activeEle && activeEle.id;
 				
-				var idx = Z._itemIds.indexOf(activeId);
+				idx = Z._itemIds.indexOf(activeId);
 				if(idx === Z._itemIds.length - 1) {
 					return;
 				}
@@ -114,7 +114,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			var ctrl = this;
 			window.setTimeout(function(){ //Defer firing 'updateToDataset' when this control is in DBTable to make row changed firstly.
 				event.delegateTarget.jslet.updateToDataset(ctrl);
-			}, 5)
+			}, 5);
 		});
 		jqEl.on('focus', 'input[type="checkbox"]', function (event) {
 			jslet.ui.focusManager.activeDataset(Z._dataset.name()).activeField(Z._field).activeValueIndex(Z._valueIndex);
@@ -280,10 +280,10 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if (Z._is_silence_) {
 			return;
 		}
-		var allBoxes = jQuery(Z.el).find('input[type="checkbox"]'), chkBox;
+		var allBoxes = jQuery(Z.el).find('input[type="checkbox"]'), chkBox, j, allCnt;
 		if(jQuery(currCheckBox).hasClass('jl-selectall')) {
 			var isAllSelected = currCheckBox.checked;
-			for(var j = 0, allCnt = allBoxes.length; j < allCnt; j++){
+			for(j = 0, allCnt = allBoxes.length; j < allCnt; j++){
 				chkBox = allBoxes[j];
 				if(chkBox == currCheckBox) {
 					continue;
@@ -298,7 +298,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			limitCount = fldObj.valueCountLimit();
 		
 		var values = [], count = 0;
-		for(var j = 0, allCnt = allBoxes.length; j < allCnt; j++){
+		for(j = 0, allCnt = allBoxes.length; j < allCnt; j++){
 			chkBox = allBoxes[j];
 			if(jQuery(chkBox).hasClass('jl-selectall')) {
 				continue;

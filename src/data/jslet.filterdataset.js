@@ -40,9 +40,9 @@ jslet.data.FilterDataset = function(hostDataset) {
 		                     ]);
 	}
 	this._hostDataset = hostDataset;
-	this._filterDataset;
-	this._varValues;
-}
+	this._filterDataset = null;
+	this._varValues = null;
+};
 
 jslet.data.FilterDataset.prototype = {
 	/**
@@ -101,7 +101,7 @@ jslet.data.FilterDataset.prototype = {
 				}
 				proxyFldObj.editControl(editorObj);
 			}
-			var operator = dataRec['operator'];
+			var operator = dataRec.operator;
 			var valueStyle = jslet.data.FieldValueStyle.NORMAL;
 			if(operator == 'between') {
 				valueStyle = jslet.data.FieldValueStyle.BETWEEN;
@@ -111,7 +111,7 @@ jslet.data.FilterDataset.prototype = {
 			proxyFldObj.valueStyle(valueStyle);
 		}
 		
-		var fldCfg = [ 
+		var filterFldCfg = [ 
              {name: 'lParenthesis', type: 'S', length: 10, label: jslet.locale.FilterDataset.lParenthesis, validChars:'(', tabIndex: 90980}, 
 	         {name: 'hostField', type: 'S', length: 30, label: 'Host Field', visible: false},
 	         {name: 'field', type: 'S', length: 200, displayWidth:30, label: jslet.locale.FilterDataset.field, tabIndex: 90981, 
@@ -128,7 +128,7 @@ jslet.data.FilterDataset.prototype = {
              {name: 'logicalOpr', type: 'S', length: 10, label: jslet.locale.FilterDataset.logicalOpr, 
             	 lookup: {dataset:"ds_logical_opr_"}, required: true, defaultValue: 'and', tabIndex: 90986} 
 		];
-		var dsFilter = jslet.data.createDataset('dsFilter_' + id, fldCfg, {isFireGlobalEvent: false});
+		var dsFilter = jslet.data.createDataset('dsFilter_' + id, filterFldCfg, {isFireGlobalEvent: false});
 		var rule1 = {condition: '[field]', rules: [{field: 'value', customized: function(fldObj, changingFldName){
 			var fldName = dsFilter.getFieldValue('field');
 			if(!fldName) {
@@ -161,8 +161,8 @@ jslet.data.FilterDataset.prototype = {
 				if(!dataType) {
 					return;
 				}
-				var fldObj = dsFilter.getField('operator'),
-					lkDs = fldObj.lookup().dataset();
+				fldObj = dsFilter.getField('operator');
+				var lkDs = fldObj.lookup().dataset();
 				lkDs.filter('[range].indexOf("' + dataType + '") >= 0');
 				lkDs.filtered(true);
 				lkDs.first();
@@ -355,7 +355,7 @@ jslet.data.FilterDataset.prototype = {
 			}
 			if(value2 !== null && value2 !== undefined) {
 				if(result.length > 0) {
-					result += ' && '
+					result += ' && ';
 				}
 				result += 'jslet.compareValue(' + fldNameStr + ', ' + getValue(dataType, value2) + ') <=0';
 			}
@@ -434,6 +434,4 @@ jslet.data.FilterDataset.prototype = {
 		this._filterDataset.destroy();
 		lkdsField.destroy();
 	}
-	
-	
-}
+};

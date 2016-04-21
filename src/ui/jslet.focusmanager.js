@@ -23,7 +23,7 @@ jslet.ui.FocusManager = function() {
 	this._activeValueIndex = null;
 	
 	this._initialize();
-}
+};
 
 jslet.ui.FocusManager.prototype = {
 	/**
@@ -67,7 +67,7 @@ jslet.ui.FocusManager.prototype = {
 	
 	pushContainer: function(containerId) {
 		jslet.Checker.test('FocusManager.pushContainer#containerId', containerId).required().isString();
-		if(this._containerIds == null) {
+		if(this._containerIds === null) {
 			this._containerIds = [];
 		}
 		this._containerIds.push(containerId);
@@ -120,7 +120,7 @@ jslet.ui.FocusManager.prototype = {
 			jqContainer;
 		if(Z._containerIds && Z._containerIds.length > 0) {
 			var containerId = Z._containerIds[Z._containerIds.length - 1];
-			var jqContainer = jQuery('#' + containerId);
+			jqContainer = jQuery('#' + containerId);
 			if(jqContainer.length === 0) {
 				throw new Error('Not found container: ' + containerId);
 			}
@@ -204,7 +204,8 @@ jslet.ui.FocusManager.prototype = {
 		}
 		jQuery(document).keydown(handleHostKeyDown);
 	}
-}
+};
+
 jslet.ui.focusManager = new jslet.ui.FocusManager();
 
 /*!
@@ -217,8 +218,8 @@ jslet.ui.focusManager = new jslet.ui.FocusManager();
  * Released under the MIT license
  *
  */
-"use strict";
 
+"use strict";
 (function($){
 	/**
 	 * Focusses the next :focusable element. Elements with tabindex=-1 are focusable, but not tabable.

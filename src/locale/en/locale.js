@@ -142,7 +142,8 @@
 	
 	locale.DBComboSelect = { 
 		find: 'Press Ctrl + F to find data!',
-		cannotSelect: 'Cannot select this item.'
+		cannotSelect: 'Cannot select this item.',
+		notFound: 'Not found!'
 	};
 	
 	locale.MessageBox = { 

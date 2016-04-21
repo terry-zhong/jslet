@@ -87,7 +87,7 @@ jslet.ui.DBImage = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	bind: function () {
 		this.renderAll();
-		jQuery(this.el).addClass('img-responsive img-rounded')
+		jQuery(this.el).addClass('img-responsive img-rounded');
 		
 	}, // end bind
 

@@ -1,4 +1,4 @@
-/*!
+/*
  * Jslet Javascript Framework v4.0.0
  * https://github.com/jslet/jslet/
  *
@@ -131,15 +131,15 @@
 }
 
 .jl-menu-disabled a {
-    color: gray; !important
+    color: gray!important;
 }
 
 .jl-menu-enabled a {
-    color: black; !important
+    color: black!important;
 }
 
 .jl-menu-item-hover a {
-    color: black; !important
+    color: black!important;
 }
 
 .jl-menu-icon-placeholder {
@@ -201,7 +201,7 @@
     background-position: 0 2px;
     background-repeat: no-repeat;
     margin: 0;
-    padding: 0;h
+    padding: 0;
 }
 
 .jl-menu-radio-disabled {

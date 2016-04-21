@@ -201,7 +201,7 @@ jslet.SimpleMap = function () {
     
     this.values = function() {
     	return _values;
-    }
+    };
 };
 
 /**
@@ -469,7 +469,7 @@ jslet.parseDate = function(strDate, format) {
  */
 Date.prototype.toJSON = function() {
 	return jslet.formatDate(this, 'yyyy-MM-ddThh:mm:ss');
-}
+};
 
 /**
  * Convert string(ISO date format) to date
@@ -617,10 +617,10 @@ jslet.between = function(testValue, minValue, maxValue) {
 	}
 	var flagMin = true,
 		flagMax = true;
-	if(minValue != null && minValue !== undefined) { 
+	if(minValue !== null && minValue !== undefined) { 
 		flagMin = (jslet.compareValue(testValue, minValue) >= 0);
 	}
-	if(maxValue != null && maxValue !== undefined) { 
+	if(maxValue !== null && maxValue !== undefined) { 
 		flagMax = (jslet.compareValue(testValue, maxValue) <= 0);
 	}
 	return flagMin && flagMax;
@@ -681,7 +681,7 @@ jslet.isString = function(testValue) {
 
 jslet.isObject = function(testValue) {
 	return testValue === null || testValue === undefined || jQuery.type(this.varValue) !== "object";	
-}
+};
 
 jslet.isEmpty = function(value) {
 	if(value === null || value === undefined || value === '') {
@@ -699,7 +699,7 @@ jslet.isEmpty = function(value) {
 		return isEmpty;
 	}
 	return false;
-}
+};
 
 jslet.setTimeout = function(obj, func, time) {
     jslet.delayFunc = function () {
@@ -1007,8 +1007,8 @@ jslet.Checker = {
 jslet.JSON = {
 	normalize: function (json) {
 		//json = jQuery.trim(json);
-		var result = [], c, next, isKey = false, isArray = false, isObj = true, last = '', quoteChar = null;
-		var c = json.charAt(0), append = false;
+		var result = [], c, next, isKey = false, isArray = false, isObj = true, last = '', quoteChar = null, append = false;
+		c = json.charAt(0);
 		if(c != '{' && c != '[') {
 			result.push('{"');
 			append = true;
@@ -1110,35 +1110,35 @@ jslet.getFunction = function(funcOrFuncName, context) {
 		console.warn('NOT found function:' + funcOrFuncName);
 	}
 	return result;
-}
+};
 
 jslet.getRemainingString = function(wholeStr, cuttingStr) {
 	if(!wholeStr || !cuttingStr) {
 		return wholeStr;
 	}
 	return wholeStr.replace(cuttingStr, '');
-}
+};
 
 jslet.getYear = function(dateValue) {
 	if(!dateValue || !jslet.isDate(dateValue)) {
 		return 0;
 	}
 	return dateValue.getFullYear();
-}
+};
 
 jslet.getMonth = function(dateValue) {
 	if(!dateValue || !jslet.isDate(dateValue)) {
 		return 0;
 	}
 	return dateValue.getMonth() + 1;
-}
+};
 
 jslet.getYearMonth = function(dateValue) {
 	if(!dateValue || !jslet.isDate(dateValue)) {
 		return 0;
 	}
 	return dateValue.getFullYear() * 100 + dateValue.getMonth() + 1;
-}
+};
 
 /**
 * Show error message.
@@ -1160,7 +1160,7 @@ jslet.showError = function (e, callBackFn, timeout) {
 	if (jslet.ui && jslet.ui.MessageBox) {
 		jslet.ui.MessageBox.error(msg, null, callBackFn);
 	} else {
-		alert(msg);
+		window.alert(msg);
 	}
 };
 
@@ -1184,14 +1184,15 @@ jslet.showInfo = function (e, callBackFn, timeout) {
 	if (jslet.ui && jslet.ui.MessageBox) {
 		jslet.ui.MessageBox.alert(msg, jslet.locale.MessageBox.Info, callBackFn, timeout);
 	} else {
-		alert(msg);
+		window.alert(msg);
 	}
 };
 
 jslet.Clipboard = function() {
-	var clipboard = document.getElementById('jsletClipboard');
+	var doc = window.document;
+	var clipboard = doc.getElementById('jsletClipboard');
 	if(!clipboard) {
-		jQuery('<textarea id="jsletClipboard" style="position:absolute;top:-1000px" tabindex="-1"></textarea>').appendTo(document.body);
+		jQuery('<textarea id="jsletClipboard" style="position:absolute;top:-1000px" tabindex="-1"></textarea>').appendTo(doc.body);
 	
 	    window.addEventListener('copy', function (event) {
 	        var text = jQuery('#jsletClipboard').val();
@@ -1207,12 +1208,12 @@ jslet.Clipboard = function() {
 	        }
 	    });
 	}
-}
+};
 
 jslet.Clipboard.putText = function(text) {
 	var clipboard = jQuery('#jsletClipboard').val(text);
 	clipboard[0].select();
-}
+};
 
 jslet.Clipboard();
 
@@ -1228,15 +1229,15 @@ jslet.Clipboard();
 (function($){
     $.fn.getStyleObject = function(){
         var dom = this.get(0);
-        var style;
+        var style, prop;
         var returns = {};
         if(window.getComputedStyle){
             var camelize = function(a,b){
                 return b.toUpperCase();
-            }
+            };
             style = window.getComputedStyle(dom, null);
             for(var i=0;i<style.length;i++){
-                var prop = style[i];
+                prop = style[i];
                 var camel = prop.replace(/\-([a-z])/g, camelize);
                 var val = style.getPropertyValue(prop);
                 returns[camel] = val;
@@ -1245,11 +1246,11 @@ jslet.Clipboard();
         }
         if(dom.currentStyle){
             style = dom.currentStyle;
-            for(var prop in style){
+            for(prop in style){
                 returns[prop] = style[prop];
             }
             return returns;
         }
         return this.css();
-    }
+    };
 })(jQuery);

@@ -132,7 +132,7 @@ jslet.data.Field.prototype = {
 	 */
 	name: function () {
 		if(arguments.length >0) {
-			alert("Can't change field name!");
+			console.error("Can't change field name!");
 		}
 		return this._fieldName;
 	},
@@ -907,7 +907,7 @@ jslet.data.Field.prototype = {
 		if (dsObj && dsObj.designMode() && dsObj.isFireGlobalEvent()) {
 			var handler = jslet.data.globalDataHandler.fieldMetaChanged();
 			if(handler) {
-				handler.call(this, dsObj, this._fieldName, metaName)
+				handler.call(this, dsObj, this._fieldName, metaName);
 			}
 		}
 	},
@@ -1468,7 +1468,7 @@ jslet.data.Field.prototype = {
 			}
 			if (Z.getType() == jslet.data.DataType.DATE){
 				var displayFormat = Z.displayFormat();
-				var chars = '0123456789';
+				chars = '0123456789';
 				for(var i = 0, len = displayFormat.length; i < len; i++) {
 					var c = displayFormat.charAt(i);
 					if(c === 'y' || c === 'M' || c === 'd' || c === 'h' || c === 'm' || c === 's') {
@@ -1722,7 +1722,7 @@ jslet.data.Field.prototype = {
 		return this._dataset.getFieldText(this._fieldName, isEditing, valueIndex);
 	},
 	
-	setTextValue: function(value, valueIndex) {
+	setTextValue: function(inputText, valueIndex) {
 		this._dataset.setFieldText(this._fieldName, inputText, valueIndex);
 	},
 	
@@ -2660,7 +2660,7 @@ jslet.data.CrossFieldSource.prototype = {
 		Z._subtotalLabel = subtotalLabel;
 		return this;
 	}
-}
+};
 
 jslet.data.createCrossFieldSource = function(cfg) {
 	var result = new jslet.data.CrossFieldSource();
@@ -2686,4 +2686,4 @@ jslet.data.createCrossFieldSource = function(cfg) {
 		result.matchExpr(cfg.matchExpr);
 	}
 	return result;
-}
+};

@@ -160,13 +160,13 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		var oldRecno = dsObj.recnoSilence(),
 			xLabels = [],
-			yValues = [];
+			yValues = [],
+			legendLabels = [];
 
 		try {
 			var isInit = false, valueFldName,
 				valueFldCnt = Z._valueFields.length,
-				valueArr,
-				legendLabels = [];
+				valueArr;
 			for(var k = 0, recCnt = dsObj.recordCount(); k < recCnt; k++) {
 				dsObj.recnoSilence(k);
 				xLabels.push(dsObj.getFieldText(Z._categoryField));
@@ -233,7 +233,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 			
             axes: {
 				xaxis: {
-					renderer: $.jqplot.CategoryAxisRenderer,
+					renderer: jQuery.jqplot.CategoryAxisRenderer,
 					ticks: chartData.xLabels
 				}
 			}
@@ -248,7 +248,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 			title: Z._chartTitle, 
             animate: !jQuery.jqplot.use_excanvas,
 			seriesDefaults:{
-				renderer: $.jqplot.PieRenderer ,
+				renderer: jQuery.jqplot.PieRenderer ,
 				pointLabels: {show: true, formatString: '%d'}				
 			},
 			legend:{ show:true }
@@ -265,7 +265,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
             // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
             animate: !jQuery.jqplot.use_excanvas,
             seriesDefaults:{
-                renderer:$.jqplot.BarRenderer,
+                renderer:jQuery.jqplot.BarRenderer,
 				pointLabels: {show: true, formatString: '%d'}				
             },
 
@@ -275,7 +275,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 			
             axes: {
                 xaxis: {
-                    renderer: $.jqplot.CategoryAxisRenderer,
+                    renderer: jQuery.jqplot.CategoryAxisRenderer,
                     ticks: chartData.xLabels
                 }
             },
@@ -316,7 +316,7 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 			evtType == jslet.data.RefreshEvent.UPDATECOLUMN || 
 			evtType == jslet.data.RefreshEvent.INSERT || 
 			evtType == jslet.data.RefreshEvent.DELETE) {
-			this.drawChart()
+			this.drawChart();
 		}
 	},
 	/**

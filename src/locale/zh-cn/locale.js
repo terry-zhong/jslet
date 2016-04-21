@@ -143,7 +143,8 @@
 
 	locale.DBComboSelect = { 
 		find: '按Ctrl+F查找数据!',
-		cannotSelect: '不能选择此项！'
+		cannotSelect: '不能选择此项！',
+		notFound: '找不到!'
 	};
 
 	locale.MessageBox = { 

@@ -269,7 +269,7 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 	 * @return {Html Element} 
 	 */
 	floatPanel: function(){
-		return Z.panels[Z._floatIndex];	
+		return this.panels[this._floatIndex];	
 	},
 	
 	changeSize: function(k, size){
@@ -331,7 +331,7 @@ jslet.ui.SplitPanel = jslet.Class.create(jslet.ui.Control, {
 		}
 		Z.panels[index].expanded = expanded;
 		if (Z._onExpanded) {
-			Z._onExpanded.call(Z, panelIndex);
+			Z._onExpanded.call(Z, index);
 		}
 		jslet.resizeEventBus.resize(Z.el);
 	},

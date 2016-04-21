@@ -290,7 +290,7 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 * @override
 	 */
 	innerFocus: function() {
-		var jqEl = jQuery(Z.el);
+		var jqEl = jQuery(this.el);
 		jqEl.find('.jl-time-hour').focus();
 	},
 	

@@ -1,4 +1,4 @@
-/*!
+/*
  * Jslet Javascript Framework v4.0.0
  * https://github.com/jslet/jslet/
  *
@@ -58,7 +58,7 @@
 }
 
 .jl-tree-tracker {
-	width: 1px;!important
+	width: 1px!important;
 }
 
 .jl-tree-lines {
@@ -160,7 +160,7 @@
 
 .jl-tree-nodes .jl-tree-text {
 	padding-left: 4px;
-	padding-right: 2px	
+	padding-right: 2px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
