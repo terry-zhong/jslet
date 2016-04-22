@@ -352,6 +352,12 @@
 /* EditPanel */
 .jl-editpanel {
 }
+
+.jl-ep-part {
+	display:block;
+	float:left;
+	height:100%;
+}
 /* end EditPanel */
 
 

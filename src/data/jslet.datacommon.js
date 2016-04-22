@@ -300,12 +300,12 @@ jslet.data.FieldValidator.prototype = {
 						expected = length - scale;
 					if(actual > expected) {
 						return this._addFieldLabel(fldObj.label(), 
-								jslet.formatString(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]));
+								jslet.formatMessage(jslet.locale.Dataset.invalidIntegerPart, [expected, actual]));
 					}
 					actual = k > 0 ? inputText.length - k - 1: 0;
 					if(actual > scale) {
 						return this._addFieldLabel(fldObj.label(), 
-								jslet.formatString(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]));
+								jslet.formatMessage(jslet.locale.Dataset.invalidDecimalPart, [scale, actual]));
 					}
 					value = parseFloat(inputText);
 				}
@@ -345,7 +345,7 @@ jslet.data.FieldValidator.prototype = {
 				valid = false;
 			}
 			if(!valid) {
-				return this._addFieldLabel(fldObj.label(), jslet.formatString(jslet.locale.Dataset.fieldValueRequired));
+				return this._addFieldLabel(fldObj.label(), jslet.formatMessage(jslet.locale.Dataset.fieldValueRequired));
 			} else {
 				return null;
 			}
@@ -394,15 +394,15 @@ jslet.data.FieldValidator.prototype = {
 			
 			if (min !== undefined && max !== undefined && (value < min || value > max)) {
 				return this._addFieldLabel(fldObj.label(), 
-						jslet.formatString(jslet.locale.Dataset.notInRange, [strMin, strMax]));
+						jslet.formatMessage(jslet.locale.Dataset.notInRange, [strMin, strMax]));
 			}
 			if (min !== undefined && max === undefined && value < min) {
 				return this._addFieldLabel(fldObj.label(), 
-						jslet.formatString(jslet.locale.Dataset.moreThanValue, [strMin]));
+						jslet.formatMessage(jslet.locale.Dataset.moreThanValue, [strMin]));
 			}
 			if (min === undefined && max !== undefined && value > max) {
 				return this._addFieldLabel(fldObj.label(), 
-						jslet.formatString(jslet.locale.Dataset.lessThanValue, [strMax]));
+						jslet.formatMessage(jslet.locale.Dataset.lessThanValue, [strMax]));
 			}
 		}
 		
@@ -553,7 +553,7 @@ jslet.data.DateValueConverter = jslet.Class.create(jslet.data.FieldValueConverte
 	valueToText: function(fldObj, value, isEditing) {
 		if (!(value instanceof Date)) {
 			//Invalid value: [{1}] for DATE field: [{0}]!
-			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name(), value]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.invalidDateFieldValue, [fldObj.name(), value]));
 		}
 
 		return value ? jslet.formatDate(value, fldObj.displayFormat()): '';
@@ -567,7 +567,18 @@ jslet.data.StringValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 			value = jslet.htmlEncode(value);
 		}
 		return value;
+	},
+	
+	valueToText: function(fldObj, value, isEditing) {
+		var dataset = fldObj.dataset(),
+			dispFmt = fldObj.displayFormat();
+		if (!isEditing && dispFmt) {
+			return jslet.formatString(value, dispFmt);
+		} else {
+			return value;
+		}
 	}
+	
 });
 
 jslet.data.BooleanValueConverter = jslet.Class.create(jslet.data.FieldValueConverter, {
@@ -601,7 +612,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 				value = this._convertFieldValue(dsLookup, nameFldName, inputText, keyFldName);
 			}
 			if (value === null) {
-				var invalidMsg = jslet.formatString(jslet.locale.Dataset.valueNotFound);
+				var invalidMsg = jslet.formatMessage(jslet.locale.Dataset.valueNotFound);
 				fldObj.dataset().setFieldError(fldObj.name(), invalidMsg, valueIndex, inputText);
 				dsLookup.first();
 				return undefined;
@@ -1026,8 +1037,10 @@ jslet.data.FieldError = {
 jslet.data.FieldRawValueAccessor = {
 	getRawValue: function(dataRec, fldObj) {
 		var fldName = fldObj.shortName() || fldObj.name(),
-			fldType = fldObj.getType(),
-			value = dataRec[fldName];
+			customValueAccessor = fldObj.customValueAccessor();
+		
+		var fldType = fldObj.getType(), 
+			value = this._innerGetValue(dataRec, fldName, customValueAccessor);
 		
 		if(value === undefined || value === null) {
 			return null;
@@ -1059,7 +1072,7 @@ jslet.data.FieldRawValueAccessor = {
 				} //end if
 			}
 			if(flag) {
-				dataRec[fldName] = value;
+				this._innerSetValue(dataRec, fldName, value, customValueAccessor);
 			}
 		}
 		return value;
@@ -1067,10 +1080,12 @@ jslet.data.FieldRawValueAccessor = {
 	
 	setRawValue: function(dataRec, fldObj, value) {
 		var fldName = fldObj.shortName() || fldObj.name(),
-			fldType = fldObj.getType();
+			customValueAccessor = fldObj.customValueAccessor();
+		
+		var fldType = fldObj.getType();
 		
 		if(value === undefined || value === null) {
-			dataRec[fldName] = null;
+			this._innerSetValue(dataRec, fldName, null, customValueAccessor);
 			return;
 		}
 		if(fldType === jslet.data.DataType.BOOLEAN) {
@@ -1080,7 +1095,23 @@ jslet.data.FieldRawValueAccessor = {
 		if(fldType === jslet.data.DataType.PROXY) {
 			value = jslet.JSON.stringify(value);
 		}
-		dataRec[fldName] = value;
+		this._innerSetValue(dataRec, fldName, value, customValueAccessor);
+	},
+	
+	_innerGetValue: function(dataRec, fldName, customValueAccessor) {
+		if(customValueAccessor) {
+			return customValueAccessor.getValue(dataRec, fldName);
+		} else {
+			return dataRec[fldName];
+		}
+	},
+	
+	_innerSetValue:  function(dataRec, fldName, value, customValueAccessor) {
+		if(customValueAccessor) {
+			return customValueAccessor.setValue(dataRec, fldName, value);
+		} else {
+			dataRec[fldName] = value;
+		}
 	}
 };
 

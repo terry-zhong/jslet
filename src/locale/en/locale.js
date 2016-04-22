@@ -99,6 +99,11 @@
 		falseText: ''		
 	};
 	
+	locale.EnumDataset = {
+		code: 'Code',
+		name: 'Name'
+	};
+		
 	locale.Control = {
 		duplicatedId: 'Duplicated HTML element ID：{0}. Duplicated element id would cause unpredictable issues.'
 	};

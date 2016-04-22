@@ -100,6 +100,11 @@
 		falseText: ''
 	};
 
+	locale.EnumDataset = {
+		code: '编码',
+		name: '名称'
+	};
+	
 	locale.Control = {
 		duplicatedId: 'HTML元素的ID：{0} 重复！重复的ID会导致不可预知的问题，请去除重复！'
 	};

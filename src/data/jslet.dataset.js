@@ -2460,7 +2460,7 @@ jslet.data.Dataset.prototype = {
 						value = Z.getFieldValue(fldName) || 0;
 						if(jslet.isString(value)) {
 							//Invalid value: [{1}] for NUMBER field: [{0}]!
-							throw new Error(jslet.formatString(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, value]));
+							throw new Error(jslet.formatMessage(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, value]));
 						}
 						aggradedValueObj.sum = aggradedValueObj.sum + value;
 					}
@@ -2910,7 +2910,7 @@ jslet.data.Dataset.prototype = {
 				masterFldObj = masterDsObj.getField(Z._masterField);
 			if(Z.existRecordError()) {
 				//'Detail Dataset: {0} has error data!'
-				masterDsObj.addFieldError(Z._masterField, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
+				masterDsObj.addFieldError(Z._masterField, jslet.formatMessage(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
 			} else {
 				masterDsObj.addFieldError(Z._masterField, null);
 			}
@@ -3054,7 +3054,7 @@ jslet.data.Dataset.prototype = {
 			var masterFldName = Z.masterField();
 			if(hasError) {
 				//'Detail Dataset: {0} has error data!'
-				dsMaster.addFieldError(masterFldName, jslet.formatString(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
+				dsMaster.addFieldError(masterFldName, jslet.formatMessage(jslet.locale.Dataset.detailDsHasError, [Z.name()]));
 			} else {
 				dsMaster.addFieldError(masterFldName, null);
 			}
@@ -3088,7 +3088,7 @@ jslet.data.Dataset.prototype = {
 			dsDetail.confirm();
 			if(dsDetail.existDatasetError()) {
 				//'Detail Dataset: {0} has error data!'
-				Z.addFieldError(dtlFields[i], jslet.formatString(jslet.locale.Dataset.detailDsHasError, [dsDetail.name()]));
+				Z.addFieldError(dtlFields[i], jslet.formatMessage(jslet.locale.Dataset.detailDsHasError, [dsDetail.name()]));
 			} else {
 				Z.addFieldError(dtlFields[i], null);
 			}
@@ -3340,7 +3340,7 @@ jslet.data.Dataset.prototype = {
 				dsDetail = fldObj.detailDataset();
 			
 			if (!lkf && !dsDetail) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [dtlFldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.lookupNotFound, [dtlFldName]));
 			}
 			if(lkf) {
 				value = jslet.data.FieldRawValueAccessor.getRawValue(dataRec, fldObj);
@@ -3351,7 +3351,7 @@ jslet.data.Dataset.prototype = {
 					if (lkds.findByField(lkds.keyField(), value)) {
 						fldValue = lkds.getFieldValue(fldName.substr(k + 1));
 					} else {
-						throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+						throw new Error(jslet.formatMessage(jslet.locale.Dataset.valueNotFound,
 									[lkds.name(),lkds.keyField(), value]));
 					}
 				}
@@ -3361,7 +3361,7 @@ jslet.data.Dataset.prototype = {
 			
 		} else { //single field
 			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
 			var formula = fldObj.formula();
 			if (!formula) {
@@ -3415,7 +3415,7 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 			fldObj = Z.getField(fldName);
 		if (fldObj === null) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
 		if(Z._status == jslet.data.DataSetStatus.BROWSE) {
 			Z.editRecord();
@@ -3429,7 +3429,7 @@ jslet.data.Dataset.prototype = {
 				value = fldObj.scale() > 0 ? parseFloat(value): parseInt(value);
 				if(window.isNaN(value)) {
 					//Invalid value: [{1}] for NUMBER field: [{0}]!
-					throw new Error(jslet.formatString(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, oldValue]));
+					throw new Error(jslet.formatMessage(jslet.locale.Dataset.invalidNumberFieldValue, [fldName, oldValue]));
 				}
 			}
 			jslet.data.FieldRawValueAccessor.setRawValue(currRec, fldObj, value);
@@ -3745,12 +3745,12 @@ jslet.data.Dataset.prototype = {
 			fldName = fldName.substr(k + 1);
 			fldObj = Z.getField(dtlFldName);
 			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
 			var lkf = fldObj.lookup(),
 				dsDetail = fldObj.detailDataset();
 			if (!lkf && !dsDetail) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.lookupNotFound, [fldName]));
 			}
 			if(lkf) {
 				value = currRec[dtlFldName];
@@ -3765,7 +3765,7 @@ jslet.data.Dataset.prototype = {
 						return lkds.getFieldText(fldName, isEditing, valueIndex);
 					}
 				} else {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.valueNotFound,
+					throw new Error(jslet.formatMessage(jslet.locale.Dataset.valueNotFound,
 							[lkds.name(), lkds.keyField(), value]));
 				}
 			} else {
@@ -3776,7 +3776,7 @@ jslet.data.Dataset.prototype = {
 		//Not field chain
 		fldObj = Z.getField(fldName);
 		if (!fldObj) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.lookupNotFound, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.lookupNotFound, [fldName]));
 		}
 		if (fldObj.getType() == jslet.data.DataType.DATASET) {
 			return '';
@@ -3872,11 +3872,11 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 		fldObj = Z.getField(fldName);
 		if (fldObj === null) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
 		var fType = fldObj.getType();
 		if (fType == jslet.data.DataType.DATASET) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.datasetFieldNotBeSetValue, [fldName]));
 		}
 		
 		var value = Z._textToValue(fldObj, inputText, valueIndex);
@@ -4069,7 +4069,7 @@ jslet.data.Dataset.prototype = {
 			fldName = fields[i];
 			fldObj = Z.getField(fldName);
 			if(!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
 			var byText = true;
 			if(fldObj.getType() === 'N' && !fldObj.lookup()) {
@@ -4190,11 +4190,11 @@ jslet.data.Dataset.prototype = {
 		var Z = this,
 			fldObj = Z.getField(fldName);
 		if(!fldObj) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
 		var lookup = fldObj.lookup();
 		if(!lookup) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.lookupFieldExpected, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.lookupFieldExpected, [fldName]));
 		}
 		var lkds = lookup.dataset();
 		jslet.Checker.test('inchildren#lookupDataset', lkds).required();
@@ -5695,7 +5695,7 @@ jslet.data.Dataset.prototype = {
 			dsName = master.name;
 		if(dsName != Z._name) {
 			//Snapshot name: [{0}] does not match the current dataset name: [{1}], cannot import snapshot!
-			throw new Error(jslet.formatString(jslet.locale.Dataset.cannotImportSnapshot, [dsName, Z._name]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.cannotImportSnapshot, [dsName, Z._name]));
 		}
 		Z._dataList = master.dataList;
 		Z._changeLog._changedRecords = master.changedRecords;
@@ -5782,8 +5782,12 @@ jslet.data.createEnumDataset = function(dsName, enumStrOrObj) {
 	jslet.Checker.test('createEnumDataset#enumStrOrObj', enumStrOrObj).required();
 		
 	var dsObj = new jslet.data.Dataset(dsName);
-	dsObj.addField(jslet.data.createStringField('code', 10));
-	dsObj.addField(jslet.data.createStringField('name', 20));
+	var fldObj = jslet.data.createStringField('code', 10);
+	fldObj.label(jslet.locale.EnumDataset.code);
+	dsObj.addField(fldObj);
+	var fldObj = jslet.data.createStringField('name', 20);
+	fldObj.label(jslet.locale.EnumDataset.name);
+	dsObj.addField(fldObj);
 
 	dsObj.keyField('code');
 	dsObj.codeField('code');

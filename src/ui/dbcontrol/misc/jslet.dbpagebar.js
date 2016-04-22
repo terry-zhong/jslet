@@ -107,7 +107,7 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 						'</label><a class="jl-pb-item jl-pb-button jl-pb-first" href="javascript:;"></a><a class="jl-pb-item jl-pb-button jl-pb-prior" href="javascript:;"></a><label class="jl-pb-item jl-pb-label">',
 						jslet.locale.DBPageBar.pageNumLabel,
 						'</label><input class="jl-pb-item jl-pb-pagenum" value="1" size="2" ></input><a class="jl-pb-item jl-pb-button jl-pb-goto" href="javascript:;"></a><label class="jl-pb-item jl-pb-label">',
-						jslet.formatString(jslet.locale.DBPageBar.pageCountLabel, [0]),
+						jslet.formatMessage(jslet.locale.DBPageBar.pageCountLabel, [0]),
 						'</label><a class="jl-pb-item jl-pb-button jl-pb-next" href="javascript:;"></a><a class="jl-pb-item jl-pb-button jl-pb-last" href="javascript:;"></a></div>'
 						];
 		jqEl.html(template.join(''));
@@ -230,7 +230,7 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 			num = Z._dataset.pageNo(), 
 			count = Z._dataset.pageCount();
 		Z._pageNoTxt.value = num;
-		Z._pageCountLbl.innerHTML = jslet.formatString(jslet.locale.DBPageBar.pageCountLabel, [count]);
+		Z._pageCountLbl.innerHTML = jslet.formatMessage(jslet.locale.DBPageBar.pageCountLabel, [count]);
 		Z._refreshButtonStatus();
 	}, // end refreshControl
 

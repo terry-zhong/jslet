@@ -140,13 +140,13 @@ jslet.ui.DBChart = jslet.Class.create(jslet.ui.DBControl, {
 		var dsObj = Z._dataset,
 			fldName = Z._categoryField;
 		if (!dsObj.getField(fldName)) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 		}
 		
 		for(var i = 0, len = Z._valueFields.length; i < len; i++) {
 			fldName = Z._valueFields[i];
 			if(!dsObj.getField(fldName)) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
 		}
 		Z._fieldValidated = true;

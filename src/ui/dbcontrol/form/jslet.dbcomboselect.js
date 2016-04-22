@@ -283,7 +283,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	},
 	
 	isMultiple: function() {
-		return this.fieldObject.valueStyle() == jslet.data.FieldValueStyle.MULTIPLE;
+		return this.fieldObject && this.fieldObject.valueStyle() === jslet.data.FieldValueStyle.MULTIPLE;
 	},
 		
 	showPopup: function (left, top, ajustX, ajustY) {
@@ -588,6 +588,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	destroy: function(){
 		var Z = this;
 		Z._restoreLkDsEvent();
+		Z.popup.onHidePopup = null;
 		if (Z.otree){
 			Z.otree.destroy();
 			Z.otree = null;

@@ -190,7 +190,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 			fldObj = Z._dataset.getField(Z._field), 
 			lkf = fldObj.lookup();
 		if (!lkf) {
-			console.error(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			console.error(jslet.formatMessage(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}
@@ -311,7 +311,7 @@ jslet.ui.DBCheckBoxGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 		if (limitCount && count > limitCount) {
 			currCheckBox.checked = !currCheckBox.checked;
-			jslet.showInfo(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+			jslet.showInfo(jslet.formatMessage(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 					[''	+ limitCount]));
 			return;
 		}

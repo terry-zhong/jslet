@@ -2467,7 +2467,7 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			cellRender.createHeader.call(Z, ochild, cobj);
 		} else {
 			var sh = cobj.label || '&nbsp;';
-			if(cobj.field && Z._isCellEditable(cobj)) {
+			if(cobj.field) {
 				var fldObj = Z._dataset.getField(cobj.field);
 				if(fldObj && fldObj.required()) {
 					sh = '<span class="jl-lbl-required">*</span>' + sh;
@@ -2941,13 +2941,14 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			otd.innerHTML = jslet.locale.DBTable.totalLabel;
 			canShowLabel = false;
 		}
+		var colNum;
 		for (var i = 0, len = Z.innerColumns.length; i < len; i++) {
 			cobj = Z.innerColumns[i];
-
-			if (i < Z._fixedCols) {
-				otd = otrLeft.cells[i + sysColCnt];
+			colNum = cobj.colNum;
+			if (colNum < Z._fixedCols) {
+				otd = otrLeft.cells[colNum + sysColCnt];
 			} else {
-				otd = otrRight.cells[i - Z._fixedCols];
+				otd = otrRight.cells[colNum - Z._fixedCols];
 			}
 			otd.style.textAlign = 'right';
 

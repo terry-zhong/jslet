@@ -53,7 +53,6 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._readOnly = false;
 	Z._visible = true;
 	Z._disabled = false;
-	Z._customValueConverter = null;
 	Z._unitConverted = false;
 
 	Z._lookup = null;
@@ -71,6 +70,9 @@ jslet.data.Field = function (fieldName, dataType) {
 	Z._dataRange= null;
 	Z._regularExpr = null;
 	Z._antiXss = true;
+	
+	Z._customValueAccessor = null;
+	Z._customValueConverter = null;
 	Z._customValidator = null;
 	Z._validChars = null; //Array of characters
 	Z._dateChar = null;
@@ -1236,7 +1238,7 @@ jslet.data.Field.prototype = {
 			if(Z._detailDataset && jslet.isString(Z._detailDataset)) {
 				Z.detailDataset(Z._detailDataset);
 				if(jslet.isString(Z._detailDataset)) {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [Z._detailDataset]));
+					throw new Error(jslet.formatMessage(jslet.locale.Dataset.datasetNotFound, [Z._detailDataset]));
 				}
 			}
 			return Z._detailDataset;
@@ -1394,6 +1396,28 @@ jslet.data.Field.prototype = {
 			Z._regularExpr = expr;
 		}
 		Z._fireGlobalMetaChangedEvent('regularExpr');
+		return this;
+	},
+	
+	/**
+	 * Get or set customized field value accessor, pattern:
+	 * var accessor = {
+	 * 		getValue: function(dataRec, fldName) {},
+	 * 		setValue: function(dataRec, fldName, fldValue) {}
+	 * };
+	 * fldObj.customValueAccessor(accessor);
+	 * 
+	 * @param {Object} accessor Field raw value accessor.
+	 */
+	customValueAccessor: function(accessor) {
+		var Z = this;
+		if (accessor === undefined) {
+			return Z._customValueAccessor;
+		}
+		Z._customValueAccessor = accessor;
+		Z._clearFieldCache();
+		Z._fireColumnUpdatedEvent();
+		Z._fireGlobalMetaChangedEvent('customValueAccessor');
 		return this;
 	},
 	
@@ -1787,6 +1811,7 @@ jslet.data.Field.prototype = {
 		result.antiXss(Z._antiXss);
 		result.customValidator(Z._customValidator);
 		result.customValueConverter(Z._customValueConverter);
+		result.customValueAccessor(Z._customValueAccessor);
 		result.validChars(Z._validChars);
 		
 		result.mergeSame(Z._mergeSame);
@@ -1833,7 +1858,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 		fldName = cfg.name;
 	if (!fldName) {
 		console.error(cfg);
-		throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNameRequired));
+		throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNameRequired));
 	}
 	var dtype = cfg.type || cfg.dataType;
 	if (dtype === null || dtype === undefined) {
@@ -1890,7 +1915,7 @@ jslet.data.createField = function (fieldConfig, parent) {
 		if (detailDs) {
 			fldObj.detailDataset(detailDs);
 		} else {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.invalidDatasetField, [fldName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.invalidDatasetField, [fldName]));
 		}
 		fldObj.visible(false);
 		return fldObj;
@@ -1922,6 +1947,8 @@ jslet.data.createField = function (fieldConfig, parent) {
 	setPropValue('dataRange');
 	setPropValue('customValidator');
 	setPropValue('customValueConverter');
+	setPropValue('customValueAccessor');
+	
 	setPropValue('trueValue');
 	setPropValue('falseValue');
 	setPropValue('mergeSame');

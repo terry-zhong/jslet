@@ -85,7 +85,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			jslet.Checker.test('DBEditPanel.fields.field', fldCfg.field).isString().required();
 			jslet.Checker.test('DBEditPanel.fields.labelCols', fldCfg.colSpan).isNumber().between(1,3);
 			jslet.Checker.test('DBEditPanel.fields.dataCols', fldCfg.colSpan).isNumber().between(1,11);
-			jslet.Checker.test('DBEditPanel.fields.prefix', fldCfg.suffix).isArray();
+			jslet.Checker.test('DBEditPanel.fields.prefix', fldCfg.prefix).isArray();
 			jslet.Checker.test('DBEditPanel.fields.suffix', fldCfg.suffix).isArray();
 			fldCfg.inFirstCol = fldCfg.inFirstCol ? true: false;
 			fldCfg.showLine = fldCfg.showLine ? true: false;
@@ -231,7 +231,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 			fldName = layout.field;
 			fldObj = Z._dataset.getField(fldName);
 			if (!fldObj) {
-				throw new Error(jslet.formatString(jslet.locale.Dataset.fieldNotFound, [fldName]));
+				throw new Error(jslet.formatMessage(jslet.locale.Dataset.fieldNotFound, [fldName]));
 			}
 			editorCfg = fldObj.editControl();
 			var isCheckBox = editorCfg.type.toLowerCase() == 'dbcheckbox';
@@ -280,16 +280,72 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				opanel.appendChild(octrlDiv);
 				octrlDiv.className = 'col-sm-' + (Z._hasLabel?　layout._innerDataCols: 12);
 				
-				editorCfg = {type: 'DBPlace', dataset: Z._dataset, field: fldName};
-				editor = jslet.ui.createControl(editorCfg, null);
-				octrlDiv.appendChild(editor.el);
-				ctrlId = jslet.nextId();
-				editor.el.id = ctrlId;
+				ctrlId = Z._renderEditPart(octrlDiv, layout);
 				jQuery(oLabel).attr('for', ctrlId);
 				Z.addChildControl(editor);
 			}
 		}
 	}, // render All
+	
+	_renderEditPart: function(ctrlDiv, layoutCfg) {
+		var Z = this, fldName, i, len,
+			hasPrefix = layoutCfg.prefix && layoutCfg.prefix.length > 0,
+			hasSuffix = layoutCfg.suffix && layoutCfg.suffix.length > 0,
+			otherPartWidth = 0;
+			
+		if(hasPrefix) {
+			otherPartWidth = Z._renderOtherPart(ctrlDiv, layoutCfg.prefix);
+		}
+		var fldName = layoutCfg.field;
+		var editorEl = Z._renderEditor(fldName);
+		ctrlDiv.appendChild(editorEl);
+		
+		if(hasSuffix) {
+			otherPartWidth += Z._renderOtherPart(ctrlDiv, layoutCfg.suffix);
+		}
+		if(otherPartWidth) {
+			jQuery(editorEl).addClass('jl-ep-part');
+			editorEl.style.width = jQuery(ctrlDiv).width() - otherPartWidth + 'px';
+		}
+		return editorEl.id;
+	},
+	
+	_renderOtherPart: function(ctrlDiv, arrPrefixOrSuffix) {
+		var fixCfg, editorEl, width, partEl, 
+			jqCtrlDiv = jQuery(ctrlDiv), 
+			totalWidth = 0;
+		for(var i = 0, len = arrPrefixOrSuffix.length; i < len; i++) {
+			fixCfg = arrPrefixOrSuffix[i];
+			width = fixCfg.width;
+			if(fixCfg.field) {
+				partEl = this._renderEditor(fixCfg.field);
+				jqCtrlDiv.append(partEl);
+			} else if(fixCfg.content) {
+				var id = jslet.nextId();
+				jqCtrlDiv.append('<div id = "' + id + '">' + fixCfg.content + '</div>');
+				var children = jqCtrlDiv.children();
+				partEl = jQuery('#' + id)[0];
+			} else {
+				console.warn('prefix or suffix: field or content is required!');
+				continue;
+			}
+			if(!width) {
+				console.warn('Width is empty, use 5% instead!')
+				width = '5%';
+			}
+			jQuery(partEl).addClass('jl-ep-part');
+			
+			partEl.style.width = width;
+			totalWidth += jQuery(partEl).outerWidth();
+		}
+		return totalWidth;
+	},
+	
+	_renderEditor: function(fldName) {
+		var editor = jslet.ui.createControl({type: 'DBPlace', dataset: this._dataset, field: fldName}, null);
+		editor.el.id = jslet.nextId();
+		return editor.el;
+	},
 	
 	/**
 	 * @override

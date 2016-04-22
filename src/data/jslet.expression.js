@@ -17,7 +17,7 @@ jslet.Expression = function(dataset, expr) {
 	if (typeof dataset == 'string') {
 		this._dataset = jslet.data.getDataset(dataset);
 		if (!this._dataset) {
-			throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dataset]));
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.datasetNotFound, [dataset]));
 		}
 	}else{
 		jslet.Checker.test('jslet.Expression#dataset', dataset).isClass(jslet.data.Dataset.className);
@@ -67,7 +67,7 @@ jslet.Expression.prototype = {
 			if(dsName) {
 				otherDs = jslet.data.dataModule.get(dsName);
 				if (!otherDs) {
-					throw new Error(jslet.formatString(jslet.locale.Dataset.datasetNotFound, [dsName]));
+					throw new Error(jslet.formatMessage(jslet.locale.Dataset.datasetNotFound, [dsName]));
 				}
 				this.context[dsName] = otherDs;
 				dsObj = otherDs;

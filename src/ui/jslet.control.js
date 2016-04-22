@@ -36,7 +36,7 @@ jslet.ui.Control = jslet.Class.create({
 			} else {
 				template = '';
 			}
-			throw new Error(jslet.formatString(jslet.locale.DBControl.invalidHtmlTag, template));
+			throw new Error(jslet.formatMessage(jslet.locale.DBControl.invalidHtmlTag, template));
 		}
 		Z._styleClass = null;
 		
@@ -110,7 +110,7 @@ jslet.ui.Control = jslet.Class.create({
 		for (var i = 0; i < cnt; i++) {
 			name = arrProps[i].trim();
 			if (!this[name]) {
-				throw new Error(jslet.formatString(jslet.locale.DBControl.expectedProperty, [name]));
+				throw new Error(jslet.formatMessage(jslet.locale.DBControl.expectedProperty, [name]));
 			}
 		}//end for
 	},
@@ -524,7 +524,7 @@ jslet.ui._evalParams = function (ctrlParams) {
 			}
 			return ctrlParams;
 		} catch (e) {
-			throw new Error(jslet.formatString(jslet.locale.DBControl.invalidJsletProp, [ctrlParams]));
+			throw new Error(jslet.formatMessage(jslet.locale.DBControl.invalidJsletProp, [ctrlParams]));
 		}
 	}
 	return ctrlParams;
@@ -694,7 +694,7 @@ jslet.ui.install = function (pElement, onJsletReady) {
 		id = el.id;
 		if(id) {
 			if(existIds[id]) {
-				console.warn(jslet.formatString(jslet.locale.Control.duplicatedId, [id]));
+				console.warn(jslet.formatMessage(jslet.locale.Control.duplicatedId, [id]));
 			} else {
 				existIds[id] = 1;
 			}

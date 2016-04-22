@@ -132,7 +132,7 @@ jslet.ui.DBRangeSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 					count = values.length;
 				}
 				if (count >= limitCount) {
-					jslet.showInfo(jslet.formatString(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
+					jslet.showInfo(jslet.formatMessage(jslet.locale.DBCheckBoxGroup.invalidCheckedCount,
 							[''	+ limitCount]));
 					
 					window.setTimeout(function(){

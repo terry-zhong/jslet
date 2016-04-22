@@ -168,7 +168,7 @@ jslet.ui.DBRadioGroup = jslet.Class.create(jslet.ui.DBFieldControl, {
 		var Z = this;
 		var fldObj = Z._dataset.getField(Z._field), lkf = fldObj.lookup();
 		if (!lkf) {
-			console.error(jslet.formatString(jslet.locale.Dataset.lookupNotFound,
+			console.error(jslet.formatMessage(jslet.locale.Dataset.lookupNotFound,
 					[fldObj.name()]));
 			return;
 		}

@@ -207,16 +207,16 @@ jslet.SimpleMap = function () {
 /**
  * format message with argument. Example:
  * <pre><code>
- * var msg = jslet.formatString('Your name is:{0}', 'Bob');//return: your name is: Bob
- * var msg = jslet.formatString('They are:{0} and {1}', ['Jerry','Mark']);
+ * var msg = jslet.formatMessage('Your name is:{0}', 'Bob');//return: your name is: Bob
+ * var msg = jslet.formatMessage('They are:{0} and {1}', ['Jerry','Mark']);
  * </code></pre>
  * 
  * @param {String} Initial message, placeholder of argument is {n}, n is number 
  * @param {String/Array of String} args arguments
  * @return formatted message
  */
-jslet.formatString = function (msg, args) {
-	jslet.Checker.test('jslet.formatString#msg', msg).required().isString();
+jslet.formatMessage = function (msg, args) {
+	jslet.Checker.test('jslet.formatMessage#msg', msg).required().isString();
     if(args === undefined || args === null) {
     	return msg; 
     }
@@ -243,6 +243,28 @@ jslet.formatString = function (msg, args) {
     	return msg.replace('{0}', args);
     }
     return result;
+};
+
+jslet.formatString = function (value, dispFmt) {
+	if(!dispFmt || !value) {
+		return value;
+	}
+	var valueLen = value.length,
+		FmtLen = dispFmt.length,
+		c, k = -1, result = '';
+	for(var i = 0; i < FmtLen; i++) {
+		c = dispFmt[i];
+		if(c === 'c' || c === 'C') {
+			k++;
+			if(k === valueLen) {
+				break;
+			}
+			result += value[k];
+		} else {
+			result += c;
+		}
+	}
+	return result;
 };
 
 /**
@@ -837,7 +859,7 @@ jslet.Checker = {
 	required: function() {
 		if(this.varValue === null || this.varValue === undefined || this.varValue === '') {
 			//[{0}] is Required!
-			throw new Error(jslet.formatString(jslet.locale.Checker.required, [this.varName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.required, [this.varName]));
 		}
 		return this;
 	},
@@ -850,7 +872,7 @@ jslet.Checker = {
 		   this.varValue !== true && 
 		   this.varValue !== false) {
 			//[{0}] must be a Boolean value!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredBooleanValue, [this.varName]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredBooleanValue, [this.varName]));
 		}
 		return this;
 	},
@@ -861,7 +883,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			!jslet.isString(this.varValue)) {
 			//[{0}: {1}] must be a String value!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredStringValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredStringValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -872,7 +894,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			!jslet.isDate(this.varValue)) {
 			//[{0}: {1}] must be a Date value!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredDateValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredDateValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -883,7 +905,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			!jQuery.isNumeric(this.varValue)) {
 			//[{0}: {1}] must be a Numberic value!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredNumbericValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredNumbericValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -892,7 +914,7 @@ jslet.Checker = {
 		this.isNumber();
 		if(this.varValue <= 0) {
 			//[{0}: {1}] must be great than zero!
-			throw new Error(jslet.formatString(jslet.locale.Checker.greatThanZero, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.greatThanZero, [this.varName, this.varValue]));
 		}
 	},
 	
@@ -900,7 +922,7 @@ jslet.Checker = {
 		this.isNumber();
 		if(this.varValue < 0) {
 			//[{0}: {1}] must be great than or equal zero!
-			throw new Error(jslet.formatString(jslet.locale.Checker.greatThanEqualZero, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.greatThanEqualZero, [this.varName, this.varValue]));
 		}
 	},
 	
@@ -909,15 +931,15 @@ jslet.Checker = {
 		var checkMax = maxValue !== null && maxValue !== undefined;
 		if(checkMin && checkMax && (this.varValue < minValue || this.varValue > maxValue)) {
 			//[{0} : {1}] must be between [{2}] and [{3}]!
-			throw new Error(jslet.formatString(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue, maxValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue, maxValue]));
 		}
 		if(!checkMin && checkMax && this.varValue > maxValue) {
 			//[{0} : {1}] must be less than [{2}]!
-			throw new Error(jslet.formatString(jslet.locale.Checker.lessThanMaxValue, [this.varName, this.varValue, maxValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.lessThanMaxValue, [this.varName, this.varValue, maxValue]));
 		}
 		if(checkMin && !checkMax && this.varValue < minValue) {
 			//[{0} : {1}] must be great than [{2}]!
-			throw new Error(jslet.formatString(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.betweenValue, [this.varName, this.varValue, minValue]));
 		}
 	},
 	
@@ -927,7 +949,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			!jslet.isArray(this.varValue)) {
 			//[{0}: {1}] must be an Array!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredArrayValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredArrayValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -938,7 +960,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			jQuery.type(this.varValue) !== "object") {
 			//[{0}: {1}] must be an Object!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredObjectValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredObjectValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -949,7 +971,7 @@ jslet.Checker = {
 				this.varValue !== false &&
 				!jQuery.isPlainObject(this.varValue)) {
 			//[{0}: {1}] must be a plan Object!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredPlanObjectValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredPlanObjectValue, [this.varName, this.varValue]));
 		}
 		return this;
 				
@@ -961,7 +983,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			!jQuery.isFunction(this.varValue)) {
 			//[{0}: {1}] must be a Function!
-			throw new Error(jslet.formatString(jslet.locale.Checker.requiredFunctionValue, [this.varName, this.varValue]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.requiredFunctionValue, [this.varName, this.varValue]));
 		}
 		return this;
 	},
@@ -973,7 +995,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			this.varValue.className != className) {
 			//[{0}: {1}] must be instance of [{2}]!
-			throw new Error(jslet.formatString(jslet.locale.Checker.instanceOfClass, [this.varName, this.varValue, className]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.instanceOfClass, [this.varName, this.varValue, className]));
 		}
 		return this;
 	},
@@ -997,7 +1019,7 @@ jslet.Checker = {
 			this.varValue !== false &&
 			arrlist.indexOf(this.varValue) < 0) {
 			//[{0}: {1}] must be one of [{2}]!
-			throw new Error(jslet.formatString(jslet.locale.Checker.inArray, [this.varName, this.varValue, arrlist.join(',')]));
+			throw new Error(jslet.formatMessage(jslet.locale.Checker.inArray, [this.varName, this.varValue, arrlist.join(',')]));
 		}
 		return this;
 	}
@@ -1077,7 +1099,7 @@ jslet.JSON = {
 //			return JSON.parse(this.normalize(json));//has bug
 			return JSON.parse(json);
 		} catch(e) {
-			throw new Error(jslet.formatString(jslet.locale.Common.jsonParseError, [json]));
+			throw new Error(jslet.formatMessage(jslet.locale.Common.jsonParseError, [json]));
 		}
 	},
 	

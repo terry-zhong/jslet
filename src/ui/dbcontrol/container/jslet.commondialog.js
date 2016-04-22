@@ -106,7 +106,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 	var _left = -1;
 	var _top = -1;
 	function initialize() {
-		var opt = { type: 'window', caption: jslet.formatString(jslet.locale.findDialog.caption, ['']), isCenter: false, resizable: true, minimizable: false, maximizable: false, 
+		var opt = { type: 'window', caption: jslet.formatMessage(jslet.locale.findDialog.caption, ['']), isCenter: false, resizable: true, minimizable: false, maximizable: false, 
 				stopEventBubbling: true, styleClass: 'jl-finddlg'};
 		_dialog = jslet.ui.createControl(opt, _containerEl);
 		_dialog.onClosed(function(){
@@ -187,7 +187,7 @@ jslet.ui.FindDialog = function (dbContainer) {
 		if(_findingField) {
 			var fldObj = _dataset.getField(_findingField);
 			if(fldObj) {
-				_dialog.changeCaption(jslet.formatString(jslet.locale.findDialog.caption, [fldObj.label()]));
+				_dialog.changeCaption(jslet.formatMessage(jslet.locale.findDialog.caption, [fldObj.label()]));
 				if(oldField != findingField) {
 					jQuery(_dialog.el).find('.jl-finddlg-value').val('');
 				}
