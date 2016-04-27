@@ -701,7 +701,7 @@ jslet.data.Field.prototype = {
 		}
 		if(mask) {
 			if (jslet.isString(mask)) {
-				mask = {mask: mask,keepChar:true};
+				mask = {mask: mask,keepChar:false};
 			}
 		} else {
 			mask = null;

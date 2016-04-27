@@ -2974,7 +2974,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			} else {
 				totalValue = aggradeValueObj.count;
 			}
-			var displayValue = totalValue? jslet.formatNumber(totalValue, fldObj.displayFormat()) : '';
+			var dispFmt = fldObj.displayFormat();
+			var displayValue = totalValue;
+			if(dispFmt && fldObj.getType() === jslet.data.DataType.NUMBER) {
+				displayValue = totalValue? jslet.formatNumber(totalValue, dispFmt) : '';
+			}
 			otd.firstChild.innerHTML = displayValue;
 			otd.firstChild.title = displayValue;
 		}

@@ -800,26 +800,43 @@ jslet.data.FieldValueCache = {
 		}
 	},
 	
-	clear: function(record, fieldName) {
+	clear: function(record, fieldNameOrArray) {
 		var recInfo = jslet.data.getRecInfo(record), 
 			cacheObj = recInfo.cache;
 		if(cacheObj) {
-			delete cacheObj[fieldName];
+			var arrFldNames;
+			if(jslet.isString(fieldNameOrArray)) {
+				arrFldNames = fieldNameOrArray.split(',');
+			} else {
+				arrFldNames = fieldNameOrArray;
+			}
+			var j, fldCnt = arrFldNames.length;
+			for(j = 0; j < fldCnt; j++) {
+				delete cacheObj[arrFldNames[j]];
+			}
 		}
 	},
 	
-	clearAll: function(dataset, fieldName) {
+	clearAll: function(dataset, fieldNameOrArray) {
 		var dataList = dataset.dataList();
 		if(!dataList) {
 			return;
 		}
-		var rec, cacheObj, recInfo;
+		var arrFldNames;
+		if(jslet.isString(fieldNameOrArray)) {
+			arrFldNames = fieldNameOrArray.split(',');
+		} else {
+			arrFldNames = fieldNameOrArray;
+		}
+		var rec, cacheObj, recInfo, j, fldCnt = arrFldNames.length;
 		for(var i = 0, len = dataList.length; i < len; i++) {
 			rec = dataList[i];
 			recInfo = jslet.data.getRecInfo(rec);
 			cacheObj = recInfo.cache;
 			if(cacheObj) {
-				delete cacheObj[fieldName];
+				for(j = 0; j < fldCnt; j++) {
+					delete cacheObj[arrFldNames[j]];
+				}
 			}
 		}
 	},

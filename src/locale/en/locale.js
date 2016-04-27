@@ -13,7 +13,7 @@
 (function (root, factory) {
     if (typeof define === 'function') {
     	if(define.amd) {
-	        define('jslet-locale', null, factory);
+	        define('jslet-locale', factory);
 	    } else {
 	    	define(function(require,exports,module) {
 	    		module.exports = factory();

@@ -110,7 +110,7 @@ jslet.data.Dataset = function (name) {
 	Z._readOnly = false;
 	Z._aggradedValues = null;
 	Z._afterScrollDebounce = jslet.debounce(Z._innerAfterScrollDebounce, 30);
-	Z._calcAggradedValueDebounce = jslet.debounce(Z.calcAggradedValue, 200);
+	Z._calcAggradedValueDebounce = jslet.debounce(Z.calcAggradedValue, 100);
 	Z._onlyChangedSubmitted = false;
 	Z.selection = new jslet.data.DataSelection(Z);
 	Z._changeLog = new jslet.data.ChangeLog(Z);
@@ -2379,7 +2379,7 @@ jslet.data.Dataset.prototype = {
 				notCalcFields.push(fldName);
 			}
 			if(aggradedBy && arrAggradeBy.indexOf(aggradedBy) === -1) {
-				arrAggradeBy.push({aggradedBy: aggradedBy, values: [], exists: false});
+				arrAggradeBy.push({aggradedBy: aggradedBy, values: {}, exists: false});
 			}
 		}
 		if(aggrFields.length === notCalcFields.length) {
@@ -2410,8 +2410,8 @@ jslet.data.Dataset.prototype = {
 				aggrByObj = arrAggradeBy[i];
 				arrAggrByValues = aggrByObj.values;
 				aggrByValue = getAggradeByValue(aggrByObj.aggradedBy);
-				if(arrAggrByValues.indexOf(aggrByValue) < 0) {
-					arrAggrByValues.push(aggrByValue);
+				if(!arrAggrByValues[aggrByValue]) {
+					arrAggrByValues[aggrByValue] = null;
 					aggrByObj.exists = false;
 				} else {
 					aggrByObj.exists = true;

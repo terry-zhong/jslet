@@ -23,3 +23,20 @@
     }
 })(this, function (locale, jQuery) {
 /* jshint ignore:end */
+	if (window.jslet === undefined || jslet === undefined){
+		/**
+		 * Root object/function of jslet framework. Example:
+		 * <pre><code>
+		 * var jsletObj = jslet('#tab');
+		 * </code></pre>
+		 * @param {String} Html tag id, like '#id'
+		 * 
+		 * @return {Object} jslet object of the specified Html tag
+		 */
+	    window.jslet = function(id){
+	        var ele = jQuery(id)[0];
+	        return (ele && ele.jslet) ? ele.jslet : null;
+	    };
+	}
+
+	jslet.locale = locale;

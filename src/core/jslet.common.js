@@ -250,11 +250,20 @@ jslet.formatString = function (value, dispFmt) {
 		return value;
 	}
 	var valueLen = value.length,
-		FmtLen = dispFmt.length,
-		c, k = -1, result = '';
-	for(var i = 0; i < FmtLen; i++) {
+		fmtLen = dispFmt.length,
+		fmtLen1 = fmtLen - 1,
+		c, k = -1, result = '', next;
+	for(var i = 0; i < fmtLen; i++) {
 		c = dispFmt[i];
-		if(c === 'c' || c === 'C') {
+		if(c === '\\' && i < fmtLen1) {
+			next = dispFmt[i+1];
+			if(next === '#') {
+				result += '#';
+				i++;
+				continue;
+			}
+		}
+		if(c === '#') {
 			k++;
 			if(k === valueLen) {
 				break;
