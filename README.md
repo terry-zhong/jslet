@@ -30,18 +30,17 @@ color: blue
 	<li><b>Jslet is model-based, it means you can write less code to complete advanced features</b>, for example: <br />
 	<pre><code>
 a. Define a dataset with three fields:
-<span class="cs">
+<span style="color: blue">
 var dsTest = jslet.data.createDataset('test', [{name: 'name', label: 'Name', type: 'S'}, {name: 'birthday', label: 'Birthday', type: 'D', displayFormat: 'yyyy-MM-dd'}, {name: 'salary', label: 'Salary',type: 'N', scale: 2}]);
 dsTest.appendRecord();
 </span>
 b. Bind the dataset to a jslet control: DBTable
-<span class="cs">
+<span style="color: blue">
 &lt;div data-jslet="type: 'DBTable', dataset: 'test', editable: true"&gt;&lt;/div&gt;
 </span>
 c. That's all, you get an editable table with three columns.
 		</code></pre>
-	<p><button class="btn btn-default" onclick="jslet.data.getDataset('test').appendRecord()">Append</button><button class="btn btn-default" onclick="jslet.data.getDataset('test').deleteRecord()">Delete</button></p>
-	 <div data-jslet="type: 'DBTable', dataset: 'test', editable: true" style="width: 600px;height: 180px"></div>
+	<p><a href="http://jslet.github.io/jslet/demo/startup.html">Live Example</a></p>
 	</li>	
 	<li><b><p>Jslet is a high performance framework, you can load unlimited records to Jslet Controls;</p></b></li>
 	<li><b><p>Jslet is a pure JavaScript framework, it can connect any web server, like .NET, J2EE and so on;</p></b></li>
