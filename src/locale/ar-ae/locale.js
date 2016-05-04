@@ -13,7 +13,7 @@
 (function (root, factory) {
     if (typeof define === 'function') {
     	if(define.amd) {
-	        define('jslet-locale', null, factory);
+	        define('jslet-locale', factory);
 	    } else {
 	    	define(function(require,exports,module) {
 	    		module.exports = factory();
@@ -99,6 +99,11 @@
 		falseText: ''		
 	};
 	
+	locale.EnumDataset = {
+		code: 'Code',
+		name: 'Name'
+	};
+		
 	locale.Control = {
 		duplicatedId: 'Duplicated HTML element ID：{0}. Duplicated element id would cause unpredictable issues.'
 	};
@@ -135,14 +140,19 @@
 	};
 	
 	locale.DBPageBar = {
-		pageSizeLabel: '/P ',
-		pageNumLabel: 'No. ',
-		pageCountLabel: 'total:{0} '
+		refresh: 'Refresh',
+		first: 'First page',
+		prior: 'Prior page',
+		next: 'Next page',
+		last: 'Last page',
+		pageSize: 'Page size',
+		pageNum: 'Page number '
 	};
-	
+
 	locale.DBComboSelect = { 
 		find: 'Press Ctrl + F to find data!',
-		cannotSelect: 'Cannot select this item.'
+		cannotSelect: 'Cannot select this item.',
+		notFound: 'Not found!'
 	};
 	
 	locale.MessageBox = { 
@@ -181,9 +191,13 @@
 		uncheckAll: 'Unselect All'
 	};
 	
-	locale.TabControl ={ 
+	locale.TabControl ={
+		reload: 'Reload',
 		close: 'Close',
-		closeOther: 'Close Other'
+		closeOther: 'Close Other',
+		closeAll: 'Close All',
+		newTab: 'New Tab',
+		contentChanged: 'Data changed! Close this tab without saving?'
 	};
 	
 	locale.DBTable = { 
@@ -258,5 +272,9 @@
 		save: ' Save ',
 		cancel: ' Cancel '
 	};
+    if (typeof define !== 'function') {
+    	window.jsletlocale = locale;
+    }
+	
 	return locale;		
 });

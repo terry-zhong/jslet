@@ -75,10 +75,7 @@ jslet.global.serverErrorHandler = function(errCode, errMsg) {
  * 			the following attributes can not be set: type, contentType, mimeType, dataType, data, context.
  */
 jslet.global.beforeSubmit = function(settings) {
-	
 	return settings;
 };
 
-jslet.global.afterInstall = function(container) {
-	
-};
+jslet.global.afterInstall = function(container) {};

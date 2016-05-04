@@ -141,9 +141,13 @@
 	};
 
 	locale.DBPageBar = {
-		pageSizeLabel: '/页 ',
-		pageNumLabel: '第 ',
-		pageCountLabel: '共:{0}页 '
+		refresh: '刷新当前页',
+		first: '首页',
+		prior: '前一页',
+		next: '下一页',
+		last: '最后一页',
+		pageSize: '每页记录数 ',
+		pageNum: '页码 '
 	};
 
 	locale.DBComboSelect = { 
@@ -270,5 +274,8 @@
 		cancel: ' 取消 '
 	};
 	
+    if (typeof define !== 'function') {
+    	window.jsletlocale = locale;
+    }
 	return locale;
 });

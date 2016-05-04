@@ -296,7 +296,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 		if(hasPrefix) {
 			otherPartWidth = Z._renderOtherPart(ctrlDiv, layoutCfg.prefix);
 		}
-		var fldName = layoutCfg.field;
+		fldName = layoutCfg.field;
 		var editorEl = Z._renderEditor(fldName);
 		ctrlDiv.appendChild(editorEl);
 		
@@ -330,7 +330,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				continue;
 			}
 			if(!width) {
-				console.warn('Width is empty, use 5% instead!')
+				console.warn('Width is empty, use 5% instead!');
 				width = '5%';
 			}
 			jQuery(partEl).addClass('jl-ep-part');

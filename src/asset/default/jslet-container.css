@@ -128,7 +128,7 @@
 }
 
 .jl-tab-close {
-    float: right;
+    float: none!important;
 	font-size: 14px!important;
 	margin-left: 10px;
 }

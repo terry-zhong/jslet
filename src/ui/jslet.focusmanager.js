@@ -6,6 +6,7 @@
  * Released under the MIT license
  */
 
+"use strict";
 if(!jslet.ui) {
 	jslet.ui = {};
 }
@@ -219,7 +220,6 @@ jslet.ui.focusManager = new jslet.ui.FocusManager();
  *
  */
 
-"use strict";
 (function($){
 	/**
 	 * Focusses the next :focusable element. Elements with tabindex=-1 are focusable, but not tabable.

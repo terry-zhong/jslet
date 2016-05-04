@@ -14,6 +14,7 @@
 	        define('jslet-ui', ['jslet-data'], factory);
 	    } else {
 	    	define(function(require, exports, module) {
+	    		require('jslet-css');
 	    		require('jslet-data');
 	    		module.exports = factory();
 	    	});

@@ -6,10 +6,10 @@
  * Released under the MIT license
  */
 
+/* jshint ignore:start */
 /**
  * the below code from prototype.js(http://prototypejs.org/) 
  */
-"use strict";
 jslet.toArray = function(iterable) {
 	if (!iterable) {
 		return [];
@@ -35,11 +35,11 @@ jslet.emptyFunction = function() {
 };
 
 jslet.keys = function(object) {
-	if ((typeof object) != 'object') {
-		return [];
-	}
 	var results = [];
-	for ( var property in object) {
+	if ((typeof object) != 'object') {
+		return results;
+	}
+	for (var property in object) {
 		if (object.hasOwnProperty(property)) {
 			results.push(property);
 		}
@@ -47,7 +47,6 @@ jslet.keys = function(object) {
 	return results;
 };
 
-/* jshint ignore:start */
 jslet.extend(Function.prototype,
 		(function() {
 			var slice = Array.prototype.slice;
@@ -206,10 +205,11 @@ jslet.Class = (function() {
 				properties.push('valueOf');
 			}
 		}
-
+		
+		var isFuncFn = window.jQuery.isFunction;
 		for ( var i = 0, length = properties.length; i < length; i++) {
 			var property = properties[i], value = source[property];
-			if (ancestor && jQuery.isFunction(value) && value.argumentNames()[0] == '$super') {
+			if (ancestor && isFuncFn(value) && value.argumentNames()[0] == '$super') {
 				var method = value;
 				value = (function(m) {
 					return function() {

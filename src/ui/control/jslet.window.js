@@ -843,7 +843,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var Z = this;
 		var p = Z.el.parentNode;
 		var node, jqEl = jQuery(Z.el);
-		var maxIndex = 0, jqNode;
+		var maxIndex = 0, jqNode, winIdx;
 		for (var i = 0, cnt = p.childNodes.length; i < cnt; i++) {
 			node = p.childNodes[i];
 			if (node.nodeType != 1 || node == Z.el) {
@@ -853,9 +853,11 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 				continue;
 			}
 			jqNode = jQuery(node);
+			
 			if (jqNode.hasClass('jl-window')) {
-				if (maxIndex < node.style.zIndex) {
-					maxIndex = parseInt(node.style.zIndex);
+				winIdx = parseInt(node.style.zIndex) || 0;
+				if (maxIndex < winIdx) {
+					maxIndex = winIdx;
 				}
 				if (!Z._isModal) {
 					jqNode.find('.jl-win-header').removeClass('jl-window-active');
@@ -863,7 +865,8 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 		var styleObj = jqEl.getStyleObject();
-		if (parseInt(styleObj.zIndex) < maxIndex) {
+		winIdx = parseInt(styleObj.zIndex) || 0;
+		if (winIdx <= maxIndex) {
 			Z.setZIndex(maxIndex + 2);
 		}
 	},

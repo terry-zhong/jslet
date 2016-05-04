@@ -231,11 +231,11 @@
     var dataList = [{
         workerid: 1,
         name: 'Tom',
-        department: '0101',
+        department: '00',
         gender: 'M',
         age: 48,
         birthday: new Date(1961, 1, 23),
-        province: '01',
+        province: '00',
         city: '0110',
         position: '1',
         married: 1,
@@ -279,7 +279,7 @@
     {
         workerid: 4,
         name: 'John',
-        department: '00',
+        department: '01',
         gender: 'M',
         age: 48,
         birthday: new Date(1961, 1, 6),

@@ -41,24 +41,19 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	initialize: function ($super, el, params) {
 		var Z = this;
-		Z.allProperties = 'styleClass,dataset,showPageSize,showGotoButton,pageSizeList';
-		/**
-		 * {Boolean} Identify if the "Page Size" part shows or not
-		 */
+		Z.allProperties = 'styleClass,dataset,showPageSize,pageSizeList';
 		Z._showPageSize = true;
-		/**
-		 * {Boolean} Identify if the "GoTo" part shows or not
-		 */
-		Z._showGotoButton = true;
 		
-		/**
-		 * {Integer[]) Array of integer, like: [50,100,200]
-		 */
 		Z._pageSizeList = [100, 200, 500];
 
+		Z._currPageCount = 0;
+		
 		$super(el, params);
 	},
 
+	/**
+	 * {Boolean} Identify if the "Page Size" part shows or not
+	 */
 	showPageSize: function(showPageSize) {
 		if(showPageSize === undefined) {
 			return this._showPageSize;
@@ -66,13 +61,9 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 		this._showPageSize = showPageSize ? true: false;
 	},
 	
-	showGotoButton: function(showGotoButton) {
-		if(showGotoButton === undefined) {
-			return this._showGotoButton;
-		}
-		this._showGotoButton = showGotoButton ? true: false;
-	},
-	
+	/**
+	 * {Integer[]) Array of integer, like: [50,100,200]
+	 */
 	pageSizeList: function(pageSizeList) {
 		if(pageSizeList === undefined) {
 			return this._pageSizeList;
@@ -103,117 +94,107 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 		if (!jqEl.hasClass('jl-pagebar')) {
 			jqEl.addClass('jl-pagebar');
 		}
-		var template = ['<select class="jl-pb-item"></select><label class="jl-pb-item jl-pb-label">', jslet.locale.DBPageBar.pageSizeLabel,
-						'</label><a class="jl-pb-item jl-pb-button jl-pb-first" href="javascript:;"></a><a class="jl-pb-item jl-pb-button jl-pb-prior" href="javascript:;"></a><label class="jl-pb-item jl-pb-label">',
-						jslet.locale.DBPageBar.pageNumLabel,
-						'</label><input class="jl-pb-item jl-pb-pagenum" value="1" size="2" ></input><a class="jl-pb-item jl-pb-button jl-pb-goto" href="javascript:;"></a><label class="jl-pb-item jl-pb-label">',
-						jslet.formatMessage(jslet.locale.DBPageBar.pageCountLabel, [0]),
-						'</label><a class="jl-pb-item jl-pb-button jl-pb-next" href="javascript:;"></a><a class="jl-pb-item jl-pb-button jl-pb-last" href="javascript:;"></a></div>'
-						];
+		var template = [
+		'<div class="form-inline form-group">',
+	  	'<select class="form-control input-sm jl-pb-pagesize" title="', jslet.locale.DBPageBar.pageSize, '"></select>',
+	    '<button class="btn btn-default btn-sm jl-pb-first" title="', jslet.locale.DBPageBar.first, '"><i class="fa fa-angle-double-left" aria-hidden="true"></i></button>',
+	    '<button class="btn btn-default btn-sm jl-pb-prior" title="', jslet.locale.DBPageBar.prior, '"><i class="fa fa-angle-left" aria-hidden="true"></i></button>',
+	    '<button class="btn btn-default btn-sm jl-pb-next" title="', jslet.locale.DBPageBar.next, '"><i class="fa fa-angle-right" aria-hidden="true"></i></button>',
+	    '<button class="btn btn-default btn-sm jl-pb-last" title="', jslet.locale.DBPageBar.last, '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>',
+	    '<button class="btn btn-default btn-sm jl-pb-refresh" title="', jslet.locale.DBPageBar.refresh, '"><i class="fa fa-refresh" aria-hidden="true"></i></button>',
+	  	'<select class="form-control input-sm jl-pb-pagenum" title="', jslet.locale.DBPageBar.pageNum, '"></select>',
+	    '</div>'];
+		
 		jqEl.html(template.join(''));
 
-		var oPageSize = Z.el.childNodes[0];
+		Z._jqPageSize = jqEl.find('.jl-pb-pagesize');
 		if (Z._showPageSize) {
-			var rows = Z._pageSizeList;
-			var cnt = rows.length, s = '';
+			Z._jqPageSize.removeClass('jl-hidden');
+			var pgSizeList = Z._pageSizeList;
+			var cnt = pgSizeList.length, s = '', pageSize;
 			for (var i = 0; i < cnt; i++) {
-				s += '<option value=' + rows[i] + '>' + rows[i] + '</option>';
+				pageSize = pgSizeList[i];
+				s += '<option value="' + pageSize + '">' + pageSize + '</option>';
 			}
 
-			oPageSize.innerHTML = s;
-			Z._dataset.pageSize(parseInt(oPageSize.value));
+			Z._jqPageSize.html(s);
+			if(cnt > 0) {
+				Z._dataset.pageSize(parseInt(pgSizeList[0]));
+			}
+			Z._jqPageSize.on('change', function (event) {
+				var dsObj = Z.dataset();
+				dsObj.pageNo(1);
+				dsObj.pageSize(parseInt(this.value));
+				dsObj.requery();
+			});
+		} else {
+			Z._jqPageSize.addClass('jl-hidden');
 		}
 
-		jQuery(oPageSize).on('change', function (event) {
-			var ds = this.parentElement.jslet.dataset();
-			ds.pageNo(1);
-			ds.pageSize(parseInt(this.value));
-			ds.requery();
-		});
-
-		Z._firstBtn = Z.el.childNodes[2];
-		Z._priorBtn = Z.el.childNodes[3];
-
-		Z._pageNoTxt = Z.el.childNodes[5];
-		Z._gotoBtn = Z.el.childNodes[6];
-
-		Z._pageCountLbl = Z.el.childNodes[7];
-
-		Z._nextBtn = Z.el.childNodes[8];
-		Z._lastBtn = Z.el.childNodes[9];
-
-		jQuery(Z._firstBtn).on('click', function (event) {
+		Z._jqFirstBtn = jqEl.find('.jl-pb-first');
+		Z._jqPriorBtn = jqEl.find('.jl-pb-prior');
+		Z._jqNextBtn = jqEl.find('.jl-pb-next');
+		Z._jqLastBtn = jqEl.find('.jl-pb-last');
+		Z._jqRefreshBtn = jqEl.find('.jl-pb-refresh');
+		Z._jqPageNum = jqEl.find('.jl-pb-pagenum');
+		
+		Z._jqFirstBtn.on('click', function (event) {
 			if(this.disabled) {
 				return;
 			}
-			var ds = this.parentElement.jslet.dataset();
-			ds.pageNo(1);
-			ds.requery();
+			var dsObj = Z.dataset();
+			dsObj.pageNo(1);
+			dsObj.requery();
 		});
 
-		jQuery(Z._priorBtn).on('click', function (event) {
+		Z._jqPriorBtn.on('click', function (event) {
 			if(this.disabled) {
 				return;
 			}
-			var ds = this.parentElement.jslet.dataset(),
-				num = ds.pageNo();
+			var dsObj = Z.dataset(),
+				num = dsObj.pageNo();
 			if (num == 1) {
 				return;
 			}
-			ds.pageNo(num - 1);
-			ds.requery();
+			dsObj.pageNo(num - 1);
+			dsObj.requery();
 		});
 
-		jQuery(Z._gotoBtn).on('click', function (event) {
-			var oJslet = this.parentElement.jslet;
-			var ds = oJslet.dataset();
-			var num = parseInt(oJslet._pageNoTxt.value);
-			if (num < 1) {
-				num = 1;
-			}
-			if (num > ds.pageCount()) {
-				num = ds.pageCount();
-			}
-			ds.pageNo(num);
-			ds.requery();
+		Z._jqPageNum.on('change', function (event) {
+			var dsObj = Z.dataset();
+			var num = parseInt(this.value);
+			dsObj.pageNo(num);
+			dsObj.requery();
 		});
 
-		jQuery(Z._nextBtn).on('click', function (event) {
+		Z._jqNextBtn.on('click', function (event) {
 			if(this.disabled) {
 				return;
 			}
-			var oJslet = this.parentElement.jslet,
-				ds = oJslet.dataset(),
-				num = ds.pageNo();
-			if (num >= ds.pageCount()) {
+			var dsObj = Z.dataset(),
+				num = dsObj.pageNo();
+			if (num >= dsObj.pageCount()) {
 				return;
 			}
-			ds.pageNo(++num);
-			ds.requery();
+			dsObj.pageNo(++num);
+			dsObj.requery();
 		});
 
-		jQuery(Z._lastBtn).on('click', function (event) {
+		Z._jqLastBtn.on('click', function (event) {
 			if(this.disabled) {
 				return;
 			}
-			var oJslet = this.parentElement.jslet,
-				ds = oJslet.dataset();
+			var dsObj = Z.dataset();
 
-			if (ds.pageCount() < 1) {
+			if (dsObj.pageCount() < 1) {
 				return;
 			}
-			ds.pageNo(ds.pageCount());
-			ds.requery();
+			dsObj.pageNo(dsObj.pageCount());
+			dsObj.requery();
 		});
 
-		jQuery(Z._pageNoTxt).on('keypress', function (event) {
-			event = jQuery.event.fix( event || window.event );
-			var keyCode = event.which;
-
-			var validChars = new Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-			if (validChars.indexOf(String.fromCharCode(keyCode)) < 0) {
-				event.preventDefault();
-			}
+		Z._jqRefreshBtn.on('click', function (event) {
+			Z.dataset().requery();
 		});
 
 		Z.renderAll();
@@ -226,14 +207,25 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 		if (evt && evt.eventType != jslet.data.RefreshEvent.CHANGEPAGE) {
 			return;
 		}
+		this._refreshPageNum();
+		this._refreshButtonStatus();
+	},
+
+	_refreshPageNum: function() {
 		var Z = this,
 			num = Z._dataset.pageNo(), 
 			count = Z._dataset.pageCount();
-		Z._pageNoTxt.value = num;
-		Z._pageCountLbl.innerHTML = jslet.formatMessage(jslet.locale.DBPageBar.pageCountLabel, [count]);
-		Z._refreshButtonStatus();
-	}, // end refreshControl
-
+		if(count !== Z._currPageCount) {
+			var s = '';
+			for(var i = 1; i <= count; i++) {
+				s += '<option value="' + i + '">' + i + '</option>';
+			}
+			Z._jqPageNum.html(s);
+			Z._currPageCount = count;
+		}
+		Z._jqPageNum.val(num);
+	},
+	
 	_refreshButtonStatus: function() {
 		var Z = this, 
 			ds = Z._dataset,
@@ -247,37 +239,16 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 		if(pageNo < pageCnt) {
 			nextDisabled = false;
 		}
-		if(prevDisabled) {
-			jQuery(Z._firstBtn).addClass('jl-pb-first-disabled jl-pb-button-disabled');
-			jQuery(Z._priorBtn).addClass('jl-pb-prior-disabled jl-pb-button-disabled');
-		}
-		else {
-			jQuery(Z._firstBtn).removeClass('jl-pb-first-disabled jl-pb-button-disabled');
-			jQuery(Z._priorBtn).removeClass('jl-pb-prior-disabled jl-pb-button-disabled');
-		}
-		if(nextDisabled) {
-			jQuery(Z._nextBtn).addClass('jl-pb-next-disabled jl-pb-button-disabled');
-			jQuery(Z._lastBtn).addClass('jl-pb-last-disabled jl-pb-button-disabled');
-		}
-		else {
-			jQuery(Z._nextBtn).removeClass('jl-pb-next-disabled jl-pb-button-disabled');
-			jQuery(Z._lastBtn).removeClass('jl-pb-last-disabled jl-pb-button-disabled');
-		}
-		Z._firstBtn.disabled = prevDisabled;
-		Z._priorBtn.disabled = prevDisabled;
-		Z._nextBtn.disabled = nextDisabled;
-		Z._lastBtn.disabled = nextDisabled;
+		Z._jqFirstBtn.attr('disabled', prevDisabled);
+		Z._jqPriorBtn.attr('disabled', prevDisabled);
+		Z._jqNextBtn.attr('disabled', nextDisabled);
+		Z._jqLastBtn.attr('disabled', nextDisabled);
 	},
 	
 	/**
 	 * @override
 	 */
 	renderAll: function () {
-		var displayStyle = this._showPageSize ? 'inline' : 'none';
-		var oel = this.el;
-		oel.childNodes[0].style.display = displayStyle;
-		oel.childNodes[1].style.display = displayStyle;
-
 		this.refreshControl();
 	},
 	
@@ -286,22 +257,23 @@ jslet.ui.DBPageBar = jslet.Class.create(jslet.ui.DBControl, {
 	 */
 	destroy: function($super){
 		var Z = this;
-		
-		jQuery(Z._firstBtn).off();
-		jQuery(Z._priorBtn).off();
-		jQuery(Z._pageNoTxt).off();
-		jQuery(Z._gotoBtn).off();
-		jQuery(Z._pageCountLbl).off();
-		jQuery(Z._nextBtn).off();
-		jQuery(Z._lastBtn).off();
-		
-		Z._firstBtn = null;
-		Z._priorBtn = null;
-		Z._pageNoTxt = null;
-		Z._gotoBtn = null;
-		Z._pageCountLbl = null;
-		Z._nextBtn = null;
-		Z._lastBtn = null;
+		if(Z._jqPageSize) {
+			Z._jqPageSize.off();
+			Z._jqPageSize = null;
+		}
+		Z._jqFirstBtn.off();
+		Z._jqPriorBtn.off();
+		Z._jqNextBtn.off();
+		Z._jqLastBtn.off();
+		Z._jqPageNum.off();
+		Z._jqRefreshBtn.off();
+
+		Z._jqFirstBtn = null;
+		Z._jqPriorBtn = null;
+		Z._jqNextBtn = null;
+		Z._jqLastBtn = null;
+		Z._jqPageNum = null;
+		Z._jqRefreshBtn = null;
 		
 		$super();
 	}

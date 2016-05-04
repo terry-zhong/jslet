@@ -19,7 +19,8 @@
 	    	});
 	    }
     } else {
-    	factory();
+    	factory(window.jsletlocale, window.jQuery);
+    	delete window.jsletlocale;
     }
 })(this, function (locale, jQuery) {
 /* jshint ignore:end */

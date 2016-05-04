@@ -140,11 +140,15 @@
 	};
 	
 	locale.DBPageBar = {
-		pageSizeLabel: '/P ',
-		pageNumLabel: 'No. ',
-		pageCountLabel: 'total:{0} '
+		refresh: 'Refresh',
+		first: 'First page',
+		prior: 'Prior page',
+		next: 'Next page',
+		last: 'Last page',
+		pageSize: 'Page size',
+		pageNum: 'Page number '
 	};
-	
+
 	locale.DBComboSelect = { 
 		find: 'Press Ctrl + F to find data!',
 		cannotSelect: 'Cannot select this item.',
@@ -268,5 +272,9 @@
 		save: ' Save ',
 		cancel: ' Cancel '
 	};
+    if (typeof define !== 'function') {
+    	window.jsletlocale = locale;
+    }
+	
 	return locale;		
 });

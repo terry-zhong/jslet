@@ -5,7 +5,7 @@
  * Copyright 2016 Jslet Team and other contributors
  * Released under the MIT license
  */
-
+"use strict";
 jslet.ui.htmlclass.TABLECLASS = {
 	currentrow: 'jl-tbl-current',
 	scrollBarWidth: 16,
@@ -16,7 +16,6 @@ jslet.ui.htmlclass.TABLECLASS = {
 /**
  * Table column
  */
-"use strict";
 jslet.ui.TableColumn = function () {
 	var Z = this;
 	Z.field = null;   //String, field name
@@ -2990,7 +2989,8 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			allCnt = Z.listvm.getNeedShowRowCount(),
 			h = allCnt * Z.rowHeight() + Z.footSectionHt;
 		Z._setScrollBarMaxValue(h);
-		Z.noRecordDiv.style.display = (Z.dataset().recordCount() === 0 ?'block':'none');
+		var noRecord = Z.dataset().recordCount() === 0;
+		Z.noRecordDiv.style.display = (noRecord ?'block':'none');
 		var oldRecno = Z._dataset.recnoSilence();
 		try {
 			Z._fillRow(true);
@@ -3002,6 +3002,9 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			Z._dataset.recnoSilence(oldRecno);
 		}
 		Z._refreshSeqColWidth();
+		if(Z._cellEditor && noRecord) {
+			Z._cellEditor.hideEditor();
+		}
 	},
 
 	_fillRow: function (isFixed) {

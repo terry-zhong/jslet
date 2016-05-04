@@ -14,7 +14,7 @@ gulp.task('jslet-data', function() {
 		.pipe(jshint())
         .pipe(jshint.reporter('default'))
 		.pipe(sourcemaps.init())
-			.pipe(uglify())
+			.pipe(uglify({mangle: {except: ['define', 'require']}}))
 			.pipe(rename('jslet-data.min.js'))
 		.pipe(sourcemaps.write('../dist'))
 		.pipe(gulp.dest('dist'));
@@ -40,9 +40,9 @@ gulp.task('jslet-ui', function() {
 		.pipe(concat('jslet-ui.js'))
 		.pipe(gulp.dest('dist'))
 		.pipe(sourcemaps.init())
-			.pipe(uglify({mangle: {except: ["$super"]}}))
+			.pipe(uglify({mangle: {except: ["$super",'define', 'require']}}))
 			.pipe(rename('jslet-ui.min.js'))
-		.pipe(sourcemaps.write('../maps'))
+		.pipe(sourcemaps.write('../dist'))
 		.pipe(gulp.dest('dist'));
 });
 

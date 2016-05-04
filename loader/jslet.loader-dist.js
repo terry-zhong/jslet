@@ -22,7 +22,7 @@ if (window.jslet === undefined || jslet === undefined){
 //Distribution configuration begin
 jslet._initialModules = [
 //css
-	{name: 'jslet-style', src: '../dist/asset/{theme}/jslet-min.css', baseOnLoader: true },
+	{name: 'jslet-style', src: '../dist/asset/{theme}/jslet-css.css', baseOnLoader: true },
 //message for i18n
 	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
 	   //js-lib
