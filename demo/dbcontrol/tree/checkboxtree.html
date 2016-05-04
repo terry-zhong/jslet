@@ -20,10 +20,24 @@
                 hasCheckBox: true, 
 				iconClassField: 'iconcls', 
 				correlateCheck: true,
-				expandLevel: 0
+				expandLevel: 0,
+				onRenderItem: doRenderItem
             };
         }
 
+        function doRenderItem(iconNode, textNode, level, isLeaf) {
+        	var dsAgency = jslet.data.getDataset('dsAgency');
+        	if(dsAgency.selected()) {
+        		jQuery(textNode).addClass('gray');
+        	} else {
+        		jQuery(textNode).removeClass('gray');
+        	}
+        }
+        
+        function doSelected() {
+        	var dsAgency = jslet.data.getDataset('dsAgency');
+        	dsAgency.selectByKeyValue(!dsAgency.selected(), dsAgency.keyValue());
+        }
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -44,6 +58,7 @@
 
     <h3>Demo Content:</h3>
 	<div class="content">
+	<button onclick="doSelected()">Select/unselect tree item </button>
 	<ol class="content-list">
     <li>
         After check a child node, all of its parent node will display bold, it is very useful to find all checked nodes when the parent nodes are collapsed. 

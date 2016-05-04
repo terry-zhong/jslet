@@ -20,15 +20,6 @@
             ojslet.renderAll();
         }
 
-        function setRowHeight() {
-            var v = parseInt($('#rowHeight').val());
-            if (!v || v < 0)
-                v = 1;
-            var ojslet = jslet('#inspector');
-            ojslet.rowHeight(v);
-            ojslet.renderAll();
-
-        }
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -68,13 +59,8 @@
         Set readonly property:
         <input type="checkbox" onclick="jslet('#inspector').readOnly=this.checked;jslet('#inspector').renderAll();" /></li>
     <li>
-        Set column count: <input id="colCnt" type="text" value="1" size="9" />
+        Set column count: <input id="colCnt" type="text" value="2" size="9" />
 		<button onclick="setColumnCount()"> Set </button>
-	</li>
-    <li>
-        Set row height:
-        <input name="text" type="text" id="rowHeight" value="30" size="9" />
-		<button onclick="setRowHeight()"> Set </button>
 	</li>
 	</ol>
 	</div>

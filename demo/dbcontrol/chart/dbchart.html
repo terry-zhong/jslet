@@ -68,7 +68,7 @@
 				<p>Chart Options:</p>
 				<ol>
                 <li>
-                    Chart Type : <select id="idType" onchange="doChangeChartType()">
+                    Chart Type : <select id="idType" class="form-control" onchange="doChangeChartType()">
                         <option value="line">Line Chart</option>
                         <option value="bar">Bar Chart</option>
                         <option value="stackbar">Stack Bar Chart</option>
@@ -77,20 +77,20 @@
                     </select>
 				</li>
                 <li>
-                    Value Data : <select id="selValueField" onchange="doChangeValueField()">
+                    Value Data : <select id="selValueField" class="form-control" onchange="doChangeValueField()">
                         <option value="amount,netprofit">Amount+Net Profit </option>
                         <option value="amount">Sales Amount</option>
                         <option value="netprofit">Net Profit</option>
                     </select>
 				</li>
                 <li>
-                    Chart title: <input id="txtChartTitle" type="text" size="20" />
-						<button onclick="doChangeChartTitle()"> OK </button>
+                    Chart title: <input id="txtChartTitle" class="form-control" type="text" size="20" />
+						<button class="btn btn-default" onclick="doChangeChartTitle()"> OK </button>
                 </li>
                 <li>
-                    Filter Data: <input id="txtFilter" type="text" size="20" value="[amount] > 30000" />
-						<button onclick="doFilterData(true)"> Set </button>
-						<button onclick="doFilterData(false)"> Clear </button>
+                    Filter Data: <input id="txtFilter" type="text" class="form-control" size="20" value="[amount] > 30000" />
+						<button class="btn btn-default" onclick="doFilterData(true)"> Set </button>
+						<button class="btn btn-default" onclick="doFilterData(false)"> Clear </button>
                 </li>
 				</ol>
             </td>

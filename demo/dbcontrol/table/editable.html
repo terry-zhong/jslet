@@ -9,12 +9,17 @@
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
         jslet.define("employee", "../../js/employee.js");
-        jslet.require("jslet,employee");
+        jslet.require("jslet,employee", function() {
+        	dsEmployee.readOnly(false);
+        });
         
         function setEditControl() {
             var f = dsEmployee.getField("department");
             f.editControl({ type: "DBComboSelect" });
-            $('#tblEmployee')[0].jslet.renderAll();
+            //$('#tblEmployee')[0].jslet.renderAll();
+            dsEmployee.readOnly(false);
+            f.disabled(false)
+            dsEmployee.focusEditControl('workerid');
         }
 
         function clearEditControl() {
@@ -34,7 +39,7 @@
 <![endif]-->
     <h4>Employee List</h4>
     <div id="tblEmployee" data-jslet='type:"DBTable",dataset:"employee","hasSeqCol":true,readOnly:false'
-        style="width: 100%; height: 220px">
+        style="width: 100%; height: 200px">
     </div>
 	
     <h3>Demo Content:</h3>

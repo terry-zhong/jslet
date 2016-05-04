@@ -8,8 +8,11 @@
     <link rel="stylesheet" type="text/css" href="../css/demo-style.css" />
     <script type="text/javascript" src="../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
+	    jslet.define("mockjax", "../mock/jquery.mockjax.js");
+
         jslet.define("employee", "../js/employee.js");
-        jslet.require("jslet,employee", function () {
+        jslet.define("servermock", "../mock/servermock.js", "mockjax");
+        jslet.require("mockjax,jslet,employee,servermock", function () {
             initialize();
         });
 
@@ -17,8 +20,8 @@
 			//Clear all records which are created at client side.
 			//We need all employee data to query from server side.
             dsEmployee.dataList(null);
-			dsEmployee.queryUrl('../../employee/findEmployee.jsp');
-			dsEmployee.submitUrl('../../employee/save.jsp');
+			dsEmployee.queryUrl('/demo/employee/findall');
+			dsEmployee.submitUrl('/demo/employee/save');
         }
 
         function applyToServer() {
@@ -28,7 +31,7 @@
 		function processServerError() {
 			var oldUrl = dsEmployee.queryUrl();
 			try {
-				dsEmployee.queryUrl('../../employee/getServerErrMsg.jsp');
+				dsEmployee.queryUrl('/demo/employee/queryerror');
 				dsEmployee.query();
 			}finally{
 				dsEmployee.queryUrl(oldUrl);
@@ -44,17 +47,18 @@
 <!--[if lt IE 8]>
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
-	<h4 style="color:red">If you see this page on http://jslet.github.io/jslet, it will raise error cause github.io only supports static page. You can goto download page to download standalone.war.</h4>
     <h4>Employee List:</h4>
     <div class="row">
         <div class="col-xs-10">
             <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px">
             </div>
         </div>
+        <!-- 
         <div class="col-xs-2">
             <img data-jslet='type:"DBImage",dataset:"employee",field:"photo","baseUrl":"../photo/"'
                 style="height: 200px; width: 100%" alt="" />
         </div>
+         -->
     </div>
 	
 	<div style="margin:10px">

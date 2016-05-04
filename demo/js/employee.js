@@ -105,12 +105,17 @@
     fldObj.label('ID');
     fldObj.required(true);
     fldObj.displayWidth(6);
+    fldObj.focused(true);
     fldObj.tip('Employee ID must be unique!');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('name', 12);
     fldObj.label('Name');
     fldObj.required(true);
+    fldObj.unique(true);
+    fldObj.aggraded(true);
+    fldObj.focused(true);
+    fldObj.tip('Name is required and unique');
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('department', 6);
@@ -118,6 +123,7 @@
     fldObj.required(false);
     fldObj.displayWidth(16);
     fldObj.nullText('(Empty)');
+    fldObj.focused(true);
     lkf = new jslet.data.FieldLookup();
     lkf.dataset(dsDept);
     fldObj.lookup(lkf);
@@ -135,20 +141,21 @@
     fldObj = jslet.data.createNumberField('age', 5, 0);
     fldObj.label('Age');
     fldObj.displayWidth(6);
-    fldObj.range({ min: 18, max: 60 });
+    fldObj.dataRange({ min: 18, max: 60 });
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createBooleanField('married');
     fldObj.label('Married');
-    fldObj.trueValue = 1;
-    fldObj.falseValue = 0;
+    fldObj.trueValue(1);
+    fldObj.falseValue(0);
     fldObj.displayWidth(10);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createDateField('birthday');
     fldObj.label('Birthday');
     fldObj.displayFormat('yyyy-MM-dd');
-    fldObj.range({ min: new Date(1960, 1, 1) });
+    fldObj.dataRange({ min: new Date(1960, 1, 1) });
+    fldObj.focused(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('position', 10);
@@ -160,7 +167,8 @@
 
     fldObj = jslet.data.createNumberField('salary', 16, 2);
     fldObj.label('Salary');
-    fldObj.displayFormat('￥#,##0.00');
+    fldObj.displayFormat('￥#,##0.##');
+    fldObj.aggraded(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('university', 20);
@@ -183,6 +191,7 @@
     fldObj = jslet.data.createStringField('photo', 10);
     fldObj.label('Photo');
     fldObj.visible(true);
+    fldObj.focused(true);
     dsEmployee.addField(fldObj);
 
     fldObj = jslet.data.createStringField('officephone', 12);
@@ -218,16 +227,15 @@
     dsEmployee.keyField('workerid');
     dsEmployee.codeField('workerid');
     dsEmployee.nameField('name');
-    
     //Add data into dsEmployee
     var dataList = [{
         workerid: 1,
         name: 'Tom',
-        department: '0101',
+        department: '00',
         gender: 'M',
         age: 48,
         birthday: new Date(1961, 1, 23),
-        province: '01',
+        province: '00',
         city: '0110',
         position: '1',
         married: 1,
@@ -271,7 +279,7 @@
     {
         workerid: 4,
         name: 'John',
-        department: '00',
+        department: '01',
         gender: 'M',
         age: 48,
         birthday: new Date(1961, 1, 6),

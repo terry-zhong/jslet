@@ -12,7 +12,11 @@
     </script>
     <style type="text/css">
     	.winicon{
-			background:transparent url('images/favicon.png');
+			background:transparent url('../images/favicon.png');
+    	}
+    	
+    	.test .jl-win-header {
+    		color: red!important;
     	}
     </style>
 </head>
@@ -29,19 +33,19 @@
     <h3>Demo Content:</h3>
 	<div class="content">
 		<ol>
-    <li>Open modeless window in the "Body"(with icon) <button onclick="openwin1()"> Open </button>
+    <li>Open modeless window in the "Body"(with icon) <button onclick="openWin1()"> Open </button>
 	</li>
-    <li>Open model window in the "Body" <button onclick="openwin3()"> Open </button>
+    <li>Open model window in the "Body" <button onclick="openWin3()"> Open </button>
 	</li>
-    <li>Open Yahoo in window <button onclick="openyahoo()"> Open </button>
+    <li>Open <b>http://jslet.github.com/jslet'</b> in window <button onclick="openGitHub()"> Open </button>
 	</li>
     <li>Demostate the features: minimize button, maximize button, double click window title to maximize, change window size, move window; </li>
 
-    <li>Open modeless window in one "Div" <button onclick="openwin2()"> Open </button>(Can open many windows)
+    <li>Open modeless window in one "Div" <button onclick="openWin2()"> Open </button>(Can open many windows)
 	</li>
-    <li>Open model window in on "DIV" <button onclick="openwin4()"> Open </button>
+    <li>Open model window in on "DIV" <button onclick="openWin4()"> Open </button>
 	</li>
-    <li>Oen window which content is one "Div" of this page <button onclick="openwin5()"> Open </button>
+    <li>Oen window which content is one "Div" of this page <button onclick="openWin5()"> Open </button>
 	</li>
 	</ol>
 	</div>
@@ -51,26 +55,26 @@
 <div id="tmp" style="display:none">This div will insert into window</div>
     <script type="text/javascript">
         //Open window in "Body"
-        function openwin1(event) {
-            owin = jslet.ui.createControl({ type: "Window", iconClass:"winicon", caption: "<i>test window</i>", minimizable: false, maximizable:false,onActive: doWinActive, onPositionChanged: doPositionChanged });
+        function openWin1(event) {
+            owin = jslet.ui.createControl({ type: "Window", styleClass: 'test', animation: 'slide', iconClass:"winicon", caption: "<i>test window</i>", minimizable: false, maximizable:false,onActive: doWinActive, onPositionChanged: doPositionChanged });
             owin.setContent("Open modeless window in the Body(with icon)!");
             owin.show(350,250);
         }
 
-        function openwin2(event) {
-            owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive }, $("#con")[0]);
+        function openWin2(event) {
+            owin = jslet.ui.createControl({ type: "Window", animation: 'slide',  caption: "<i>child window</i>", onActive: doWinActive }, $("#con")[0]);
             owin.setContent("Open modeless window in one Div");
             owin.show(150, 50);
         }
 
         //Open model window in the "Body"
-        function openwin3(event) {
+        function openWin3(event) {
             owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive });
             owin.setContent("Open model window in the Body");
             owin.showModal(150, 50);
         }
 
-        function openwin4(event) {
+        function openWin4(event) {
             owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive }, $("#con")[0]);
             owin.setContent("Open model window in on DIV");
             owin.showModal(150, 50);
@@ -78,7 +82,7 @@
 
         owin5 = null;
 
-        function openwin5(event) {
+        function openWin5(event) {
             if(!owin5){
 	            owin5 = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onClosed: doClose }, $("#con")[0]);
 	            owin5.setContent($("#tmp")[0]);
@@ -86,12 +90,11 @@
             owin5.showModal(150, 50);
         }
 
-        function openyahoo(event) {
-            owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive });
-            owin.setContent("<iframe src='http://www.yahoo.com/' width ='100%' height='100%' />");
+        function openGitHub(event) {
+            owin = jslet.ui.createControl({ type: "Window", caption: "<i>child window</i>", onActive: doWinActive, width: 800, height: 600 });
+            owin.setContent("<iframe src='http://jslet.github.com/jslet' style='width: 100%;height: 98%; border:none' />");
             owin.show(150, 50);
         }
-
 
         function doWinActive(owin) {
 //            alert(owin.caption);

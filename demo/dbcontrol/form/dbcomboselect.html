@@ -15,13 +15,19 @@
             fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
 
             fldObj = dsEmployee.getField("department");
-            fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
+            //fldObj.valueStyle(jslet.data.FieldValueStyle.MULTIPLE);
             var lkFldObj = fldObj.lookup();
             lkFldObj.onlyLeafLevel(true);
+            lkFldObj.returnFieldMap({"deptname": "name", "deptaddr": "address"});
+
+            fldObj = jslet.data.createStringField("deptname", 20);
+            fldObj.label("Dept. Name");
+            dsEmployee.addField(fldObj);
 
             fldObj = jslet.data.createStringField("deptaddr", 20);
-            fldObj.label("Dept. address");
+            fldObj.label("Dept. Address");
             dsEmployee.addField(fldObj);
+            
         });
 
         function setLeafLevel() {
@@ -90,7 +96,18 @@
         <div class="form-group">
             <label class="col-xs-2" data-jslet='type:"DBLabel",field:"department"' ></label>
             <div class="col-xs-3">
-                <div id="dlgDepartment" data-jslet='type:"DBComboSelect",field:"department",textReadOnly:true'></div>
+            <!-- 
+                <input data-jslet='type:"DBText",field:"department"'></input>
+                <input data-jslet='type:"DBAutoComplete",field:"department"'></input>
+                <select data-jslet='type:"DBSelect",field:"department"'></select>
+ 			-->                
+                <div id="dlgDepartment" data-jslet='type:"DBComboSelect",field:"department",textField:"deptaddr",textReadOnly:true'></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-2" data-jslet='type:"DBLabel",field:"deptname"'></label>
+            <div class="col-xs-3">
+                <input type="text" data-jslet='type:"DBText",field:"deptname"' />
             </div>
         </div>
         <div class="form-group">
@@ -99,16 +116,11 @@
                 <input type="text" data-jslet='type:"DBText",field:"deptaddr"' />
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-xs-2" data-jslet='type:"DBLabel",field:"position"'></label>
-            <div class="col-xs-3">
-                <select data-jslet='type:"DBSelect",field:"position"'></select>
-            </div>
-        </div>
+        <hr />
         <div class="form-group">
             <label class="col-xs-2" data-jslet='type:"DBLabel",field:"province"'></label>
             <div class="col-xs-3">
-                <div id="dlgProvince" data-jslet='type:"DBComboSelect",field:"province",textReadOnly:true'></div>
+                <div id="dlgProvince" data-jslet='type:"DBComboSelect",field:"province"'></div>
             </div>
         </div>
     </div>

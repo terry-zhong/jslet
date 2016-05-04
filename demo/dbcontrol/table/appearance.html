@@ -41,20 +41,20 @@
 <p class="chromeframe">Jslet framework only supports IE 8+. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
 <![endif]-->
     <h4>Row style: odd/even row with difference color</h4>
-	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow:doFillRowOdd,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow:doFillRowOdd,hasSelectCol:true,hasSeqCol:true' style="width: 100%;height: 180px">
 	</div>
 
     <h4>Row style: Difference color according to "gender" field</h4>
-	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowGender,hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 220px">
+	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowGender,hasSelectCol:true,hasSeqCol:true' style="width: 100%;height: 220px">
 	</div>
 
     <h4>Cell style: difference color for manager</h4>
 	<p>If value of field "position" is 0 or 1, change the font style/color of column "name" </p>
-	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd, onFillCell: doFillCell, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+	<div data-jslet='type:"DBTable",dataset:"employee",onFillRow: doFillRowOdd, onFillCell: doFillCell, hasSelectCol:true,hasSeqCol:true' style="width: 100%;height: 180px">
 	</div>
 
     <h4>No Cell border:</h4>
-	<div data-jslet='type:"DBTable",dataset:"employee",noborder:true,onFillRow: doFillRowOdd, hasSelectCol:true,hasSeqCol:true,readOnly:true,fixedRows:1' style="width: 100%;height: 180px">
+	<div data-jslet='type:"DBTable",dataset:"employee",noborder:true,onFillRow: doFillRowOdd, hasSelectCol:true,hasSeqCol:true' style="width: 100%;height: 180px">
 	</div>
 
     <script type="text/javascript">

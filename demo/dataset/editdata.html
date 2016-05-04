@@ -34,19 +34,6 @@
             }
         }
 
-        function apply() {
-            var arrInserted = dsEmployee.insertedRecords();
-            var arrUpdated = dsEmployee.updatedRecords();
-            var arrDeleted = dsEmployee.deletedRecords();
-            var s = 'The below data will be sent to server :\nInserted Data:\n';
-
-            s += jslet.data.record2Json(arrInserted) + '\n\n';
-            s += 'Updated Data: \n';
-            s += jslet.data.record2Json(arrUpdated) + '\n\n';
-            s += 'Deteted Data: \n';
-            s += jslet.data.record2Json(arrDeleted) + '\n';
-            alert(s);
-        }
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">
@@ -59,15 +46,16 @@
 		<p class="lead">Demonstrate how to insert, append, update, delete, set default value, validate data and so on.</p>
 	</div>
     <h4>Employee List:&nbsp;&nbsp;(<a href="../model/EmployeeDataModel.htm">Data Model</a>)</h4>
-    <div data-jslet='type:"DBTable",dataset:"employee"' style="width: 100%; height: 200px"></div>
+    <div data-jslet='type:"DBTable",dataset:"employee",hasSelectCol:true' style="width: 100%; height: 200px"></div>
     <div class="row" style="margin:10px">
     <button class="btn btn-primary" onclick="dsEmployee.insertRecord();"  title='Add record after current cursor'> Insert </button>
     <button class="btn btn-primary" onclick="dsEmployee.appendRecord();" title='Add record after last record'> Append </button>
     <button class="btn btn-primary" onclick="dsEmployee.editRecord();"> Edit </button>
     <button class="btn btn-primary" onclick="dsEmployee.deleteRecord();"> Delete </button>
+    <button class="btn btn-primary" onclick="dsEmployee.deleteSelected();"> Delete Selected </button>
     <button class="btn btn-primary" onclick="dsEmployee.confirm();"> Confirm </button>
     <button class="btn btn-primary" onclick="dsEmployee.cancel();"> Cancel </button>
-    <button class="btn btn-primary" onclick="apply();" title="Submit data to server"> Submit Changes</button>
+    <a class="btn btn-primary" href="../server/basic.html">Submit changes to server(Jump to another page)</a>
     </div>
 	
 	

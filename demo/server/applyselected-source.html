@@ -30,17 +30,15 @@
     <pre class="prettyprint linenums"><code>
     //Query data
     function queryData() {
-        product.applyQuery('../../product/findall.jsp');
+        product.applyQuery('/demo/order/findall');
     }
     
-    //Apply selected to server
-    function applyToServer() {
-        var selRecs = product.selectedRecords();
-        if(selRecs && selRecs.length > 0) {
-            product.applySelected('../../product/audit.jsp');
-        } else {
-            jslet.showInfo('Please select records to audit!');
-        }
+    function audit() {
+		product.submitSelected('/demo/order/audit');
+    }
+    
+    function cancelAudit() {
+		product.submitSelected('/demo/order/cancelaudit');
     }
 
     </code></pre>

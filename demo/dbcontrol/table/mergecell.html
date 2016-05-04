@@ -8,12 +8,16 @@
     <link rel="stylesheet" type="text/css" href="../../css/demo-style.css" />
     <script type="text/javascript" src="../../../loader/jslet.loader.js"></script>
     <script type="text/javascript">
-        var tblCfg = { type: "DBTable", dataset: "employee",
-            columns: [{ field: "department", mergeSame: true }, { field: "gender", mergeSame: true }, { field: "age", mergeSame: true}]
-        };
+        var tblCfg = { type: "DBTable", dataset: "employee"};
 
         jslet.define("employee", "../../js/employee.js");
-        jslet.require("jslet,employee");
+        jslet.require("jslet,employee", function(){
+            var dsEmployee = jslet.data.getDataset('employee');
+            dsEmployee.getField('department').mergeSame(true);
+            dsEmployee.getField('gender').mergeSame(true);
+            dsEmployee.getField('gender').mergeSameBy('department');
+          	dsEmployee.fixedIndexFields('department');
+        });
     </script>
 </head>
 <body onunload="jslet.ui.uninstall()">

@@ -21,6 +21,11 @@
 				{ name: 'department', type: 'S', length: 12, label: 'Department', lookup: { dataset: 'department'}, valueStyle: jslet.data.FieldValueStyle.BETWEEN},
 				]);
             dsbtwdataset.insertRecord();
+            
+            dsbtwdataset.onFieldChange(function(fldName, fldValue){
+            	console.log(fldName + ': ' + fldValue);
+            })
+
         } 
         
     </script>

@@ -14,10 +14,10 @@
 
         function initialize() {
             var fldObj = dsEmployee.getField('birthday');
-            fldObj.range({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
+            fldObj.dataRange({from: new Date(1960, 0, 1), to: new Date(2010, 11, 31)});
 
             var fldObj = dsEmployee.getField('age');
-            fldObj.range({from: 18, to: 60});
+            fldObj.dataRange({from: 18, to: 60});
         }
     </script>
 </head>
