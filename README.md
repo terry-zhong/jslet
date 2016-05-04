@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-* {
-font-size: 14px;
-}
-
-.cs {
-color: blue
-}
-</style>
-    <script type="text/javascript" src="loader/jslet.loader-dist.js"></script>
-    <script type="text/javascript">
-        jslet.require('jslet', function () {
-        	var dsTest = jslet.data.createDataset('test', [{name: 'name', label: 'Name', type: 'S'}, {name: 'birthday', label: 'Birthday', type: 'D', displayFormat: 'yyyy-MM-dd'}, {name: 'salary', label: 'Salary',type: 'N', scale: 2}]);
-        	dsTest.appendRecord();
-        });
-	</script>
-</head>
 <body>
 
 <p>This file is intended to help you get started with the Jslet framework.</p>
-
 
 <h1>What is Jslet?</h1>
 
@@ -30,14 +12,10 @@ color: blue
 	<li><b>Jslet is model-based, it means you can write less code to complete advanced features</b>, for example: <br />
 	<pre><code>
 a. Define a dataset with three fields:
-<span style="color: blue">
 var dsTest = jslet.data.createDataset('test', [{name: 'name', label: 'Name', type: 'S'}, {name: 'birthday', label: 'Birthday', type: 'D', displayFormat: 'yyyy-MM-dd'}, {name: 'salary', label: 'Salary',type: 'N', scale: 2}]);
 dsTest.appendRecord();
-</span>
 b. Bind the dataset to a jslet control: DBTable
-<span style="color: blue">
 &lt;div data-jslet="type: 'DBTable', dataset: 'test', editable: true"&gt;&lt;/div&gt;
-</span>
 c. That's all, you get an editable table with three columns.
 		</code></pre>
 	<p><a href="http://jslet.github.io/jslet/demo/startup.html">Live Example</a></p>
