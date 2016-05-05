@@ -17,18 +17,18 @@ var fldCfg = [
 	{ name: 'name', type: 'S', length: 30, label: 'Field Name', displayWidth: 20, required: true },
 	{ name: 'label', type: 'S', length: 30, label: 'Field Label', displayWidth: 20 },
 	{ name: 'tip', type: 'S', length: 30, label: 'Field Tips', displayWidth: 20 },
-	{ name: 'type', type: 'S', length: 1, label: 'Data Type', lookup: '{dataset:"fieldDatatype"}', displayWidth: 10, defaultValue:'S' },
-    { name: 'subDataset', type: 'S', length: 30, label: 'Sub-Dataset Name', displayWidth: 10 },
-	{ name: 'length', type: 'N', length: 3, label: 'Data Length', displayWidth: 10, diaplayFormat: '##0', editControl: 'DBSpinEdit' },
-	{ name: 'scale', type: 'N', length: 3, label: 'Data Scale', displayWidth: 6, diaplayFormat: '##0', editControl:'DBSpinEdit'},
+	{ name: 'type', type: 'S', length: 1, label: 'Data Type', lookup: {dataset:"fieldDatatype"}, displayWidth: 10, defaultValue:'S' },
+    { name: 'detailDataset', type: 'S', length: 30, label: 'Detail Dataset Name', displayWidth: 10 },
+	{ name: 'length', type: 'N', length: 3, label: 'Data Length', displayWidth: 10, diaplayFormat: '##0', editControl: 'DBSpinEdit', dataRange: {min: 0, max: 10000}, defaultValue: 10},
+	{ name: 'scale', type: 'N', length: 3, label: 'Data Scale', displayWidth: 6, diaplayFormat: '##0', editControl:'DBSpinEdit', dataRange: {min: 0, max: 10}},
 	{ name: 'defaultExpr', type: 'S', length: 100, label: 'Default Value Expr', displayWidth: 10 },
 	{ name: 'valueStyle', type: 'S', label: 'Value Style', displayWidth: 10, lookup: {dataset:"valueStyle"},defaultValue: '0' },
 
-	{ name: 'displayWidth', type: 'N', length: 3, label: 'Display Width', displayWidth: 10, diaplayFormat: '##0',editControl:'DBSpinEdit'},
-	{ name: 'displayOrder', type: 'N', length: 3, label: 'Display Order', displayWidth: 6, defaultValue: 0, diaplayFormat: '##0', editControl:'DBSpinEdit' },
-	{ name: 'alignment', type: 'S', length: 3, label: 'Alignment', displayWidth: 10, lookup: '{dataset:"fieldAlignment"}' },
+	{ name: 'displayWidth', type: 'N', length: 3, label: 'Display Width', displayWidth: 10, dataRange: {min: 0, max: 10000}, diaplayFormat: '##0',editControl:'DBSpinEdit'},
+	{ name: 'displayOrder', type: 'N', length: 3, label: 'Display Order', displayWidth: 6, defaultValue: 0, diaplayFormat: '##0', editControl:'DBSpinEdit', dataRange: {min: 0, max: 10000} },
+	{ name: 'alignment', type: 'S', length: 3, label: 'Alignment', displayWidth: 10, lookup: {dataset:"fieldAlignment"} },
 	{ name: 'displayFormat', type: 'S', length: 30, label: 'Display Format', displayWidth: 10 },
-	{ name: 'editControl', type: 'S', length: 100, label: 'Editor', displayWidth: 10, lookup: '{dataset:"fieldEditor"}',required:false,nullText:'(auto)' },
+	{ name: 'editControl', type: 'S', length: 100, label: 'Editor', displayWidth: 10, lookup: {dataset:"fieldEditor"},required:false,nullText:'(auto)' },
 
 	{ name: 'formula', type: 'S', length: 100, label: 'Formula', displayWidth: 10 },
 	{ name: 'readOnly', type: 'B', label: 'ReadOnly', displayWidth: 10 },
@@ -41,7 +41,7 @@ var fldCfg = [
 
 	{ name: 'lookup', type: 'S', length: 100, label: 'Lookup Field', displayWidth: 10 },
 	{ name: 'urlExpr', type: 'S', length: 100, label: 'HyperLink Expression', displayWidth: 10 },
-	{ name: 'urlTarget',type:'S',length:10,label:'HyperLink Target',lookup:'{dataset:"fieldUrlTarget"}'}
+	{ name: 'urlTarget',type:'S',length:10,label:'HyperLink Target',lookup:{dataset:"fieldUrlTarget"}}
 
 ];
 
@@ -61,13 +61,13 @@ var dsDatasetCfg = jslet.data.createDataset('datasetCfg', fldCfg);
 delete fldCfg;
 
 var data = [{ name: "employee", description: "Employee(Sample)", fields: 
-	[{index: 0, name: "workerid", label: "ID", type: "N", length: 10, required: true, valueStyle: '0' }, 
-	 {index: 1, name: "name", label: "Name", type: "S", length: 20, required: true, valueStyle: '0'}, 
-	 {index: 2, name: "gender", description: "Gender", type: "S", lookup: "{dataset: 'gender'}", nullText:"(Empty)", valueStyle: '0'},
-	 {index: 5, name: "age", label: "Age", type: "N", length: 6, valueStyle: '0'}, 
-	 {index: 7, name: "married", label: "Married", type: "B", valueStyle: '0'}, 
-	 {index: 8, name: "birthday", label: "Birthday", type: "D", valueStyle: '0'}, 
-	 {index: 10, name: "position", description: "Position", type: "S", lookup: "{dataset: 'position'}", nullText:"(Empty)", valueStyle: '0'}
+	[{displayOrder: 0, name: "workerid", label: "ID", type: "N", length: 10, required: true, valueStyle: '0' }, 
+	 {displayOrder: 1, name: "name", label: "Name", type: "S", length: 20, required: true, valueStyle: '0'}, 
+	 {displayOrder: 2, name: "gender", description: "Gender", type: "S", lookup: {dataset: 'gender'}, nullText:"(Empty)", valueStyle: '0'},
+	 {displayOrder: 5, name: "age", label: "Age", type: "N", length: 6, valueStyle: '0'}, 
+	 {displayOrder: 7, name: "married", label: "Married", type: "B", valueStyle: '0'}, 
+	 {displayOrder: 8, name: "birthday", label: "Birthday", type: "D", valueStyle: '0'}, 
+	 {displayOrder: 10, name: "position", description: "Position", type: "S", lookup: {dataset: 'position'}, nullText:"(Empty)", valueStyle: '0'}
 	 ]
 	}];
 dsDatasetCfg.dataList(data);

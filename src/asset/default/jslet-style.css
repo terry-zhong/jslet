@@ -152,6 +152,7 @@
   vertical-align: middle;
   display: table-cell;
 }
+
 .jl-spinedit-btn-group > .btn {
   display: block;
   float: none;
@@ -161,7 +162,9 @@
   margin-left: -1px;
   position: relative;
   border-radius: 0;
+  padding-top: 6px;
 }
+
 .jl-spinedit-btn-group > .btn:first-child {
   border-top-right-radius: 4px;
 }

@@ -71,7 +71,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		Z._createControl();
 		Z.renderAll();
-	}, // end bind
+	},
 
 	_createControl: function() {
 		var Z = this,
@@ -153,27 +153,20 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			maxValue = Number.POSITIVE_INFINITY;
 		
 		if(range) {
-			if(range.min) {
+			if(range.min || range.min === 0) {
 				minValue = parseFloat(range.min);
 			}
-			if(range.max) {
+			if(range.max || range.min === 0) {
 				maxValue = parseFloat(range.max);
 			}
 		}
 		if (val) {
 			val = parseFloat(val);
-//			if (val) {
-//				if (val > maxValue)
-//					val = maxValue;
-//				else if (val < minValue)
-//					val = minValue;
-//				val = String(val);
-//			}
 		}
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.el.value = val;
 		return true;
-	}, // end beforeUpdateToDataset
+	},
 
 	setValueToDataset: function (val) {
 		var Z = this;
@@ -189,7 +182,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		} finally {
 			Z.silence = false;
 		}
-	}, // end setValueToDataset
+	},
 
 	incValue: function () {
 		var Z = this,
@@ -198,7 +191,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			val = 0;
 		}
 		var maxValue = Z._getRange().maxValue;
-		if (val == maxValue) {
+		if (val === maxValue) {
 			return;
 		} else if (val < maxValue) {
 			val += Z._step;
@@ -210,7 +203,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 		}
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.setValueToDataset(val);
-	}, // end incValue
+	},
 
 	_getRange: function() {
 		var Z = this,
@@ -220,10 +213,10 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			maxValue = Number.POSITIVE_INFINITY;
 		
 		if(range) {
-			if(range.min) {
+			if(range.min || range.min === 0) {
 				minValue = parseFloat(range.min);
 			}
-			if(range.max) {
+			if(range.max || range.min === 0) {
 				maxValue = parseFloat(range.max);
 			}
 		}
@@ -237,7 +230,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			val = 0;
 		}
 		var minValue = Z._getRange().minValue;
-		if (val == minValue) {
+		if (val === minValue) {
 			return;
 		} else if (val > minValue) {
 			val -= Z._step;
@@ -248,7 +241,7 @@ jslet.ui.DBSpinEdit = jslet.Class.create(jslet.ui.DBFieldControl, {
 			val = minValue;
 		jQuery(Z.el).attr('aria-valuenow', val);
 		Z.setValueToDataset(val);
-	}, // end decValue
+	},
 	
 	/**
 	 * @override

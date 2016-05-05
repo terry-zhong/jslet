@@ -87,15 +87,15 @@
 			}
         }
 
-        tabCfg = {type: 'TabControl', newable: false, onSelectedChanged: doTabChanged, 
-    			items:[{header: 'Dataset List', closable: false, divId: 'datasetpanel'}, 
-    			{header: 'Field List', closable: false, divId: 'fieldpanel'},  
-    			{header: 'Test', closable: false, divId: 'testpanel'}]};
+        tabCfg = {type: 'TabControl', newable: false, onActiveIndexChanged: doTabChanged, 
+    			items:[{header: 'Dataset List', closable: false, contentId: 'datasetpanel'}, 
+    			{header: 'Field List', closable: false, contentId: 'fieldpanel'},  
+    			{header: 'Test', closable: false, contentId: 'testpanel'}]};
             
         function genDatasetScript(dsname, hasInvokeCode) {
             var dsDataset = jslet('#tblDataset').dataset();
 
-            if (dsDataset.recordCount() == 0)
+            if (dsDataset.recordCount() == 0) 
                 return '';
 
             var dsField = jslet('#tblField').dataset();
@@ -133,7 +133,7 @@
 
         function showCode() {
             var result = genDatasetScript(null, true);
-            $('#genResult')[0].value = result;
+            $('#genResult').val(result);
         }
 
         function showDataList() {
@@ -142,7 +142,7 @@
             if (dsDataset.recordCount() == 0)
                 return '';
             var result = jslet.data.record2Json(dsDataset.dataList());
-            $('#genResult')[0].value = result;
+            $('#genResult').val(result);
         }
 
         var testHtml = '<div style="padding:10px"><div data-jslet=\'type:"dbtable",dataset:"testdata"\' style="position:relative;top:2px;width:100%;height:200px"></div>'+
@@ -152,12 +152,12 @@
         function showTestWin() {
             var owin = jslet.ui.createControl("type:'Window',caption:'Dataset Test', width:620,height:530,isCenter:true,maximizable:false,minimizable:false");
             var dsStr = genDatasetScript("testdata");
-            if (!dsStr)
+            if (!dsStr) {
                 return;
-
+            }
             window.eval(dsStr);
             owin.setContent(testHtml);
-            jslet.ui.install(owin.getContentDiv());
+            jslet.ui.install(owin.getContentPanel());
             doTestInsert();
             owin.showModal();
         }
