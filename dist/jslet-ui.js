@@ -7897,441 +7897,6 @@ jslet.ui.DBTableFilterPanel.prototype = {
 	}
 };
 
-/**
- * Export dialog;
- */
-jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
-	this._dataset = jslet.data.getDataset(dataset);
-	this._exportDataset = null;
-	this._hasSchemaSection = (hasSchemaSection === undefined || hasSchemaSection ? true: false);
-	
-	this._dlgId = null;
-	
-	this._initialize();
-};
-
-jslet.ui.ExportDialog.prototype = {
-	_initialize: function() {
-		var fldCfg = [
-		    	      {name: 'field', type: 'S', length: 100, label: 'Field Name', nullText: 'default'}, 
-		    	      {name: 'label', type: 'S', length: 50, label: 'Field Label'},
-		    	      {name: 'parent', type: 'S', length: 100, label: 'Field Name'}, 
-		    	    ];
-		var exportLKDs = jslet.data.createDataset('exportLKDs' + jslet.nextId(), fldCfg, 
-				{keyField: 'field', codeField: 'field', nameField: 'label', parentField: 'parent', isFireGlobalEvent: false});
-		exportLKDs.onCheckSelectable(function(){
-	        return !this.hasChildren(); 
-	    });
-		
-		var expFldCfg = [
-    	      //{name: 'schemaId', type: 'S', length: 30, label: 'Export Schema ID'}, 
-    	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
-    	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', visible: false, valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
-    	    ];
-    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
-    	if(this._hasSchemaSection) {
-	    	var exportDsClone = this._exportDataset;
-	    	var lkObj = new jslet.data.FieldLookup();
-	    	lkObj.dataset(exportDsClone);
-	    	this._exportDataset.getField('schema').lookup(lkObj);
-    	}
-		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
-		var owin = jslet.ui.createControl(opt);
-		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
-		            '\'"><div class="form-group form-group-sm">',
-		            '<div class="col-sm-6"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>',
-		            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="jlbtnSave">',
-		            jslet.locale.ExportDialog.saveSchema,
-		            '</button><button class="btn btn-default btn-sm">',
-		            jslet.locale.ExportDialog.deleteSchema,
-		            '</button></div></div>',
-		            
-		            '<div class="form-group form-group-sm">',
-		            '<div class="col-sm-12 jl-expdlg-fields" data-jslet="type:\'DBList\',field:\'fields\',correlateCheck:true"></div></div>',
-
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-3">',
-		            jslet.locale.ExportDialog.fileName,
-		            '</label>',
-					'<div class="col-sm-9"><input id="jltxtExportFile" class="form-control" type="text"></input></div></div>',
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-8">&nbsp</label>',
-		            '<div class="col-sm-4"><button id="jlbtnExport" class="btn btn-default btn-sm">',
-		            jslet.locale.ExportDialog.exportData,
-		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
-		            jslet.locale.ExportDialog.cancel,
-		            '</button></div></div>',
-		            '</div>'];
-		owin.setContent(html.join(''));
-		owin.onClosed(function () {
-			return 'hidden';
-		});
-		var Z = this;
-		this._dlgId = owin.el.id;
-		var jqEl = jQuery(owin.el);
-		jqEl.find('#jlbtnExport').click(function(event) {
-			var jqExpportFile = jqEl.find('#jltxtExportFile');
-			var fileName = jqExpportFile.val();
-			if(!fileName || !fileName.trim()) {
-				jslet.showInfo('FileName required!');
-				event.stopPropagation();
-				event.preventDefault();
-				return false;
-			}
-			var fields = Z._exportDataset.getFieldValue('fields');
-			
-			Z._dataset.exportCsvFile(fileName, {includeFields: fields});
-			owin.close();
-		});
-		jqEl.find('#jlbtnSave').click(function(event) {
-			jslet.ui.MessageBox.prompt('Please input exportting shema: ', 'Input Export Schema', function(button, value){
-				if(button === 'ok' && value) {
-					var fields = Z._exportDataset.getFieldValue('fields');
-					Z._exportDataset.appendRecord();
-					Z._exportDataset.setFieldValue('schema', value);
-					Z._exportDataset.setFieldValue('fields', fields);
-					Z._exportDataset.confirm();
-				}
-			});
-		});
-		
-		jqEl.find('#jlbtnCancel').click(function(event) {
-			owin.close();
-		});
-	},
-	
-	exportDataset: function(exportDs) {
-		return this._exportDataset;
-	},
-	
-	_refreshFields: function() {
-		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
-		var fieldNames = [];
-		
-		function addFields(dataList, fieldNames, fields, parentField, isDetailDs) {
-			var fldObj, fldName;
-			for(var i = 0, len = fields.length; i < len; i++) {
-				fldObj = fields[i];
-				fldName = fldObj.name();
-				if(parentField && isDetailDs) {
-					fldName = parentField + '.' + fldName;
-				}
-				var detailDs = fldObj.subDataset();
-				if(detailDs) {
-					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
-					addFields(dataList, fieldNames, detailDs.getNormalFields(), fldName, true);
-					continue;
-				}
-				if(!fldObj.visible()) {
-					continue;
-				}
-				dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
-				var fldChildren = fldObj.children();
-				if(fldChildren) {
-					addFields(dataList, fieldNames, fldChildren, fldName);
-				} else {
-					fieldNames.push(fldName);
-				}
-			}
-		}
-		addFields(dataList, fieldNames, this._dataset.getFields());
-		var exportLKDs = this._exportDataset.getField('fields').lookup().dataset();
-		exportLKDs.dataList(dataList);
-		this._exportDataset.setFieldValue('fields', fieldNames);
-		exportLKDs.first();
-	},
-
-	show: function() {
-		var Z = this;
-		Z._refreshFields();
-		var jqEl = jQuery('#' + this._dlgId);
-		var owin = jqEl[0].jslet;
-		var fileName = Z._dataset.description() + '.csv';
-		var jqExpportFile = jqEl.find('#jltxtExportFile');
-		jqExpportFile.val(fileName);
-		owin.showModal();
-		owin.setZIndex(999);
-		return owin;
-	}
-};
-
-jslet.ui.InputSettingDialog = function() {
-	this._inputSettingDs = null;
-	
-	this._hostDataset = null;
-	
-	this._onClosed = null;
-	
-	this._onRestoreDefault = null;
-	
-	this._settings = null;
-	var Z = this;
-	
-	function doProxyFieldChanged(dataRec, proxyFldName, proxyFldObj) {
-		var hostFldObj = jslet.data.getDataset(dataRec.dataset).getField(proxyFldName);
-		proxyFldObj.dataType(hostFldObj.dataType());
-		proxyFldObj.length(hostFldObj.length());
-		proxyFldObj.scale(hostFldObj.scale());
-		proxyFldObj.editMask(hostFldObj.editMask());
-
-		proxyFldObj.displayFormat(hostFldObj.displayFormat());
-		proxyFldObj.dateFormat(hostFldObj.dateFormat());
-		proxyFldObj.displayControl(hostFldObj.displayControl());
-		proxyFldObj.validChars(hostFldObj.validChars());
-		if(hostFldObj.lookup()) {
-			var hostLkObj = hostFldObj.lookup();
-			var lkObj = new jslet.data.FieldLookup();
-			lkObj.dataset(hostLkObj.dataset());
-			lkObj.keyField(hostLkObj.keyField());
-			lkObj.codeField(hostLkObj.codeField());
-			lkObj.nameField(hostLkObj.nameField());
-			lkObj.displayFields(hostLkObj.displayFields());
-			lkObj.parentField(hostLkObj.parentField());
-			lkObj.onlyLeafLevel(false);
-			proxyFldObj.lookup(lkObj);
-			proxyFldObj.editControl('DBComboSelect');
-		} else {
-			proxyFldObj.lookup(null);
-			var editorObj = hostFldObj.editControl();
-			if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
-				editorObj = {type: 'DBText'};
-			}
-			proxyFldObj.editControl(editorObj);
-		}
-		proxyFldObj.valueStyle(jslet.data.FieldValueStyle.NORMAL);
-	}
-
-	function initialize() {
-		var fldCfg = [{name: 'dataset', type: 'S', length: 30, visible: false},
-		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
-		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
-		              {name: 'parentField', type: 'S', length: 30, visible: false},
-		              {name: 'tabIndex', type: 'N', label: 'tabIndex', length: 3, visible: false},
-		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
-		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 6},
-		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
-		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
-		              ];
-		
-		Z._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
-				{keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false, indexFields: 'tabIndex', isFireGlobalEvent: false});
-		
-		var custContextFn = function(fldObj, changingFldName){
-			var dataset = fldObj.dataset();
-			fldObj.disabled(dataset.getFieldValue('isDatasetField'));
-		};
-		
-		Z._inputSettingDs.contextRules([{"condition": "true", "rules": [
-		     {"field": 'defaultValue', "customized": custContextFn},
-		     {"field": 'focused', "customized": custContextFn},
-		     {"field": 'valueFollow', "customized": custContextFn}
-		]}]);
-		Z._inputSettingDs.enableContextRule();
-		Z._inputSettingDs.onFieldChanged(function(propName, propValue){
-			if(Z._isInit) {
-				return;
-			}
-			if(!Z._settings) {
-				Z._settings = {};
-			}
-			var hostDsName = this.getFieldValue('dataset'),
-				hostFldName = this.getFieldValue('field'),
-				dsSetting = Z._settings[hostDsName];
-			if(!dsSetting) {
-				dsSetting = {};
-				Z._settings[hostDsName] = dsSetting;
-			}
-			var fldSetting = dsSetting[hostFldName];
-			if(!fldSetting) {
-				fldSetting = {};
-				dsSetting[hostFldName] = fldSetting; 
-			}
-			fldSetting[propName] = propValue;
-		});
-	}
-	
-	initialize.call(this);
-};
-
-jslet.ui.InputSettingDialog.prototype = {
-		
-	hostDataset: function(hostDataset) {
-		if(hostDataset === undefined) {
-			return this._hostDataset;
-		}
-		this._hostDataset = hostDataset;
-	},
-	
-	onClosed: function(onClosedFn) {
-		if(onClosedFn === undefined) {
-			return this._onClosed;
-		}
-		this._onClosed = onClosedFn;
-	},
-	
-	onRestoreDefault: function(onRestoreDefaultFn) {
-		if(onRestoreDefaultFn === undefined) {
-			return this._onRestoreDefault;
-		}
-		this._onRestoreDefault = onRestoreDefaultFn;
-	},
-	
-	show: function(hostDataset) {
-		jslet.Checker.test('InputSettingDialog.show#hostDataset', hostDataset).required();
-		var Z = this;
-		Z._hostDataset = hostDataset;
-		Z._isInit = true;
-		Z._settings = null;
-		Z._inputSettingDs.disableControls();
-		try {
-			Z._initializeFields();
-		} finally {
-			Z._isInit = false;
-			Z._inputSettingDs.first();
-			Z._inputSettingDs.enableControls();
-		}
-		var creating = false;
-		if(!Z._dlgId) {
-			Z._createDialog();
-			creating = true;
-		}
-		var tblFields = jQuery('#' + Z._dlgId).find('.jl-isdlg-fields')[0].jslet;
-		tblFields.expandAll();
-		if(creating) {
-			tblFields.onRowClick(function() {
-				if(this.dataset().getFieldValue('isDatasetField')) {
-					this.toggle();
-				}
-			});
-		}
-		var owin = jslet('#' + Z._dlgId);
-		owin.showModal();
-		owin.setZIndex(999);
-	},
-	
-	_initializeFields: function(hostDs, isKeepFields, parentField) {
-		var Z = this,
-			dataset = Z._inputSettingDs,
-			fldObj;
-		if(!hostDs) {
-			hostDs = jslet.data.getDataset(Z._hostDataset);
-		}
-		var fields = hostDs.getNormalFields();
-		if(!isKeepFields) {
-			dataset.dataList(null);
-		}
-		var isDsFld;
-		for(var i = 0, len = fields.length; i < len; i++) {
-			fldObj = fields[i];
-			isDsFld = fldObj.subDataset()? true: false;
-			if(!isDsFld && !fldObj.visible()) {
-				continue;
-			}
-			dataset.appendRecord();
-			dataset.setFieldValue('isDatasetField', isDsFld);
-			
-			dataset.setFieldValue('dataset', hostDs.name());
-			dataset.setFieldValue('field', fldObj.name());
-			dataset.setFieldValue('label', fldObj.label());
-			dataset.setFieldValue('tabIndex', fldObj.tabIndex());
-			if(parentField) {
-				dataset.setFieldValue('parentField', parentField);
-			}
-			if(!isDsFld) {
-				dataset.setFieldValue('defaultValue', fldObj.defaultValue());
-				dataset.setFieldValue('focused', fldObj.focused());
-				dataset.setFieldValue('valueFollow', fldObj.valueFollow());
-			}
-			dataset.confirm();
-			if(isDsFld) {
-				this._initializeFields(fldObj.subDataset(), true, fldObj.name());
-			}
-		}
-	},
-	
-	_createDialog: function() {
-		var opt = { type: 'window', caption: jslet.locale.InputSettingDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade', styleClass: 'jl-isdlg'};
-		var owin = jslet.ui.createControl(opt);
-		var html = [
-		            '<div class="form-group form-group-sm">',
-		            '<div class="jl-isdlg-fields" data-jslet="type:\'DBTable\',dataset:\'', this._inputSettingDs.name(), 
-		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
-
-//		            '<div class="form-group form-group-sm">',
-//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
-//		            '<button id="jlbtnUp" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
-//		            '<button id="jlbtnDown" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
-//		            '</div>',
-//		            '<label class="control-label col-sm-6">&nbsp</label>',
-//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
-		            
-		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
-		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',		            
-		            jslet.locale.InputSettingDialog.save,
-		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
-		            jslet.locale.InputSettingDialog.cancel,
-		            '</button></div></div>',
-		            '</div>'];
-		owin.setContent(html.join(''));
-		owin.onClosed(function () {
-			return 'hidden';
-		});
-		this._dlgId = owin.el.id;
-		var jqEl = jQuery(owin.el), 
-			Z = this;
-		
-//		jqEl.find('#jlbtnUp').on('click', function(event) {
-//			var dataset = Z._inputSettingDs;
-//			if(dataset.recordCount() === 0) {
-//				return;
-//			}
-//			var idx = dataset.getFieldValue('tabIndex');
-//			if(!idx) {
-//				idx = dataset.recno();
-//			}
-//			if(idx === 0) {
-//				return;
-//			}
-//			var context = dataset.startSilenceMove();
-//			try {
-//				dataset.setFieldValue('tabIndex', idx - 1);
-//				dataset.prior();
-//				dataset.setFieldValue('tabIndex', idx);
-//				dataset.confirm();
-//			} finally {
-//				dataset.endSilenceMove(context);
-//			}
-//			dataset.indexFields(dataset.indexFields());
-//		});
-		
-		jqEl.find('#jlbtnSave').on('click', function(event) {
-			if(Z._settings) {
-				var hostDs, fldObj, fldSetting, propSetting;
-				for(var dsName in Z._settings) {
-					hostDs = jslet.data.getDataset(dsName);
-					fldSetting = Z._settings[dsName]; 
-					for(var fldName in fldSetting) {
-						fldObj = hostDs.getField(fldName);
-						propSetting = fldSetting[fldName];
-						for(var propName in propSetting) {
-							fldObj[propName](propSetting[propName]);
-						}
-					}
-				}
-				if(Z._onClosed) {
-					Z._onClosed(Z._settings);
-				}
-			}
-			owin.close();
-		});
-		jqEl.find('#jlbtnCancel').on('click', function(event) {
-			owin.close();
-		});
-		
-		jslet.ui.install(owin.el);
-	}
-};
-
-jslet.ui.defaultInputSettingDialog = new jslet.ui.InputSettingDialog();
-
 /*!
  * Jslet Javascript Framework v4.0.0
  * https://github.com/jslet/jslet/
@@ -20458,6 +20023,707 @@ jslet.ui.DBTimePicker = jslet.Class.create(jslet.ui.DBFieldControl, {
 });
 jslet.ui.register('DBTimePicker', jslet.ui.DBTimePicker);
 jslet.ui.DBTimePicker.htmlTemplate = '<div></div>';
+
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
+ *
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
+"use strict";
+/**
+ * Export dialog;
+ */
+jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
+	this._dataset = jslet.data.getDataset(dataset);
+	this._exportDataset = null;
+	this._hasSchemaSection = (hasSchemaSection ? true: false);
+	
+	this._dlgId = null;
+	
+	this._initialize();
+};
+
+jslet.ui.ExportDialog.prototype = {
+	/**
+	 * Show export dialog.
+	 */	
+	show: function(fileName) {
+		var Z = this;
+		Z._refreshFields();
+		var jqEl = jQuery('#' + this._dlgId);
+		var owin = jqEl[0].jslet;
+		var fileName = (fileName || Z._dataset.description()) + '.xlsx';
+		var jqExpportFile = jqEl.find('#jltxtExportFile');
+		jqExpportFile.val(fileName);
+		owin.showModal();
+		owin.setZIndex(999);
+		return owin;
+	},
+	
+	_initialize: function() {
+		var fldCfg = [
+		    	      {name: 'field', type: 'S', length: 100, label: 'Field Name', nullText: 'default'}, 
+		    	      {name: 'label', type: 'S', length: 50, label: 'Field Label'},
+		    	      {name: 'parent', type: 'S', length: 100, label: 'Field Name'}, 
+		    	    ];
+		var exportLKDs = jslet.data.createDataset('exportLKDs' + jslet.nextId(), fldCfg, 
+				{keyField: 'field', codeField: 'field', nameField: 'label', parentField: 'parent', isFireGlobalEvent: false});
+		exportLKDs.onCheckSelectable(function(){
+	        return !this.hasChildren(); 
+	    });
+		
+		var expFldCfg = [
+    	      //{name: 'schemaId', type: 'S', length: 30, label: 'Export Schema ID'}, 
+    	      {name: 'schema', type: 'S', length: 30, label: 'Export Schema'}, 
+    	      {name: 'fields', type: 'S', length: 500, label: 'Export Fields', visible: false, valueStyle: jslet.data.FieldValueStyle.MULTIPLE, lookup: {dataset: exportLKDs}}
+    	    ];
+    	this._exportDataset = jslet.data.createDataset('exportDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
+    	if(this._hasSchemaSection) {
+	    	var exportDsClone = this._exportDataset;
+	    	var lkObj = new jslet.data.FieldLookup();
+	    	lkObj.dataset(exportDsClone);
+	    	this._exportDataset.getField('schema').lookup(lkObj);
+    	}
+		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
+		var owin = jslet.ui.createControl(opt);
+		var expHtml = '';
+    	if(this._hasSchemaSection) {
+    		expHtml = '<div class="form-group form-group-sm jl-exp-schema">' +
+            '<div class="col-sm-7"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>' + 
+            '<div class="col-sm-5"><button class="btn btn-default btn-sm" id="jlbtnSave" style="float:right">' + 
+            jslet.locale.ExportDialog.deleteSchema + 
+            '</button><button class="btn btn-default btn-sm" id="jlbtnDelete" style="float:right">' + 
+            jslet.locale.ExportDialog.saveSchema +
+            '</button></div></div>';
+    	}
+		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
+		            '\'">',
+		            expHtml,
+		            '<div class="form-group form-group-sm">',
+		            '<div class="col-sm-12 jl-expdlg-fields" data-jslet="type:\'DBList\',field:\'fields\',correlateCheck:true"></div></div>',
+
+		            '<div class="form-group form-group-sm col-sm-12">',
+					'<input id="jlOnlySelected" class="checkbox-inline" type="checkbox"></input>',
+		            '<label class="control-label" for="jlOnlySelected">',
+		            jslet.locale.ExportDialog.onlySelected,
+		            '</label>',
+					'</div>',
+
+					'<div class="form-group form-group-sm col-sm-12"><label class="control-label jl-expdlg-filename">',
+		            jslet.locale.ExportDialog.fileName,
+		            '</label>',
+					'<div class="col-sm-8"><input id="jltxtExportFile" class="form-control" type="text"></input></div>',
+					'</div>',
+		            '<div class="form-group form-group-sm" style="margin-bottom:0"><label class="control-label col-sm-6">&nbsp</label>',
+		            '<div class="col-sm-6"><button id="jlbtnCancel" class="btn btn-default btn-sm jl-expdlg-toolbutton">',
+		            jslet.locale.ExportDialog.cancel,
+		            '</button><button id="jlbtnExport" class="btn btn-default btn-sm jl-expdlg-toolbutton">',
+		            jslet.locale.ExportDialog.exportData,
+		            '</button></div></div>',
+		            '</div>'];
+		owin.setContent(html.join(''));
+		owin.onClosed(function () {
+			return 'hidden';
+		});
+		var Z = this;
+		this._dlgId = owin.el.id;
+		jslet.ui.install(owin.el);
+		var jqEl = jQuery(owin.el);
+		jqEl.find('#jlbtnExport').click(function(event) {
+			var jqExpportFile = jqEl.find('#jltxtExportFile');
+			var fileName = jqExpportFile.val();
+			if(!fileName || !fileName.trim()) {
+				jslet.showInfo('FileName required!');
+				event.stopPropagation();
+				event.preventDefault();
+				return false;
+			}
+			var fields = Z._exportDataset.getFieldValue('fields');
+			var onlySelected = jqEl.find('#jlOnlySelected').val();
+			jslet.data.defaultXPorter.excelXPorter().exportData(Z._dataset, fileName, {includeFields: fields, onlySelected: onlySelected});
+			owin.close();
+		});
+		jqEl.find('#jlbtnSave').click(function(event) {
+			jslet.ui.MessageBox.prompt('Please input exportting shema: ', 'Input Export Schema', function(button, value){
+				if(button === 'ok' && value) {
+					var fields = Z._exportDataset.getFieldValue('fields');
+					Z._exportDataset.appendRecord();
+					Z._exportDataset.setFieldValue('schema', value);
+					Z._exportDataset.setFieldValue('fields', fields);
+					Z._exportDataset.confirm();
+				}
+			});
+		});
+		
+		jqEl.find('#jlbtnCancel').click(function(event) {
+			owin.close();
+		});
+	},
+	
+	_refreshFields: function() {
+		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
+		var fieldNames = [];
+		
+		function addFields(dataList, fieldNames, fields, parentField, isDetailDs) {
+			var fldObj, fldName;
+			for(var i = 0, len = fields.length; i < len; i++) {
+				fldObj = fields[i];
+				fldName = fldObj.name();
+				if(parentField && isDetailDs) {
+					fldName = parentField + '.' + fldName;
+				}
+				var detailDs = fldObj.subDataset();
+				if(detailDs) {
+					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+					addFields(dataList, fieldNames, detailDs.getNormalFields(), fldName, true);
+					continue;
+				}
+				if(!fldObj.visible()) {
+					continue;
+				}
+				dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
+				var fldChildren = fldObj.children();
+				if(fldChildren) {
+					addFields(dataList, fieldNames, fldChildren, fldName);
+				} else {
+					fieldNames.push(fldName);
+				}
+			}
+		}
+		addFields(dataList, fieldNames, this._dataset.getFields());
+		var exportLKDs = this._exportDataset.getField('fields').lookup().dataset();
+		exportLKDs.dataList(dataList);
+		this._exportDataset.setFieldValue('fields', fieldNames);
+		exportLKDs.first();
+	},
+
+	destroy: function() {
+    	if(this._exportDataset) {
+    		var lkds = this._exportDataset.getField('fields').lookup().dataset();
+    		lkds.destroy();
+    		this._exportDataset.destroy();
+    		this._exportDataset = null;
+    	}
+    	this._dataset = null;
+	}
+};
+
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
+ *
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
+"use strict";
+/**
+ * Import dialog for specified Dataset object;
+ * 
+ * @param {jslet.data.Dataset or String} dataset - Dataset object or dataset name.
+ */
+jslet.ui.ImportDialog = function(dataset) {
+	this._dataset = jslet.data.getDataset(dataset);
+	this._importDataset = null;
+	
+	this._parsedData = null;
+	
+	this._dlgId = null;
+	
+	this._initialize();
+};
+
+jslet.ui.ImportDialog.prototype = {
+	/**
+	 * Show import dialog
+	 */
+	show: function() {
+		var Z = this;
+		Z._refreshFields();
+		var jqEl = jQuery('#' + this._dlgId);
+		jqEl.find('#jltxtImportFile').val('');
+		var owin = jqEl[0].jslet;
+		owin.showModal();
+		owin.setZIndex(999);
+		return owin;
+	},
+	
+	_initialize: function() {
+		var fldCfg = [
+		    	      {name: 'colNum', type: 'N', length: 10, label: 'Column Num.', visible: false}, 
+		    	      {name: 'colHeader', type: 'S', length: 100, label: 'Column Header', displayWidth: 16}
+		    	    ];
+		var exportLKDs = jslet.data.createDataset('exportLKDs' + jslet.nextId(), fldCfg, 
+				{keyField: 'colHeader', codeField: 'colHeader', nameField: 'colHeader', autoRefreshHostDataset: true});
+		
+		var expFldCfg = [
+       	      {name: 'field', type: 'S', length: 100, label: 'Field Name', visible: false}, 
+	   	      {name: 'label', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 16, readOnly: true},
+    	      {name: 'colNum', type: 'N', length: 10, label: jslet.locale.ImportDialog.columnHeader, visible: false}, 
+    	      {name: 'colHeader', type: 'S', length: 100, label: 'Column Header', displayWidth: 16, editControl: 'DBSelect',
+    	    	  lookup: {dataset: exportLKDs, returnFieldMap: {colNum: 'colNum'}}}
+    	    ];
+    	this._importDataset = jslet.data.createDataset('importDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
+		var opt = { type: 'window', caption: jslet.locale.ImportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
+		var owin = jslet.ui.createControl(opt);
+		var expHtml = '';
+		var html = ['<div class="form-horizontal jl-impdlg-content">',
+		            '<div class="form-group form-group-sm col-sm-12"><label class="control-label jl-impdlg-filename">',
+		            jslet.locale.ImportDialog.fileName,
+		            '</label>',
+					'<div class="col-sm-10"><input id="jltxtImportFile" title="*.xls|*.xlsx|*.xlsb|*.xlsm|*.ods" class="form-control" type="file"></input></div></div>',
+					
+		            '<div class="col-sm-12 jl-impdlg-fieldmap" style="">',
+		            '<div data-jslet="type:\'DBTable\', dataset: \'' , 
+		            this._importDataset.name(), 
+		            '\', editable: true, hasFilterDialog:false"></div></div>',
+
+		            '<div class="form-group form-group-sm" style="margin-bottom:0"><label class="control-label col-sm-6">&nbsp</label>',
+		            '<div class="col-sm-6"><button id="jlbtnCancel" class="btn btn-default btn-sm jl-impdlg-toolbutton">',
+		            jslet.locale.ImportDialog.cancel,
+		            '</button><button id="jlbtnImport" class="btn btn-default btn-sm jl-impdlg-toolbutton">',
+		            jslet.locale.ImportDialog.importData,
+		            '</button></div></div>',
+		            '</div>'];
+		owin.setContent(html.join(''));
+		owin.onClosed(function () {
+			return 'hidden';
+		});
+		var Z = this;
+		jslet.ui.install(owin.el);
+		this._dlgId = owin.el.id;
+		var jqEl = jQuery(owin.el);
+		jqEl.find('#jltxtImportFile').on('change', function(event) {
+			var files = event.delegateTarget.files;
+			if(files.length > 0) {
+				Z._readFile(files[0]);
+			}
+		});
+		jqEl.find('#jlbtnImport').click(function(event) {
+			if(Z._importData()) {
+				owin.close();
+			}
+		});
+		
+		jqEl.find('#jlbtnCancel').click(function(event) {
+			owin.close();
+		});
+	},
+	
+	_refreshFields: function() {
+		var dataList = [];
+		var fields = this._dataset.getNormalFields(), fldObj, fldName;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			fldName = fldObj.name();
+			var detailDs = fldObj.subDataset();
+			if(!fldObj.visible()) {
+				continue;
+			}
+			dataList.push({field: fldName, label: fldObj.label()});
+		}
+		this._importDataset.dataList(dataList);
+		this._importDataset.first();
+	},
+
+	_readFile: function(fileObj) {
+		var Z = this,
+			name = fileObj.name,
+			suffix = name.substring(name.lastIndexOf('.') + 1) || '';
+		suffix = suffix.toLowerCase();
+		if(suffix != 'xls' && suffix != 'xlsx' && suffix != 'xlsb' && suffix != 'xlsm' && suffix != 'ods') {
+			jslet.showError(jslet.locale.ImportDialog.notSupportFile);
+			return;
+		}
+	    var	reader = new FileReader();
+		reader.onload = function(e) {
+			var fileContent = e.target.result,
+				parsedResult = null;
+			try {
+				parsedResult = jslet.data.defaultXPorter.excelXPorter().importData(Z._dataset, fileContent);
+			} catch(e) {
+				console.error(e);
+				jslet.showError(jslet.locale.ImportDialog.notSupportFile);
+			}
+			if(parsedResult) {
+				Z._addColumnHeader(parsedResult.header);
+				Z._parsedData = parsedResult.data;
+			} else {
+				jslet.showError(jslet.locale.ImportDialog.noData);
+			}
+		};
+		reader.readAsBinaryString(fileObj);
+	},
+	
+	_addColumnHeader: function(header) {
+		if(!header) {
+			return;
+		}
+		var dataList = [], i, len;
+		for(i = 0, len = header.length; i < len; i++) {
+			dataList.push({colNum: i, colHeader: header[i]});
+		}
+		this._importDataset.getField('colHeader').lookup().dataset().dataList(dataList);
+		dataList = this._importDataset.dataList();
+		var label, rec, found = false;
+		for(i = 0, len = dataList.length; i < len; i++) {
+			rec = dataList[i];
+			label = rec.label;
+			if(header.indexOf(label) >= 0) {
+				rec.colHeader = label;
+				found = true;
+			}
+		}
+		if(found) {
+			this._importDataset.dataList(dataList);
+		}
+	},
+	
+	_importData: function() {
+		var Z = this,
+			dataList = this._importDataset.dataList(), 
+			rec, i, len, rec,
+			fields = [];
+		for(i = 0, len = dataList.length; i< len; i++) {
+			rec = dataList[i];
+			if(rec.colHeader) {
+				fields.push(rec);
+			}
+		}
+		var fldCnt = fields.length;
+		if(fldCnt === 0) {
+			jslet.showInfo(jslet.locale.ImportDialog.noColHeader);
+			return false;
+		}
+		if(!Z._parsedData || Z._parsedData.length === 0) {
+			jslet.showInfo(jslet.locale.ImportDialog.noData);
+			return true;
+		}
+		var fldMap, text,
+			masterDs = Z._dataset, 
+			parsedData = Z._parsedData;
+		for(var i = 0, len = parsedData.length; i < len; i++) {
+			rec = parsedData[i];
+			masterDs.appendRecord();
+			for(var j = 0; j < fldCnt; j++) {
+				fldMap = fields[j];
+				text = rec[fldMap.colHeader];
+				if(text) {
+					masterDs.setFieldText(fldMap.field, text);
+				}
+			}
+			masterDs.confirm();
+		}
+		return true;
+	},
+	
+	destroy: function() {
+		this._dataset = null;
+		if(this._importDataset) {
+    		var lkds = this._importDataset.getField('colHeader').lookup().dataset();
+    		lkds.destroy();
+    		this._importDataset.destroy();
+    		this._importDataset = null;
+		}
+	}
+};
+
+
+
+/*!
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
+ *
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
+"use strict";
+/**
+ * A dialog to configure input settings like 'defaultValue', 'valueFollowed', 'focused'.
+ * It's used by ender user to configure their own preferences.
+ */
+jslet.ui.InputSettingDialog = function() {
+	this._inputSettingDs = null;
+	
+	this._hostDataset = null;
+	
+	this._onClosed = null;
+	
+	this._onRestoreDefault = null;
+	
+	this._settings = null;
+	var Z = this;
+	
+	function doProxyFieldChanged(dataRec, proxyFldName, proxyFldObj) {
+		var hostFldObj = jslet.data.getDataset(dataRec.dataset).getField(proxyFldName);
+		proxyFldObj.dataType(hostFldObj.dataType());
+		proxyFldObj.length(hostFldObj.length());
+		proxyFldObj.scale(hostFldObj.scale());
+		proxyFldObj.editMask(hostFldObj.editMask());
+
+		proxyFldObj.displayFormat(hostFldObj.displayFormat());
+		proxyFldObj.dateFormat(hostFldObj.dateFormat());
+		proxyFldObj.displayControl(hostFldObj.displayControl());
+		proxyFldObj.validChars(hostFldObj.validChars());
+		if(hostFldObj.lookup()) {
+			var hostLkObj = hostFldObj.lookup();
+			var lkObj = new jslet.data.FieldLookup();
+			lkObj.dataset(hostLkObj.dataset());
+			lkObj.keyField(hostLkObj.keyField());
+			lkObj.codeField(hostLkObj.codeField());
+			lkObj.nameField(hostLkObj.nameField());
+			lkObj.displayFields(hostLkObj.displayFields());
+			lkObj.parentField(hostLkObj.parentField());
+			lkObj.onlyLeafLevel(false);
+			proxyFldObj.lookup(lkObj);
+			proxyFldObj.editControl('DBComboSelect');
+		} else {
+			proxyFldObj.lookup(null);
+			var editorObj = hostFldObj.editControl();
+			if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
+				editorObj = {type: 'DBText'};
+			}
+			proxyFldObj.editControl(editorObj);
+		}
+		proxyFldObj.valueStyle(jslet.data.FieldValueStyle.NORMAL);
+	}
+
+	function initialize() {
+		var fldCfg = [{name: 'dataset', type: 'S', length: 30, visible: false},
+		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
+		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
+		              {name: 'parentField', type: 'S', length: 30, visible: false},
+		              {name: 'tabIndex', type: 'N', label: 'tabIndex', length: 3, visible: false},
+		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
+		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 6},
+		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
+		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
+		              ];
+		
+		Z._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
+				{keyField: 'field', nameField: 'label', parentField: 'parentField', logChanges: false, indexFields: 'tabIndex', isFireGlobalEvent: false});
+		
+		var custContextFn = function(fldObj, changingFldName){
+			var dataset = fldObj.dataset();
+			fldObj.disabled(dataset.getFieldValue('isDatasetField'));
+		};
+		
+		Z._inputSettingDs.contextRules([{"condition": "true", "rules": [
+		     {"field": 'defaultValue', "customized": custContextFn},
+		     {"field": 'focused', "customized": custContextFn},
+		     {"field": 'valueFollow', "customized": custContextFn}
+		]}]);
+		Z._inputSettingDs.enableContextRule();
+		Z._inputSettingDs.onFieldChanged(function(propName, propValue){
+			if(Z._isInit) {
+				return;
+			}
+			if(!Z._settings) {
+				Z._settings = {};
+			}
+			var hostDsName = this.getFieldValue('dataset'),
+				hostFldName = this.getFieldValue('field'),
+				dsSetting = Z._settings[hostDsName];
+			if(!dsSetting) {
+				dsSetting = {};
+				Z._settings[hostDsName] = dsSetting;
+			}
+			var fldSetting = dsSetting[hostFldName];
+			if(!fldSetting) {
+				fldSetting = {};
+				dsSetting[hostFldName] = fldSetting; 
+			}
+			fldSetting[propName] = propValue;
+		});
+	}
+	
+	initialize.call(this);
+};
+
+jslet.ui.InputSettingDialog.prototype = {
+		
+	hostDataset: function(hostDataset) {
+		if(hostDataset === undefined) {
+			return this._hostDataset;
+		}
+		this._hostDataset = hostDataset;
+	},
+	
+	onClosed: function(onClosedFn) {
+		if(onClosedFn === undefined) {
+			return this._onClosed;
+		}
+		this._onClosed = onClosedFn;
+	},
+	
+	onRestoreDefault: function(onRestoreDefaultFn) {
+		if(onRestoreDefaultFn === undefined) {
+			return this._onRestoreDefault;
+		}
+		this._onRestoreDefault = onRestoreDefaultFn;
+	},
+	
+	show: function(hostDataset) {
+		jslet.Checker.test('InputSettingDialog.show#hostDataset', hostDataset).required();
+		var Z = this;
+		Z._hostDataset = hostDataset;
+		Z._isInit = true;
+		Z._settings = null;
+		Z._inputSettingDs.disableControls();
+		try {
+			Z._initializeFields();
+		} finally {
+			Z._isInit = false;
+			Z._inputSettingDs.first();
+			Z._inputSettingDs.enableControls();
+		}
+		var creating = false;
+		if(!Z._dlgId) {
+			Z._createDialog();
+			creating = true;
+		}
+		var tblFields = jQuery('#' + Z._dlgId).find('.jl-isdlg-fields')[0].jslet;
+		tblFields.expandAll();
+		if(creating) {
+			tblFields.onRowClick(function() {
+				if(this.dataset().getFieldValue('isDatasetField')) {
+					this.toggle();
+				}
+			});
+		}
+		var owin = jslet('#' + Z._dlgId);
+		owin.showModal();
+		owin.setZIndex(999);
+	},
+	
+	_initializeFields: function(hostDs, isKeepFields, parentField) {
+		var Z = this,
+			dataset = Z._inputSettingDs,
+			fldObj;
+		if(!hostDs) {
+			hostDs = jslet.data.getDataset(Z._hostDataset);
+		}
+		var fields = hostDs.getNormalFields();
+		if(!isKeepFields) {
+			dataset.dataList(null);
+		}
+		var isDsFld;
+		for(var i = 0, len = fields.length; i < len; i++) {
+			fldObj = fields[i];
+			isDsFld = fldObj.subDataset()? true: false;
+			if(!isDsFld && !fldObj.visible()) {
+				continue;
+			}
+			dataset.appendRecord();
+			dataset.setFieldValue('isDatasetField', isDsFld);
+			
+			dataset.setFieldValue('dataset', hostDs.name());
+			dataset.setFieldValue('field', fldObj.name());
+			dataset.setFieldValue('label', fldObj.label());
+			dataset.setFieldValue('tabIndex', fldObj.tabIndex());
+			if(parentField) {
+				dataset.setFieldValue('parentField', parentField);
+			}
+			if(!isDsFld) {
+				dataset.setFieldValue('defaultValue', fldObj.defaultValue());
+				dataset.setFieldValue('focused', fldObj.focused());
+				dataset.setFieldValue('valueFollow', fldObj.valueFollow());
+			}
+			dataset.confirm();
+			if(isDsFld) {
+				this._initializeFields(fldObj.subDataset(), true, fldObj.name());
+			}
+		}
+	},
+	
+	_createDialog: function() {
+		var opt = { type: 'window', caption: jslet.locale.InputSettingDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade', styleClass: 'jl-isdlg'};
+		var owin = jslet.ui.createControl(opt);
+		var html = [
+		            '<div class="form-group form-group-sm">',
+		            '<div class="jl-isdlg-fields" data-jslet="type:\'DBTable\',dataset:\'', this._inputSettingDs.name(), 
+		            '\',treeField:\'label\',readOnly:false,hasFilterDialog:false"></div></div>',
+
+//		            '<div class="form-group form-group-sm">',
+//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+//		            '<button id="jlbtnUp" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+//		            '<button id="jlbtnDown" class="btn btn-default btn-sm">', jslet.locale.InputSettingDialog.save, '</button>',
+//		            '</div>',
+//		            '<label class="control-label col-sm-6">&nbsp</label>',
+//		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
+		            
+		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
+		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',		            
+		            jslet.locale.InputSettingDialog.save,
+		            '</button><button id="jlbtnCancel" class="btn btn-default btn-sm">',
+		            jslet.locale.InputSettingDialog.cancel,
+		            '</button></div></div>',
+		            '</div>'];
+		owin.setContent(html.join(''));
+		owin.onClosed(function () {
+			return 'hidden';
+		});
+		this._dlgId = owin.el.id;
+		var jqEl = jQuery(owin.el), 
+			Z = this;
+		
+//		jqEl.find('#jlbtnUp').on('click', function(event) {
+//			var dataset = Z._inputSettingDs;
+//			if(dataset.recordCount() === 0) {
+//				return;
+//			}
+//			var idx = dataset.getFieldValue('tabIndex');
+//			if(!idx) {
+//				idx = dataset.recno();
+//			}
+//			if(idx === 0) {
+//				return;
+//			}
+//			var context = dataset.startSilenceMove();
+//			try {
+//				dataset.setFieldValue('tabIndex', idx - 1);
+//				dataset.prior();
+//				dataset.setFieldValue('tabIndex', idx);
+//				dataset.confirm();
+//			} finally {
+//				dataset.endSilenceMove(context);
+//			}
+//			dataset.indexFields(dataset.indexFields());
+//		});
+		
+		jqEl.find('#jlbtnSave').on('click', function(event) {
+			if(Z._settings) {
+				var hostDs, fldObj, fldSetting, propSetting;
+				for(var dsName in Z._settings) {
+					hostDs = jslet.data.getDataset(dsName);
+					fldSetting = Z._settings[dsName]; 
+					for(var fldName in fldSetting) {
+						fldObj = hostDs.getField(fldName);
+						propSetting = fldSetting[fldName];
+						for(var propName in propSetting) {
+							fldObj[propName](propSetting[propName]);
+						}
+					}
+				}
+				if(Z._onClosed) {
+					Z._onClosed(Z._settings);
+				}
+			}
+			owin.close();
+		});
+		jqEl.find('#jlbtnCancel').on('click', function(event) {
+			owin.close();
+		});
+		
+		jslet.ui.install(owin.el);
+	}
+};
+
+jslet.ui.defaultInputSettingDialog = new jslet.ui.InputSettingDialog();
 
 /*!
  * Jslet Javascript Framework v4.0.0

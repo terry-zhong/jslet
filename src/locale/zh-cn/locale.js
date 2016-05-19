@@ -259,11 +259,24 @@
 		saveSchema: ' 保存 ',
 		deleteSchema: ' 删除 ',
 		all: '全部',
+		onlySelected: '只导出选择的数据',
 		fileName: '文件名：',
 		exportData: ' 导出 ',
 		cancel: ' 取消 '
 	};
 	
+	locale.ImportDialog = {
+		caption: '导入',
+		fieldLabel: ' 字段 ',
+		columnHeader: ' 列名 ',
+		fileName: '文件名：',
+		importData: ' 导入 ',
+		cancel: ' 取消 ',
+		notSupportFile: '无法解析导入文件!',
+		noData: '文件无数据!',
+		noColHeader: '没有配置列头！'
+	};
+		
 	locale.InputSettingDialog = {
 		labelLabel: '字段名',
 		labelDefaultValue: '默认值',

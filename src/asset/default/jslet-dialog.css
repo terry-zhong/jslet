@@ -1,0 +1,56 @@
+/*
+ * Jslet Javascript Framework v4.0.0
+ * https://github.com/jslet/jslet/
+ *
+ * Copyright 2016 Jslet Team and other contributors
+ * Released under the MIT license
+ */
+
+/*jslet.ui.ExportDialog */
+.jl-expdlg-content {
+	width: 380px;
+}
+
+.jl-expdlg-fields {
+	height: 300px;
+}
+
+.jl-expdlg-filename {
+	float: left;
+}
+
+.jl-expdlg-toolbutton {
+	float: right;
+}
+
+/* jslet.ui.ImportDialog */
+.jl-impdlg-content {
+	width: 550px;
+}
+
+.jl-impdlg-filename {
+	float: left;
+}
+
+.jl-impdlg-fieldmap {
+	padding: 0;
+	margin-bottom: 15px;
+}
+
+.jl-impdlg-fieldmap > div {
+	height: 500px!important;
+}
+
+.jl-impdlg-toolbutton {
+	float: right;
+}
+
+/* jslet.ui.InputDialog */
+.jl-isdlg {
+	width: 620px;
+}
+
+.jl-isdlg-fields {
+	width: 100%!important;
+	height: 400px!important;
+}

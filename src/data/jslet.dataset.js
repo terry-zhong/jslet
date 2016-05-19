@@ -5488,6 +5488,30 @@ jslet.data.Dataset.prototype = {
         a.click();
     },
     
+    showImportDialog: function() {
+    	if(!jslet.ui.ImportDialog) {
+    		console.warn('jslet.ui.ImportDialog not installed!');
+    		return;
+    	}
+    	var Z = this;
+    	if(!Z._importDialog) {
+    		Z._importDialog = new jslet.ui.ImportDialog(Z);
+    	}
+    	Z._importDialog.show(); 
+    },
+    
+    showExportDialog: function(fileName) {
+    	if(!jslet.ui.ExportDialog) {
+    		console.warn('jslet.ui.ExportDialog not installed!');
+    		return;
+    	}
+    	var Z = this;
+    	if(!Z._exportDialog) {
+    		Z._exportDialog = new jslet.ui.ExportDialog(Z);
+    	}
+    	Z._exportDialog.show(fileName);
+    },
+    
 	/** 
 	* Get filtered data list. 
 	* 

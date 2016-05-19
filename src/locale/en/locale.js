@@ -258,11 +258,24 @@
 		saveSchema: ' Save ',
 		deleteSchema: 'Delete',
 		all: 'All',
+		onlySelected: 'Only export the selected data.',
 		fileName: 'File Name：',
 		exportData: ' Export ',
 		cancel: ' Cancel '
 	};		
 	
+	locale.ImportDialog = {
+		caption: 'Import',
+		fieldLabel: ' Field ',
+		columnHeader: ' Column Header ',
+		fileName: 'File Name:',
+		importData: ' Import ',
+		cancel: ' cancel ',
+		notSupportFile: 'Not support file!',
+		noData: 'No data in inporting file!',
+		noColHeader: 'Column header NOT config!'
+	};
+			
 	locale.InputSettingDialog = {
 		labelLabel: 'Field Name',
 		labelDefaultValue: 'Default Value',

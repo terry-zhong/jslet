@@ -27,6 +27,9 @@ jslet._initialModules = [
 	{ name: 'locale', src: '../dist/locale/{lang}/locale.js', baseOnLoader: true },
 	   //js-lib
 	{name: 'jquery', src: '../dist/lib/jquery-2.2.3.js', baseOnLoader: true },
+	{name: 'filesaver', src: '../dist/lib/xlsx/filesaver.js', baseOnLoader: true },
+	{name: 'xlsx', src: '../dist/lib/xlsx/xlsx.js', baseOnLoader: true },
+	{name: 'jszip', src: '../dist/lib/xlsx/jszip.js', baseOnLoader: true },
 
 	//Bootstrap
 	{name: 'bootstrap-js', src: '../dist/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },
@@ -48,7 +51,7 @@ jslet._initialModules = [
 	{name: 'jqplot', deps: ['jqplotcss','jqplotplugs'], baseOnLoader: true },	
 	
 //jslet
-	{name: 'jslet-data', src: '../dist/jslet-data.min.js', deps: ['locale','jquery',], baseOnLoader: true },
+	{name: 'jslet-data', src: '../dist/jslet-data.min.js', deps: ['locale','jquery', 'filesaver', 'xlsx', 'jszip'], baseOnLoader: true },
 	{name: 'jslet-ui', src: '../dist/jslet-ui.min.js', deps: ['jslet-data','jslet-style','bootstrap'], baseOnLoader: true },
 	{name: 'jslet', deps: ['jslet-data','jslet-ui'], baseOnLoader: true }
 ];

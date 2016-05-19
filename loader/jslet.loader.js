@@ -25,6 +25,7 @@ var _initialModules = [
 	//{ name: 'normalize-css', src: '../src/asset/common/normalize.css', baseOnLoader: true },
 	{ name: 'jslet-style', src: '../src/asset/{theme}/jslet-style.css', baseOnLoader: true },
 	{ name: 'jslet-container', src: '../src/asset/{theme}/jslet-container.css', baseOnLoader: true },
+	{ name: 'jslet-dialog', src: '../src/asset/{theme}/jslet-dialog.css', baseOnLoader: true },
 	{ name: 'jslet-calendar', src: '../src/asset/{theme}/jslet-calendar.css', baseOnLoader: true },
 	{ name: 'jslet-window', src: '../src/asset/{theme}/jslet-window.css', baseOnLoader: true },
 	{ name: 'jslet-menu', src: '../src/asset/{theme}/jslet-menu.css', baseOnLoader: true },
@@ -32,6 +33,9 @@ var _initialModules = [
 	{ name: 'jslet-table', src: '../src/asset/{theme}/jslet-table.css', baseOnLoader: true },
    //js-lib
 	{name: 'jquery', src: '../src/lib/jquery-2.2.3.js', baseOnLoader: true },
+	{name: 'filesaver', src: '../src/lib/xlsx/filesaver.js', baseOnLoader: true },
+	{name: 'xlsx', src: '../src/lib/xlsx/xlsx.js', baseOnLoader: true },
+	{name: 'jszip', src: '../src/lib/xlsx/jszip.js', baseOnLoader: true },
 
 	//Bootstrap
 	{name: 'bootstrap-js', src: '../src/lib/bootstrap-3.2.0-dist/js/bootstrap.min.js', deps: ['jquery'], baseOnLoader: true },
@@ -46,7 +50,7 @@ var _initialModules = [
 	
    //Core
 	{ name: 'global', src: '../src/jslet.global.js', baseOnLoader: true },
-	{ name: 'common', src: '../src/core/jslet.common.js', deps: ['jquery'], baseOnLoader: true },
+	{ name: 'common', src: '../src/core/jslet.common.js', deps: ['jquery', 'filesaver', 'xlsx', 'jszip'], baseOnLoader: true },
 	{ name: 'class', src: '../src/core/jslet.class.js', deps: ['common'], baseOnLoader: true },
 	{ name: 'cookie', src: '../src/core/jslet.cookie.js', deps: ['jquery'], baseOnLoader: true },
 
@@ -56,7 +60,9 @@ var _initialModules = [
 	{ name: 'locale', src: '../src/locale/{lang}/locale.js', deps: ['common'], baseOnLoader: true },
 
 //data
-	{ name: 'provider', src: '../src/data/jslet.provider.js', deps: ['core'], baseOnLoader: true },
+	{ name: 'provider', src: '../src/data/provider/jslet.provider-json.js', deps: ['core'], baseOnLoader: true },
+	{ name: 'xporter', src: '../src/data/xport/jslet.xporter.js', deps: ['core'], baseOnLoader: true },
+	{ name: 'xporter-xlsx', src: '../src/data/xport/jslet.xporter-xlsx.js', deps: ['core'], baseOnLoader: true },
 	{ name: 'datacommon', src: '../src/data/jslet.datacommon.js', deps: ['core'], baseOnLoader: true },
 	{ name: 'expression', src: '../src/data/jslet.expression.js', deps: ['core'], baseOnLoader: true },
 	{ name: 'field', src: '../src/data/jslet.field.js', deps: ['datacommon'], baseOnLoader: true },
@@ -64,7 +70,7 @@ var _initialModules = [
 	{ name: 'contextrule', src: '../src/data/jslet.contextrule.js', deps: ['core'], baseOnLoader: true },
 	{ name: 'filterdataset', src: '../src/data/jslet.filterdataset.js', deps: ['core'], baseOnLoader: true },
 	
-	{ name: 'jslet-data', deps: ['provider','datacommon','expression','dataset','field','contextrule', 'filterdataset'], baseOnLoader: true },
+	{ name: 'jslet-data', deps: ['provider','xporter','xporter-xlsx','datacommon','expression','dataset','field','contextrule', 'filterdataset'], baseOnLoader: true },
 	
 //ui
 	{ name: 'focusmanager', src: '../src/ui/jslet.focusmanager.js', deps: ['jquery'], baseOnLoader: true },	
@@ -122,12 +128,17 @@ var _initialModules = [
 	{ name: 'commondialog', src: '../src/ui/dbcontrol/container/jslet.commondialog.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	
 	{ name: 'containercontrols', deps: ['commondialog', 'dbtable','dbtreeview','dbeditpanel','dbinspector','dbchart'], baseOnLoader: true },
-
+	
+	{ name: 'exportdialog', src: '../src/ui/dialog/jslet.exportdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
+	{ name: 'importdialog', src: '../src/ui/dialog/jslet.importdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
+	{ name: 'inputdialog', src: '../src/ui/dialog/jslet.inputdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
+	{ name: 'dialogs', deps: ['exportdialog', 'importdialog','inputdialog'], baseOnLoader: true },
+	
 	{ name: 'dbpagebar', src: '../src/ui/dbcontrol/misc/jslet.dbpagebar.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dberror', src: '../src/ui/dbcontrol/misc/jslet.dberror.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'misccontrols', deps: ['dbpagebar','dberror'], baseOnLoader: true },
 
-	{ name: 'dbcontrols', deps: ['formcontrols','containercontrols','misccontrols'], baseOnLoader: true },
+	{ name: 'dbcontrols', deps: ['formcontrols','containercontrols','misccontrols', 'dialogs'], baseOnLoader: true },
 //jqPlot	
 	{name: 'jqplotjs', src: '../src/lib/jqplot/jquery.jqplot.min.js', deps: ['jquery'], baseOnLoader: true },
 	{name: 'jqplotcss', src: '../src/lib/jqplot/jquery.jqplot.min.css', baseOnLoader: true },

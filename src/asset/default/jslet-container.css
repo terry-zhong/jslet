@@ -461,19 +461,3 @@
 	display:inline-block!important;
 }
 
-.jl-expdlg-content {
-	width: 380px;
-}
-
-.jl-expdlg-fields {
-	height: 300px;
-}
-
-.jl-isdlg {
-	width: 620px;
-}
-
-.jl-isdlg-fields {
-	width: 100%!important;
-	height: 400px!important;
-}

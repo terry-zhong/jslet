@@ -33,6 +33,7 @@ gulp.task('jslet-ui', function() {
 	                 'src/ui/dbcontrol/form/jslet.dbtext.js',
 	                 'src/ui/dbcontrol/form/jslet.dbcustomcombobox.js',
 	                 'src/ui/dbcontrol/form/*.js',
+	                 'src/ui/dialog/*.js',
 	                 'src/ui/dbcontrol/misc/*.js', 'src/umd/jslet-ui.suffix.js'
 	                 ])
 		.pipe(jshint())
