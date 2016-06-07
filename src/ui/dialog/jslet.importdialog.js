@@ -49,9 +49,10 @@ jslet.ui.ImportDialog.prototype = {
 		var expFldCfg = [
        	      {name: 'field', type: 'S', length: 100, label: 'Field Name', visible: false}, 
 	   	      {name: 'label', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 16, readOnly: true},
-    	      {name: 'colNum', type: 'N', length: 10, label: jslet.locale.ImportDialog.columnHeader, visible: false}, 
-    	      {name: 'colHeader', type: 'S', length: 100, label: 'Column Header', displayWidth: 16, editControl: 'DBSelect',
-    	    	  lookup: {dataset: exportLKDs, returnFieldMap: {colNum: 'colNum'}}}
+    	      {name: 'colNum', type: 'N', length: 10, label: 'colNum', visible: false}, 
+    	      {name: 'colHeader', type: 'S', length: 100, label: jslet.locale.ImportDialog.columnHeader, displayWidth: 16, editControl: 'DBSelect',
+    	    	  lookup: {dataset: exportLKDs, returnFieldMap: {colNum: 'colNum'}}},
+    	      {name: 'required', type: 'B', length: 10, label: 'required', visible: false}
     	    ];
     	this._importDataset = jslet.data.createDataset('importDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
 		var opt = { type: 'window', caption: jslet.locale.ImportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
@@ -102,7 +103,7 @@ jslet.ui.ImportDialog.prototype = {
 	
 	_refreshFields: function() {
 		var dataList = [];
-		var fields = this._dataset.getNormalFields(), fldObj, fldName;
+		var fields = this._dataset.getNormalFields(), fldObj, fldName, required;
 		for(var i = 0, len = fields.length; i < len; i++) {
 			fldObj = fields[i];
 			fldName = fldObj.name();
@@ -110,7 +111,8 @@ jslet.ui.ImportDialog.prototype = {
 			if(!fldObj.visible()) {
 				continue;
 			}
-			dataList.push({field: fldName, label: fldObj.label()});
+			required = fldObj.required();
+			dataList.push({field: fldName, label: fldObj.label() + (required? '<span class="jl-lbl-required">*</span>': ''), required: required});
 		}
 		this._importDataset.dataList(dataList);
 		this._importDataset.first();
@@ -178,6 +180,9 @@ jslet.ui.ImportDialog.prototype = {
 			rec = dataList[i];
 			if(rec.colHeader) {
 				fields.push(rec);
+			} else if(rec.required) {
+				jslet.showInfo(jslet.locale.ImportDialog.noColHeader);
+				return false;
 			}
 		}
 		var fldCnt = fields.length;

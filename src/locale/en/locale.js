@@ -273,7 +273,7 @@
 		cancel: ' cancel ',
 		notSupportFile: 'Not support file!',
 		noData: 'No data in inporting file!',
-		noColHeader: 'Column header NOT config!'
+		noColHeader: 'No column in file or no column for required field!'
 	};
 			
 	locale.InputSettingDialog = {

@@ -522,15 +522,6 @@ jslet.ui.Menu = jslet.Class.create(jslet.ui.Control, {
 			}
 		}
 
-		var w = jQuery(panel).width() - 2 + 'px',
-			arrMi = panel.childNodes, node;
-		cnt = arrMi.length;
-		for (i = 0; i < cnt; i++) {
-			node = arrMi[i];
-			if (node.nodeType == 1) {
-				node.style.width = w;
-			}
-		}
 		document.body.appendChild(panel);
 	},
 

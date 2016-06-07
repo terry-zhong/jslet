@@ -674,7 +674,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var jqEl = jQuery(Z.el);
 		Z._tempHeight = jqEl.height();
 		Z._tempWidth = jqEl.width();
-		Z.changeSize(Z._tempWidth, Z._getHeaerHeight() + 2);
+		Z.changeSize(Z._tempWidth, Z._getHeaderHeight() + 2);
 		Z._state = 'min';
 	},
 
@@ -729,6 +729,12 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 	 */
 	setPosition: function (left, top, notUpdateLeftTop) {
 		var Z = this;
+		if(top < 0) {
+			top = 0;
+		}
+		if(left < 0) {
+			left = 0;
+		}
 		if (!notUpdateLeftTop) {
 			Z.left = left;
 			Z.top = top;
@@ -764,12 +770,16 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		}
 
 		var jqEl = jQuery(Z.el);
-		jqEl.width(width);
-		jqEl.height(height);
+		if(width) {
+			jqEl.width(width);
+		}
+		if(height) {
+			jqEl.height(height);
+		}
 		Z._changeBodyHeight();
 	},
 
-	_getHeaerHeight: function() {
+	_getHeaderHeight: function() {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			jqHeader = jqEl.find('.jl-win-header');
@@ -780,7 +790,7 @@ jslet.ui.Window = jslet.Class.create(jslet.ui.Control, {
 		var Z = this,
 			jqEl = jQuery(Z.el),
 			jqBody = jqEl.find('.jl-win-body');
-		jqBody.outerHeight(jqEl.innerHeight() - Z._getHeaerHeight());
+		jqBody.outerHeight(jqEl.innerHeight() - Z._getHeaderHeight());
 	},
 	
 	/**

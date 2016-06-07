@@ -10,6 +10,9 @@
 /**
  * A dialog to configure input settings like 'defaultValue', 'valueFollowed', 'focused'.
  * It's used by ender user to configure their own preferences.
+ * <pre>
+ * jslet.ui.defaultInputSettingDialog.show(dataset); 
+ * </pre>
  */
 jslet.ui.InputSettingDialog = function() {
 	this._inputSettingDs = null;
@@ -60,13 +63,13 @@ jslet.ui.InputSettingDialog = function() {
 	function initialize() {
 		var fldCfg = [{name: 'dataset', type: 'S', length: 30, visible: false},
 		              {name: 'field', type: 'S', length: 30, displayWidth: 20, visible: false},
-		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 20, disabled: true},
+		              {name: 'label', type: 'S', label: jslet.locale.InputSettingDialog.labelLabel, length: 50, displayWidth: 15, disabled: true},
 		              {name: 'parentField', type: 'S', length: 30, visible: false},
 		              {name: 'tabIndex', type: 'N', label: 'tabIndex', length: 3, visible: false},
-		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
 		              {name: 'focused', type: 'B', label: jslet.locale.InputSettingDialog.labelFocused, displayWidth: 6},
 		              {name: 'valueFollow', type: 'B', label: jslet.locale.InputSettingDialog.labelValueFollow, displayWidth: 6},
-		              {name: 'isDatasetField', type: 'B', label: '', visible: false},
+		              {name: 'defaultValue', type: 'P', label: jslet.locale.InputSettingDialog.labelDefaultValue, length: 200, displayWidth:30, proxyHostFieldName: 'field', proxyFieldChanged: doProxyFieldChanged},
+		              {name: 'isDatasetField', type: 'B', label: '', visible: false}
 		              ];
 		
 		Z._inputSettingDs = jslet.data.createDataset('custDs' + jslet.nextId(), fldCfg, 
@@ -153,6 +156,7 @@ jslet.ui.InputSettingDialog.prototype = {
 		}
 		var tblFields = jQuery('#' + Z._dlgId).find('.jl-isdlg-fields')[0].jslet;
 		tblFields.expandAll();
+		var tableWidth = tblFields.getTotalWidth() + tblFields.getTotalWidth(true);
 		if(creating) {
 			tblFields.onRowClick(function() {
 				if(this.dataset().getFieldValue('isDatasetField')) {
@@ -161,6 +165,7 @@ jslet.ui.InputSettingDialog.prototype = {
 			});
 		}
 		var owin = jslet('#' + Z._dlgId);
+		owin.changeSize(tableWidth + 60);
 		owin.showModal();
 		owin.setZIndex(999);
 	},

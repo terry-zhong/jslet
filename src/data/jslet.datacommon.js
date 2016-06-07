@@ -262,7 +262,7 @@ jslet.data.FieldValidator.prototype = {
 			if (fldType == jslet.data.DataType.DATE) {
 				regular = fldObj.dateRegular();
 			} else {
-				if (fldType == jslet.data.DataType.NUMBER) {
+				if (fldType == jslet.data.DataType.NUMBER && !fldObj.lookup()) {
 					if (!this.intRegular.message) {
 						this.intRegular.message = jslet.locale.Dataset.invalidInt;
 						this.floatRegular.message = jslet.locale.Dataset.invalidFloat;

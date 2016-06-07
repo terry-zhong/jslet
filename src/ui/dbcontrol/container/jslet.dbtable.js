@@ -3917,7 +3917,7 @@ jslet.ui.TreeCellRender = jslet.Class.create(jslet.ui.CellRender, {
 		var odiv = document.createElement('div'),
 			jqDiv = jQuery(odiv);
 		odiv.style.height = Z.rowHeight() - 2 + 'px';
-		jqDiv.html('<span class="jl-tbltree-indent"></span><span class="jl-tbltree-node"></span><span class="jl-tbltree-icon"></span><span class="jl-tbltree-text"></span>');
+		jqDiv.html('<span class="jl-tbltree-indent"></span><span class="jl-tbltree-node"></span><span></span><span class="jl-tbltree-text"></span>');
 		
 		var obtn = odiv.childNodes[1];
 		obtn.onclick = function (event) {

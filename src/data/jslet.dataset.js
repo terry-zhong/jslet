@@ -2089,6 +2089,7 @@ jslet.data.Dataset.prototype = {
 				Z.calcContextRule();
 			}
 			recInfo.status = status;
+			Z._changeLog.log();
 		}
 	},
 	
@@ -5191,13 +5192,16 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * @private 
 	 */
-	refreshControl: function (updateEvt) {
+	refreshControl: function (updateEvt, clearFieldCache) {
 		if (this._lockCount) {
 			return;
 		}
 
 		if (!updateEvt) {
 			updateEvt = jslet.data.RefreshEvent.updateAllEvent();
+		}
+		if(clearFieldCache) {
+			jslet.data.FieldValueCache.removeAllCache(this);			
 		}
 		this._refreshInnerControl(updateEvt);
 	},

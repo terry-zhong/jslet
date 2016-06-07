@@ -274,7 +274,7 @@
 		cancel: ' 取消 ',
 		notSupportFile: '无法解析导入文件!',
 		noData: '文件无数据!',
-		noColHeader: '没有配置列头！'
+		noColHeader: '文件中没有列头或者必填字段没有数据！'
 	};
 		
 	locale.InputSettingDialog = {

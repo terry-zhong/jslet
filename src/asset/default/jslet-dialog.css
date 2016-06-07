@@ -48,6 +48,7 @@
 /* jslet.ui.InputDialog */
 .jl-isdlg {
 	width: 620px;
+	height: 500px;
 }
 
 .jl-isdlg-fields {
