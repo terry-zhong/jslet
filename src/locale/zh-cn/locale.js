@@ -257,12 +257,16 @@
 	locale.ExportDialog = {
 		caption: '导出',
 		saveSchema: ' 保存 ',
+		saveAsSchema: ' 另存 ',
 		deleteSchema: ' 删除 ',
+		success: '保存成功!',
+		inuputSchemaLabel: '请输入方案名称: ',
 		all: '全部',
 		onlySelected: '只导出选择的数据',
 		fileName: '文件名：',
 		exportData: ' 导出 ',
-		cancel: ' 取消 '
+		cancel: ' 取消 ',
+		fileAndFieldsRequired: '文件名不能为空并且必须选择导出字段!'
 	};
 	
 	locale.ImportDialog = {

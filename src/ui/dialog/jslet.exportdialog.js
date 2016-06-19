@@ -10,11 +10,14 @@
 /**
  * Export dialog;
  */
-jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
+jslet.ui.ExportDialog = function(dataset, hasSchemaSection, schemaQueryUrl, schemaSubmmitUrl) {
 	this._dataset = jslet.data.getDataset(dataset);
 	this._exportDataset = null;
-	this._hasSchemaSection = (hasSchemaSection ? true: false);
-	
+	this._hasSchemaSection = true;//(hasSchemaSection ? true: false);
+	if(this._hasSchemaSection) {
+		jslet.Checker.test('ExportDialog#schemaQueryUrl', schemaQueryUrl).isString().required();
+		jslet.Checker.test('ExportDialog#schemaSubmmitUrl', schemaSubmmitUrl).isString().required();
+	}
 	this._dlgId = null;
 	
 	this._initialize();
@@ -60,17 +63,24 @@ jslet.ui.ExportDialog.prototype = {
 	    	var lkObj = new jslet.data.FieldLookup();
 	    	lkObj.dataset(exportDsClone);
 	    	this._exportDataset.getField('schema').lookup(lkObj);
+	    	try {
+				this._exportDataset.query();
+			} catch (e) {
+				//Do nothing
+			}
     	}
 		var opt = { type: 'window', caption: jslet.locale.ExportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
 		var owin = jslet.ui.createControl(opt);
 		var expHtml = '';
     	if(this._hasSchemaSection) {
     		expHtml = '<div class="form-group form-group-sm jl-exp-schema">' +
-            '<div class="col-sm-7"><div data-jslet="type:\'DBComboSelect\',field:\'schema\'"></div></div>' + 
-            '<div class="col-sm-5"><button class="btn btn-default btn-sm" id="jlbtnSave" style="float:right">' + 
+            '<div class="col-sm-6"><select data-jslet="type:\'DBSelect\',field:\'schema\'"></select></div>' + 
+            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="jlbtnDelete" style="float:right">' + 
             jslet.locale.ExportDialog.deleteSchema + 
-            '</button><button class="btn btn-default btn-sm" id="jlbtnDelete" style="float:right">' + 
+            '</button><button class="btn btn-default btn-sm" id="jlbtnSave" style="float:right">' + 
             jslet.locale.ExportDialog.saveSchema +
+            '</button><button class="btn btn-default btn-sm" id="jlbtnSaveAs" style="float:right">' + 
+            jslet.locale.ExportDialog.saveAsSchema +
             '</button></div></div>';
     	}
 		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', this._exportDataset.name(),
@@ -107,34 +117,83 @@ jslet.ui.ExportDialog.prototype = {
 		jslet.ui.install(owin.el);
 		var jqEl = jQuery(owin.el);
 		jqEl.find('#jlbtnExport').click(function(event) {
-			var jqExpportFile = jqEl.find('#jltxtExportFile');
-			var fileName = jqExpportFile.val();
-			if(!fileName || !fileName.trim()) {
-				jslet.showInfo('FileName required!');
-				event.stopPropagation();
-				event.preventDefault();
-				return false;
+			if(Z._exportData()) {
+				owin.close();
 			}
-			var fields = Z._exportDataset.getFieldValue('fields');
-			var onlySelected = jqEl.find('#jlOnlySelected').val();
-			jslet.data.defaultXPorter.excelXPorter().exportData(Z._dataset, fileName, {includeFields: fields, onlySelected: onlySelected});
-			owin.close();
 		});
 		jqEl.find('#jlbtnSave').click(function(event) {
-			jslet.ui.MessageBox.prompt('Please input exportting shema: ', 'Input Export Schema', function(button, value){
-				if(button === 'ok' && value) {
-					var fields = Z._exportDataset.getFieldValue('fields');
-					Z._exportDataset.appendRecord();
-					Z._exportDataset.setFieldValue('schema', value);
-					Z._exportDataset.setFieldValue('fields', fields);
-					Z._exportDataset.confirm();
-				}
-			});
+			Z._saveSchema();
+		});
+		
+		jqEl.find('#jlbtnSaveAs').click(function(event) {
+			Z._saveAsSchema();
+		});
+		
+		jqEl.find('#jlbtnDelete').click(function(event) {
+			Z._deleteSchema();
 		});
 		
 		jqEl.find('#jlbtnCancel').click(function(event) {
 			owin.close();
 		});
+	},
+	
+	_saveSchema: function(fileName) {
+		this._exportDataset.confirm();
+		this._exportDataset.submit().done(function () {
+			jslet.showInfo(jslet.locale.ExportDialog.success);
+		});
+	},
+	
+	_saveAsSchema: function() {
+		var Z = this;
+		jslet.ui.MessageBox.prompt(jslet.locale.ExportDialog.inuputSchemaLabel, null, function(button, value){
+			if(button === 'ok' && value) {
+				var fields = Z._exportDataset.getFieldValue('fields');
+				var dsObj = Z._exportDataset;
+				dsObj.disableControls();
+				try {
+					dsObj.cancel();
+					dsObj.appendRecord();
+					dsObj.setFieldValue('schema', value);
+					dsObj.setFieldValue('fields', fields);
+					dsObj.confirm();
+				} finally {
+					dsObj.enableControls();
+				}
+				this._exportDataset.submit().done(function () {
+					jslet.showInfo(jslet.locale.ExportDialog.success);
+				});
+			}
+		});
+	},
+	
+	_deleteSchema: function() {
+		var Z = this;
+		Z._exportDataset.deleteRecord();
+		this._exportDataset.submit().done(function () {
+			jslet.showInfo(jslet.locale.ExportDialog.success);
+		});
+	},	
+
+	_exportData: function() {
+		var Z = this;
+		var jqEl = jQuery('#' + Z._dlgId);
+		var jqExpportFile = jqEl.find('#jltxtExportFile');
+		var fileName = jqExpportFile.val();
+		if(!fileName || !fileName.trim()) {
+			jslet.showInfo(jslet.locale.ExportDialog.fileAndFieldsRequired);
+			return false;
+		}
+		var fields = Z._exportDataset.getFieldValue('fields');
+		if(!fields && fields.length === 0) {
+			jslet.showInfo(jslet.locale.ExportDialog.fileAndFieldsRequired);
+			return false;
+		}
+		var onlySelected = jqEl.find('#jlOnlySelected').val();
+		jslet.data.defaultXPorter.excelXPorter().exportData(Z._dataset, fileName, 
+				{includeFields: fields, onlySelected: onlySelected});
+		return true;
 	},
 	
 	_refreshFields: function() {

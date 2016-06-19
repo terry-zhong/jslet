@@ -1374,7 +1374,7 @@ jslet.ui.MessageBox.confirm = function(message, caption, callbackFn, isYesNo){
  */
 jslet.ui.MessageBox.prompt = function (message, caption, callbackFn, defaultValue, validateFn, isMultiLine) {
 	var omsgBox = new jslet.ui.MessageBox();
-	if (!caption) {
+	if (!caption && !message) {
 		caption = jslet.locale.MessageBox.prompt;
 	}
 	if (!isMultiLine) {

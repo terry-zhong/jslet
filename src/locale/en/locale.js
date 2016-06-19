@@ -256,12 +256,16 @@
 	locale.ExportDialog = {
 		caption: 'Export Dialog',
 		saveSchema: ' Save ',
+		saveAsSchema: ' Save As ',
 		deleteSchema: 'Delete',
+		success: 'Save export schema success!',
+		inuputSchemaLabel: 'Inuput schema name: ',
 		all: 'All',
 		onlySelected: 'Only export the selected data.',
 		fileName: 'File Name：',
 		exportData: ' Export ',
-		cancel: ' Cancel '
+		cancel: ' Cancel ',
+		fileAndFieldsRequired: 'File name and export fields required!'
 	};		
 	
 	locale.ImportDialog = {
