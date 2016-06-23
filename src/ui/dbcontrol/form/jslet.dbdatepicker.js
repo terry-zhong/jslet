@@ -46,11 +46,7 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 		 */
 		Z._popupHeight = 226;
 
-		Z.popup = new jslet.ui.PopupPanel();
-		
-		Z.popup.onHidePopup = function() {
-			Z.focus();
-		};
+		Z.popup = null;
 		
 		Z.comboButtonCls = 'fa-calendar';
 
@@ -115,16 +111,21 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 					}
 				}
 			}, null, width + 'px', height + 'px', true); //Hide panel first
+			
+			Z.popup = new jslet.ui.PopupPanel(btnEle);
+			
+			Z.popup.onHidePopup = function() {
+				Z.focus();
+			};
+			Z.popup.contentElement(Z.contentPanel.el);
 		}
 		
-		jslet.ui.PopupPanel.excludedElement = btnEle;//event.element();
 		var r = jqEl.offset(), 
 			h = jqEl.outerHeight(), 
 			x = r.left, y = r.top + h;
 		if (jslet.locale.isRtl){
 			x = x + jqEl.outerWidth();
 		}
-		Z.popup.setContent(Z.contentPanel.el, '100%', '100%');
 		Z.contentPanel.el.style.display = 'block';
 		Z.contentPanel.setValue(dateValue);
 		Z.popup.show(x, y, width + 3, height + 3, 0, h);

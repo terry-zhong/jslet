@@ -23,12 +23,8 @@ jslet.ui.OverlayPanel = function (container, color) {
 	jQuery(odiv).addClass('jl-overlay').on('click', function(event){
 		event = jQuery.event.fix( event || window.event );
 		var srcEle = event.target;
-		if (jslet.ui.isChild(jslet.ui.PopupPanel.excludedElement,srcEle) ||
-			jslet.ui.inPopupPanel(srcEle)) {
+		if(!jslet.ui.PopupPanel.popupElement.checkAndHide(srcEle)) {
 			return;
-		}
-		if (jslet.ui._activePopup) {
-			jslet.ui._activePopup.hide();
 		}
 		event.stopPropagation();
 		event.preventDefault();

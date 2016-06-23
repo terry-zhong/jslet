@@ -91,12 +91,15 @@
 }
 
 /*DBLabel*/
+.jl-lbl-normal {
+	font-weight:normal;
+}
+
 .jl-lbl {
 	
 }
 
 .jl-datalabel {
-	font-weight:normal;
 }
 
 .jl-rtl .jl-lbl {

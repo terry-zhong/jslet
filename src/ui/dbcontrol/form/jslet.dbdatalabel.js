@@ -45,7 +45,7 @@ jslet.ui.DBDataLabel = jslet.Class.create(jslet.ui.DBFieldControl, {
 	 */
 	bind: function () {
 		this.renderAll();
-		jQuery(this.el).addClass('form-control-static jl-datalabel');//Bootstrap class
+		jQuery(this.el).addClass('form-control-static jl-datalabel jl-lbl-normal');//Bootstrap class
 	},
 
 	/**

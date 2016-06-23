@@ -290,30 +290,30 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 	_renderEditPart: function(ctrlDiv, layoutCfg) {
 		var Z = this, fldName, i, len,
 			hasPrefix = layoutCfg.prefix && layoutCfg.prefix.length > 0,
-			hasSuffix = layoutCfg.suffix && layoutCfg.suffix.length > 0,
-			otherPartWidth = 0;
-			
+			hasSuffix = layoutCfg.suffix && layoutCfg.suffix.length > 0;
+		if(hasPrefix || hasSuffix) {
+			jQuery(ctrlDiv).addClass('jl-ep-comb');
+		}
+		
 		if(hasPrefix) {
-			otherPartWidth = Z._renderOtherPart(ctrlDiv, layoutCfg.prefix);
+			Z._renderOtherPart(ctrlDiv, layoutCfg.prefix);
 		}
 		fldName = layoutCfg.field;
 		var editorEl = Z._renderEditor(fldName);
 		ctrlDiv.appendChild(editorEl);
 		
 		if(hasSuffix) {
-			otherPartWidth += Z._renderOtherPart(ctrlDiv, layoutCfg.suffix);
+			Z._renderOtherPart(ctrlDiv, layoutCfg.suffix);
 		}
-		if(otherPartWidth) {
-			jQuery(editorEl).addClass('jl-ep-part');
-			editorEl.style.width = jQuery(ctrlDiv).width() - otherPartWidth + 'px';
+		if(hasPrefix || hasSuffix) {
+			jQuery(editorEl).addClass('jl-ep-comb-editor');
 		}
 		return editorEl.id;
 	},
 	
 	_renderOtherPart: function(ctrlDiv, arrPrefixOrSuffix) {
 		var fixCfg, editorEl, width, partEl, 
-			jqCtrlDiv = jQuery(ctrlDiv), 
-			totalWidth = 0;
+			jqCtrlDiv = jQuery(ctrlDiv);
 		for(var i = 0, len = arrPrefixOrSuffix.length; i < len; i++) {
 			fixCfg = arrPrefixOrSuffix[i];
 			width = fixCfg.width;
@@ -322,7 +322,7 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				jqCtrlDiv.append(partEl);
 			} else if(fixCfg.content) {
 				var id = jslet.nextId();
-				jqCtrlDiv.append('<div id = "' + id + '">' + fixCfg.content + '</div>');
+				jqCtrlDiv.append('<span id = "' + id + '">' + fixCfg.content + '</span>');
 				var children = jqCtrlDiv.children();
 				partEl = jQuery('#' + id)[0];
 			} else {
@@ -333,12 +333,10 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				console.warn('Width is empty, use 5% instead!');
 				width = '5%';
 			}
-			jQuery(partEl).addClass('jl-ep-part');
+			jQuery(partEl).addClass('jl-ep-comb-addon');
 			
 			partEl.style.width = width;
-			totalWidth += jQuery(partEl).outerWidth();
 		}
-		return totalWidth;
 	},
 	
 	_renderEditor: function(fldName) {

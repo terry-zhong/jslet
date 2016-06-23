@@ -128,7 +128,7 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 				});
 			}, 1);
 		} else {
-			var tableParam = { type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: isMulti, hasSeqCol: false, hasFindDialog: false, hasFilterDialog: false};
+			var tableParam = {type: 'DBTable', dataset: lkds, readOnly: true, hasSelectCol: isMulti, hasSeqCol: false, hasFindDialog: false, hasFilterDialog: false};
 			if(isMulti) {
 				tableParam.afterSelect = tableParam.afterSelectAll = function() {
 					Z.updateToDataset();
@@ -193,10 +193,10 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 		Z._keep_silence_ = true;
 		try {
 			Z._dataset.setFieldValue(Z._field, value, Z._valueIndex);
+			Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		} finally {
 			Z._keep_silence_ = false;
 		}
-		Z.refreshControl(jslet.data.RefreshEvent.updateRecordEvent(Z._field));
 		return true;
 	}, // end updateToDataset
 	
@@ -225,6 +225,7 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 		if(!isMulti) {
 			lkds.findByKey(fldValue);
 		} else {
+			var oldRecno = lkds.recno();
 			lkds.disableControls();
 			try {
 				lkds.selectAll(false);
@@ -235,6 +236,7 @@ jslet.ui.DBList = jslet.Class.create(jslet.ui.DBFieldControl, {
 					}
 				}
 			} finally {
+				lkds.recno(oldRecno);
 				lkds.enableControls();
 			}
 		}

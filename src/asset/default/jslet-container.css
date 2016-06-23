@@ -353,10 +353,17 @@
 .jl-editpanel {
 }
 
-.jl-ep-part {
-	display:block;
-	float:left;
-	height:100%;
+.jl-ep-comb {
+	display:table;	
+}
+.jl-ep-comb-editor {
+	width: 100%;	
+}
+
+.jl-ep-comb-addon {
+	display:table-cell;
+	vertical-align: middle;
+	line-height: 1;
 }
 /* end EditPanel */
 

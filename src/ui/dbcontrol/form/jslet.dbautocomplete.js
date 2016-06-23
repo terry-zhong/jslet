@@ -427,7 +427,6 @@ jslet.ui.DBAutoComplete = jslet.Class.create(jslet.ui.DBText, {
 				return;
 			}
 		}
-		jslet.ui.PopupPanel.excludedElement = Z.el;
 		var jqEl = jQuery(Z.el),
 			r = jqEl.offset(),
 			h = jqEl.outerHeight(),
@@ -482,13 +481,22 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	Z.comboCfg = autoCompleteObj;
 	Z.dataset = autoCompleteObj.dataset();
 	Z.field = autoCompleteObj.lookupField() || autoCompleteObj.field();
-	
-	Z.panel = null;
 	Z.lkDataset = null;
-	Z.popup = new jslet.ui.PopupPanel();
-	Z.isPop = false;
 
-	Z.create = function () {
+	Z.confirmSelect = function () {
+		Z.comboCfg._isSelecting = true;
+		var fldValue = Z.lkDataset.keyValue();
+		if (fldValue || fldValue === 0) {
+			Z.dataset.setFieldValue(Z.field, fldValue, Z.valueIndex);			
+			Z.comboCfg.el.focus();
+		}
+		if (Z.comboCfg.afterSelect) {
+			Z.comboCfg.afterSelect(Z.dataset, Z.lkDataset);
+		}
+		Z.closePopup();
+	};
+
+	function create () {
 		if (!Z.panel) {
 			Z.panel = document.createElement('div');
 			Z.panel.style.width = '100%';
@@ -532,31 +540,11 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 		Z.otable.el.style.border = "0";
 		
 		return Z.panel;
-	};
-
-	Z.confirmSelect = function () {
-		Z.comboCfg._isSelecting = true;
-		var fldValue = Z.lkDataset.keyValue();
-		if (fldValue || fldValue === 0) {
-			Z.dataset.setFieldValue(Z.field, fldValue, Z.valueIndex);			
-			Z.comboCfg.el.focus();
-		}
-		if (Z.comboCfg.afterSelect) {
-			Z.comboCfg.afterSelect(Z.dataset, Z.lkDataset);
-		}
-		Z.closePopup();
-	};
+	}
 
 	Z.showPopup = function (left, top, ajustX, ajustY) {
-		if (!Z.panel) {
-			Z.panel = Z.create();
-		}
 		Z.comboCfg._isSelecting = false;
 		Z.isPop = true;
-		var p = Z.popup.getPopupPanel();
-		p.style.padding = '0';
-		Z.popup.setContent(Z.panel);
-		Z.popup.onHidePopup = Z.doClosePopup;
 		Z.popup.show(left, top, Z.dlgWidth, Z.dlgHeight, ajustX, ajustY);
 	};
 
@@ -577,12 +565,14 @@ jslet.ui.DBAutoCompletePanel = function (autoCompleteObj) {
 	};
 	
 	Z.isShowing = function(){
-		if (Z.popup) {
-			return Z.popup.isShowing;
-		} else {
-			return false;
-		}
+		return Z.isPop;
 	};
+	
+	create();
+	Z.popup = new jslet.ui.PopupPanel(autoCompleteObj.el);
+	Z.popup.contentElement(Z.panel);
+	Z.popup.onHidePopup(Z.doClosePopup);
+	Z.isPop = false;
 	
 	Z.destroy = function(){
 		jQuery(Z.panel).off();

@@ -41,7 +41,7 @@ gulp.task('jslet-ui', function() {
 		.pipe(concat('jslet-ui.js'))
 		.pipe(gulp.dest('dist'))
 		.pipe(sourcemaps.init())
-			.pipe(uglify({mangle: {except: ["$super",'define', 'require']}}))
+			.pipe(uglify({mangle: {except: ["$super",'define', 'require', 'FileReader']}}))
 			.pipe(rename('jslet-ui.min.js'))
 		.pipe(sourcemaps.write('../dist'))
 		.pipe(gulp.dest('dist'));

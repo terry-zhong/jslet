@@ -20,6 +20,8 @@ jslet.ui.ImportDialog = function(dataset) {
 	
 	this._dlgId = null;
 	
+	this._onImported = null;
+	
 	this._initialize();
 };
 
@@ -38,6 +40,14 @@ jslet.ui.ImportDialog.prototype = {
 		return owin;
 	},
 	
+	onImported: function(onImported) {
+		if(onImported === undefined) {
+			return this._onImported;
+		}
+		jslet.Checker.test('ImportDialog#onImported', onImported).isFunction();
+		this._onImported = onImported;
+	},
+	
 	_initialize: function() {
 		var fldCfg = [
 		    	      {name: 'colNum', type: 'N', length: 10, label: 'Column Num.', visible: false}, 
@@ -48,24 +58,25 @@ jslet.ui.ImportDialog.prototype = {
 		
 		var expFldCfg = [
        	      {name: 'field', type: 'S', length: 100, label: 'Field Name', visible: false}, 
-	   	      {name: 'label', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 16, readOnly: true},
+	   	      {name: 'label', type: 'S', length: 100, visible: false},
+	   	      {name: 'displayLabel', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 20, readOnly: true},
     	      {name: 'colNum', type: 'N', length: 10, label: 'colNum', visible: false}, 
-    	      {name: 'colHeader', type: 'S', length: 100, label: jslet.locale.ImportDialog.columnHeader, displayWidth: 16, editControl: 'DBSelect',
+    	      {name: 'colHeader', type: 'S', length: 100, label: jslet.locale.ImportDialog.columnHeader, displayWidth: 20, editControl: 'DBSelect',
     	    	  lookup: {dataset: exportLKDs, returnFieldMap: {colNum: 'colNum'}}},
     	      {name: 'required', type: 'B', length: 10, label: 'required', visible: false}
     	    ];
     	this._importDataset = jslet.data.createDataset('importDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
-		var opt = { type: 'window', caption: jslet.locale.ImportDialog.caption, isCenter: true, resizable: true, minimizable: false, maximizable: false, animation: 'fade'};
+		var opt = { type: 'window', caption: jslet.locale.ImportDialog.caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, animation: 'fade'};
 		var owin = jslet.ui.createControl(opt);
 		var expHtml = '';
 		var html = ['<div class="form-horizontal jl-impdlg-content">',
-		            '<div class="form-group form-group-sm col-sm-12"><label class="control-label jl-impdlg-filename">',
+		            '<div class="input-group input-group-sm"><span class="input-group-addon">',
 		            jslet.locale.ImportDialog.fileName,
-		            '</label>',
-					'<div class="col-sm-10"><input id="jltxtImportFile" title="*.xls|*.xlsx|*.xlsb|*.xlsm|*.ods" class="form-control" type="file"></input></div></div>',
-					
+		            '</span>',
+					'<input id="jltxtImportFile" title="*.xls|*.xlsx|*.xlsb|*.xlsm|*.ods" class="form-control" type="file"></input>',
+					'</div>',
 		            '<div class="col-sm-12 jl-impdlg-fieldmap" style="">',
-		            '<div data-jslet="type:\'DBTable\', dataset: \'' , 
+		            '<div data-jslet="type:\'DBTable\', dataset: \'', 
 		            this._importDataset.name(), 
 		            '\', editable: true, hasFilterDialog:false"></div></div>',
 
@@ -103,16 +114,17 @@ jslet.ui.ImportDialog.prototype = {
 	
 	_refreshFields: function() {
 		var dataList = [];
-		var fields = this._dataset.getNormalFields(), fldObj, fldName, required;
+		var fields = this._dataset.getNormalFields(), fldObj, fldName, required, label;
 		for(var i = 0, len = fields.length; i < len; i++) {
 			fldObj = fields[i];
 			fldName = fldObj.name();
-			var detailDs = fldObj.subDataset();
+			var detailDs = fldObj.detailDataset();
 			if(!fldObj.visible()) {
 				continue;
 			}
 			required = fldObj.required();
-			dataList.push({field: fldName, label: fldObj.label() + (required? '<span class="jl-lbl-required">*</span>': ''), required: required});
+			label = fldObj.label();
+			dataList.push({field: fldName, label: label, displayLabel: label + (required? '<span class="jl-lbl-required">*</span>': ''), required: required});
 		}
 		this._importDataset.dataList(dataList);
 		this._importDataset.first();
@@ -127,7 +139,7 @@ jslet.ui.ImportDialog.prototype = {
 			jslet.showError(jslet.locale.ImportDialog.notSupportFile);
 			return;
 		}
-	    var	reader = new FileReader();
+	    var	reader = new window.FileReader();
 		reader.onload = function(e) {
 			var fileContent = e.target.result,
 				parsedResult = null;
@@ -174,7 +186,7 @@ jslet.ui.ImportDialog.prototype = {
 	_importData: function() {
 		var Z = this,
 			dataList = this._importDataset.dataList(), 
-			rec, i, len, rec,
+			rec, i, len,
 			fields = [];
 		for(i = 0, len = dataList.length; i< len; i++) {
 			rec = dataList[i];
@@ -197,7 +209,8 @@ jslet.ui.ImportDialog.prototype = {
 		var fldMap, text,
 			masterDs = Z._dataset, 
 			parsedData = Z._parsedData;
-		for(var i = 0, len = parsedData.length; i < len; i++) {
+		len = parsedData.length;
+		for(i = 0; i < len; i++) {
 			rec = parsedData[i];
 			masterDs.appendRecord();
 			for(var j = 0; j < fldCnt; j++) {
@@ -208,6 +221,9 @@ jslet.ui.ImportDialog.prototype = {
 				}
 			}
 			masterDs.confirm();
+		}
+		if(Z._onImported) {
+			Z._onImported.call(Z, Z._dataset);
 		}
 		return true;
 	},

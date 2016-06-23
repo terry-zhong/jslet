@@ -192,7 +192,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			style = lkf.parentField() ? 'tree' : 'table';
 		}
 		if (!Z._contentPanel) {
-			Z._contentPanel = new jslet.ui.DBComboSelectPanel(Z);
+			Z._contentPanel = new jslet.ui.DBComboSelectPanel(Z, btnEle);
 			Z._contentPanel.showStyle = style;
 			Z._contentPanel.customButtonLabel = Z.customButtonLabel;
 			Z._contentPanel.onCustomButtonClick = Z.onCustomButtonClick;
@@ -203,8 +203,9 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 				Z._contentPanel.popupHeight = Z._popupHeight;
 			}
 		}
-		jslet.ui.PopupPanel.excludedElement = btnEle;
-		var r = jqEl.offset(), h = jqEl.outerHeight(), x = r.left, y = r.top + h;
+		var r = jqEl.offset(), 
+			h = jqEl.outerHeight(), 
+			x = r.left, y = r.top + h;
 		if (jslet.locale.isRtl){
 			x = x + jqEl.outerWidth();
 		}
@@ -233,7 +234,6 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			Z._contentPanel.destroy();
 			Z._contentPanel = null;
 		}
-		jslet.ui.PopupPanel.excludedElement = null;		
 	},
 	
 	/**
@@ -245,7 +245,7 @@ jslet.ui.DBComboSelect = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 	}
 });
 
-jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
+jslet.ui.DBComboSelectPanel = function (comboSelectObj, btnEle) {
 	var Z = this;
 
 	Z.showStyle = 'auto';
@@ -265,7 +265,7 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj) {
 	Z.panel = null;
 	Z.searchBoxEle = null;
 	
-	Z.popup = new jslet.ui.PopupPanel();
+	Z.popup = new jslet.ui.PopupPanel(btnEle);
 	Z.popup.onHidePopup = function() {
 		Z._isShowing = false;
 		Z._restoreLkDsEvent();
@@ -322,7 +322,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		}
 		Z._setLookupDsEvent();
 		Z._isShowing = true;
-		Z.popup.setContent(Z.panel, '100%', '100%');
+		Z.popup.contentElement(Z.panel);
 		Z.popup.show(left, top, Z.popupWidth, Z.popupHeight, ajustX, ajustY);
 		Z._showTips(jslet.locale.DBComboSelect.find);
 		Z._focus();
@@ -381,6 +381,8 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		var Z = this;
 		if (!Z.panel) {
 			Z.panel = document.createElement('div');
+			Z.panel.style.width = '100%';
+			Z.panel.style.height = '100%';
 		}
 
 		//process variable
@@ -588,7 +590,6 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	destroy: function(){
 		var Z = this;
 		Z._restoreLkDsEvent();
-		Z.popup.onHidePopup = null;
 		if (Z.otree){
 			Z.otree.destroy();
 			Z.otree = null;
@@ -603,6 +604,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		Z.fieldObject = null;
 		
 		Z.searchBoxEle = null;
+		Z.popup.destroy();
 		Z.popup = null;
 		Z.panel = null;
 	}

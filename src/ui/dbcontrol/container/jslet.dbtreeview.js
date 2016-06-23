@@ -835,14 +835,21 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 	},
 	
 	_menuItemClick: function (menuid, checked) {
+		var Z = this;
 		if (menuid == 'expandAll') {
-			this.expandAll();
+			Z.expandAll();
 		} else if (menuid == 'collapseAll') {
-			this.collapseAll();
+			Z.collapseAll();
 		} else if (menuid == 'checkAll') {
-			this.listvm.checkChildNodes(true, this._correlateCheck);
+			Z.listvm.checkChildNodes(true, Z._correlateCheck);
+			if (Z._afterCheckBoxClick) {
+				Z._afterCheckBoxClick.call(Z);
+			}
 		} else if (menuid == 'uncheckAll') {
-			this.listvm.checkChildNodes(false, this._correlateCheck);
+			Z.listvm.checkChildNodes(false, Z._correlateCheck);
+			if (Z._afterCheckBoxClick) {
+				Z._afterCheckBoxClick.call(Z);
+			}
 		}
 	},
 	

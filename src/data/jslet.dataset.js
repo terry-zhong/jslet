@@ -101,7 +101,7 @@ jslet.data.Dataset = function (name) {
 	
 	Z._onDataSubmitted = null;
 	
-	Z._datasetListener = null; //
+	Z._datasetListener = null;
 	
 	Z._designMode = false;
 	
@@ -4814,7 +4814,8 @@ jslet.data.Dataset.prototype = {
 
 		if(!this._queryUrl) {
 			//QueryUrl required! Use: yourDataset.queryUrl(yourUrl)
-			throw new Error(jslet.locale.Dataset.queryUrlRequired);
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.queryUrlRequired, [Z.description()]));
+			
 		}
 		if(Z._querying) { //Avoid duplicate submitting
 			return;
@@ -4985,7 +4986,7 @@ jslet.data.Dataset.prototype = {
 
 		if(!Z._submitUrl) {
 			//Dataset\'s submitUrl required! Use: yourDataset.submitUrl(yourUrl)
-			throw new Error(jslet.locale.Dataset.submitUrlRequired);
+			throw new Error(jslet.formatMessage(jslet.locale.Dataset.submitUrlRequired, [Z.description()]));
 		}
 		var changedRecs = Z._dataTransformer.getSubmittingChanged();
 		if (!changedRecs || changedRecs.length === 0) {
@@ -5501,7 +5502,8 @@ jslet.data.Dataset.prototype = {
     	if(!Z._importDialog) {
     		Z._importDialog = new jslet.ui.ImportDialog(Z);
     	}
-    	Z._importDialog.show(); 
+    	Z._importDialog.show();
+    	return Z._importDialog;
     },
     
     showExportDialog: function(fileName) {
@@ -5514,6 +5516,7 @@ jslet.data.Dataset.prototype = {
     		Z._exportDialog = new jslet.ui.ExportDialog(Z);
     	}
     	Z._exportDialog.show(fileName);
+    	return Z._exportDialog;
     },
     
 	/** 
@@ -5663,6 +5666,35 @@ jslet.data.Dataset.prototype = {
 	 * @return {Object} Dataset snapshot.
 	 */
 	exportSnapshot: function() {
+		
+		function getDetailSetting(masterDs, details) {
+			var detail;
+			var detailFields = masterDs._detailDatasetFields;
+			if(!detailFields) {
+				return;
+			}
+			var dtlFldObj, dsDetail;
+			for(var i = 0, len = detailFields.length; i < len; i++) {
+				dtlFldObj = detailFields[i];
+				dsDetail = dtlFldObj.detailDataset();
+				if(dsDetail) {
+					detail = {name: dsDetail.name(), recno: dsDetail.recno(), status: dsDetail.status()};
+					indexFields = dsDetail.indexFields();
+					if(indexFields) {
+						dsDetail.indexFields = indexFields;
+					}
+					filter = dsDetail.filter();
+					if(filter) {
+						dsDetail.filter = filter;
+						dsDetail.filtered = dsDetail.filtered();
+					}
+					details.push(detail);
+					
+					getDetailSetting(dsDetail, details);
+				}
+			}
+		}
+		
 		var Z = this;
 		if(Z.dataList() === 0) {
 			return null;
@@ -5678,34 +5710,9 @@ jslet.data.Dataset.prototype = {
 			mainDs.filtered = Z.filtered();
 		}
 		var result = {master: mainDs};
-		var details = null, detail;
-		var detailFields = Z._detailDatasetFields;
-		if(detailFields) {
-			var dtlFldObj, dsDetail;
-			for(var i = 0, len = detailFields.length; i < len; i++) {
-				dtlFldObj = detailFields[i];
-				dsDetail = dtlFldObj.detailDataset();
-				if(dsDetail) {
-					if(!details) {
-						details = [];
-					}
-					detail = {name: dsDetail.name(), recno: dsDetail.recno(), status: dsDetail.status()};
-					indexFields = dsDetail.indexFields();
-					if(indexFields) {
-						dsDetail.indexFields = indexFields;
-					}
-					filter = dsDetail.filter();
-					if(filter) {
-						dsDetail.filter = filter;
-						dsDetail.filtered = dsDetail.filtered();
-					}
-					details.push(detail);
-				}
-			}
-		}
-		if(details) {
-			result.details = details;
-		}
+		var details = [];
+		getDetailSetting(Z, details);
+		result.details = details;
 		
 		return result;
 	},
@@ -5738,6 +5745,9 @@ jslet.data.Dataset.prototype = {
 			Z._silence++;
 			try {
 				Z.recno(master.recno);
+				if(master.status) {
+					Z.status(master.status);
+				}
 			} finally {
 				Z._silence--;
 			}
@@ -5763,6 +5773,9 @@ jslet.data.Dataset.prototype = {
 					dsDetail._silence++;
 					try {
 						dsDetail.recno(detail.recno);
+						if(detail.status) {
+							dsDetail.status(detail.status);
+						}
 					} finally {
 						dsDetail._silence--;
 					}

@@ -1267,9 +1267,13 @@ jslet.ui.MessageBox = function () {
 		if (jslet.locale.isRtl) {
 			k = 0;
 		}
-		var toolBtn = toolBar.childNodes[k];
-		if(toolBtn) {
-			toolBtn.focus();
+		if(inputCtrl) {
+			inputCtrl.focus();
+		} else {
+			var toolBtn = toolBar.childNodes[k];
+			if(toolBtn) {
+				toolBtn.focus();
+			}
 		}
 		return owin;
 	};
