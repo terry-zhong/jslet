@@ -67,7 +67,7 @@
 		cannotImportSnapshot: 'Snapshot name: [{0}] does not match the current dataset name: [{1}], cannot import snapshot!',
 		serverReturnNullRecord: 'The return record from server exists null. Please check it.',
 		fieldNotFound:  'Undefined field: {0}!',
-		valueNotFound: ' Not find the value!',
+		valueNotFound: '[{0}]: Not find the value!',
 		lookupNotFound: 'Field: {0} not set the lookup setting, you can not use the field chain!',
 		datasetFieldNotBeSetValue: 'Field: {0} is readonly!',
 		datasetFieldNotBeCalculated: 'Cannot calculated by field: {0}!',

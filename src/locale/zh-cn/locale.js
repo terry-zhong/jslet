@@ -67,7 +67,7 @@
 		cannotImportSnapshot: '快照名称: [{0}] 与当前数据集名称: [{1}]不匹配，不能导入快照!',
 		serverReturnNullRecord: '从服务器返回的数据里包含了null数据，可能会导致错误，请检查！',
 		fieldNotFound:  '字段: {0} 未定义!',
-		valueNotFound: '找不到指定的值!',
+		valueNotFound: '[{0}]: 找不到指定的值!',
 		lookupNotFound: '字段: {0} 没有设置查找字段, 不能使用字段链!',
 		datasetFieldNotBeSetValue: '不能给数据集字段: {0} 设置值!',
 		datasetFieldNotBeCalculated: '数据集字段: {0} 不能参与计算!',

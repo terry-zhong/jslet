@@ -3184,6 +3184,7 @@ jslet.data.Dataset.prototype = {
 	 * If you don't need submit data to server, you can set this property value to false.
 	 * 
 	 * @param {Boolean or undefined} logChanges - True: log user changes, otherwise false, default is true.
+	 * 
 	 * @return {this or Boolean}
 	 */
 	logChanges: function (logChanges) {
@@ -3199,6 +3200,7 @@ jslet.data.Dataset.prototype = {
 	 * Edit log means the log when user modify records. For some sensitive data, user need audit who & when modify data. 
 	 * 
 	 * @param {Boolean or undefined} auditLogEnabled - True: enable audit log, otherwise false.
+	 * 
 	 * @return {this or Boolean}
 	 */
 	auditLogEnabled: function(auditLogEnabled) {
@@ -3267,10 +3269,33 @@ jslet.data.Dataset.prototype = {
 		return jslet.data.FieldError.existFieldError(currRec, fldName, valueIndex);
 	},
 	
+	/**
+	 * Get the specified field error message of current record. Example:
+	 * <pre>
+	 * 		var errorObj = dataset.getFieldError('field1'); //return: {message: 'Not Exists!', inputText: 'Foo'}
+	 * </pre>
+	 * 
+	 * @param {String} fldName - Field name.
+	 * @param {Integer} valueIndex - Field value index, only used for field.valueStyle is BETWEEN or MULTIPLE.
+	 * 
+	 * @return {Object} Error Object, like {message: 'Not Exists!', inputText: 'Foo'}
+	 */
 	getFieldError: function(fldName, valueIndex) {
 		return this.getFieldErrorByRecno(null, fldName, valueIndex);
 	},
 	
+	/**
+	 * Get the specified field error message of specified record. Example:
+	 * <pre>
+	 * 		var errorObj = getFieldErrorByRecno(19, 'field1'); //return: {message: 'Not Exists!', inputText: 'Foo'}
+	 * </pre>
+	 * 
+	 * @param {Integer} recno - Record Number.
+	 * @param {String} fldName - Field name.
+	 * @param {Integer} valueIndex - Field value index, only used for field.valueStyle is BETWEEN or MULTIPLE.
+	 * 
+	 * @return {Object} Error Object, like {message: 'Not Exists!', inputText: 'Foo'}
+	 */
 	getFieldErrorByRecno: function(recno, fldName, valueIndex) {
 		if (this.recordCount() === 0) {
 			return null;
@@ -3283,6 +3308,17 @@ jslet.data.Dataset.prototype = {
 		return jslet.data.FieldError.get(currRec, fldName, valueIndex);
 	},
 	
+	/**
+	 * Set the specified field error message of current record. Example:
+	 * <pre>
+	 * 		var errorObj = dataset.setFieldError('field1', 'Not Exists!', null, 'Foo');
+	 * </pre>
+	 * 
+	 * @param {String} fldName - Field name.
+	 * @param {String} errorMsg - Field error message.
+	 * @param {Integer} valueIndex - Field value index, only used for field.valueStyle is BETWEEN or MULTIPLE.
+	 * @param {String} inputText - User input text.
+	 */
 	setFieldError: function(fldName, errorMsg, valueIndex, inputText) {
 		var Z = this;
 		if (Z.recordCount() === 0) {
@@ -3313,11 +3349,12 @@ jslet.data.Dataset.prototype = {
 	},
 	
 	/**
-	 * Get field value of specified record
+	 * Get field value of specified record.
 	 * 
-	 * @param {Object} dataRec - specified record
-	 * @param {String} fldName - field name
-	 * @return {Object} field value
+	 * @param {Object} dataRec - Specified record.
+	 * @param {String} fldName - Field name.
+	 * 
+	 * @return {Object} field value.
 	 */
 	getFieldValueByRecord: function (dataRec, fldName, valueIndex) {
 		var Z = this;
@@ -3485,7 +3522,6 @@ jslet.data.Dataset.prototype = {
 		var evt = jslet.data.RefreshEvent.updateRecordEvent(fldName);
 		Z.refreshControl(evt);
 		Z.updateFormula(fldName);
-//		Z.calcAggradedValue(fldName);
 		Z._calcAggradedValueDebounce.call(Z);
 		return this;
 	},
@@ -5633,23 +5669,45 @@ jslet.data.Dataset.prototype = {
 	/**
 	 * Return dataset data with field text, field text is formatted or calculated field value.
 	 * You can use them to do your special processing like: use them in jquery template.
+	 * 
+	 * @param {Boolean} includeDetailField - Identify whether export detail field.
 	 */
-	textList: function() {
+	exportTextList: function(includeFields, excludeFields) {
 		var Z = this;
 		Z.confirm();
 		
 		var	oldRecno = Z.recno(), 
 			result = [],
-			fldCnt = Z._normalFields.length,
+			fldCnt, arrFldObj,
 			fldObj, fldName, textValue, textRec;
+		if(includeFields || includeFields) {
+			arrFldObj = [];
+			for(var k = 0; k < fldCnt; k++) {
+				fldObj = Z._normalFields[k];
+				fldName = fldObj.name();
+				if(includeFields && includeFields.indexOf(fldName) >= 0) {
+					arrFldObj.push(fldObj);
+				}
+				if(!includeFields && excludeFields && excludeFields.indexOf(fldName) < 0) {
+					arrFldObj.push(fldObj);
+				}
+			}
+		} else {
+			arrFldObj = Z._normalFields;
+		}
+		fldCnt = arrFldObj.length;
 		try {
 			for (var i = 0, cnt = Z.recordCount(); i < cnt; i++) {
 				Z.recnoSilence(i);
 				textRec = {};
 				for(var j = 0; j < fldCnt; j++) {
-					fldObj = Z._normalFields[j];
+					fldObj = arrFldObj[j];
 					fldName = fldObj.name();
-					textValue = Z.getFieldText(fldName);
+					if(fldObj.getType() === jslet.data.DataType.DATASET) {
+						textValue = fldObj.detailDataset().exportTextList();
+					} else {
+						textValue = Z.getFieldText(fldName);
+					}
 					textRec[fldName] = textValue;
 				}
 				result.push(textRec);
@@ -5657,6 +5715,67 @@ jslet.data.Dataset.prototype = {
 			return result;
 		} finally {
 			this.recnoSilence(oldRecno);
+		}
+	},
+	
+	importTextList: function(textList) {
+		var Z = this;
+		jslet.Checker.test('importTextList#textList', textList).isArray();
+		if(!textList || textList.length === 0) {
+			return;
+		}
+		Z.disableControls();
+		try {
+			var rec, fldObj, fldName, fldText, 
+				fldCnt = Z._normalFields.length,
+				cacheFieldMap = {}, cacheField, cacheValue, value, errObj;
+			for(var i = 0, recCnt = textList.length; i < recCnt; i++) {
+				rec = textList[i];
+				Z.appendRecord();
+				for(var j = 0; j < fldCnt; j++) {
+					fldObj = Z._normalFields[j];
+					fldName = fldObj.name();
+					fldText = rec[fldName];
+					if(fldText === undefined || fldText === '' || fldText === null) {
+						continue;
+					}
+					if(fldObj.lookup()) {
+						cacheField = cacheFieldMap[fldName];
+						if(cacheField) {
+							cacheValue = cacheField[fldText];
+						} else {
+							cacheField = {};
+							cacheFieldMap[fldName] = cacheField;
+							cacheValue = null;
+						}
+						if(cacheValue) {
+							value = cacheValue.value;
+							errObj = cacheValue.error;
+							Z.setFieldValue(fldName, value);
+							if(errObj) {
+								Z.setFieldError(fldName, errObj.message, null, errObj.inputText);
+							}
+						} else {
+							Z.setFieldText(fldName, fldText);
+							value = Z.getFieldValue(fldName);
+							errObj = Z.getFieldError(fldName);
+							cacheField[fldText] = {value: value, error: errObj};
+						}
+						continue;
+					}
+					if(fldObj.getType() === jslet.data.DataType.DATASET) {
+						if(fldText.length === 0) { //"fldText" must be an array.
+							continue;
+						}
+						fldObj.detailDataset().importTextList(fldText);
+					} else {
+						Z.setFieldText(fldName, fldText);
+					}
+				}
+				Z.confirm();
+			}
+		} finally {
+			Z.enableControls();
 		}
 	},
 	
@@ -5752,6 +5871,7 @@ jslet.data.Dataset.prototype = {
 				Z._silence--;
 			}
 		}
+		Z.calcAggradedValue();
 		Z.refreshControl();
 		var details = snapshot.details;
 		if(!details || details.length === 0) {

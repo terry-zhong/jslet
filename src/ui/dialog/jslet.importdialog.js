@@ -20,6 +20,8 @@ jslet.ui.ImportDialog = function(dataset) {
 	
 	this._dlgId = null;
 	
+	this._onImporting = null;
+	
 	this._onImported = null;
 	
 	this._initialize();
@@ -38,6 +40,14 @@ jslet.ui.ImportDialog.prototype = {
 		owin.showModal();
 		owin.setZIndex(999);
 		return owin;
+	},
+	
+	onImporting: function(onImporting) {
+		if(onImporting === undefined) {
+			return this._onImporting;
+		}
+		jslet.Checker.test('ImportDialog#onImporting', onImporting).isFunction();
+		this._onImporting = onImporting;
 	},
 	
 	onImported: function(onImported) {
@@ -186,13 +196,13 @@ jslet.ui.ImportDialog.prototype = {
 	_importData: function() {
 		var Z = this,
 			dataList = this._importDataset.dataList(), 
-			rec, i, len,
+			row, i, len,
 			fields = [];
 		for(i = 0, len = dataList.length; i< len; i++) {
-			rec = dataList[i];
-			if(rec.colHeader) {
-				fields.push(rec);
-			} else if(rec.required) {
+			row = dataList[i];
+			if(row.colHeader) {
+				fields.push(row);
+			} else if(row.required) {
 				jslet.showInfo(jslet.locale.ImportDialog.noColHeader);
 				return false;
 			}
@@ -206,22 +216,31 @@ jslet.ui.ImportDialog.prototype = {
 			jslet.showInfo(jslet.locale.ImportDialog.noData);
 			return true;
 		}
-		var fldMap, text,
-			masterDs = Z._dataset, 
-			parsedData = Z._parsedData;
-		len = parsedData.length;
-		for(i = 0; i < len; i++) {
-			rec = parsedData[i];
-			masterDs.appendRecord();
-			for(var j = 0; j < fldCnt; j++) {
-				fldMap = fields[j];
-				text = rec[fldMap.colHeader];
-				if(text) {
-					masterDs.setFieldText(fldMap.field, text);
+		
+		if(Z._onImporting) {
+			Z._onImporting(Z._dataset, Z._parsedData);
+		} else {
+			var fldMap, text,
+				masterDs = Z._dataset, 
+				parsedData = Z._parsedData,
+				textList = [], textRec;
+			len = parsedData.length;
+			
+			for(i = 0; i < len; i++) {
+				row = parsedData[i];
+				textRec = {};
+				for(var j = 0; j < fldCnt; j++) {
+					fldMap = fields[j];
+					text = row[fldMap.colHeader];
+					if(text) {
+						textRec[fldMap.field] = text;
+					}
 				}
+				textList.push(textRec);
 			}
-			masterDs.confirm();
+		Z._dataset.importTextList(textList);
 		}
+		
 		if(Z._onImported) {
 			Z._onImported.call(Z, Z._dataset);
 		}
