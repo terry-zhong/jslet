@@ -353,20 +353,23 @@
 .jl-editpanel {
 }
 
-.jl-ep-comb {
-	display:table;	
+/* end EditPanel */
+
+/* DBPlace */
+.jl-comb-editor {
+	display:table;
+	width: 100%;
 }
-.jl-ep-comb-editor {
+
+.jl-comb-master {
 	width: 100%;	
 }
 
-.jl-ep-comb-addon {
+.jl-comb-addon {
 	display:table-cell;
 	vertical-align: middle;
 	line-height: 1;
 }
-/* end EditPanel */
-
 
 /* jslet.MessageBox */
 .jl-msg-container {

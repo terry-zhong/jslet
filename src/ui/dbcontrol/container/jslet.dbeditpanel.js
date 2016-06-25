@@ -280,70 +280,16 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				opanel.appendChild(octrlDiv);
 				octrlDiv.className = 'col-sm-' + (Z._hasLabel?　layout._innerDataCols: 12);
 				
-				ctrlId = Z._renderEditPart(octrlDiv, layout);
+				var editor = jslet.ui.createControl({type: 'DBPlace', dataset: this._dataset, field: fldName, 
+					prefix: layout.prefix, suffix: layout.suffix}, octrlDiv);
+				var ctrlId = jslet.nextId();
+				editor.el.id = ctrlId;
+
 				jQuery(oLabel).attr('for', ctrlId);
 				Z.addChildControl(editor);
 			}
 		}
 	}, // render All
-	
-	_renderEditPart: function(ctrlDiv, layoutCfg) {
-		var Z = this, fldName, i, len,
-			hasPrefix = layoutCfg.prefix && layoutCfg.prefix.length > 0,
-			hasSuffix = layoutCfg.suffix && layoutCfg.suffix.length > 0;
-		if(hasPrefix || hasSuffix) {
-			jQuery(ctrlDiv).addClass('jl-ep-comb');
-		}
-		
-		if(hasPrefix) {
-			Z._renderOtherPart(ctrlDiv, layoutCfg.prefix);
-		}
-		fldName = layoutCfg.field;
-		var editorEl = Z._renderEditor(fldName);
-		ctrlDiv.appendChild(editorEl);
-		
-		if(hasSuffix) {
-			Z._renderOtherPart(ctrlDiv, layoutCfg.suffix);
-		}
-		if(hasPrefix || hasSuffix) {
-			jQuery(editorEl).addClass('jl-ep-comb-editor');
-		}
-		return editorEl.id;
-	},
-	
-	_renderOtherPart: function(ctrlDiv, arrPrefixOrSuffix) {
-		var fixCfg, editorEl, width, partEl, 
-			jqCtrlDiv = jQuery(ctrlDiv);
-		for(var i = 0, len = arrPrefixOrSuffix.length; i < len; i++) {
-			fixCfg = arrPrefixOrSuffix[i];
-			width = fixCfg.width;
-			if(fixCfg.field) {
-				partEl = this._renderEditor(fixCfg.field);
-				jqCtrlDiv.append(partEl);
-			} else if(fixCfg.content) {
-				var id = jslet.nextId();
-				jqCtrlDiv.append('<span id = "' + id + '">' + fixCfg.content + '</span>');
-				var children = jqCtrlDiv.children();
-				partEl = jQuery('#' + id)[0];
-			} else {
-				console.warn('prefix or suffix: field or content is required!');
-				continue;
-			}
-			if(!width) {
-				console.warn('Width is empty, use 5% instead!');
-				width = '5%';
-			}
-			jQuery(partEl).addClass('jl-ep-comb-addon');
-			
-			partEl.style.width = width;
-		}
-	},
-	
-	_renderEditor: function(fldName) {
-		var editor = jslet.ui.createControl({type: 'DBPlace', dataset: this._dataset, field: fldName}, null);
-		editor.el.id = jslet.nextId();
-		return editor.el;
-	},
 	
 	/**
 	 * @override
