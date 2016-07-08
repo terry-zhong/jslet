@@ -132,7 +132,8 @@ var _initialModules = [
 	{ name: 'exportdialog', src: '../src/ui/dialog/jslet.exportdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
 	{ name: 'importdialog', src: '../src/ui/dialog/jslet.importdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
 	{ name: 'inputdialog', src: '../src/ui/dialog/jslet.inputdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
-	{ name: 'dialogs', deps: ['exportdialog', 'importdialog','inputdialog'], baseOnLoader: true },
+	{ name: 'batcheditdialog', src: '../src/ui/dialog/jslet.batcheditdialog.js', deps: ['jslet-data','uicore', 'jslet-dialog'], baseOnLoader: true },
+	{ name: 'dialogs', deps: ['exportdialog', 'importdialog','inputdialog','batcheditdialog'], baseOnLoader: true },
 	
 	{ name: 'dbpagebar', src: '../src/ui/dbcontrol/misc/jslet.dbpagebar.js', deps: ['jslet-data','uicore'], baseOnLoader: true },
 	{ name: 'dberror', src: '../src/ui/dbcontrol/misc/jslet.dberror.js', deps: ['jslet-data','uicore'], baseOnLoader: true },

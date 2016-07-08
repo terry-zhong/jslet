@@ -289,6 +289,16 @@
 		save: ' Save ',
 		cancel: ' Cancel '
 	};
+	
+	locale.BatchEditDialog = {
+		caption: 'Batch Edit',
+		onlySelected: 'Only selected',
+		onlyNullValue: 'Only null value',
+		ok: ' OK',
+		cancel: ' Cancel ',
+		errorData: 'Not input data or exist error data!'
+	};
+				
     if (typeof define !== 'function') {
     	window.jsletlocale = locale;
     }

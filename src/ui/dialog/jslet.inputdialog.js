@@ -225,7 +225,7 @@ jslet.ui.InputSettingDialog.prototype = {
 //		            '</div>',
 //		            '<label class="control-label col-sm-6">&nbsp</label>',
 //		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',
-		            
+		            '<hr class="col-sm-11" />',
 		            '<div class="form-group form-group-sm"><label class="control-label col-sm-9">&nbsp</label>',
 		            '<div class="col-sm-3"><button id="jlbtnSave" class="btn btn-default btn-sm">',		            
 		            jslet.locale.InputSettingDialog.save,

@@ -722,8 +722,12 @@ jslet.data.Dataset.prototype = {
 	
 	addFields: function(arrFldObj) {
 		jslet.Checker.test('Dataset.addFields#arrFldObj', arrFldObj).required().isArray();
-		var Z = this;
-		for(var i = 0, len = arrFldObj.length; i < len; i++) {
+		var Z = this,
+			len = arrFldObj.length;
+		if(len === 0) {
+			return;
+		}
+		for(var i = 0; i < len; i++) {
 			Z.addField(arrFldObj[i], true);
 		}
 		Z.refreshDisplayOrder();
@@ -3700,9 +3704,10 @@ jslet.data.Dataset.prototype = {
 				fldObj.setValue(Z._calcFormula(currRec, fmlFldName));
 				continue;
 			}
-			var found = false;
+			var found = false, fldName;
 			for(var j = 0, cnt = fields.length; j < cnt; j++) {
-				if(fields[j] == changedFldName) {
+				fldName = fields[j];
+				if(fldName == changedFldName || fldName.startsWith(changedFldName + '.')) {
 					found = true;
 					break;
 				}
@@ -4074,10 +4079,10 @@ jslet.data.Dataset.prototype = {
 	findByField: function (fieldNameOrFieldArray, findingValue, startRecno, findingByText, matchType) {
 		var Z = this;
 		Z.confirm();
-		
+		var EQUAL = 1;
 		function matchValue(matchType, value, findingValue) {
-			if(!matchType) {
-				return jslet.compareValue(value, findingValue) === 0;
+			if(jslet.compareValue(value, findingValue) === 0) {
+				return EQUAL;
 			}
 			if(matchType == 'first') {
 				return jslet.like(value, findingValue + '%');
@@ -4115,7 +4120,7 @@ jslet.data.Dataset.prototype = {
 			byTextArray[i] = byText;
 		}
 		var start = !Z._ignoreFilter && startRecno? startRecno: 0;
-		var dataRec, foundRecno = -1, value, len;
+		var dataRec, foundRecno = -1, value, len, result = false, found = false;
 		for(i = start, len = records.length; i < len; i++) {
 			dataRec = records[i];
 			
@@ -4126,12 +4131,16 @@ jslet.data.Dataset.prototype = {
 				} else {
 					value = Z.getFieldValueByRecord(dataRec, fldName);
 				}
-				if (matchValue(matchType, value, findingValue)) {
+				found = matchValue(matchType, value, findingValue);
+				if (found) {
 					foundRecno = i;
 					if(Z._ignoreFilter) { // Only used in value converting, so does not need to move cursor.
 						Z._ignoreFilterRecno = i;
 						return true;
 					}
+					result = {};
+					result.field = fldName;
+					result.isEqual = (found === EQUAL);
 					break;
 				}
 			}
@@ -4141,7 +4150,7 @@ jslet.data.Dataset.prototype = {
 		}
 		if (foundRecno >= 0) {// can fire scroll event
 			Z._gotoRecno(foundRecno);
-			return true;
+			return result;
 		}
 		return false;
 	},

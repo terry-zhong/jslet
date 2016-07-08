@@ -53,10 +53,29 @@
 /* jslet.ui.InputDialog */
 .jl-isdlg {
 	width: 620px;
-	height: 500px;
+	height: 510px;
+}
+
+.jl-isdlg hr {
+	margin-top: 0px!important;
+	margin-bottom: 10px!important;
 }
 
 .jl-isdlg-fields {
 	width: 100%!important;
 	height: 400px!important;
+}
+
+/* jslet.ui.BatchEditDialog */
+.jl-bedlg {
+	width: 400px;
+}
+
+.jl-bedlg hr {
+	margin-top: 0px!important;
+	margin-bottom: 10px!important;
+}
+
+.jl-bedlg-fields {
+	height: 300px!important;
 }

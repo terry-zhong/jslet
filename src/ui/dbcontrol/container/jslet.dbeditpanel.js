@@ -280,9 +280,9 @@ jslet.ui.DBEditPanel = jslet.Class.create(jslet.ui.DBControl, {
 				opanel.appendChild(octrlDiv);
 				octrlDiv.className = 'col-sm-' + (Z._hasLabel?　layout._innerDataCols: 12);
 				
-				var editor = jslet.ui.createControl({type: 'DBPlace', dataset: this._dataset, field: fldName, 
+				editor = jslet.ui.createControl({type: 'DBPlace', dataset: this._dataset, field: fldName, 
 					prefix: layout.prefix, suffix: layout.suffix}, octrlDiv);
-				var ctrlId = jslet.nextId();
+				ctrlId = jslet.nextId();
 				editor.el.id = ctrlId;
 
 				jQuery(oLabel).attr('for', ctrlId);

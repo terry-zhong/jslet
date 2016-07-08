@@ -291,6 +291,15 @@
 		cancel: ' 取消 '
 	};
 	
+	locale.BatchEditDialog = {
+		caption: '批量修改',
+		onlySelected: '只导出选择的数据',
+		onlyNullValue: '只修改值为空值的数据',
+		ok: ' 确定 ',
+		cancel: ' 取消 ',
+		errorData: '没有录入值或者录入值有错误！'
+	};
+		
     if (typeof define !== 'function') {
     	window.jsletlocale = locale;
     }

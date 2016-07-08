@@ -5,6 +5,7 @@
  * Copyright 2016 Jslet Team and other contributors
  * Released under the MIT license
  */
+"use strict";
 
 jslet.ui.FieldControlAddon = {
 	/**
@@ -20,7 +21,8 @@ jslet.ui.FieldControlAddon = {
 	 * {String} The addon width.
 	 */
 	width: '10px'
-}
+};
+
 /**
  * @class DBPlace. 
  * It's an placeholder for other dbcontrols.
@@ -42,7 +44,6 @@ jslet.ui.FieldControlAddon = {
  *
  * </code></pre>
  */
-"use strict";
 jslet.ui.DBPlace = jslet.Class.create(jslet.ui.DBFieldControl, {
 	/**
 	 * @override

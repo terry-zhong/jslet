@@ -207,6 +207,7 @@
 .jl-inspector {
     border: solid #a4bed4 1px;/*#99bbe8*/
     padding: 6px;
+    overflow: auto;
 }
 
 .jl-inspector-label {

@@ -656,6 +656,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 		var separator = jslet.global.valueSeparator;
 		var values = srcValues.split(separator), valueCnt = values.length - 1;
 		dsLookup._ignoreFilter = true;
+		var context = dsLookup.startSilenceMove();
 		try {
 			if (valueCnt === 0) {
 				if (!dsLookup.findByField(srcField, values[0])) {
@@ -685,6 +686,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 			return destValue;
 		} finally {
 			dsLookup._ignoreFilter = false;
+			dsLookup.endSilenceMove(context);
 		}
 	}
 	

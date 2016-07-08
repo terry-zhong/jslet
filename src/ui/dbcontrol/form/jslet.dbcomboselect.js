@@ -533,7 +533,7 @@ jslet.ui.DBComboSelectPanel.prototype = {
 		if(!found) {
 			found = lkds.findByField(findFldNames, findingValue, 0, true, 'any');
 		}
-		if(found && Z.comboSelectObj.autoSelected()) {
+		if(found && found.isEqual && Z.comboSelectObj.autoSelected()) {
 			lkds.select(true);
 		}
 		if(!found) {
