@@ -97,7 +97,6 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 						pnode.children = [];
 					}
 					pnode.children.push(node);
-					this._updateParentNodeBoldByChecked(node);
 				} else {
 					result.push(node);
 				}
@@ -107,49 +106,65 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 			dsObj.recnoSilence(oldRecno);
 		}
 		allRows = result;
+		for(var j = 0, len = allRows.length; j < len; j++) {
+			this._updateNodeBoldStyle(allRows[j]);
+		}
 		this._setLastFlag(result);
 		this._refreshNeedShowRows();
 	};
 		
-	this._updateParentNodeBoldByChecked = function(node){
-		if (!dataset.selectedByRecno(node.recno) || !node.parent) {
-			return;
-		}
-		var pnode = node.parent;
-		while(true){
-			if (pnode.isbold) {
+	this._updateNodeBoldStyle = function(node) {
+		
+		function update(pnode) {
+			var children = pnode.children, 
+				cnode, found = false;
+			if(!children) {
 				return;
 			}
-			pnode.isbold = 1;
-			pnode = pnode.parent;
-			if (!pnode) {
-				return;
-			}
-		}
-	};
-
-	this._updateParentNodeBoldByNotChecked = function(node){
-		if (dataset.selectedByRecno(node.recno) || !node.parent) {
-			return;
-		}
-		var pnode = node.parent, cnode;
-		while(true){
-			if (pnode.children){
-				for(var i = 0, cnt = pnode.children.length; i < cnt; i++){
-					cnode = pnode.children[i];
+			for(var i = 0, cnt = children.length; i < cnt; i++) {
+				cnode = children[i];
+				if(cnode.children) {
+					update(cnode);
+					if(!cnode.isbold) {
+						if (dataset.selectedByRecno(cnode.recno)) {
+							pnode.isbold = true;
+							found = true;
+							break;
+						}
+					} else {
+						pnode.isbold = true;
+						found = true;
+						break;
+					}
+				} else {
 					if (dataset.selectedByRecno(cnode.recno)) {
-						return;
+						pnode.isbold = true;
+						found = true;
+						break;
 					}
 				}
-				pnode.isbold = 0;
 			}
-			pnode = pnode.parent;
-			if (!pnode) {
-				return;
+			if(!found) {
+				pnode.isbold = false;
 			}
 		}
-	};
 		
+		if(!node) {
+			return;
+		}
+		
+		var pNode = node, root = node;
+		while(true) {
+			pNode = node.parent;
+			if(pNode === null) {
+				root = node;
+				break;
+			}
+			node = pNode;
+		}
+		update(root);
+	};
+	
 	this._setLastFlag = function (nodes) {
 		if (!nodes || nodes.length === 0) {
 			return;
@@ -359,6 +374,14 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 //				return null;
 //			}
 //		}
+		if(recno !== dataset.recno()) {
+			var context = dataset.startSilenceMove(true);
+			try {
+				dataset.recno(recno);
+			} finally {
+				dataset.endSilenceMove(context);
+			}
+		}
 		currentRowno = rowno;
 		currentRecno = recno;
 		if (!notFireEvt && this.onCurrentRownoChanged) {
@@ -558,9 +581,6 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 	
 	this.checkNode = function(state, relativeCheck, onlyCheckChildren){
 		var node = this.getCurrentRow();
-//		if (node.state == state) {
-//			return;
-//		}
 		dataset.selected(state ? 1 : 0);
 
 		if (relativeCheck){
@@ -571,12 +591,8 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 				this._updateParentState(node, state);
 			}
 		}
-
-		if (state) {
-			this._updateParentNodeBoldByChecked(node);
-		} else {
-			this._updateParentNodeBoldByNotChecked(node);
-		}
+		
+		this._updateNodeBoldStyle(node);
 		
 		if (this.onCheckStateChanged) {
 			this.onCheckStateChanged();
@@ -587,20 +603,16 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 		var node = this.getCurrentRow();
 		dataset.selected(state ? 1 : 0);
 
-		if (node.children && node.children.length > 0) {
-			this._updateChildState(node, state);
-		}
 		if (relativeCheck){
 			if (node.parent) {
 				this._updateParentState(node, state);
 			}
+			if (node.children && node.children.length > 0) {
+				this._updateChildState(node, state);
+			}
 		}
 
-		if (state) {
-			this._updateParentNodeBoldByChecked(node);
-		} else {
-			this._updateParentNodeBoldByNotChecked(node);
-		}
+		this._updateNodeBoldStyle(node);
 		
 		if (this.onCheckStateChanged) {
 			this.onCheckStateChanged();

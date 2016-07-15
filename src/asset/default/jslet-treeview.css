@@ -18,6 +18,8 @@
 	transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
+.jl-tree:focus {outline: none;} 
+
 .jl-rtl .jl-tree {
     padding-left: 0;
 	padding-right: 2px;
@@ -151,7 +153,7 @@
 }
 
 .jl-tree-selected {
-    background-color: #eee;
+    background-color: #ddd;
 }
 
 .jl-tree-child-checked {

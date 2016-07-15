@@ -2271,7 +2271,6 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if(rowCnt === 0 || rowCnt === rowIndex) {
 				return;
 			}
-			var colCfg = rows[rowIndex].cells[srcStart].jsletColCfg;
 			var rowObj, cellCnt;
 			for(var i = rowIndex, len = rows.length; i < len; i++) {
 				rowObj = rows[i];

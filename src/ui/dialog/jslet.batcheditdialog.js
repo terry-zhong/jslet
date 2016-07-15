@@ -41,9 +41,10 @@ jslet.ui.BatchEditDialog = function(dataset, editFields) {
 		fields = editFields;
 	}
 	Z._batchDataset.addFieldFromDataset(dataset, fields);
-	var fields = Z._batchDataset.getNormalFields(), fldObj;
-	for(var i = 0, len = fields.length; i < len; i++) {
-		fldObj = fields[i];
+	fields = Z._batchDataset.getNormalFields();
+	var fldObj;
+	for(var j = 0, len = fields.length; j < len; j++) {
+		fldObj = fields[j];
 		fldObj.defaultValue(null);
 		fldObj.defaultExpr(null);
 		fldObj.required(false);
