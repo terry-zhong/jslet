@@ -69,11 +69,12 @@ jslet.ui.ImportDialog.prototype = {
 		var expFldCfg = [
        	      {name: 'field', type: 'S', length: 100, label: 'Field Name', visible: false}, 
 	   	      {name: 'label', type: 'S', length: 100, visible: false},
-	   	      {name: 'displayLabel', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 20, readOnly: true},
+	   	      {name: 'displayLabel', type: 'S', length: 100, label: jslet.locale.ImportDialog.fieldLabel, displayWidth: 16, readOnly: true},
     	      {name: 'colNum', type: 'N', length: 10, label: 'colNum', visible: false}, 
-    	      {name: 'colHeader', type: 'S', length: 100, label: jslet.locale.ImportDialog.columnHeader, displayWidth: 20, editControl: 'DBSelect',
+    	      {name: 'colHeader', type: 'S', length: 100, label: jslet.locale.ImportDialog.columnHeader, displayWidth: 16, editControl: 'DBSelect',
     	    	  lookup: {dataset: exportLKDs, returnFieldMap: {colNum: 'colNum'}}},
-    	      {name: 'required', type: 'B', length: 10, label: 'required', visible: false}
+    	      {name: 'required', type: 'B', length: 10, label: 'required', visible: false},
+    	      {name: 'fixedValue', type: 'S', length: 50, label: jslet.locale.ImportDialog.fixedValue, displayWidth: 16}
     	    ];
     	this._importDataset = jslet.data.createDataset('importDs' + jslet.nextId(), expFldCfg, {keyField: 'schema', nameField: 'schema', isFireGlobalEvent: false});
 		var opt = { type: 'window', caption: jslet.locale.ImportDialog.caption, isCenter: true, resizable: false, minimizable: false, maximizable: false, animation: 'fade'};
@@ -200,7 +201,7 @@ jslet.ui.ImportDialog.prototype = {
 			fields = [];
 		for(i = 0, len = dataList.length; i< len; i++) {
 			row = dataList[i];
-			if(row.colHeader) {
+			if(row.colHeader || row.fixedValue) {
 				fields.push(row);
 			} else if(row.required) {
 				jslet.showInfo(jslet.locale.ImportDialog.noColHeader);
@@ -220,7 +221,7 @@ jslet.ui.ImportDialog.prototype = {
 		if(Z._onImporting) {
 			Z._onImporting(Z._dataset, Z._parsedData);
 		} else {
-			var fldMap, text,
+			var fldMap, text, colHeader,
 				masterDs = Z._dataset, 
 				parsedData = Z._parsedData,
 				textList = [], textRec;
@@ -231,7 +232,12 @@ jslet.ui.ImportDialog.prototype = {
 				textRec = {};
 				for(var j = 0; j < fldCnt; j++) {
 					fldMap = fields[j];
-					text = row[fldMap.colHeader];
+					colHeader = fldMap.colHeader; 
+					if(colHeader) {
+						text = row[colHeader];
+					} else {
+						text = fldMap.fixedValue;
+					}
 					if(text) {
 						textRec[fldMap.field] = text;
 					}

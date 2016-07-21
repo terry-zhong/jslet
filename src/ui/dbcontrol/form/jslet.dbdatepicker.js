@@ -141,8 +141,10 @@ jslet.ui.DBDatePicker = jslet.Class.create(jslet.ui.DBCustomComboBox, {
 			Z.contentPanel.destroy();
 			Z.contentPanel = null;
 		}
-		Z.popup.destroy();
-		Z.popup = null;
+		if(Z.popup) {
+			Z.popup.destroy();
+			Z.popup = null;
+		}
 		$super();
 	}
 	

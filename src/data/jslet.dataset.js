@@ -2858,13 +2858,8 @@ jslet.data.Dataset.prototype = {
 			fldName = fldObj.name();
 			fldValue = Z.getFieldValue(fldName);
 			if(fldObj.valueStyle() == jslet.data.FieldValueStyle.NORMAL && Z.existFieldError(fldName)) {
-				invalidMsg = Z._fieldValidator.checkRequired(fldObj, fldValue);
-				invalidMsg = invalidMsg || Z._fieldValidator.checkValue(fldObj, fldValue);
-				if (invalidMsg) {
-					Z.setFieldError(fldName, invalidMsg);
-					if(!firstInvalidField) {
-						firstInvalidField = fldName;
-					}
+				if(!firstInvalidField) {
+					firstInvalidField = fldName;
 				}
 			} else {
 				invalidMsg = Z._fieldValidator.checkRequired(fldObj, fldValue);
@@ -5727,6 +5722,15 @@ jslet.data.Dataset.prototype = {
 		}
 	},
 	
+	/**
+	 * Import data from a string value array. For example:
+	 * <code>
+	 * 	var textList = [{id: '1', name: 'Tom', department: 'QA'}, {id: '2', name: 'Jerry', department: 'Admin'}];
+	 * 	dataset.importTextList(textList);
+	 * </code>
+	 * 
+	 * @param {Object[]} textList - A string value array.
+	 */
 	importTextList: function(textList) {
 		var Z = this;
 		jslet.Checker.test('importTextList#textList', textList).isArray();
@@ -5737,7 +5741,9 @@ jslet.data.Dataset.prototype = {
 		try {
 			var rec, fldObj, fldName, fldText, 
 				fldCnt = Z._normalFields.length,
-				cacheFieldMap = {}, cacheField, cacheValue, value, errObj;
+				cacheFieldMap = {}, cacheField, 
+				cacheValue, value, errObj,
+				oldRecno = Z.recno();
 			for(var i = 0, recCnt = textList.length; i < recCnt; i++) {
 				rec = textList[i];
 				Z.appendRecord();
@@ -5784,6 +5790,7 @@ jslet.data.Dataset.prototype = {
 				Z.confirm();
 			}
 		} finally {
+			Z.recno(oldRecno + 1);
 			Z.enableControls();
 		}
 	},

@@ -52,7 +52,8 @@ jslet.ui.InputSettingDialog = function() {
 		} else {
 			proxyFldObj.lookup(null);
 			var editorObj = hostFldObj.editControl();
-			if(jslet.compareValue(editorObj.type,'DBTextArea') === 0) {
+			var fldType = hostFldObj.getType();
+			if(fldType !== jslet.data.DataType.DATE && fldType !== jslet.data.DataType.BOOLEAN) {
 				editorObj = {type: 'DBText'};
 			}
 			proxyFldObj.editControl(editorObj);

@@ -272,6 +272,7 @@
 		caption: 'Import',
 		fieldLabel: ' Field ',
 		columnHeader: ' Column Header ',
+		fixedValue: 'Fixed Value',
 		fileName: 'File Name:',
 		importData: ' Import ',
 		cancel: ' cancel ',

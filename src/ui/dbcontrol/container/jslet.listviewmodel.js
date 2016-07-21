@@ -374,14 +374,14 @@ jslet.ui.ListViewModel = function (dataset, isTree) {// boolean, identify if it'
 //				return null;
 //			}
 //		}
-		if(recno !== dataset.recno()) {
-			var context = dataset.startSilenceMove(true);
-			try {
-				dataset.recno(recno);
-			} finally {
-				dataset.endSilenceMove(context);
-			}
-		}
+//		if(recno !== dataset.recno()) {
+//			var context = dataset.startSilenceMove(true);
+//			try {
+//				dataset.recno(recno);
+//			} finally {
+//				dataset.endSilenceMove(context);
+//			}
+//		}
 		currentRowno = rowno;
 		currentRecno = recno;
 		if (!notFireEvt && this.onCurrentRownoChanged) {

@@ -273,6 +273,7 @@
 		caption: '导入',
 		fieldLabel: ' 字段 ',
 		columnHeader: ' 列名 ',
+		fixedValue: '固定值',
 		fileName: '文件名：',
 		importData: ' 导入 ',
 		cancel: ' 取消 ',
