@@ -2080,11 +2080,11 @@ jslet.data.Dataset.prototype = {
 			return null;
 		}
 		recInfo = jslet.data.getRecInfo(record);		
-		var	oldStatus = recInfo.status;
 		if(status === jslet.data.DataSetStatus.DELETE) {
 			recInfo.status = status;
 			return;
 		}
+		var	oldStatus = recInfo.status;
 		if(oldStatus === jslet.data.DataSetStatus.INSERT) {
 			return;
 		}
@@ -2093,7 +2093,6 @@ jslet.data.Dataset.prototype = {
 				Z.calcContextRule();
 			}
 			recInfo.status = status;
-			Z._changeLog.log();
 		}
 	},
 	
@@ -2723,7 +2722,6 @@ jslet.data.Dataset.prototype = {
 			}
 
 			Z.status(jslet.data.DataSetStatus.UPDATE);
-//			Z.changedStatus(jslet.data.DataSetStatus.UPDATE);
 			Z._fireDatasetEvent(jslet.data.DatasetEvent.AFTERUPDATE);
 		}
 	},
@@ -2732,11 +2730,21 @@ jslet.data.Dataset.prototype = {
 	 * Delete record
 	 */
 	deleteRecord: function () {
-		var Z = this;
-		var recCnt = Z.recordCount();
+		var Z = this,
+			recCnt = Z.recordCount();
 		if (recCnt === 0 || Z.changedStatus() === jslet.data.DataSetStatus.DELETE) {
 			return;
 		}
+		Z._aborted = false;
+		try {
+			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREDELETE);
+			if (Z._aborted) {
+				return;
+			}
+		} finally {
+			Z._aborted = false;
+		}
+		
 		Z.selection.removeAll();
 		if (Z._status == jslet.data.DataSetStatus.INSERT) {
 			Z.cancel();
@@ -2755,15 +2763,6 @@ jslet.data.Dataset.prototype = {
 			return;
 		}
 
-		Z._aborted = false;
-		try {
-			Z._fireDatasetEvent(jslet.data.DatasetEvent.BEFOREDELETE);
-			if (Z._aborted) {
-				return;
-			}
-		} finally {
-			Z._aborted = false;
-		}
 		var preRecno = Z.recno(), 
 			isLast = preRecno == (recCnt - 1), 
 			k = Z._recno;
@@ -3144,8 +3143,17 @@ jslet.data.Dataset.prototype = {
 			if (Z._filteredRecnoArray) {
 				k = Z._filteredRecnoArray[Z._recno];
 			}
-			records[k] = Z._modiObject;
-			jslet.data.FieldValueCache.removeCache(Z._modiObject);
+			var currRec = records[k];
+			var modiObj = Z._modiObject;
+			jQuery.extend(currRec, modiObj);
+			for(var propName in currRec) {
+				if(modiObj[propName] === undefined) {
+					delete currRec[propName];
+				}
+			}
+			Z._innerValidateData();
+
+			jslet.data.FieldValueCache.removeCache(currRec);
 			Z._modiObject = null;
 		}
 
@@ -4071,7 +4079,7 @@ jslet.data.Dataset.prototype = {
 	 * @param {String} matchType null or undefined - match whole value, 'first' - match first, 'last' - match last, 'any' - match any
 	 * @return {Boolean} 
 	 */
-	findByField: function (fieldNameOrFieldArray, findingValue, startRecno, findingByText, matchType) {
+	findByField: function (fieldNameOrFieldArray, findingValue, options) {
 		var Z = this;
 		Z.confirm();
 		var EQUAL = 1;
@@ -4088,8 +4096,23 @@ jslet.data.Dataset.prototype = {
 			if(matchType == 'last') {
 				return jslet.like(value, '%' + findingValue);
 			}
+			return 0;
 		}
-		
+		var startRecno = 0,
+			findingByText = false,
+			matchType = null,
+			extraFilter = null,
+			extraFilterEval = null;
+			
+		if(options) {
+			startRecno = options.startRecno || 0;
+			findingByText = options.findingByText || false;
+			matchType = options.matchType || null;
+			extraFilter = options.extraFilter || null;
+			if(extraFilter) {
+				extraFilterEval = new jslet.Expression(Z, extraFilter);
+			}
+		}
 		var records = Z._ignoreFilter? Z.dataList(): Z.filteredDataList();
 		if(!records || records.length === 0) {
 			return false;
@@ -4118,7 +4141,9 @@ jslet.data.Dataset.prototype = {
 		var dataRec, foundRecno = -1, value, len, result = false, found = false;
 		for(i = start, len = records.length; i < len; i++) {
 			dataRec = records[i];
-			
+			if(extraFilterEval && !extraFilterEval.eval(dataRec)) {
+				continue;
+			}
 			for(var j = 0; j < fldCnt; j++) {
 				fldName = fields[j];
 				if(findingByText && byTextArray[j]) {
@@ -6186,7 +6211,7 @@ jslet.data.ChangeLog.prototype = {
 		if(!recObj) {
 			recObj = this._dataset.getRecord();
 		}
-		var chgRecords = this._getChangedRecords(recObj);
+		var chgRecords = this._getChangedRecords();
 		var k = chgRecords.indexOf(recObj);
 		if(k >= 0) {
 			chgRecords.splice(k, 1);

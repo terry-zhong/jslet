@@ -59,6 +59,11 @@
 	overflow-y: scroll;
 }
 
+.jl-tree-scrollbar-hidden {
+	overflow-y: hidden;
+	width: 0;
+}
+
 .jl-tree-tracker {
 	width: 1px!important;
 }

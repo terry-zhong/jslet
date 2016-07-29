@@ -249,10 +249,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 						}
 						if (groupIsLookup) {
 							if (!groupLookup.dataset()
-											.findByField(
-													groupLookup
-															.keyField(),
-													groupValue)) {
+											.findByField(groupLookup.keyField(), groupValue)) {
 								throw 'Not found: [' + groupValue + '] in Dataset: [' +
 									groupLookup.dataset().name() +
 									']field: [' + groupLookup.keyField() + ']';

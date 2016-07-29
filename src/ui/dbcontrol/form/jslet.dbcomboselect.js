@@ -264,6 +264,8 @@ jslet.ui.DBComboSelectPanel = function (comboSelectObj, btnEle) {
 	Z.fieldObject = Z.dataset.getField(Z.field);
 	Z.panel = null;
 	Z.searchBoxEle = null;
+	Z._oldFilter = null;
+	Z._oldFiltered = null;
 	
 	Z.popup = new jslet.ui.PopupPanel(btnEle);
 	Z.popup.onHidePopup = function() {
@@ -339,10 +341,25 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	
 	_setLookupDsEvent: function() {
 		var Z = this;
+		
+		var fldObj = Z.dataset.getField(Z.field),
+			lkfld = fldObj.lookup();
+		var lkDs = lkfld.dataset();
+		var editFilter = lkfld.editFilter();
+		if(editFilter) {
+			var filter = lkDs.filter();
+			Z._oldFilter = filter;
+			Z._oldFiltered = lkDs.filtered();
+			if(filter) {
+				filter = '(' + editFilter + ') && (' + filter + ')';
+			} else {
+				filter = editFilter;
+			}
+			lkDs.filter(filter);
+			lkDs.filtered(true);
+			
+		}
 		if(Z.isMultiple()) {
-			var fldObj = Z.dataset.getField(Z.field),
-				lkfld = fldObj.lookup();
-			var lkDs = lkfld.dataset();
 			Z._oldLkDsCheckSelectable = null;
 			if(lkfld.onlyLeafLevel()) {
 				Z._oldLkDsCheckSelectable = lkDs.onCheckSelectable();
@@ -367,14 +384,19 @@ jslet.ui.DBComboSelectPanel.prototype = {
 	
 	_restoreLkDsEvent: function() {
 		var Z = this;
+		var fldObj = Z.dataset.getField(Z.field),
+			lkfld = fldObj.lookup();
+		var lkDs = lkfld.dataset();
 		if(Z.isMultiple()) {
-			var fldObj = Z.dataset.getField(Z.field),
-				lkfld = fldObj.lookup();
-			var lkDs = lkfld.dataset();
 			lkDs.onCheckSelectable(Z._oldLkDsCheckSelectable? Z._oldLkDsCheckSelectable: null);
 			lkDs.datasetListener(Z._oldLkDsListener? Z._oldLkDsListener: null);
 		}
-		
+		if(Z._oldFiltered) {
+			lkDs.filtered(Z._oldFiltered);
+		}
+		if(Z._oldFilter) {
+			lkDs.filter(Z._oldFilter);
+		} 
 	},
 	
 	_create: function () {
@@ -529,9 +551,11 @@ jslet.ui.DBComboSelectPanel.prototype = {
 			return;
 		}
 		var	currRecno = lkds.recno() + 1;
-		var found = lkds.findByField(findFldNames, findingValue, currRecno, true, 'any');
+		var options = {startRecno: currRecno, findingByText: true, matchType: 'any'};
+		var found = lkds.findByField(findFldNames, findingValue, options);
 		if(!found) {
-			found = lkds.findByField(findFldNames, findingValue, 0, true, 'any');
+			options.startRecno = 0;
+			found = lkds.findByField(findFldNames, findingValue, options);
 		}
 		if(found && found.isEqual && Z.comboSelectObj.autoSelected()) {
 			lkds.select(true);

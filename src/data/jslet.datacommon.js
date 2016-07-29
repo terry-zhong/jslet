@@ -604,9 +604,10 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 			dsLookup = lkFldObj.dataset(),
 			keyFldName = lkFldObj.keyField(),
 			codeFldName = lkFldObj.codeField(),
-			nameFldName = lkFldObj.nameField();
+			nameFldName = lkFldObj.nameField(),
+			editFilter = lkFldObj.editFilter();
 		
-		value = this._convertFieldValue(dsLookup, codeFldName, inputText, keyFldName);
+		value = this._convertFieldValue(dsLookup, codeFldName, inputText, keyFldName, editFilter);
 		if (value === null) {
 			if(nameFldName !== codeFldName) {
 				value = this._convertFieldValue(dsLookup, nameFldName, inputText, keyFldName);
@@ -618,6 +619,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 				return undefined;
 			}
 		}
+
 		return value;
 	},
 	
@@ -638,7 +640,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 	/**
 	 * @private
 	 */
-	_convertFieldValue: function (dsLookup, srcField, srcValues, destFields) {
+	_convertFieldValue: function (dsLookup, srcField, srcValues, destFields, editFilter) {
 		if (destFields === null) {
 			throw new Error('NOT set destFields in method: ConvertFieldValue');
 		}
@@ -658,8 +660,10 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 		dsLookup._ignoreFilter = true;
 		var context = dsLookup.startSilenceMove();
 		try {
+			var options = (editFilter? {extraFilter: editFilter} : null);
+
 			if (valueCnt === 0) {
-				if (!dsLookup.findByField(srcField, values[0])) {
+				if (!dsLookup.findByField(srcField, values[0], options)) {
 					return null;
 				}
 				if (isExpr) {
@@ -671,7 +675,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 	
 			var fldcnt, destValue = '';
 			for (var i = 0; i <= valueCnt; i++) {
-				if (!dsLookup.findByField(srcField, values[i])) {
+				if (!dsLookup.findByField(srcField, values[i], options)) {
 					return null;
 				}
 				if (isExpr) {

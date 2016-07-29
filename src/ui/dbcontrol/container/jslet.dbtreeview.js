@@ -443,9 +443,11 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			result = true;
 		} else if (keyCode === jslet.ui.KeyCode.UP) {//KEY_UP
 			Z.listvm.priorRow();
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 			result = true;
 		} else if (keyCode === jslet.ui.KeyCode.DOWN) {//KEY_DOWN
 			Z.listvm.nextRow();
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 			result = true;
 		} else if (keyCode === jslet.ui.KeyCode.LEFT) {//KEY_LEFT
 			if (jslet.locale.isRtl) {
@@ -463,9 +465,11 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			result = true;
 		} else if (keyCode === jslet.ui.KeyCode.PAGEUP) {//KEY_PAGEUP
 			Z.listvm.priorPage();
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 			result = true;
 		} else if (keyCode === jslet.ui.KeyCode.PAGEDOWN) {//KEY_PAGEDOWN
 			Z.listvm.nextPage();
+			Z._dataset.recno(Z.listvm.getCurrentRecno());
 			result = true;
 		}
 		return result;
@@ -631,6 +635,9 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 			Z._isRendering = false;
 			Z._skip_ = false;
 		}
+		window.setTimeout(function() {
+			Z._checkScrollBar();
+		}, 5);
 	},
 
 	_getCheckClassName: function(expanded){
@@ -786,7 +793,19 @@ jslet.ui.DBTreeView = jslet.Class.create(jslet.ui.DBControl, {
 		}
 		jQuery(Z.el).find('.jl-tree-scrollbar').scrollTop(Z.nodeHeight * Z.listvm.getVisibleStartRow());
 	},
-		
+	
+	_checkScrollBar: function() {
+		var jqScr = jQuery(this.el).find('.jl-tree-scrollbar');
+		var scr = jqScr[0];
+		if(scr.scrollHeight > scr.clientHeight) {
+			jqScr.removeClass('jl-tree-scrollbar-hidden');
+		} else {
+			if(!jqScr.hasClass('jl-tree-scrollbar-hidden')) {
+				jqScr.addClass('jl-tree-scrollbar-hidden');
+			}
+		}
+	},
+	
 	expand: function () {
 		this.listvm.expand();
 	},
