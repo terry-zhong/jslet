@@ -256,13 +256,14 @@
 	
 	locale.ExportDialog = {
 		caption: '导出',
+		schemaName: '导出模板',
 		saveSchema: ' 保存 ',
 		saveAsSchema: ' 另存 ',
 		deleteSchema: ' 删除 ',
 		success: '保存成功!',
-		inuputSchemaLabel: '请输入方案名称: ',
+		inuputSchemaLabel: '请输入模板名称: ',
 		all: '全部',
-		onlySelected: '只导出选择的数据',
+		onlySelected: '仅勾选行',
 		fileName: '文件名：',
 		exportData: ' 导出 ',
 		cancel: ' 取消 ',
@@ -271,6 +272,11 @@
 	
 	locale.ImportDialog = {
 		caption: '导入',
+		schemaName: '导入模板',
+		saveSchema: ' 保存 ',
+		saveAsSchema: ' 另存 ',
+		deleteSchema: ' 删除 ',
+		existedSchema: '导入模板名已存在！是否覆盖？',
 		fieldLabel: ' 字段 ',
 		columnHeader: ' 列名 ',
 		fixedValue: '固定值',

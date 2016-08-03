@@ -255,13 +255,14 @@
 
 	locale.ExportDialog = {
 		caption: 'Export Dialog',
-		saveSchema: ' Save ',
-		saveAsSchema: ' Save As ',
+		schemaName: 'Export Schema',
+		saveSchema: 'Save',
+		saveAsSchema: 'Save As',
 		deleteSchema: 'Delete',
 		success: 'Save export schema success!',
 		inuputSchemaLabel: 'Inuput schema name: ',
 		all: 'All',
-		onlySelected: 'Only export the selected data.',
+		onlySelected: 'Only selected',
 		fileName: 'File Name：',
 		exportData: ' Export ',
 		cancel: ' Cancel ',
@@ -270,6 +271,12 @@
 	
 	locale.ImportDialog = {
 		caption: 'Import',
+		schemaName: 'Import Schema',
+		saveSchema: ' Save ',
+		saveAsSchema: ' Save As ',
+		deleteSchema: ' Delete ',
+		existedSchema: 'Import schema exists, overwrite?',
+		
 		fieldLabel: ' Field ',
 		columnHeader: ' Column Header ',
 		fixedValue: 'Fixed Value',

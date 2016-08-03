@@ -1693,7 +1693,7 @@ jslet.data.Dataset.prototype = {
 	 */
 	endSilenceMove: function (context) {
 		var Z = this;
-		if (context.recno != -999 && context.recno != Z._recno) {
+		if (context && context.recno != -999 && context.recno != Z._recno) {
 			Z._gotoRecno(context.recno);
 		}
 		Z._silence--;
@@ -2125,7 +2125,7 @@ jslet.data.Dataset.prototype = {
 		var records = Z.dataList();
 		if (records === null) {
 			records = [];
-			Z.dataList(records);
+			Z._dataList = records;
 		}
 		var preRecno = Z.recno(), k;
 		if (Z.hasRecord()) {
@@ -3059,6 +3059,7 @@ jslet.data.Dataset.prototype = {
 			}
 			dsMaster.refreshControl(evt);
 		}
+		Z.refreshLookupHostDataset();
 
 		return !hasError;
 	},
@@ -5556,32 +5557,6 @@ jslet.data.Dataset.prototype = {
         a.href = window.URL.createObjectURL(blob);
         a.download = fileName;
         a.click();
-    },
-    
-    showImportDialog: function() {
-    	if(!jslet.ui.ImportDialog) {
-    		console.warn('jslet.ui.ImportDialog not installed!');
-    		return;
-    	}
-    	var Z = this;
-    	if(!Z._importDialog) {
-    		Z._importDialog = new jslet.ui.ImportDialog(Z);
-    	}
-    	Z._importDialog.show();
-    	return Z._importDialog;
-    },
-    
-    showExportDialog: function(fileName) {
-    	if(!jslet.ui.ExportDialog) {
-    		console.warn('jslet.ui.ExportDialog not installed!');
-    		return;
-    	}
-    	var Z = this;
-    	if(!Z._exportDialog) {
-    		Z._exportDialog = new jslet.ui.ExportDialog(Z);
-    	}
-    	Z._exportDialog.show(fileName);
-    	return Z._exportDialog;
     },
     
 	/** 

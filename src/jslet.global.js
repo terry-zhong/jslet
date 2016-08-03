@@ -79,3 +79,14 @@ jslet.global.beforeSubmit = function(settings) {
 };
 
 jslet.global.afterInstall = function(container) {};
+
+jslet.global.importDialog = {
+	onQuerySchema: null,
+	onSubmitSchema: null
+};
+
+jslet.global.exportDialog = {
+		onQuerySchema: null,
+		onSubmitSchema: null
+}
+

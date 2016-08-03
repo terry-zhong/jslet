@@ -8,15 +8,21 @@
 
 "use strict";
 /**
- * Export dialog;
+ * Export dialog for specified Dataset object;
+ * 
+ * @param {jslet.data.Dataset or String} dataset - Dataset object or dataset name.
+ * @param {Boolean} hasSchemaSection - Identify whether export schema section is visible or not. 
  */
 jslet.ui.ExportDialog = function(dataset, hasSchemaSection) {
 	this._dataset = jslet.data.getDataset(dataset);
 	this._exportDataset = null;
-	this._hasSchemaSection = (hasSchemaSection ? true: false);
+	this._hasSchemaSection = true;//(hasSchemaSection ? true: false);
 	this._dlgId = null;
 	this._onExported = null;
-	
+
+	this._onQuerySchema = null;
+	this._onSubmitSchema = null;
+		
 	this._initialize();
 };
 
@@ -35,6 +41,52 @@ jslet.ui.ExportDialog.prototype = {
 		owin.showModal();
 		owin.setZIndex(999);
 		return owin;
+	},
+	
+	/**
+	 * Query export schema event handler. Pattern:
+	 * 
+	 * var exportDialog = new jslet.ui.ExportDialog(exportingDataset, true);
+	 * var querySchemaFn = function(callBackFn) {
+	 * 	  var exportSchemaData = [{schema: '', fields: ['field1','field2']}];
+	 * 	  callBackFn(exportSchemaData); //For asynchronous operation.
+	 * 	  //return exportSchemaData; 	//For synchronous operation.
+	 * };
+	 * 
+	 * exportDialog.onQuerySchema(querySchemaFn);
+	 */
+	onQuerySchema: function(onQuerySchema) {
+		if(onQuerySchema === undefined) {
+			return this._onQuerySchema;
+		}
+		jslet.Checker.test('ImportDialog#onQuerySchema', onQuerySchema).isFunction();
+		this._onQuerySchema = onQuerySchema;
+	},	
+	
+	/**
+	 * Submit export schema event handler. Pattern:
+	 * 
+	 * var exportDialog = new jslet.ui.ExportDialog(exportingDataset, true);
+	 * var submitSchemaFn = function(action, changedRec) {
+	 * 	  if(action == 'insert') {
+	 * 		
+	 * 	  }
+	 * 	  if(action == 'update') {
+	 * 		
+	 * 	  }
+	 * 	  if(action == 'delete') {
+	 * 		
+	 * 	  }
+	 * };
+	 * 
+	 * exportDialog.onSubmitSchema(submitSchemaFn);
+	 */
+	onSubmitSchema: function(onSubmitSchema) {
+		if(onSubmitSchema === undefined) {
+			return this._onSubmitSchema;
+		}
+		jslet.Checker.test('ImportDialog#onSubmitSchema', onSubmitSchema).isFunction();
+		this._onSubmitSchema = onSubmitSchema;
 	},
 	
 	onExported: function(onExported) {
@@ -81,15 +133,22 @@ jslet.ui.ExportDialog.prototype = {
 		var owin = jslet.ui.createControl(opt);
 		var expHtml = '';
     	if(Z._hasSchemaSection) {
-    		expHtml = '<div class="form-group form-group-sm jl-exp-schema">' +
-            '<div class="col-sm-6"><select data-jslet="type:\'DBSelect\',field:\'schema\'"></select></div>' + 
-            '<div class="col-sm-6"><button class="btn btn-default btn-sm" id="jlbtnDelete" style="float:right">' + 
-            jslet.locale.ExportDialog.deleteSchema + 
-            '</button><button class="btn btn-default btn-sm" id="jlbtnSave" style="float:right">' + 
-            jslet.locale.ExportDialog.saveSchema +
-            '</button><button class="btn btn-default btn-sm" id="jlbtnSaveAs" style="float:right">' + 
-            jslet.locale.ExportDialog.saveAsSchema +
-            '</button></div></div>';
+    		expHtml = 
+	            '<div class="input-group input-group-sm" style="margin-bottom: 10px"><span class="input-group-addon">' +
+	            jslet.locale.ExportDialog.schemaName + 
+	            '</span>' + 
+	            '<select data-jslet="type:\'DBSelect\', field:\'schema\'"></select>' + 
+
+	            '<span class="input-group-btn"><button class="btn btn-default btn-sm" id="jlbtnSaveAs">' + 
+	            jslet.locale.ExportDialog.saveAsSchema + 
+	            '</button></span>' +
+	            '<span class="input-group-btn"><button class="btn btn-default btn-sm" id="jlbtnSave">' + 
+	            jslet.locale.ExportDialog.saveSchema + 
+	            '</button></span>' +
+	            '<span class="input-group-btn"><button class="btn btn-default btn-sm" id="jlbtnDelete">' + 
+	            jslet.locale.ExportDialog.deleteSchema + 
+	            '</button></span>' +
+	            '</div>';
     	}
 		var html = ['<div class="form-horizontal jl-expdlg-content" data-jslet="dataset: \'', Z._exportDataset.name(),
 		            '\'">',
@@ -117,7 +176,7 @@ jslet.ui.ExportDialog.prototype = {
 		            '</div>'];
 		owin.setContent(html.join(''));
 		owin.onClosed(function () {
-			return 'hidden';
+			Z.destroy();
 		});
 		Z._dlgId = owin.el.id;
 		jslet.ui.install(owin.el);
@@ -144,9 +203,15 @@ jslet.ui.ExportDialog.prototype = {
 		});
 	},
 	
-	_saveSchema: function(fileName) {
-		this._exportDataset.confirm();
-		this._submitSchema();
+	_saveSchema: function() {
+		var dsExport = this._exportDataset;
+		if(!dsExport.getFieldValue('schema')) {
+			this._saveAsSchema();
+			return;
+		}
+		dsExport.confirm();
+		var currRec = dsExport.getRecord();
+		this._submitSchema('update', {schema: currRec.schema, fields: currRec.fields});
 	},
 	
 	_saveAsSchema: function() {
@@ -167,36 +232,47 @@ jslet.ui.ExportDialog.prototype = {
 					Z._isProgChanged = false;
 					dsObj.enableControls();
 				}
-				Z._submitSchema();
+				var currRec = Z._exportDataset.getRecord();
+				Z._submitSchema('insert', {schema: currRec.schema, fields: currRec.fields});
 			}
 		});
 	},
 	
 	_deleteSchema: function() {
 		var Z = this;
+		var currRec = this._exportDataset.getRecord();
+		this._submitSchema('insert', {schema: currRec.schema, fields: currRec.fields});
 		Z._exportDataset.deleteRecord();
-		Z._submitSchema();
+		if(Z._exportDataset.recordCount() === 0) {
+			Z._exportDataset.appendRecord();
+		}
 	},	
 
 	_querySchema: function() {
 		var Z = this;
-		if(jslet.global.queryExportSchema) {
-	    	try {
-	    		jslet.global.queryExportSchema(Z._exportDataset, Z._dataset);
-			} catch (e) {
-				//Do nothing
+		var queryFn = this._onQuerySchema || jslet.global.exportDialog.onQuerySchema;
+		if(queryFn) {
+			var queryData = queryFn(function(schemaData) {
+				if(!schemaData) {
+					return;
+				}
+				Z._exportDataset.dataList(schemaData);
+			});
+			if(queryData) {
+				Z._exportDataset.dataList(queryData);
 			}
 		} else {
-			console.warn('jslet.global.queryExportSchema NOT set, can not query export schema!');
+			console.warn('Event handler: onQuerySchema NOT set, can not query export schema!');
 		}
 	},
 	
-	_submitSchema: function() {
+	_submitSchema: function(action, changedRecord) {
 		var Z = this;
-		if(jslet.global.submitExportSchema) {
-			jslet.global.submitExportSchema(Z._exportDataset, Z._dataset);
+		var actionFn = Z._onSubmitSchema || jslet.global.exportDialog.onSubmitSchema;
+		if(actionFn) {
+			actionFn(action, changedRecord);
 		} else {
-			console.warn('jslet.global.exportSchemaSubmitUrl NOT set, can not save export schema!');
+			console.warn('Event handler: onSubmitSchema NOT set, can not save export schema!');
 		}
 	},
 	

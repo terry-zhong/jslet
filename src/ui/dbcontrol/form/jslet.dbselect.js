@@ -422,6 +422,7 @@ jslet.ui.DBSelect = jslet.Class.create(jslet.ui.DBFieldControl, {
 
 		Z._skipRefresh = true;
 		try {
+			Z._dataset.editRecord();
 			if (!isMulti) {
 				var fldObj = Z._dataset.getField(Z._field);
 				if (value == '_null_' && !fldObj.required()) {

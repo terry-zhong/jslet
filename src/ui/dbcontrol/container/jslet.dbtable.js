@@ -844,11 +844,11 @@ jslet.ui.AbstractDBTable = jslet.Class.create(jslet.ui.DBControl, {
 			if(Z._editable && Z._dataset.status() != jslet.data.DataSetStatus.BROWSE) {
 				Z._dataset.confirm();
 			}
+            Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
 			var cellEditor = Z.cellEditor();
 			if(cellEditor) {
 				cellEditor.hideEditor();
 			}
-            Z.listvm.setVisibleStartRow(Z.listvm.getVisibleStartRow() + num);
        		event.preventDefault();
         });
 
