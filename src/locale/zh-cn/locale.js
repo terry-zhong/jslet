@@ -255,6 +255,7 @@
 	};
 	
 	locale.ExportDialog = {
+		existedErrorData: '存在错误数据，是否继续导出？',
 		caption: '导出',
 		schemaName: '导出模板',
 		saveSchema: ' 保存 ',
@@ -264,6 +265,7 @@
 		inuputSchemaLabel: '请输入模板名称: ',
 		all: '全部',
 		onlySelected: '仅勾选行',
+		onlyOnce: '主记录仅输出一次',
 		fileName: '文件名：',
 		exportData: ' 导出 ',
 		cancel: ' 取消 ',

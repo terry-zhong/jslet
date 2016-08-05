@@ -610,7 +610,7 @@ jslet.data.LookupValueConverter = jslet.Class.create(jslet.data.FieldValueConver
 		value = this._convertFieldValue(dsLookup, codeFldName, inputText, keyFldName, editFilter);
 		if (value === null) {
 			if(nameFldName !== codeFldName) {
-				value = this._convertFieldValue(dsLookup, nameFldName, inputText, keyFldName);
+				value = this._convertFieldValue(dsLookup, nameFldName, inputText, keyFldName, editFilter);
 			}
 			if (value === null) {
 				var invalidMsg = jslet.formatMessage(jslet.locale.Dataset.valueNotFound, [fldObj.displayLabel()]);

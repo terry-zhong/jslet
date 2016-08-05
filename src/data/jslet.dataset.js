@@ -2018,10 +2018,13 @@ jslet.data.Dataset.prototype = {
 		if(inserted === undefined) {
 			return this.changedStatusByRecno(recno) === jslet.data.DataSetStatus.INSERT;
 		}
+		var recObj = this.getRecord(recno);
 		if(inserted) {
 			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.INSERT);
+			this._changeLog.log(recObj);
 		} else {
 			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.BROWSE);
+			this._changeLog.unlog(recObj);
 		}
 		return this;
 	},
@@ -2038,10 +2041,13 @@ jslet.data.Dataset.prototype = {
 		if(updated === undefined) {
 			return this.changedStatusByRecno(recno) === jslet.data.DataSetStatus.UPDATE;
 		}
+		var recObj = this.getRecord(recno);
 		if(updated) {
 			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.UPDATE);
+			this._changeLog.log(recObj);
 		} else {
 			this.changedStatusByRecno(recno, jslet.data.DataSetStatus.BROWSE);
+			this._changeLog.unlog(recObj);
 		}
 		return this;
 	},

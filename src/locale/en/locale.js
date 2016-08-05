@@ -254,6 +254,7 @@
 	};
 
 	locale.ExportDialog = {
+		existedErrorData: 'Exist error data, continue?',
 		caption: 'Export Dialog',
 		schemaName: 'Export Schema',
 		saveSchema: 'Save',
@@ -263,6 +264,7 @@
 		inuputSchemaLabel: 'Inuput schema name: ',
 		all: 'All',
 		onlySelected: 'Only selected',
+		onlyOnce: 'Export master only once',
 		fileName: 'File Name：',
 		exportData: ' Export ',
 		cancel: ' Cancel ',

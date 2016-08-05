@@ -32,12 +32,32 @@ jslet.ui.ExportDialog.prototype = {
 	 */	
 	show: function(fileName) {
 		var Z = this;
+		Z._dataset.confirm();
+		if(Z._dataset.existDatasetError()) {
+	        jslet.ui.MessageBox.confirm(jslet.locale.ExportDialog.existedErrorData, null, function(button){
+	        	if(button == 'cancel') {
+	        		return;
+	        	}
+	    		return Z._innerShow(fileName);
+	        });
+		} else {
+			return Z._innerShow(fileName);
+		}
+        
+	},
+	
+	_innerShow: function(fileName) {
+		var Z = this;
+		Z._hasDetailDataset = false;
 		Z._refreshFields();
 		var jqEl = jQuery('#' + this._dlgId);
 		var owin = jqEl[0].jslet;
 		fileName = (fileName || Z._dataset.description()) + '.xlsx';
 		var jqExpportFile = jqEl.find('#jltxtExportFile');
 		jqExpportFile.val(fileName);
+		if(Z._hasDetailDataset) {
+			jqEl.find('#jlOnlyOnceDiv').show();
+		}
 		owin.showModal();
 		owin.setZIndex(999);
 		return owin;
@@ -160,11 +180,18 @@ jslet.ui.ExportDialog.prototype = {
 		            jslet.locale.ExportDialog.fileName,
 		            '</span>',
 					'<input id="jltxtExportFile" class="form-control"></input>',
-		            '<span class="input-group-addon"><input id="jlOnlySelected" type="checkbox" aria-label="...">',
-		            '</span>',
-		            '<label class="input-group-addon" for="jlOnlySelected">',
-		            jslet.locale.ExportDialog.onlySelected,
-		            '</label>',
+					'</div>',
+
+					'<div class="checkbox col-sm-6">',
+					'<label>',
+					'<input id="jlOnlySelected" type="checkbox">', jslet.locale.ExportDialog.onlySelected,
+				    '</label>',
+					'</div>',
+
+					'<div class="checkbox col-sm-6" id="jlOnlyOnceDiv" style="display:none">',
+					'<label>',
+					'<input id="jlOnlyOnce" type="checkbox" checked="true">', jslet.locale.ExportDialog.onlyOnce,
+				    '</label>',
 					'</div>',
 
 		            '<div class="form-group form-group-sm jl-expdlg-toolbar" style="margin-bottom:0"><label class="control-label col-sm-6">&nbsp</label>',
@@ -291,8 +318,9 @@ jslet.ui.ExportDialog.prototype = {
 			return false;
 		}
 		var onlySelected = jqEl.find('#jlOnlySelected').prop('checked');
+		var onlyOnce = jqEl.find('#jlOnlyOnce').prop('checked');
 		jslet.data.defaultXPorter.excelXPorter().exportData(Z._dataset, fileName, 
-				{includeFields: fields, onlySelected: onlySelected});
+				{includeFields: fields, onlySelected: onlySelected, onlyOnce: onlyOnce});
 		if(Z._onExported) {
 			Z._onExported.call(Z, Z._dataset);
 		}
@@ -300,6 +328,7 @@ jslet.ui.ExportDialog.prototype = {
 	},
 	
 	_refreshFields: function() {
+		var Z = this;
 		var dataList = [{field: '_all_', label: jslet.locale.ExportDialog.all}];
 		var fieldNames = [];
 		
@@ -313,6 +342,7 @@ jslet.ui.ExportDialog.prototype = {
 				}
 				var detailDs = fldObj.detailDataset();
 				if(detailDs) {
+					Z._hasDetailDataset = true;
 					dataList.push({field: fldName, label: fldObj.label(), parent: parentField || '_all_'});
 					addFields(dataList, fieldNames, detailDs.getNormalFields(), fldName, true);
 					continue;

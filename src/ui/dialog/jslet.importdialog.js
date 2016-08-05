@@ -162,7 +162,7 @@ jslet.ui.ImportDialog.prototype = {
 				{keyField: 'schema', codeField: 'schema', nameField: 'schema', autoRefreshHostDataset: true, auditLogEnabled: false, logChanges: false});
 		
 		this._schemaLkDsName = schemaLKDs.name();
-		var fldCfg = [
+		fldCfg = [
 		              {name: 'schema', type: 'S', length: 100, label: 'Schema', lookup: {dataset: schemaLKDs}}
 		              ];		
 		this._schemaDsName = 'schemaDs' + jslet.nextId();
@@ -171,7 +171,7 @@ jslet.ui.ImportDialog.prototype = {
 			Z._doSchemaChanged(this, fldValue);
 		});
 		
-		var fldCfg = [
+		fldCfg = [
 		    	      {name: 'colNum', type: 'N', length: 10, label: 'Column Num.', visible: false}, 
 		    	      {name: 'colHeader', type: 'S', length: 100, label: 'Column Header', displayWidth: 16}
 		    	    ];
@@ -233,7 +233,6 @@ jslet.ui.ImportDialog.prototype = {
 		            '</button></div></div>',
 		            '</div>'];
 		owin.setContent(html.join(''));
-		var Z = this;
 		owin.onClosed(function () {
 			Z.destroy();
 		});
@@ -290,7 +289,7 @@ jslet.ui.ImportDialog.prototype = {
 		
 		var actionFn = Z._onSubmitSchema || jslet.global.importDialog.onSubmitSchema;
 		if(actionFn) {
-			delete changedRecord['_jl_'];
+			delete changedRecord._jl_;
 			actionFn(action, changedRecord);
 		}
 	},
@@ -380,7 +379,6 @@ jslet.ui.ImportDialog.prototype = {
 		}
 		Z._submitSchema('delete', dsSchemaLk.getRecord());
 		dsSchemaLk.deleteRecord();
-		var dsSchema = jslet.data.getDataset(Z._schemaDsName);
 		dsSchema.setFieldValue('schema', null);
 		dsSchema.confirm();
 	},
@@ -550,6 +548,7 @@ jslet.ui.ImportDialog.prototype = {
 				masterDs = Z._dataset, 
 				parsedData = Z._parsedData,
 				textList = [], textRec, row,
+				fldCnt = fieldMaps.length,
 				importingFn = Z._onImporting;
 			
 			for(var i = 0, len = parsedData.length; i < len; i++) {

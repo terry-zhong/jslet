@@ -86,7 +86,6 @@ jslet.global.importDialog = {
 };
 
 jslet.global.exportDialog = {
-		onQuerySchema: null,
-		onSubmitSchema: null
-}
-
+	onQuerySchema: null,
+	onSubmitSchema: null
+};
